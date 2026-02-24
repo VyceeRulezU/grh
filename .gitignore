@@ -1,0 +1,15 @@
+# Dependencies
+/node_modules
+/node_modules_backup
+
+# Build output
+/dist
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+file_list.txt
+legacy/

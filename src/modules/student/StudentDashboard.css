@@ -1,0 +1,129 @@
+.dash-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px;
+  margin-top: 48px;
+}
+
+.s-course-icon {
+  font-size: 40px;
+  color: var(--secondary);
+}
+
+.certificates-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.cert-card-v2 {
+  padding: 32px;
+  text-align: center;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.cert-icon {
+  font-size: 48px;
+  color: var(--primary);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.cert-card-v2 h4 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.cert-card-v2 p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.achievements-grid-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.achievement-item-v2 {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+}
+
+.achievement-item-v2 i {
+  font-size: 32px;
+  color: var(--primary);
+}
+
+.achievement-item-v2 h4 {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.achievement-item-v2 p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.dash-activity-card {
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.dash-activity-card h4 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.dash-activity-chart {
+  margin: 24px -10px;
+}
+
+.activity-footer {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.dash-cta-card {
+  padding: 32px;
+  background: var(--secondary);
+  color: white;
+  text-align: center;
+}
+
+.dash-cta-card i {
+  font-size: 32px;
+  color: var(--primary);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.dash-cta-card h4 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.dash-cta-card p {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+  .dash-main-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .certificates-grid { grid-template-columns: 1fr; }
+}
