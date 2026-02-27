@@ -305,6 +305,10 @@
   .auth-welcome-title {
     font-size: 2rem;
   }
+
+  .back-to-website-text {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {

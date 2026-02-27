@@ -30,7 +30,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
 
           <button className="back-to-website-btn" onClick={() => onNavigate('welcome')}>
             <span className="material-symbols-outlined">arrow_back</span>
-            Back to Website
+            <span className="back-to-website-text">Back to Website</span>
           </button>
         </div>
 
