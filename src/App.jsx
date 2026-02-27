@@ -12,6 +12,9 @@ import Footer from './components/layout/Footer'
 import AdminDashboard from './modules/admin/AdminDashboard'
 import CoursePlayer from './modules/learn/CoursePlayer'
 import AuthModal from './components/modals/AuthModal'
+import LoginPage from './modules/auth/LoginPage'
+import SignupPage from './modules/auth/SignupPage'
+import AdminLoginPage from './modules/auth/AdminLoginPage'
 import './App.css'
 
 function App() {
@@ -21,8 +24,11 @@ function App() {
   const [authType, setAuthType] = useState('login');
 
   const openAuth = (type = 'login') => {
-    setAuthType(type);
-    setShowAuth(true);
+    if (type === 'admin') {
+      navigate('admin-login');
+    } else {
+      navigate(type);
+    }
   };
 
   const navigate = (page) => {
@@ -41,13 +47,15 @@ function App() {
 
   return (
     <div className="app-container">
-      <Navbar 
-        onNavigate={navigate} 
-        currentPage={currentPage} 
-        user={user} 
-        onAuthClick={openAuth}
-        onLogout={handleLogout}
-      />
+      {(currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login') && (
+        <Navbar 
+          onNavigate={navigate} 
+          currentPage={currentPage} 
+          user={user} 
+          onAuthClick={openAuth}
+          onLogout={handleLogout}
+        />
+      )}
       
       <main className="main-content">
         {currentPage === 'welcome' && (
@@ -66,9 +74,12 @@ function App() {
         {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
         {currentPage === 'admin' && <AdminDashboard onNavigate={navigate} />}
         {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} />}
+        {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
+        {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
+        {currentPage === 'admin-login' && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
       </main>
 
-      {(currentPage !== 'explore' && currentPage !== 'learn-player') && <Footer onNavigate={navigate} />}
+      {(currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login') && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 
