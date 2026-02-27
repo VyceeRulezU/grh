@@ -1,76 +1,103 @@
 import React from 'react';
-import Button from '../../components/ui/Button';
 import './WelcomeGateway.css';
 
-import LogoV2 from '../../assets/images/Logo/GRH-v2.png';
-
 const SECTIONS_DATA = [
-  { id: "learn", title: "Learn", tagline: "E-Learning Platform", description: "Access comprehensive governance courses, interactive lessons, quizzes, and earn certificates.", color: "#4DA771", lightColor: "#e8f5ee", icon: "ri-book-open-line" },
-  { id: "research", title: "Research", tagline: "Digital E-Library", description: "Explore a curated collection of governance books, articles, white papers and research publications.", color: "#023137", lightColor: "#e6f0f2", icon: "ri-book-3-line" },
-  { id: "explore", title: "Explore", tagline: "AI Research Assistant", description: "Chat with an AI assistant trained on governance resources. Ask questions, explore insights.", color: "#4DA771", lightColor: "#e8f5ee", icon: "ri-robot-2-line" },
-  { id: "assess", title: "Assess", tagline: "Governance Assessment", description: "Evaluate governance frameworks, run diagnostic assessments and access improvement roadmaps.", color: "#023137", lightColor: "#e6f0f2", icon: "ri-clipboard-line" },
-  { id: "analyse", title: "Analyse", tagline: "Analytics & Insights", description: "Deep-dive into governance data, visualize trends, benchmark and generate strategic reports.", color: "#4DA771", lightColor: "#e8f5ee", icon: "ri-bar-chart-2-line" },
+  {
+    id: 'learn',
+    title: 'Learn',
+    emoji: '📚',
+    img: '/assets/learn-img.svg',
+    summary: 'Explore essential courses to enhance your understanding of Governance concepts and processes.',
+    hasStroke: false
+  },
+  {
+    id: 'research',
+    title: 'Research',
+    emoji: '🔍',
+    img: '/assets/research-img.svg',
+    summary: 'Access a vast e-library with over 200 years of Governance intervention sources in Nigeria',
+    hasStroke: true
+  },
+  {
+    id: 'explore',
+    title: 'Explore',
+    emoji: '🚀',
+    img: '/assets/explore-img.svg',
+    summary: 'Use AI for research to enhance efficiency and tailor content to your needs.',
+    hasStroke: false
+  },
+  {
+    id: 'assess',
+    title: 'Assess',
+    emoji: '📊',
+    img: '/assets/assess-img.svg',
+    summary: 'Assess state Government performance to determine reform improvement areas.',
+    hasStroke: true
+  },
+  {
+    id: 'analyse',
+    title: 'Analyse',
+    emoji: '📉',
+    img: '/assets/analyse-img.svg',
+    summary: 'Centralized financial database to ensure availability of data for fiscal analysis.',
+    hasStroke: false
+  }
 ];
 
-const WelcomeGateway = ({ onNavigate, onAuthClick }) => {
+const WelcomeGateway = ({ onNavigate }) => {
   return (
-    <div className="welcome">
-      <div className="welcome-bg">
-        <div className="bg-blob bg-blob-1" />
-        <div className="bg-blob bg-blob-2" />
-        <div className="bg-grid" />
-      </div>
-      
-      <header className="welcome-header">
-        <div className="welcome-logo" onClick={() => onNavigate('welcome')}>
-          <img src={LogoV2} alt="GRH Logo" style={{ height: '32px' }} />
+    <div className="welcome-container">
+      <div className="hero-section">
+        <div className="pattern">
+          <img src="/assets/hero-vector.svg" alt="hero background" />
         </div>
-        <div className="welcome-header-actions">
-          <Button variant="primary" size="sm" onClick={() => onAuthClick('login')}>Sign In / Sign Up</Button>
-        </div>
-      </header>
 
-      <main className="welcome-hero">
-        <div className="hero-badge">
-          <span className="hero-badge-dot" />
-          Your Governance Intelligence Platform
-        </div>
-        <h1 className="hero-title">
-          Everything you need for
-          <span className="hero-title-accent"> Governance Excellence</span>
-        </h1>
-        <p className="hero-subtitle">
-          One unified platform for learning, research, AI-powered insights, and governance analysis.
-        </p>
-      </main>
-
-      <div className="welcome-cards">
-        {SECTIONS_DATA.map((s, i) => (
-          <button 
-            key={s.id} 
-            className="welcome-card animate-up" 
-            style={{ animationDelay: `${i * 0.08}s` }} 
-            onClick={() => onNavigate(s.id)}
-          >
-            <div className="welcome-card-inner">
-              <div className="card-icon-wrap" style={{ background: s.lightColor }}>
-                <i className={`${s.icon} card-icon`} style={{ color: s.color }}></i>
-              </div>
-              <div className="card-content">
-                <div className="card-tag" style={{ color: s.color, background: s.lightColor }}>
-                  {s.tagline}
+        <div className="title-container">
+          <div className="section-container">
+            <div className="hero-header">
+              <div className="hero-chip">
+                <div className="dot">
+                  <img src="/assets/color-dots-[1.0].svg" alt="dot" />
                 </div>
-                <h2 className="card-title">{s.title}</h2>
-                <p className="card-desc">{s.description}</p>
+                <p className="chip-text">Your Governance intelligence Platform</p>
               </div>
-            </div>
-          </button>
-        ))}
-      </div>
 
-      <footer className="welcome-footer">
-        © 2025 Governance Resource Hub. Empowering governance excellence.
-      </footer>
+              <h1 className="header-text">
+                Everything you need for <br /> 
+                <span className="green-text">Governance Excellence</span>
+              </h1>
+            </div>
+
+            <p className="hero-summary">
+              One unified platform for Learning, Research, AI Powered Insights and Governance Analytics
+            </p>
+          </div>
+        </div>
+
+        <div className="platform-card-wrapper">
+          <div className="card-wrapper">
+            {SECTIONS_DATA.map((section) => (
+              <div 
+                key={section.id} 
+                className={`platform-card ${section.hasStroke ? 'has-stroke' : ''}`}
+                onClick={() => onNavigate(section.id)}
+              >
+                <div className="card-title">
+                  <div className="card-img">
+                    <img src={section.img} alt={section.title} />
+                  </div>
+                  <p className="card-summary">{section.summary}</p>
+                </div>
+
+                <div className="card-link-wrapper">
+                  <span className="card-link-text">{section.title}</span>
+                  <span className="material-symbols-outlined arrow-icon">arrow_outward</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

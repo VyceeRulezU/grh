@@ -1,146 +1,192 @@
 import React, { useState } from 'react';
+import { RESOURCES } from '../../data/legacyData';
 import './Library.css';
-import Button from '../../components/ui/Button';
-
-const RESOURCES = [
-  { id: 1, title: "Public Financial Management Framework", type: "Report", category: "Finance", author: "World Bank", year: 2023, pages: 124, icon: "ri-file-text-line" },
-  { id: 2, title: "UNCAC Implementation Guide", type: "Book", category: "Integrity", author: "United Nations", year: 2022, pages: 310, icon: "ri-book-3-line" },
-  { id: 3, title: "Principles of Good Governance", type: "Article", category: "Governance", author: "OECD", year: 2024, pages: 12, icon: "ri-article-line" },
-  { id: 4, title: "Digital Governance Roadmap", type: "Report", category: "Digital", author: "GovHub Research", year: 2024, pages: 85, icon: "ri-computer-line" },
-  { id: 5, title: "Anti-Corruption Scoping Study", type: "Report", category: "Integrity", author: "Transparency Int.", year: 2023, pages: 45, icon: "ri-shield-line" },
-  { id: 6, title: "Electoral Integrity Handbook", type: "Book", category: "Democracy", author: "Global Policy Inst.", year: 2021, pages: 215, icon: "ri-input-method-line" },
-];
 
 const Library = () => {
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("All");
-  const [selectedResource, setSelectedResource] = useState(null);
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedCats, setSelectedCats] = useState([]);
+  const [viewMode, setViewMode] = useState("grid");
+  const [readingResource, setReadingResource] = useState(null);
 
-  const filtered = RESOURCES.filter(r => 
-    (filterType === "All" || r.type === filterType) &&
-    (r.title.toLowerCase().includes(search.toLowerCase()) || r.author.toLowerCase().includes(search.toLowerCase()))
-  );
+  const toggleType = (t) => {
+    setSelectedTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  };
 
-  return (
-    <div className="library-v2">
-      {selectedResource && (
-        <div className="library-reader-modal glass">
-          <div className="reader-content-v2 animate-up">
-            <header className="reader-header-v2">
-              <div className="reader-info">
-                <h3>{selectedResource.title}</h3>
-                <span>{selectedResource.author} · {selectedResource.year}</span>
-              </div>
-              <button className="reader-close" onClick={() => setSelectedResource(null)}><i className="ri-close-line"></i></button>
-            </header>
-            <div className="reader-viewport">
-              <div className="doc-overlay">
-                <i className={`${selectedResource.icon} large-doc-icon`}></i>
-                <p>Viewing Page 1 of {selectedResource.pages}</p>
-                <div className="dummy-page-content">
-                  <div className="skeleton-line"></div>
-                  <div className="skeleton-line" style={{ width: '80%' }}></div>
-                  <div className="skeleton-line"></div>
-                  <div className="skeleton-line" style={{ width: '60%' }}></div>
+  const toggleCat = (c) => {
+    setSelectedCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  };
+
+  const filtered = RESOURCES.filter(r => {
+    const ms = r.title.toLowerCase().includes(search.toLowerCase()) || 
+               r.description.toLowerCase().includes(search.toLowerCase());
+    const mt = selectedTypes.length === 0 || selectedTypes.includes(r.type);
+    const mc = selectedCats.length === 0 || selectedCats.includes(r.category);
+    return ms && mt && mc;
+  });
+
+  if (readingResource) {
+    return (
+      <div className="pdf-reader">
+        <div className="pdf-topbar">
+          <button className="back-btn" onClick={() => setReadingResource(null)}>← Back to Library</button>
+          <div className="pdf-title">
+            <strong>{readingResource.title}</strong>
+            <span>{readingResource.author} ({readingResource.year})</span>
+          </div>
+          <div className="pdf-controls">
+            <button disabled>➖</button>
+            <span>100%</span>
+            <button disabled>➕</button>
+            <button className="btn-primary btn-sm">Download PDF</button>
+          </div>
+        </div>
+        <div className="pdf-viewer">
+          <div className="pdf-page">
+            <div className="pdf-header-mark">
+              <span>GOVHUB RESEARCH LIBRARY</span>
+              <span>{readingResource.type.toUpperCase()}</span>
+            </div>
+            <div className="pdf-content">
+              <h2>{readingResource.title}</h2>
+              <p className="pdf-author">Author: {readingResource.author}</p>
+              <div style={{marginTop: 40}}>
+                <h3>Abstract</h3>
+                <p>{readingResource.description}</p>
+                <div style={{marginTop: 40, height: 400, background: '#f7f9f8', border: '1px dashed #ccc', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888'}}>
+                   PDF Content Rendering Placeholder
                 </div>
               </div>
             </div>
-            <footer className="reader-footer-v2">
-              <div className="reader-controls">
-                <Button variant="outline" size="sm">Previous</Button>
-                <span>Page 1 / {selectedResource.pages}</span>
-                <Button variant="outline" size="sm">Next</Button>
-              </div>
-              <Button variant="primary" size="sm"><i className="ri-download-line"></i> Download PDF</Button>
-            </footer>
+            <div className="pdf-footer-mark">
+              <span>© {readingResource.year} Governance Resource Hub</span>
+              <span>Page 1 of {readingResource.pages}</span>
+            </div>
           </div>
         </div>
-      )}
-      <header className="library-hero-v2">
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-wrapper research-page">
+      <div className="research-hero">
         <div className="container">
-          <span className="hero-tag-v2">Digital E-Library</span>
-          <h1>Governance Research Hub <span className="text-gradient">Library</span></h1>
-          <p>Explore a curated collection of governance frameworks, reports, and academic resources.</p>
-          
-          <div className="search-box-v2 glass">
+          <div className="section-label" style={{background: 'rgba(255,255,255,0.1)', color: 'white'}}>📖 Digital E-Library</div>
+          <h1 className="section-title text-white">Curated Governance Knowledge</h1>
+          <p className="hero-subline">Explore {RESOURCES.length}+ professional resources, journals and policy frameworks.</p>
+          <div className="learn-hero-search">
             <span className="search-icon">🔍</span>
             <input 
-              type="text" 
               placeholder="Search by title, author, or keyword..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
             />
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="container library-content-v2 section-padding">
-        <div className="library-layout-v2">
-          <aside className="library-filters-v2">
-            <h3>Filters</h3>
-            <div className="filter-group-v2">
-              <label>Resource Type</label>
-              {["All", "Book", "Report", "Article"].map(type => (
-                <button 
-                  key={type} 
-                  className={`filter-btn-v2 ${filterType === type ? 'active' : ''}`}
-                  onClick={() => setFilterType(type)}
-                >
-                  {type}
-                </button>
+      <div className="container research-content">
+        <div className="research-layout">
+          <aside className="filter-sidebar">
+            <div className="sidebar-title">
+              <h3>Filters</h3>
+              {(selectedTypes.length > 0 || selectedCats.length > 0) && (
+                <button className="clear-btn" onClick={() => {setSelectedTypes([]); setSelectedCats([]);}}>Clear All</button>
+              )}
+            </div>
+
+            <div className="filter-group">
+              <div className="filter-group-title">RESOURCE TYPE</div>
+              {["Book", "Report", "Article"].map(t => (
+                <label key={t} className="filter-check">
+                  <input type="checkbox" checked={selectedTypes.includes(t)} onChange={() => toggleType(t)} />
+                  <span>{t}</span>
+                  <span className="filter-count">{RESOURCES.filter(r => r.type === t).length}</span>
+                </label>
               ))}
             </div>
-            
-            <div className="filter-group-v2">
-              <label>Categories</label>
-              {["Governance", "Finance", "Integrity", "Democracy", "Digital"].map(cat => (
-                <div key={cat} className="filter-checkbox-v2">
-                  <input type="checkbox" id={cat} />
-                  <label htmlFor={cat}>{cat}</label>
-                </div>
+
+            <div className="filter-group">
+              <div className="filter-group-title">CATEGORIES</div>
+              {["Finance", "Integrity", "Governance", "Democracy", "Transparency", "Digital"].map(c => (
+                <label key={c} className="filter-check">
+                  <input type="checkbox" checked={selectedCats.includes(c)} onChange={() => toggleCat(c)} />
+                  <span>{c}</span>
+                  <span className="filter-count">{RESOURCES.filter(r => r.category === c).length}</span>
+                </label>
               ))}
             </div>
           </aside>
 
-          <div className="library-results-v2">
-            <div className="results-info-v2">
-              <span>Showing {filtered.length} resources</span>
-              <div className="view-mode-v2">
-                <button className="active">Grid</button>
-                <button>List</button>
+          <div className="research-results">
+            <div className="results-header">
+              <span className="results-count-text">Found {filtered.length} resources</span>
+              <div className="view-toggle">
+                <button className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')}>⊞</button>
+                <button className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>≡</button>
               </div>
             </div>
 
-            <div className="resources-grid-v2">
-              {filtered.map(r => (
-                <div key={r.id} className="resource-card-v2 subtle-shadow animate-in">
-                  <div className="resource-thumb-v2">
-                    <i className={`${r.icon} resource-icon-v2`}></i>
-                    <span className="resource-type-v2">{r.type}</span>
-                  </div>
-                  <div className="resource-body-v2">
-                    <span className="resource-cat-v2">{r.category}</span>
-                    <h3>{r.title}</h3>
-                    <p className="resource-meta-v2">{r.author} · {r.year}</p>
-                    <div className="resource-actions-v2">
-                      <Button variant="primary" size="sm" fullWidth onClick={() => setSelectedResource(r)}>Read Online</Button>
-                      <Button variant="outline" size="sm"><i className="ri-download-line"></i></Button>
+            <div className={viewMode === 'grid' ? 'resources-grid' : 'resources-list'}>
+              {filtered.map((res, i) => (
+                viewMode === 'grid' ? (
+                  <div key={res.id} className="resource-card animate-up" style={{animationDelay: `${i*0.05}s`}} onClick={() => setReadingResource(res)}>
+                    <div className="resource-cover" style={{background: i%2===0 ? '#e6f0f2' : '#f0f9f4'}}>
+                      <span className="resource-type-icon">{res.type === 'Book' ? '📕' : res.type === 'Report' ? '📄' : '📝'}</span>
+                      {res.featured && <span className="featured-badge">FEATURED</span>}
+                    </div>
+                    <div className="resource-body">
+                      <div className="resource-meta-top">
+                        <span className="tag">{res.category}</span>
+                        <span className="resource-year">{res.year}</span>
+                      </div>
+                      <h3 className="resource-title">{res.title}</h3>
+                      <p className="resource-desc">{res.description}</p>
+                      <div className="resource-footer">
+                        <span className="resource-author">{res.author}</span>
+                      </div>
+                      <div className="resource-actions">
+                        <button className="btn-primary btn-sm" style={{flex: 1}}>Read Now</button>
+                        <button className="action-btn">↓</button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div key={res.id} className="resource-list-item animate-up" style={{animationDelay: `${i*0.05}s`}} onClick={() => setReadingResource(res)}>
+                    <div className="list-icon" style={{background: i%2===0 ? '#e6f0f2' : '#f0f9f4'}}>
+                      {res.type === 'Book' ? '📕' : res.type === 'Report' ? '📄' : '📝'}
+                    </div>
+                    <div className="list-info">
+                      <h3>{res.title}</h3>
+                      <p>{res.description}</p>
+                      <div className="resource-tags" style={{marginTop: 8}}>
+                        <span className="tag">{res.category}</span>
+                        <span className="tag">{res.type}</span>
+                        <span className="resource-year">{res.year} · {res.pages} pages</span>
+                      </div>
+                    </div>
+                    <div className="list-meta">
+                      <span className="resource-author">{res.author}</span>
+                      <div className="list-actions">
+                        <button className="btn-primary btn-sm">Read</button>
+                      </div>
+                    </div>
+                  </div>
+                )
               ))}
             </div>
-            
+
             {filtered.length === 0 && (
-              <div className="empty-state-v2">
-                <i className="ri-search-eye-line empty-icon-v2"></i>
-                <h3>No resources found</h3>
-                <p>Try adjusting your filters or search terms.</p>
+              <div className="empty-state">
+                <span className="empty-icon">📂</span>
+                <h3>No matching resources</h3>
+                <p>Try different filters or keywords.</p>
               </div>
             )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

@@ -1,175 +1,153 @@
-import React from 'react';
-import Button from '../../components/ui/Button';
+import React, { useState } from 'react';
+import { COURSES } from '../../data/legacyData';
 import './LearnLandingPage.css';
 
-const COURSES = [
-  { id: 1, title: "Foundations of Public Governance", category: "Governance", price: "Free", rating: 4.8, students: 1240, author: "Dr. Sarah Chen", icon: "ri-government-line" },
-  { id: 2, title: "Public Financial Management", category: "Finance", price: "₦49,990", rating: 4.9, students: 850, author: "Marcus Thorne", icon: "ri-bank-card-line" },
-  { id: 3, title: "Anti-Corruption & Integrity", category: "Ethics", price: "Free", rating: 4.7, students: 2100, author: "Elena Rossi", icon: "ri-scales-3-line" },
-  { id: 4, title: "Electoral Systems & Democracy", category: "Policy", price: "₦29,990", rating: 4.6, students: 640, author: "Prof. John Doe", icon: "ri-input-method-line" },
-  { id: 5, title: "Decentralisation Strategies", category: "Management", price: "Free", rating: 4.5, students: 920, author: "Amara Okoro", icon: "ri-node-tree" },
-  { id: 6, title: "Public Policy Analysis 101", category: "Policy", price: "₦39,990", rating: 4.8, students: 1100, author: "Dr. Kevin Park", icon: "ri-pie-chart-line" },
-];
+const LearnLandingPage = ({ onNavigate, user }) => {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [level, setLevel] = useState("All Levels");
+  const [activeTab, setActiveTab] = useState("all");
 
-const CATEGORIES = [
-  { name: "Public Policy", count: 12, icon: "ri-file-list-3-line" },
-  { name: "Public Finance", count: 8, icon: "ri-money-dollar-box-line" },
-  { name: "Ethics & Integrity", count: 15, icon: "ri-shield-star-line" },
-  { name: "Leadership", count: 10, icon: "ri-focus-3-line" },
-  { name: "Digital Gov", count: 6, icon: "ri-computer-line" },
-];
+  const filtered = COURSES.filter(c => {
+    const ms = c.title.toLowerCase().includes(search.toLowerCase()) || 
+               c.description.toLowerCase().includes(search.toLowerCase());
+    const mc = category === "All" || c.category === category;
+    const ml = level === "All Levels" || c.level === level;
+    const mt = activeTab === "all" || 
+               (activeTab === "trending" && c.trending) || 
+               (activeTab === "featured" && c.featured) || 
+               (activeTab === "inprogress" && c.progress > 0);
+    return ms && mc && ml && mt;
+  });
 
-const LearnLandingPage = ({ onNavigate }) => {
   return (
-    <div className="learn-v2">
-      {/* Hero Section */}
-      <section className="learn-hero-v2">
-        <div className="container hero-v2-grid">
-          <div className="hero-v2-text">
-            <span className="hero-v2-tag">Transform Your Career</span>
-            <h1>Expert-Led Governance <span className="text-gradient">E-Learning</span></h1>
-            <p>Access high-quality courses designed by global governance practitioners. Learn at your own pace and earn internationally recognized certificates.</p>
-            <div className="hero-v2-actions">
-              <Button size="lg" onClick={() => onNavigate('learn-discovery')}>Browse All Courses</Button>
-              <Button variant="outline" size="lg">How It Works</Button>
-            </div>
-            <div className="hero-v2-stats">
-              <div className="stat-item"><strong>25k+</strong><span>Students</span></div>
-              <div className="stat-item"><strong>150+</strong><span>Courses</span></div>
-              <div className="stat-item"><strong>4.9/5</strong><span>Rating</span></div>
-            </div>
-          </div>
-          <div className="hero-v2-visual">
-            <div className="hero-blob" />
-            <div className="hero-card-floating card-1 subtle-shadow">
-              <i className="ri-award-line emoji-large" style={{ color: 'var(--primary)' }}></i>
-              <div>
-                <strong>Certified Learning</strong>
-                <p>Industry-standard certs</p>
+    <div className="page-wrapper learn-page">
+      <div className="learn-hero">
+        <div className="container">
+          <div className="learn-hero-inner">
+            <div>
+              <div className="section-label">📚 E-Learning Platform</div>
+              <h1 className="section-title text-white">Advance your governance expertise today</h1>
+              <p className="hero-subline">
+                {COURSES.length} expert-led courses. Learn at your own pace, earn verifiable certificates.
+              </p>
+              <div className="learn-hero-search">
+                <span className="search-icon">🔍</span>
+                <input 
+                  placeholder="Search courses, topics, instructors..." 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                />
               </div>
             </div>
-            <div className="hero-card-floating card-2 subtle-shadow">
-              <i className="ri-global-line emoji-large" style={{ color: 'var(--secondary)' }}></i>
-              <div>
-                <strong>Global Experts</strong>
-                <p>Learn from the best</p>
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <span className="stat-number">12K+</span>
+                <span className="stat-label">Learners</span>
+              </div>
+              <div className="hero-stat">
+                <span className="stat-number">50+</span>
+                <span className="stat-label">Courses</span>
+              </div>
+              <div className="hero-stat">
+                <span className="stat-number">95%</span>
+                <span className="stat-label">Completion</span>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Advanced CTA Section */}
-      <section className="learn-cta section-padding container">
-        <div className="cta-box-v2 glass subtle-shadow animate-in">
-          <div className="cta-content-v2">
-            <div className="apple-label">Institutional Partnership</div>
-            <h2 className="cta-title">Transform your workforce <br />with Governance training.</h2>
-            <p className="cta-subtitle">Empower your team with expert-led training modules, industry certifications, and a private learning portal tailored for your institution.</p>
-            <div className="cta-stats-row-v2">
-              <div className="cta-stat-v2"><strong>500+</strong> <span>Students Graduated</span></div>
-              <div className="cta-stat-v2"><strong>24/7</strong> <span>Expert Mentorship</span></div>
-              <div className="cta-stat-v2"><strong>100%</strong> <span>Online & Flexible</span></div>
-            </div>
-            <Button size="lg" variant="primary">Become a Partner</Button>
-          </div>
-          <div className="cta-visual-v2">
-             <i className="ri-community-line cta-bg-icon"></i>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="learn-categories container">
-        <div className="section-head-v2">
-          <h2>Top Categories</h2>
-          <p>Explore courses by specialized governance areas</p>
-        </div>
-        <div className="categories-grid-v2">
-          {CATEGORIES.map(cat => (
-            <div key={cat.name} className="category-card-v2 animate-in">
-              <i className={`${cat.icon} cat-icon-v2`}></i>
-              <h3>{cat.name}</h3>
-              <p>{cat.count} Courses</p>
-            </div>
+      <div className="container learn-content">
+        <div className="tabs">
+          {[
+            {id:"all",l:"All Courses"},
+            {id:"trending",l:"🔥 Trending"},
+            {id:"featured",l:"⭐ Featured"},
+            {id:"inprogress",l:"▶ In Progress"}
+          ].map(t => (
+            <button 
+              key={t.id} 
+              className={`tab-btn ${activeTab === t.id ? "active" : ""}`} 
+              onClick={() => setActiveTab(t.id)}
+            >
+              {t.l}
+            </button>
           ))}
         </div>
-      </section>
 
-      {/* Courses Grid */}
-      <section className="learn-courses-v2 container" id="courses">
-        <div className="section-head-v2-row">
-          <div>
-            <h2>Popular Courses</h2>
-            <p>Our most enrolled governance programmes</p>
-          </div>
-          <Button variant="ghost" onClick={() => onNavigate('learn-discovery')}>View All Courses →</Button>
+        <div className="filter-row">
+          <select className="select-field" value={category} onChange={e => setCategory(e.target.value)}>
+            {[
+              "All", "Governance Basics", "Corporate", "Finance", 
+              "Integrity", "Democracy", "Digital"
+            ].map(c => <option key={c}>{c}</option>)}
+          </select>
+          <select className="select-field" value={level} onChange={e => setLevel(e.target.value)}>
+            {["All Levels", "Beginner", "Intermediate", "Advanced"].map(l => <option key={l}>{l}</option>)}
+          </select>
+          <span className="results-count">{filtered.length} courses</span>
         </div>
-        <div className="courses-grid-v2">
-          {COURSES.map(course => (
-            <div key={course.id} className="course-card-v2 subtle-shadow">
-              <div className="course-thumb-v2">
-                <i className={`${course.icon} disc-emoji-icon`}></i>
-                <span className="course-badge-v2">{course.category}</span>
+
+        <div className="courses-grid">
+          {filtered.map((course, i) => (
+            <div 
+              key={course.id} 
+              className="course-card animate-up" 
+              style={{ animationDelay: `${i * 0.06}s` }} 
+              onClick={() => onNavigate("learn-player", course)}
+            >
+              <div className="course-thumb">
+                <span className="course-emoji">{course.thumbnail}</span>
+                {course.trending && <span className="course-badge badge-yellow">🔥 Trending</span>}
+                {course.featured && !course.trending && <span className="course-badge badge-green">⭐ Featured</span>}
               </div>
-              <div className="course-body-v2">
-                <div className="course-meta-v2">
-                  <span className="course-author-v2">By {course.author}</span>
-                  <span className="course-rating-v2">⭐ {course.rating}</span>
+              <div className="course-body">
+                <div className="course-meta-top">
+                  <span className="badge badge-green">{course.category}</span>
+                  <span className="badge badge-gray">{course.level}</span>
                 </div>
-                <h3>{course.title}</h3>
-                <div className="course-footer-v2">
-                  <div className="course-info-v2">
-                    <span>👥 {course.students} students</span>
-                    <span className="course-price-v2">{course.price}</span>
+                <h3 className="course-title">{course.title}</h3>
+                <p className="course-desc">{course.description}</p>
+                <p className="course-instructor">By {course.instructor}</p>
+                {course.progress > 0 && (
+                  <div className="course-progress">
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${course.progress}%` }} />
+                    </div>
+                    <span>{course.progress}% complete</span>
                   </div>
-                  <Button variant="outline" size="sm" fullWidth onClick={() => onNavigate('learn-discovery')}>Enrol Now</Button>
+                )}
+                <div className="course-footer">
+                  <div className="course-rating">
+                    <span className="stars">{"★".repeat(Math.floor(course.rating))}</span>
+                    <span className="rating-num">{course.rating}</span>
+                    <span className="rating-count">({course.students.toLocaleString()})</span>
+                  </div>
+                  <div className="course-info">
+                    <span>⏱ {course.duration}</span>
+                    <span>📖 {course.sections?.length || 0} sections</span>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      </section>
 
-      {/* Advanced CTA Section */}
-      <section className="learn-cta-v2 container">
-        <div className="cta-v2-box section-padding glass">
-          <div className="cta-v2-content">
-            <span className="apple-label">Institutional Training</span>
-            <h2>Empower your institution with<br />bespoke learning solutions.</h2>
-            <p>We provide tailored e-learning infrastructure for government agencies, NGOs, and corporate governance bodies. Scale your impact with our white-label solutions.</p>
-            
-            <div className="cta-v2-features">
-              <div className="cta-v2-feat">
-                <i className="ri-dashboard-3-line"></i>
-                <span>Dedicated Admin Portal</span>
-              </div>
-              <div className="cta-v2-feat">
-                <i className="ri-pie-chart-line"></i>
-                <span>Progress Analytics</span>
-              </div>
-              <div className="cta-v2-feat">
-                <i className="ri-team-line"></i>
-                <span>Bulk Enrollments</span>
-              </div>
-            </div>
+        {filtered.length === 0 && (
+          <div className="empty-state">
+            <span className="empty-icon">🔍</span>
+            <h3>No courses found</h3>
+            <p>Try adjusting your filters.</p>
+          </div>
+        )}
 
-            <div className="cta-v2-buttons">
-              <Button size="lg" variant="primary">Request Institutional Demo</Button>
-              <Button variant="outline" size="lg">Contact Global Sales</Button>
-            </div>
-          </div>
-          <div className="cta-v2-image">
-            <div className="cta-stats-badge glass">
-              <div className="badge-icon"><i className="ri-shake-hands-line"></i></div>
-              <div className="badge-text">
-                <strong>500+ Institutions</strong>
-                <span>Trust GRH Globally</span>
-              </div>
-            </div>
-          </div>
+        <div className="more-courses-btn">
+          <button className="btn-outline-large" onClick={() => onNavigate('learn-discovery')}>
+            Explore More Courses →
+          </button>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

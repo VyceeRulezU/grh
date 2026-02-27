@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './Navbar.css';
-import LogoV2 from '../../assets/images/Logo/GRH-v2.png';
-import Button from '../ui/Button';
+import SpecialButton from '../ui/SpecialButton';
 
 const Navbar = ({ onNavigate, currentPage, onAuthClick }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -20,17 +19,17 @@ const Navbar = ({ onNavigate, currentPage, onAuthClick }) => {
   };
 
   return (
-    <nav className="navbar-container">
-      <div className="navbar-floating">
-        <div className="navbar-logo" onClick={() => handleNavigate('welcome')}>
-          <img src={LogoV2} alt="GRH Logo" />
+    <div className="web-nav">
+      <div className="nav-container">
+        <div className="logo" onClick={() => handleNavigate('welcome')}>
+          <img src="/assets/grh-logo-v2.svg" alt="Logo" />
         </div>
 
-        <div className={`navbar-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+        <div className={`nav-link-wrapper ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           {navLinks.map((link) => (
             <button
               key={link.id}
-              className={`nav-link-btn ${currentPage === link.id ? 'active' : ''}`}
+              className={`nav-link ${currentPage === link.id ? 'active' : ''}`}
               onClick={() => handleNavigate(link.id)}
             >
               {link.name}
@@ -38,15 +37,20 @@ const Navbar = ({ onNavigate, currentPage, onAuthClick }) => {
           ))}
         </div>
 
-        <div className="navbar-auth">
-          <button className="nav-auth-btn btn-login" onClick={() => onAuthClick('login')}>Login</button>
-          <Button variant="primary" size="sm" className="btn-signup" onClick={() => onAuthClick('signup')}>Sign Up</Button>
+        <div className="nav-button-wrapper">
+          <button className="login-link" onClick={() => onAuthClick('login')}>Log in</button>
+
+          <SpecialButton onClick={() => onAuthClick('signup')}>
+            Sign up
+            <span className="material-symbols-outlined">arrow_outward</span>
+          </SpecialButton>
+
           <button className="mobile-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? '✕' : '☰'}
+            {isMobileMenuOpen ? <i className="ri-close-line"></i> : <i className="ri-menu-line"></i>}
           </button>
         </div>
       </div>
-    </nav>
+    </div>
   );
 };
 

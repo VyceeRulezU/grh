@@ -1,0 +1,29 @@
+.special-button {
+  display: flex;
+  padding: 0.625rem 1.5rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 6rem;
+  border: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 100%), var(--primary);
+  box-shadow: 0 2px 4px rgba(77, 161, 110, 0.3);
+  transition: var(--transition);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  width: fit-content;
+}
+
+.special-button:hover {
+  background: var(--secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(2, 49, 55, 0.4);
+}
+
+.special-button .material-symbols-outlined {
+  font-size: 1.1rem;
+  margin-bottom: -0.5rem;
+}

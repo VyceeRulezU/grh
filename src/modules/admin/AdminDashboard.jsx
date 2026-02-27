@@ -18,6 +18,27 @@ const AdminDashboard = ({ onNavigate }) => {
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPass, setAdminPass] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newCourse, setNewCourse] = useState({
+    title: '',
+    category: 'Governance',
+    price: '',
+    instructor: '',
+    description: '',
+    modules: [{ title: '', videoLink: '' }]
+  });
+
+  const addModule = () => {
+    setNewCourse({
+      ...newCourse,
+      modules: [...newCourse.modules, { title: '', videoLink: '' }]
+    });
+  };
+
+  const updateModule = (index, field, value) => {
+    const updatedModules = [...newCourse.modules];
+    updatedModules[index][field] = value;
+    setNewCourse({ ...newCourse, modules: updatedModules });
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -196,30 +217,102 @@ const AdminDashboard = ({ onNavigate }) => {
       </div>
 
       {showCreateModal && (
-        <div className="admin-modal-overlay glass">
-           <div className="admin-modal animate-up">
+        <div className="admin-modal-overlay">
+           <div className="admin-modal admin-modal-lg animate-up">
               <header className="modal-header">
                  <h3>Construct New Course</h3>
-                 <button onClick={() => setShowCreateModal(false)}>✕</button>
+                 <button className="close-btn" onClick={() => setShowCreateModal(false)}>✕</button>
               </header>
-              <form className="admin-form" onSubmit={(e) => { e.preventDefault(); setShowCreateModal(false); }}>
-                 <div className="form-group">
-                    <label>Course Title</label>
-                    <input type="text" placeholder="e.g., Advanced Policy Analysis" required />
+              <form className="admin-form-scroll" onSubmit={(e) => { e.preventDefault(); setShowCreateModal(false); }}>
+                 <div className="form-row">
+                    <div className="form-group flex-2">
+                       <label>Course Title</label>
+                       <input 
+                         type="text" 
+                         placeholder="e.g., Advanced Policy Analysis" 
+                         required 
+                         value={newCourse.title}
+                         onChange={e => setNewCourse({...newCourse, title: e.target.value})}
+                       />
+                    </div>
+                    <div className="form-group flex-1">
+                       <label>Instructor Name</label>
+                       <input 
+                         type="text" 
+                         placeholder="Dr. Smith" 
+                         required 
+                         value={newCourse.instructor}
+                         onChange={e => setNewCourse({...newCourse, instructor: e.target.value})}
+                       />
+                    </div>
                  </div>
-                 <div className="form-group">
-                    <label>Category</label>
-                    <select>
-                       <option>Governance</option>
-                       <option>Finance</option>
-                       <option>Ethics</option>
-                    </select>
+
+                 <div className="form-row">
+                    <div className="form-group">
+                       <label>Category</label>
+                       <select 
+                         value={newCourse.category}
+                         onChange={e => setNewCourse({...newCourse, category: e.target.value})}
+                       >
+                          <option>Governance</option>
+                          <option>Finance</option>
+                          <option>Ethics</option>
+                          <option>Leadership</option>
+                       </select>
+                    </div>
+                    <div className="form-group">
+                       <label>Price (₦)</label>
+                       <input 
+                         type="number" 
+                         placeholder="25000" 
+                         value={newCourse.price}
+                         onChange={e => setNewCourse({...newCourse, price: e.target.value})}
+                       />
+                    </div>
                  </div>
+
                  <div className="form-group">
-                    <label>Price (₦)</label>
-                    <input type="number" placeholder="25000" />
+                    <label>Course Description</label>
+                    <textarea 
+                      placeholder="Deep dive into governance frameworks..." 
+                      rows="3"
+                      value={newCourse.description}
+                      onChange={e => setNewCourse({...newCourse, description: e.target.value})}
+                    ></textarea>
                  </div>
-                 <Button variant="primary" fullWidth>Publish to Library</Button>
+
+                 <div className="modules-section">
+                    <div className="section-subtitle">
+                       <h4>Course Modules</h4>
+                       <Button type="button" variant="outline" size="sm" onClick={addModule}>+ Add Module</Button>
+                    </div>
+                    <div className="modules-list">
+                       {newCourse.modules.map((mod, idx) => (
+                          <div key={idx} className="module-item-form">
+                             <div className="module-num">{idx + 1}</div>
+                             <div className="module-fields">
+                                <input 
+                                  type="text" 
+                                  placeholder="Module Title" 
+                                  value={mod.title}
+                                  onChange={e => updateModule(idx, 'title', e.target.value)}
+                                />
+                                <input 
+                                  type="url" 
+                                  placeholder="Video Link (YouTube/Vimeo)" 
+                                  value={mod.videoLink}
+                                  onChange={e => updateModule(idx, 'videoLink', e.target.value)}
+                                />
+                             </div>
+                          </div>
+                       ))}
+                    </div>
+                 </div>
+
+                 <div className="form-actions">
+                    <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+                    <Button type="submit" variant="primary">Publish to Library</Button>
+                 </div>
               </form>
            </div>
         </div>

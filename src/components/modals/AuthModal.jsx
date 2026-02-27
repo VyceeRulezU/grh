@@ -22,52 +22,60 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
   };
 
   return (
-    <div className="auth-overlay glass" onClick={onClose}>
+    <div className="auth-overlay" onClick={onClose}>
       <div className="auth-modal animate-up" onClick={e => e.stopPropagation()}>
         <button className="auth-close" onClick={onClose}><i className="ri-close-line"></i></button>
         
         <div className="auth-header">
-          <h2 className="apple-title-xs">{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
-          <p>{mode === 'login' ? 'Enter your credentials to access the hub' : 'Join the global governance community today'}</p>
+          <div className="auth-logo">
+            <img src={LogoV2} alt="Logo" />
+          </div>
+          <h2 className="auth-title">{mode === 'login' ? 'Welcome Back' : 'Join the Hub'}</h2>
+          <p className="auth-subtitle">{mode === 'login' ? 'Access your governance toolkit' : 'Start your excellence journey'}</p>
+        </div>
+
+        <div className="auth-mode-toggle">
+          <button 
+            className={`mode-btn ${mode === 'login' ? 'active' : ''}`}
+            onClick={() => setMode('login')}
+          >
+            Login
+          </button>
+          <button 
+            className={`mode-btn ${mode === 'signup' ? 'active' : ''}`}
+            onClick={() => setMode('signup')}
+          >
+            Sign Up
+          </button>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {mode === 'signup' && (
-            <div className="input-group">
-              <label>Full Name</label>
-              <div className="input-wrapper">
-                <i className="ri-user-line"></i>
-                <input type="text" placeholder="John Doe" required />
-              </div>
+            <div className="form-group">
+              <input type="text" placeholder="Full Name" required className="futuristic-input" />
             </div>
           )}
           
-          <div className="input-group">
-            <label>Email Address</label>
-            <div className="input-wrapper">
-              <i className="ri-mail-line"></i>
-              <input 
-                type="email" 
-                placeholder="name@institution.gov" 
-                required 
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-              />
-            </div>
+          <div className="form-group">
+            <input 
+              type="email" 
+              placeholder="Email Address" 
+              required 
+              className="futuristic-input"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
           </div>
 
-          <div className="input-group">
-            <label>Password</label>
-            <div className="input-wrapper">
-              <i className="ri-lock-line"></i>
-              <input 
-                type="password" 
-                placeholder="••••••••" 
-                required 
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-              />
-            </div>
+          <div className="form-group">
+            <input 
+              type="password" 
+              placeholder="Password" 
+              required 
+              className="futuristic-input"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
           </div>
 
           <Button 
@@ -75,27 +83,19 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
             variant="primary" 
             fullWidth 
             disabled={loading}
+            className="auth-submit-btn"
           >
             {loading ? <i className="ri-loader-4-line animate-spin"></i> : (mode === 'login' ? 'Sign In' : 'Create Account')}
           </Button>
         </form>
 
-        <div className="auth-divider">
-          <span>or continue with</span>
+        <div className="auth-social-wrap">
+          <p>Or continue with</p>
+          <div className="auth-social-btns">
+            <button className="social-btn"><i className="ri-google-fill"></i></button>
+            <button className="social-btn"><i className="ri-linkedin-box-fill"></i></button>
+          </div>
         </div>
-
-        <div className="auth-social">
-          <button className="social-btn"><i className="ri-google-fill"></i></button>
-          <button className="social-btn"><i className="ri-linkedin-box-fill"></i></button>
-          <button className="social-btn"><i className="ri-github-fill"></i></button>
-        </div>
-
-        <p className="auth-switch">
-          {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
-          <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
-            {mode === 'login' ? 'Sign up' : 'Sign in'}
-          </button>
-        </p>
       </div>
     </div>
   );

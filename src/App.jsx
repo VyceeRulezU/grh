@@ -41,15 +41,13 @@ function App() {
 
   return (
     <div className="app-container">
-      {currentPage !== 'welcome' && (
-        <Navbar 
-          onNavigate={navigate} 
-          currentPage={currentPage} 
-          user={user} 
-          onAuthClick={openAuth}
-          onLogout={handleLogout}
-        />
-      )}
+      <Navbar 
+        onNavigate={navigate} 
+        currentPage={currentPage} 
+        user={user} 
+        onAuthClick={openAuth}
+        onLogout={handleLogout}
+      />
       
       <main className="main-content">
         {currentPage === 'welcome' && (

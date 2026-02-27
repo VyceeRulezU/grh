@@ -1,30 +1,70 @@
 :root {
+  /* Color System from Light.tokens.json */
+  --static-black: #0E121B;
+  --static-white: #FFFFFF;
+  
+  --bg-strong: #0E121B;
+  --bg-surface: #222530;
+  --bg-sub: #CACFD8;
+  --bg-soft: #E1E4EA;
+  --bg-weak: #F5F7FA;
+  --bg-white: #FFFFFF;
+  
+  --text-strong: #0E121B;
+  --text-sub: #525866;
+  --text-soft: #99A0AE;
+  --text-disabled: #CACFD8;
+  --text-white: #FFFFFF;
+  
+  --stroke-strong: #0E121B;
+  --stroke-sub: #CACFD8;
+  --stroke-soft: #E1E4EA;
+
+  /* Semantic Aliases for Global Styles */
+  --color-text-heading: var(--text-strong);
+  --color-text-body: var(--text-sub);
+  --color-link: #4DA771;
+  
+  /* Primary Identity */
   --primary: #4DA771;
-  --primary-dark: #3a8a5a;
-  --primary-light: #6bc48a;
   --secondary: #023137;
-  --secondary-light: #044a52;
-  --tertiary: #C4E8CF;
   --accent: #F5C518;
-  --accent-dark: #d4a800;
-  --bg: #f7f9f8;
-  --bg-white: #ffffff;
-  --text-primary: #0d1f1a;
-  --text-secondary: #4a6461;
-  --text-muted: #8fa8a3;
-  --text-white: #ffffff;
-  --border: #e0ede6;
-  --shadow-sm: 0 1px 3px rgba(2,49,55,0.08);
-  --shadow-md: 0 4px 16px rgba(2,49,55,0.1);
-  --shadow-lg: 0 12px 40px rgba(2,49,55,0.14);
-  --shadow-xl: 0 24px 64px rgba(2,49,55,0.18);
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+
+  /* Typography Design System (Montserrat) */
+  --font-family-base: 'Montserrat', sans-serif;
+  
+  --typography-heading-1-font-size: 2.5rem;
+  --typography-heading-1-font-weight: 800;
+  --typography-heading-1-line-height: 1.1;
+  --typography-heading-1-letter-spacing: -0.03em;
+
+  --typography-heading-2-font-size: 2rem;
+  --typography-heading-2-font-weight: 700;
+  --typography-heading-2-line-height: 1.2;
+  --typography-heading-2-letter-spacing: -0.01em;
+
+  --typography-heading-3-font-size: 1.5rem;
+  --typography-heading-3-font-weight: 600;
+  --typography-heading-3-line-height: 1.3;
+  --typography-heading-3-letter-spacing: 0;
+
+  --font-size-base: 1rem;
+  --line-height-base: 1.5;
+
+  /* Geometry & Motion */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
   --radius-full: 999px;
-  --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
-  --font: 'Montserrat', sans-serif;
-  --max-width: 1280px;
-  --nav-height: 68px;
+  
+  --shadow-sm: 0 2px 4px rgba(14, 18, 27, 0.05);
+  --shadow-md: 0 8px 16px rgba(14, 18, 27, 0.08);
+  --shadow-lg: 0 16px 32px rgba(14, 18, 27, 0.12);
+  --shadow-xl: 0 32px 64px rgba(14, 18, 27, 0.18);
+  
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --max-width: 1320px;
+  --nav-height: 80px;
 }
+
