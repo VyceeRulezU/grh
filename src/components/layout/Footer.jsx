@@ -47,7 +47,7 @@ const Footer = ({ onNavigate }) => {
             <div className="terms-container">
               <button className="terms-link text-btn">Privacy Policy</button>
               <button className="terms-link text-btn">Terms of Service</button>
-              <button className="footer-link admin-shield" onClick={() => onNavigate('admin')}>
+              <button className="footer-link admin-shield" onClick={() => onNavigate('admin-login')}>
                 <span>🛡️</span> Admin Shield
               </button>
             </div>
