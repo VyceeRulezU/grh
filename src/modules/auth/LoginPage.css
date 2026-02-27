@@ -328,4 +328,8 @@
     height: 56px;
     font-size: 1rem;
   }
+
+  .auth-switch-link{
+    font-size: 0.875rem;
+  }
 }
