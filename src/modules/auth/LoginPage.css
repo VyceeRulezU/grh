@@ -324,6 +324,10 @@
     font-size: 1.75rem;
   }
 
+  .auth-right-container{
+    padding: 0;
+  }
+
   .auth-primary-btn, .auth-google-btn {
     height: 56px;
     font-size: 1rem;
