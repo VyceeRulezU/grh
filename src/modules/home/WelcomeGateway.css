@@ -74,7 +74,7 @@
 
 .chip-text {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--primary);
@@ -232,6 +232,7 @@
         width: 50%;
         height: auto;
         min-height: 24rem;
+        padding: 2rem;
         border: 1px solid var(--stroke-soft);
     }
     
@@ -257,6 +258,10 @@
 }
 
 @media (max-width: 480px) {
+    .section-container {
+        row-gap: 4rem;
+    }
+
     .header-text {
         font-size: 1.75rem;
     }
