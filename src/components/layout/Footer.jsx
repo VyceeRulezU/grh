@@ -37,7 +37,7 @@ const Footer = ({ onNavigate }) => {
         </div>
 
         <div className="footer-logo">
-          <img src="/assets/footer-logo.svg" alt="Footer Logo" />
+          <img src="assets/footer-logo.svg" alt="Footer Logo" />
         </div>
 
         <div className="footer-bottom-container">

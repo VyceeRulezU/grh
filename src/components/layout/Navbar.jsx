@@ -22,7 +22,7 @@ const Navbar = ({ onNavigate, currentPage, onAuthClick }) => {
     <div className="web-nav">
       <div className="nav-container">
         <div className="logo" onClick={() => handleNavigate('welcome')}>
-          <img src="/assets/grh-logo-v2.svg" alt="Logo" />
+          <img src="assets/grh-logo-v2.svg" alt="Logo" />
         </div>
 
         <div className={`nav-link-wrapper ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
