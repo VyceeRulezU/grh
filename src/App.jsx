@@ -47,7 +47,7 @@ function App() {
 
   return (
     <div className="app-container">
-      {(currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login') && (
+      {(currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'explore') && (
         <Navbar 
           onNavigate={navigate} 
           currentPage={currentPage} 
