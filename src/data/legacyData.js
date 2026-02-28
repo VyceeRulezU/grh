@@ -213,19 +213,146 @@ export const SUGGESTED = [
 ];
 
 export const COUNTRIES = [
-  {name:"Nigeria",score:64,trend:"+3",flag:"🇳🇬"},
-  {name:"Ghana",score:72,trend:"+5",flag:"🇬🇭"},
-  {name:"Kenya",score:67,trend:"+2",flag:"🇰🇪"},
-  {name:"Rwanda",score:78,trend:"+8",flag:"🇷🇼"},
-  {name:"South Africa",score:70,trend:"-1",flag:"🇿🇦"},
-  {name:"United Kingdom",score:88,trend:"+1",flag:"🇬🇧"},
+  { 
+    id: "ng", name: "Nigeria", flag: "🇳🇬", score: 64, trend: "+3",
+    scores: { va: 68, ps: 52, ge: 61, rq: 64, rl: 59, cc: 45 }
+  },
+  { 
+    id: "gh", name: "Ghana", flag: "🇬🇭", score: 72, trend: "+5",
+    scores: { va: 75, ps: 68, ge: 70, rq: 68, rl: 72, cc: 65 }
+  },
+  { 
+    id: "ke", name: "Kenya", flag: "🇰🇪", score: 67, trend: "+2",
+    scores: { va: 70, ps: 55, ge: 65, rq: 62, rl: 68, cc: 58 }
+  },
+  { 
+    id: "rw", name: "Rwanda", flag: "🇷🇼", score: 78, trend: "+8",
+    scores: { va: 55, ps: 85, ge: 88, rq: 82, rl: 75, cc: 80 }
+  },
+  { 
+    id: "za", name: "South Africa", flag: "🇿🇦", score: 70, trend: "-1",
+    scores: { va: 82, ps: 58, ge: 72, rq: 75, rl: 78, cc: 55 }
+  },
+  { 
+    id: "uk", name: "United Kingdom", flag: "🇬🇧", score: 88, trend: "+1",
+    scores: { va: 92, ps: 85, ge: 90, rq: 94, rl: 95, cc: 90 }
+  }
 ];
 
 export const DIMENSIONS = [
-  {label:"Voice & Accountability",score:68},
-  {label:"Political Stability",score:52},
-  {label:"Government Effectiveness",score:61},
-  {label:"Regulatory Quality",score:64},
-  {label:"Rule of Law",score:59},
-  {label:"Control of Corruption",score:45}
+  { 
+    id: "va", title: "Voice & Accountability", icon: "📢", color: "#4DA771", 
+    description: "Extent to which citizens participate in selecting their government, as well as freedom of expression." 
+  },
+  { 
+    id: "ps", title: "Political Stability", icon: "🛡️", color: "#3B82F6", 
+    description: "Likelihood that the government will be destabilized or overthrown by unconstitutional means." 
+  },
+  { 
+    id: "ge", title: "Government Effectiveness", icon: "⚙️", color: "#8B5CF6", 
+    description: "Quality of public services, civil service, and the degree of its independence from political pressures." 
+  },
+  { 
+    id: "rq", title: "Regulatory Quality", icon: "📋", color: "#F59E0B", 
+    description: "Ability of the government to formulate and implement sound policies that permit private sector development." 
+  },
+  { 
+    id: "rl", title: "Rule of Law", icon: "⚖️", color: "#EF4444", 
+    description: "Extent to which agents have confidence in and abide by the rules of society, specifically contract enforcement." 
+  },
+  { 
+    id: "cc", title: "Control of Corruption", icon: "🛡️", color: "#6366F1", 
+    description: "Extent to which public power is exercised for private gain, including both petty and grand forms of corruption." 
+  }
 ];
+
+
+export const MENTORS = [
+  {
+    id: 1,
+    name: "Dr. Amaka Okonkwo",
+    role: "Governance Specialist, World Bank",
+    category: "Governance",
+    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+  },
+  {
+    id: 2,
+    name: "Dr. Fatima Al-Hassan",
+    role: "PFM Advisor, IMF",
+    category: "Public Finance",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+  },
+  {
+    id: 3,
+    name: "Prof. Chidi Nwachukwu",
+    role: "Corporate Governance, Lagos BSE",
+    category: "Corporate",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+  },
+  {
+    id: 4,
+    name: "Ms. Ngozi Adebayo",
+    role: "Anti-Corruption Specialist, AU",
+    category: "Integrity",
+    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+  },
+  {
+    id: 5,
+    name: "Dr. Emeka Chibuike",
+    role: "Electoral Systems Expert, IDEA",
+    category: "Democracy",
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+  },
+  {
+    id: 6,
+    name: "Adaeze Eze, MSc",
+    role: "Civic Tech & Open Government",
+    category: "Digital",
+    image: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+  }
+];
+
+export const TESTIMONIALS = [
+  {
+    id: 1,
+    name: "Emeka Okafor",
+    role: "Budget Director, Federal Ministry of Finance",
+    text: "The PFM course completely changed how I approach budget execution in my ministry. The PEFA framework module alone was worth the entire programme. Highly practical and evidence-based.",
+    avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    rating: 5,
+    featured: true
+  },
+  {
+    id: 2,
+    name: "Amina Bello",
+    role: "Compliance Officer, EFCC",
+    text: "The anti-corruption modules gave our compliance team a shared framework. We implemented UNCAC-aligned internal controls within a month of completion.",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    rating: 5
+  },
+  {
+    id: 3,
+    name: "Taiwo Adeyemi",
+    role: "Policy Researcher, CLEEN Foundation",
+    text: "Excellent content and well-paced. The electoral systems course gave me the comparative context I needed for our reform advocacy work.",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    rating: 4
+  },
+  {
+    id: 4,
+    name: "Chinwe Eze",
+    role: "LGA Finance Officer, Anambra State",
+    text: "As a local government official, I found the decentralisation and fiscal federalism sections incredibly relevant. Now I can articulate our fiscal gaps with data.",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    rating: 5
+  },
+  {
+    id: 5,
+    name: "Babatunde Lawal",
+    role: "Policy Advisor, Ogun State Government",
+    text: "The open government course gave me the tools to draft our state's first transparency policy. Real frameworks, not theory.",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    rating: 5
+  }
+];
+

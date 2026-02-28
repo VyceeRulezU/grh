@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { COUNTRIES, DIMENSIONS } from '../../data/legacyData';
+import CtaSection from '../../components/ui/CtaSection';
 import './AnalysePage.css';
 
 const AnalysePage = () => {
@@ -21,9 +22,25 @@ const AnalysePage = () => {
     <div className="page-wrapper analyse-page">
       <div className="analyse-hero">
         <div className="container">
-          <div className="section-label" style={{background: 'rgba(255,255,255,0.1)', color: 'white'}}>📊 Data Visualization</div>
-          <h1 className="section-title text-white">Governance Analytics & Insights</h1>
-          <p className="hero-subline">Comparative analysis of public institution performance across 6 governance dimensions.</p>
+          <div className="hero-inner">
+            <div>
+              <div className="section-label">📊 Data Visualization</div>
+              <h1 className="section-title text-white">Governance Analytics & Insights</h1>
+              <p className="hero-subline">
+                Comparative analysis of public institution performance across 6 governance dimensions.
+              </p>
+            </div>
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <span className="stat-number">6</span>
+                <span className="stat-label">Dimensions</span>
+              </div>
+              <div className="hero-stat">
+                <span className="stat-number">Real-time</span>
+                <span className="stat-label">Insights</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -99,15 +116,14 @@ const AnalysePage = () => {
           </div>
         </div>
 
-        <div className="analyse-footer-v2 section-padding">
-          <div className="comparison-banner animate-up">
-             <div className="banner-text">
-                <h3>Want a deeper institutional diagnostic?</h3>
-                <p>Generate a 40-page technical report with granular metric breakdowns and strategic roadmaps.</p>
-             </div>
-             <button className="btn-accent">Download Full Report (PDF) →</button>
-          </div>
-        </div>
+        {/* CTA Section */}
+        <CtaSection 
+          eyebrow="Advanced Reports"
+          title={<>Want a deeper <br /><span className="green-text">Institutional Diagnostic?</span></>}
+          description="Generate a 40-page technical report with granular metric breakdowns and strategic roadmaps for institutional reform."
+          primaryActionLabel="Download Full Report (PDF)"
+          secondaryActionLabel="Consult Analyst"
+        />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CtaSection from '../../components/ui/CtaSection';
 import './AssessPage.css';
 
 const AssessPage = ({ onNavigate }) => {
@@ -8,9 +9,25 @@ const AssessPage = ({ onNavigate }) => {
     <div className="page-wrapper assess-page">
       <div className="assess-hero">
         <div className="container">
-          <div className="section-label" style={{background: 'rgba(255,255,255,0.1)', color: 'white'}}>🎓 Professional Certification</div>
-          <h1 className="section-title text-white">Validate your Governance Expertise</h1>
-          <p className="hero-subline">Benchmark your institutional knowledge against international standards and earn verifiable certificates.</p>
+          <div className="hero-inner">
+            <div>
+              <div className="section-label">🎓 Professional Certification</div>
+              <h1 className="section-title text-white">Validate your Governance Expertise</h1>
+              <p className="hero-subline">
+                Benchmark your institutional knowledge against international standards and earn verifiable certificates.
+              </p>
+            </div>
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <span className="stat-number">3+</span>
+                <span className="stat-label">Certification Levels</span>
+              </div>
+              <div className="hero-stat">
+                <span className="stat-number">Verifiable</span>
+                <span className="stat-label">Credentials</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -81,6 +98,16 @@ const AssessPage = ({ onNavigate }) => {
             </div>
           </div>
         </div>
+
+        {/* CTA Section */}
+        <CtaSection 
+          eyebrow="Get Certified"
+          title={<>Ready to validate your <br /><span className="green-text">Governance Expertise?</span></>}
+          description="Start your assessment journey today and join a global network of certified governance professionals."
+          primaryActionLabel="Continue Learning"
+          primaryActionOnClick={() => onNavigate('learn')}
+          secondaryActionLabel="Speak with an Expert"
+        />
       </div>
     </div>
   );

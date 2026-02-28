@@ -1,0 +1,117 @@
+/* ===== CTA REUSABLE COMPONENT ===== */
+.cta-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 5rem 2rem;
+}
+
+.cta-inner {
+    background: linear-gradient(135deg, var(--secondary) 0%, #034a53 100%);
+    border-radius: var(--radius-xl);
+    padding: 5rem 4rem;
+    max-width: var(--max-width);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle radial glow behind the content */
+.cta-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(77, 167, 113, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.cta-inner .section-eyebrow {
+    color: var(--primary);
+    position: relative;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.5rem;
+}
+
+.cta-inner h2 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 500;
+    color: var(--text-white);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    position: relative;
+}
+
+.cta-inner h2 .green-text { 
+    color: var(--primary); 
+}
+
+.cta-summary {
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 600px;
+    line-height: 1.7;
+    position: relative;
+}
+
+.cta-btn-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+}
+
+.cta-inner .btn-outline {
+    text-decoration: none;
+    display: flex;
+    height: 4rem;
+    padding: 0.75rem 2rem;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.cta-inner .btn-outline:hover {
+    border-color: var(--text-white);
+    color: var(--text-white);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cta-note {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    position: relative;
+}
+
+/* Material Icons placeholder if not imported elsewhere */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}

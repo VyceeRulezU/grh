@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { RESOURCES } from '../../data/legacyData';
+import CtaSection from '../../components/ui/CtaSection';
 import './Library.css';
 
 const Library = () => {
@@ -72,16 +73,33 @@ const Library = () => {
     <div className="page-wrapper research-page">
       <div className="research-hero">
         <div className="container">
-          <div className="section-label" style={{background: 'rgba(255,255,255,0.1)', color: 'white'}}>📖 Digital E-Library</div>
-          <h1 className="section-title text-white">Curated Governance Knowledge</h1>
-          <p className="hero-subline">Explore {RESOURCES.length}+ professional resources, journals and policy frameworks.</p>
-          <div className="learn-hero-search">
-            <span className="search-icon">🔍</span>
-            <input 
-              placeholder="Search by title, author, or keyword..." 
-              value={search} 
-              onChange={e => setSearch(e.target.value)} 
-            />
+          <div className="hero-inner">
+            <div>
+              <div className="section-label">📖 Digital E-Library</div>
+              <h1 className="section-title text-white">Curated <span className="green-text">Governance Knowledge</span></h1>
+              <p className="hero-subline">
+                Explore {RESOURCES.length}+ professional resources, journals and policy frameworks.
+              </p>
+              <div className="learn-hero-search">
+                <span className="search-icon">🔍</span>
+                <input 
+                  placeholder="Search by title, author, or keyword..." 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                />
+              </div>
+            </div>
+            {/* Optional hero stats for research if needed, or just leave as is for now */}
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <span className="stat-number">200+</span>
+                <span className="stat-label">Years of Data</span>
+              </div>
+              <div className="hero-stat">
+                <span className="stat-number">1K+</span>
+                <span className="stat-label">Resources</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -186,6 +204,15 @@ const Library = () => {
             )}
           </div>
         </div>
+        {/* CTA Section */}
+        <CtaSection 
+          eyebrow="Expand Your Knowledge"
+          title={<>Explore our full <br /><span className="green-text">Governance Library</span></>}
+          description="Gain access to thousands of documents, research papers, and case studies from across the globe."
+          primaryActionLabel="Start Researching"
+          secondaryActionLabel="View Categories"
+          secondaryActionHref="#filters"
+        />
       </div>
     </div>
   );
