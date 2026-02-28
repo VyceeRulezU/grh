@@ -1,0 +1,107 @@
+.notfound-container {
+  position: relative;
+  min-height: calc(100vh - var(--nav-height, 72px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #F7FBF8;
+  padding: 4rem 2rem;
+}
+
+/* Background SVG — mirrors .pattern from WelcomeGateway */
+.notfound-bg-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.notfound-bg-pattern img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.02;
+}
+
+/* Main content */
+.notfound-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2rem;
+  max-width: 680px;
+  width: 100%;
+  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Chip override — same component, centred here */
+.notfound-chip {
+  margin: 0 auto;
+}
+
+/* 404 numeral — large, SF-style display number */
+.notfound-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.notfound-code span {
+  font-size: clamp(7rem, 18vw, 11rem);
+  font-weight: 300;
+  color: var(--secondary);
+  letter-spacing: -0.04em;
+  display: inline-block;
+}
+
+/* The centre "0" pops with the brand green */
+.notfound-zero {
+  color: var(--primary) !important;
+  /* subtle shimmer effect */
+  animation: zeroFloat 3s ease-in-out infinite;
+}
+
+@keyframes zeroFloat {
+  0%, 100% { transform: translateY(0);     }
+  50%       { transform: translateY(-8px);  }
+}
+
+.notfound-title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 400;
+  color: var(--secondary);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.notfound-summary {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--text-sub, #6B7280);
+  line-height: 1.7;
+  max-width: 480px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .notfound-title {
+    font-size: 1.5rem;
+  }
+
+  .notfound-summary {
+    font-size: 1rem;
+  }
+}

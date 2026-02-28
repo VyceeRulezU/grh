@@ -15,6 +15,7 @@ import AuthModal from './components/modals/AuthModal'
 import LoginPage from './modules/auth/LoginPage'
 import SignupPage from './modules/auth/SignupPage'
 import AdminLoginPage from './modules/auth/AdminLoginPage'
+import NotFoundPage from './modules/home/NotFoundPage'
 import './App.css'
 
 function App() {
@@ -77,9 +78,12 @@ function App() {
         {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'admin-login' && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
+        {!['welcome','learn','research','explore','assess','analyse','student','learn-discovery','admin','learn-player','login','signup','admin-login'].includes(currentPage) && (
+          <NotFoundPage onNavigate={navigate} />
+        )}
       </main>
 
-      {(currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login') && <Footer onNavigate={navigate} />}
+      {['welcome','learn','research','assess','analyse','student','learn-discovery','admin'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 

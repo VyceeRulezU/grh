@@ -29,7 +29,7 @@ const Footer = ({ onNavigate }) => {
             <div className="link-container">
               <p className="footer-link-title">Support</p>
               <div className="footer-link-group">
-                <button className="footer-link">Help Center</button>
+                <button className="footer-link" onClick={() => onNavigate('404')}>Help Center</button>
                 <button className="footer-link">Contact Us</button>
               </div>
             </div>

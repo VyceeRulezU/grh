@@ -189,7 +189,7 @@ const ExplorePage = ({ user, onNavigate }) => {
           {/* Back to website — subtle, right-aligned */}
           <button className="back-home-btn" onClick={() => onNavigate('welcome')}>
             <span className="material-symbols-outlined">arrow_back</span>
-            <span className="back-home-text">Back</span>
+            <span className="back-home-text">Back to Website</span>
           </button>
         </div>
 
