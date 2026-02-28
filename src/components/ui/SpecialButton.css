@@ -1,6 +1,6 @@
 .special-button {
   display: flex;
-  padding: 0.625rem 1.5rem;
+  padding: 1rem 1.5rem;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
@@ -26,4 +26,10 @@
 .special-button .material-symbols-outlined {
   font-size: 1.1rem;
   margin-bottom: -0.3rem;
+}
+
+@media screen {
+  .special-button{
+    width: 100%;
+  }
 }

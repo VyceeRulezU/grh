@@ -4,12 +4,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0.5rem;
 }
 
 .assess-hero {
-  height: 50vh;
-  min-height: 50vh;
-  background: linear-gradient(135deg, var(--secondary) 0%, #045a64 60%, var(--primary) 100%);
+  width: 100%;
+  height: 60vh;
+  min-height: 60vh;
+  background-image: url(/assets/login-bg.svg);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -17,6 +22,7 @@
   justify-content: center;
   color: white;
   padding: 6rem 2rem;
+  border-radius: var(--radius-xl);
 }
 
 .assess-hero::before {
@@ -26,24 +32,26 @@
   background: radial-gradient(circle at 20% 40%, rgba(77,167,113,0.15) 0%, transparent 60%);
 }
 
-.hero-inner {
+.assess-hero-inner {
+  min-width: var(--max-width);
   max-width: var(--max-width);
-  width: 100%;
+  height: auto;
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-direction: row;
+  column-gap: 2rem;
 }
 
-.hero-inner h1 {
+.assess-hero-inner h1 {
   font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 700;
+  font-weight: 300;
   margin: 0;
   line-height: 1.1;
+  color: var(--text-white);
 }
 
-.hero-subline {
+.assess-hero-subline {
   font-size: 1.25rem;
   opacity: 0.85;
   max-width: 600px;
@@ -75,7 +83,8 @@
 }
 
 .assess-content {
-  padding: 4rem 2rem;
+  padding: 4rem 0;
+  min-width: var(--max-width);
   max-width: var(--max-width);
   margin: 0 auto;
 }
@@ -109,9 +118,23 @@
   background: linear-gradient(to bottom, #f0fdf4, white);
 }
 
-.card-emoji {
-  font-size: 3rem;
+.card-image-wrap {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
   margin-bottom: 2rem;
+}
+
+.card-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.assess-card:hover .card-image-wrap img {
+  transform: scale(1.05);
 }
 
 .assess-card h3 {
@@ -179,12 +202,58 @@
 
 /* CTA integration */
 .cta-section {
-    margin-top: 4rem;
+  margin-top: 4rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .assess-hero-inner, .assess-content {
+    min-width: 90%;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .assess-hero {
+    height: auto;
+    min-height: 50vh;
+    padding: 4rem 2rem;
+  }
 }
 
 @media (max-width: 768px) {
-  .assess-hero {
-    min-height: 40vh;
-    padding: 4rem 1.5rem;
+  .assess-hero-inner {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .hero-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+  }
+
+  .assess-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .assess-card {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .pathway-steps {
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .pathway-step::after {
+    display: none;
   }
 }

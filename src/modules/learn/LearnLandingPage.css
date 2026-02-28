@@ -1,9 +1,11 @@
 /* ===== LEARN PAGE WRAPPER ===== */
 .learn-page {
+    min-width: 100vw;
     background-color: #F7FBF8;
     display: flex;
     flex-direction: column;
     align-items: center;
+    
 }
 
 /* ===== HERO SECTION ===== */
@@ -22,7 +24,7 @@
 .hero-container {
     width: 100%;
     min-height: 98vh;
-    border-radius: 1.5rem;
+    border-radius: var(--radius-xl);
     background-image: url(/assets/login-bg.svg);
     background-position: center;
     background-size: cover;
@@ -95,7 +97,7 @@
     font-weight: 300;
     color: var(--text-soft);
     line-height: 1.7;
-    max-width: 700px;
+    max-width: 600px;
 }
 
 .hero-cta-row {
@@ -168,6 +170,8 @@
     overflow: hidden;
     position: relative;
     padding: 1rem 0;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
 }
 
 .logo-track {
@@ -204,7 +208,6 @@
 .learn-content {
     width: 100%;
     max-width: var(--max-width);
-    padding: 2rem;
 }
 
 /* Tabs */
@@ -258,7 +261,7 @@
 /* ===== COURSE GRID & CARD ===== */
 .courses-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 2rem;
     margin-bottom: 4rem;
 }
@@ -544,7 +547,6 @@
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto auto;
     gap: 1.5rem;
-    padding: 0 1rem;
 }
 
 .testimonial-card {
@@ -688,14 +690,54 @@
 }
 
 @media (max-width: 768px) {
+    .learn-page {
+        padding: 0 0.3rem 0.3rem 0.3rem;
+    }
+
+    .hero-inner{
+        padding: 0;
+    }
+
     .hero-inner {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 6rem 2rem;
+        flex-direction: row;
+        align-items: flex-end;
+        padding: 10rem 1rem 2rem 1rem;
     }
     .hero-right-container {
         width: 100%;
+        align-items: center;
     }
+
+    .hero-chip{
+        align-self: center;
+    }
+
+    .hero-cta-row{
+        width: 100%;
+    }
+
+    .hero-title{
+        font-size: 2rem;
+    }
+
+    .special-button, .btn-outline{
+        width: 100%;
+    }
+
+    .course-tabs{
+        overflow: auto;
+    }
+
+    .tab-btn {
+        width: fit-content;
+    }
+
+    .filter-row{
+        flex-direction: column;
+        align-items: center;
+    }
+
+
     .testimonials-grid {
         grid-template-columns: 1fr;
     }

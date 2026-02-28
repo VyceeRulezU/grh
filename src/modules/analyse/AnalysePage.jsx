@@ -23,23 +23,19 @@ const AnalysePage = () => {
       <div className="analyse-hero">
         <div className="container">
           <div className="hero-inner">
-            <div>
-              <div className="section-label">📊 Data Visualization</div>
-              <h1 className="section-title text-white">Governance Analytics & Insights</h1>
+            <div className="hero-inner-left">
+              <div className="hero-chip">
+                <div className="dot">
+                  <img src="/assets/color-dots-[1.0].svg" alt="dot" />
+                </div>
+                <p className="chip-text">Institutional Analysis</p>
+              </div>
+              <h1 className="section-title text-white">Governance Analytics & <br /> <span className="green-text">Insights</span></h1>
               <p className="hero-subline">
                 Comparative analysis of public institution performance across 6 governance dimensions.
               </p>
             </div>
-            <div className="hero-stats">
-              <div className="hero-stat">
-                <span className="stat-number">6</span>
-                <span className="stat-label">Dimensions</span>
-              </div>
-              <div className="hero-stat">
-                <span className="stat-number">Real-time</span>
-                <span className="stat-label">Insights</span>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>

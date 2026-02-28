@@ -71,17 +71,23 @@ const Library = () => {
 
   return (
     <div className="page-wrapper research-page">
+
       <div className="research-hero">
-        <div className="container">
+        <div className="section-container">
           <div className="hero-inner">
-            <div>
-              <div className="section-label">📖 Digital E-Library</div>
-              <h1 className="section-title text-white">Curated <span className="green-text">Governance Knowledge</span></h1>
+            <div className="hero-inner-left">
+              <div className="hero-chip">
+                <div className="dot">
+                  <img src="/assets/color-dots-[1.0].svg" alt="dot" />
+                </div>
+                <p className="chip-text">Digital e-Library</p>
+              </div>
+              <h1 className="section-title text-white">Curated <br /> <span className="green-text">Governance Knowledge</span></h1>
               <p className="hero-subline">
                 Explore {RESOURCES.length}+ professional resources, journals and policy frameworks.
               </p>
               <div className="learn-hero-search">
-                <span className="search-icon">🔍</span>
+                <span className="material-symbols-outlined search-icon">search</span>
                 <input 
                   placeholder="Search by title, author, or keyword..." 
                   value={search} 
@@ -92,11 +98,11 @@ const Library = () => {
             {/* Optional hero stats for research if needed, or just leave as is for now */}
             <div className="hero-stats">
               <div className="hero-stat">
-                <span className="stat-number">200+</span>
+                <span className="stat-number">20+</span>
                 <span className="stat-label">Years of Data</span>
               </div>
               <div className="hero-stat">
-                <span className="stat-number">1K+</span>
+                <span className="stat-number">10K+</span>
                 <span className="stat-label">Resources</span>
               </div>
             </div>
@@ -105,6 +111,7 @@ const Library = () => {
       </div>
 
       <div className="container research-content">
+
         <div className="research-layout">
           <aside className="filter-sidebar">
             <div className="sidebar-title">
@@ -116,7 +123,7 @@ const Library = () => {
 
             <div className="filter-group">
               <div className="filter-group-title">RESOURCE TYPE</div>
-              {["Book", "Report", "Article"].map(t => (
+              {["PERL", "SPARC", "SLGP"].map(t => (
                 <label key={t} className="filter-check">
                   <input type="checkbox" checked={selectedTypes.includes(t)} onChange={() => toggleType(t)} />
                   <span>{t}</span>
@@ -150,8 +157,8 @@ const Library = () => {
               {filtered.map((res, i) => (
                 viewMode === 'grid' ? (
                   <div key={res.id} className="resource-card animate-up" style={{animationDelay: `${i*0.05}s`}} onClick={() => setReadingResource(res)}>
-                    <div className="resource-cover" style={{background: i%2===0 ? '#e6f0f2' : '#f0f9f4'}}>
-                      <span className="resource-type-icon">{res.type === 'Book' ? '📕' : res.type === 'Report' ? '📄' : '📝'}</span>
+                    <div className="resource-cover">
+                      <img src={res.coverImage} alt={res.title} className="resource-cover-img" />
                       {res.featured && <span className="featured-badge">FEATURED</span>}
                     </div>
                     <div className="resource-body">
@@ -165,15 +172,15 @@ const Library = () => {
                         <span className="resource-author">{res.author}</span>
                       </div>
                       <div className="resource-actions">
-                        <button className="btn-primary btn-sm" style={{flex: 1}}>Read Now</button>
-                        <button className="action-btn">↓</button>
+                        <button className="special-button" style={{flex: 1}}>Read Now</button>
+                        <button className="action-btn"><span className="material-symbols-outlined">download</span></button>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div key={res.id} className="resource-list-item animate-up" style={{animationDelay: `${i*0.05}s`}} onClick={() => setReadingResource(res)}>
-                    <div className="list-icon" style={{background: i%2===0 ? '#e6f0f2' : '#f0f9f4'}}>
-                      {res.type === 'Book' ? '📕' : res.type === 'Report' ? '📄' : '📝'}
+                    <div className="list-icon">
+                      <img src={res.coverImage} alt={res.title} className="list-thumb" />
                     </div>
                     <div className="list-info">
                       <h3>{res.title}</h3>
@@ -204,7 +211,10 @@ const Library = () => {
             )}
           </div>
         </div>
-        {/* CTA Section */}
+
+      </div>
+
+         {/* CTA Section */}
         <CtaSection 
           eyebrow="Expand Your Knowledge"
           title={<>Explore our full <br /><span className="green-text">Governance Library</span></>}
@@ -213,7 +223,6 @@ const Library = () => {
           secondaryActionLabel="View Categories"
           secondaryActionHref="#filters"
         />
-      </div>
     </div>
   );
 };

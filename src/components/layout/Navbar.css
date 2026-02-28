@@ -71,6 +71,7 @@
 }
 
 .login-link {
+  width: fit-content;
   text-decoration: none;
   color: var(--text-sub);
   font-weight: 500;

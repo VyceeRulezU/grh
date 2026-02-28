@@ -159,3 +159,39 @@
 }
 
 .page-nav button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Responsive Viewer */
+@media (max-width: 768px) {
+  .viewer-overlay {
+    padding: 0;
+  }
+
+  .viewer-modal {
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .viewer-header {
+    padding: 15px 20px;
+  }
+
+  .viewer-info h3 {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  .viewer-content {
+    padding: 20px;
+  }
+
+  .viewer-page-mock {
+    padding: 30px 20px;
+  }
+
+  .viewer-controls {
+    display: none; /* Hide zoom controls on mobile for simplicity */
+  }
+}

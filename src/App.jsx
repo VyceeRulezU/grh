@@ -19,7 +19,9 @@ import NotFoundPage from './modules/home/NotFoundPage'
 import './App.css'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('welcome');
+  const [currentPage, setCurrentPage] = useState(() => {
+    return localStorage.getItem('currentPage') || 'welcome';
+  });
   const [user, setUser] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [authType, setAuthType] = useState('login');
@@ -34,6 +36,7 @@ function App() {
 
   const navigate = (page) => {
     setCurrentPage(page);
+    localStorage.setItem('currentPage', page);
     window.scrollTo(0, 0);
   };
 
