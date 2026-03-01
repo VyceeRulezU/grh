@@ -41,6 +41,7 @@
     margin-bottom: 80px;
     position: relative;
     z-index: 1;
+    margin-top: 10rem;
 }
 
 .section-container {
@@ -59,7 +60,6 @@
     flex-direction: column;
     gap: 24px;
     flex: 1;
-    margin-top: 10rem;
 }
 
 .hero-chip {
@@ -263,6 +263,10 @@
 @media (max-width: 480px) {
     .section-container {
         row-gap: 4rem;
+    }
+
+    .title-container{
+        margin-top: 10rem;
     }
 
     .header-text {
