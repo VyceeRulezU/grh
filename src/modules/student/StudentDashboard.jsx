@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import './StudentDashboard.css';
+import mainLogo from '../../assets/images/Logo/Main logo.png';
 
 const MY_COURSES = [
   { id: 1, title: "UX Research & Case Study Prepare", instructor: "Marvin McKinney", progress: 80, level: "Advance", next: "Apr 27, 2024 7:33 am", icon: "ri-government-line" },
@@ -63,7 +64,7 @@ const StudentDashboard = ({ user, onNavigate }) => {
         {/* ===== SIDEBAR ===== */}
         <aside className={`student-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <div className="sidebar-logo">
-            <img src="/assets/images/Logo/Main logo.png" alt="Governance Resource Hub" />
+            <img src={mainLogo} alt="Governance Resource Hub" />
           </div>
 
           <nav className="sidebar-nav">

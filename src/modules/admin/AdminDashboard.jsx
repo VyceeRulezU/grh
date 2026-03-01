@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import mainLogo from '../../assets/images/Logo/Main logo.png';
+import grhIcon from '../../assets/images/Logo/GRH-icon.png';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -444,7 +446,7 @@ const AdminDashboard = ({ onNavigate }) => {
     return (
       <div className="adm-login-wall">
         <div className="adm-login-card animate-up">
-          <img src="/assets/images/Logo/GRH-icon.png" alt="GRH" className="adm-login-logo" />
+          <img src={grhIcon} alt="GRH" className="adm-login-logo" />
           <h2>Admin Portal</h2>
           <p>Authorised access only.</p>
           <form onSubmit={handleLogin} className="adm-login-form">
@@ -474,7 +476,7 @@ const AdminDashboard = ({ onNavigate }) => {
         {/* SIDEBAR */}
         <aside className={`adm-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <div className="adm-sidebar-logo">
-            <img src="/assets/images/Logo/Main logo.png" alt="Governance Resource Hub" />
+            <img src={mainLogo} alt="Governance Resource Hub" />
             <span className="adm-portal-label">Admin Portal</span>
           </div>
 
@@ -526,7 +528,9 @@ const AdminDashboard = ({ onNavigate }) => {
             {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} />}
             {activeSection === 'users'      && <UsersPanel users={users} />}
             {activeSection === 'analytics'  && <AnalyticsPanel />}
-            {!PANEL_MAP[activeSection]      && <DEFAULT_PANEL id={activeSection} />}
+            {!PANEL_MAP[activeSection] && (
+              <div className="adm-panel"><p style={{color:'var(--text-soft)', padding:'2rem'}}>Panel '{activeSection}' — coming soon</p></div>
+            )}
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HISTORY_DATA, SUGGESTED } from '../../data/legacyData';
+import grhIcon from '../../assets/images/Logo/GRH-icon.png';
 import './ExplorePage.css';
 
 // ---------------------------------------------------------------------------
@@ -143,7 +144,7 @@ const ExplorePage = ({ user, onNavigate }) => {
       <aside className={`chat-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="chat-sidebar-header">
           <div className="sidebar-logo-wrap">
-            <img src="/assets/images/Logo/GRH-icon.png" alt="GRH" className="sidebar-icon-logo" />
+            <img src={grhIcon} alt="GRH" className="sidebar-icon-logo" />
             {/* <span className="sidebar-logo">GovHub AI</span> */}
           </div>
           <button className="new-chat-btn" onClick={startNewChat}>+ New Chat</button>
