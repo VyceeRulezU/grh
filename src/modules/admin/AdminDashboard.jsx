@@ -422,47 +422,13 @@ const PANEL_MAP = { overview: OverviewPanel, courses: CoursesPanel, resources: R
 const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:'var(--text-soft)'}}>Panel '{id}' — coming soon</p></div>;
 
 const AdminDashboard = ({ onNavigate }) => {
-  const [authed, setAuthed] = useState(false);
-  const [email, setEmail] = useState('');
-  const [pass, setPass] = useState('');
-  const [loginError, setLoginError] = useState('');
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courses, setCourses] = useState(COURSES);
   const [resources, setResources] = useState(RESOURCES);
   const [users] = useState(USERS);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (email && pass) {
-      setAuthed(true);
-    } else {
-      setLoginError('Please enter valid credentials.');
-    }
-  };
-
-  /* --- Login Wall --- */
-  if (!authed) {
-    return (
-      <div className="adm-login-wall">
-        <div className="adm-login-card animate-up">
-          <img src={grhIcon} alt="GRH" className="adm-login-logo" />
-          <h2>Admin Portal</h2>
-          <p>Authorised access only.</p>
-          <form onSubmit={handleLogin} className="adm-login-form">
-            <input type="email" placeholder="admin@govhub.org" value={email} onChange={e => { setEmail(e.target.value); setLoginError(''); }} required />
-            <input type="password" placeholder="Password" value={pass} onChange={e => { setPass(e.target.value); setLoginError(''); }} required />
-            {loginError && <p className="adm-login-error">{loginError}</p>}
-            <button type="submit" className="special-button">Unlock Dashboard</button>
-          </form>
-          <button className="adm-back-link" onClick={() => onNavigate('welcome')}>← Back to Site</button>
-        </div>
-      </div>
-    );
-  }
-
   /* --- Main Dashboard --- */
-  const ActivePanel = PANEL_MAP[activeSection] || DEFAULT_PANEL(activeSection);
 
   return (
     <>

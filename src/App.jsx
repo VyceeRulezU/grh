@@ -82,7 +82,8 @@ function App() {
         {currentPage === 'analyse' && <AnalysePage onNavigate={navigate} />}
         {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} />}
         {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
-        {currentPage === 'admin' && <AdminDashboard onNavigate={navigate} />}
+        {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} />}
+        {currentPage === 'admin' && !user?.isAdmin && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} />}
         {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}

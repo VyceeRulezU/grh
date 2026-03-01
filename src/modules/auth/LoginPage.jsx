@@ -12,7 +12,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
     e.preventDefault();
     // Simulate login
     onLogin({ email: email || 'user@example.com', isAdmin });
-    onNavigate('welcome');
+    onNavigate(isAdmin ? 'admin' : 'welcome');
   };
 
   return (

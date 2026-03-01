@@ -51,6 +51,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 40px;
+    padding: 0;
 }
 
 .hero-header {
@@ -58,6 +59,7 @@
     flex-direction: column;
     gap: 24px;
     flex: 1;
+    margin-top: 10rem;
 }
 
 .hero-chip {
@@ -217,6 +219,7 @@
         flex-direction: column;
         align-items: flex-start;
         text-align: left;
+        padding: 0;
     }
     
     .hero-summary {
