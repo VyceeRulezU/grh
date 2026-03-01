@@ -19,9 +19,12 @@ import NotFoundPage from './modules/home/NotFoundPage'
 import './App.css'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState(() => {
-    return localStorage.getItem('currentPage') || 'welcome';
-  });
+  const getPageFromUrl = () => {
+    const path = window.location.pathname.replace(/\/grh\/?/, '').replace(/^\//, '');
+    return path || localStorage.getItem('currentPage') || 'welcome';
+  };
+
+  const [currentPage, setCurrentPage] = useState(getPageFromUrl);
   const [user, setUser] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [authType, setAuthType] = useState('login');
@@ -37,6 +40,9 @@ function App() {
   const navigate = (page) => {
     setCurrentPage(page);
     localStorage.setItem('currentPage', page);
+    // Update browser URL without reload
+    const base = import.meta.env.BASE_URL || '/';
+    window.history.pushState({}, '', `${base}${page === 'welcome' ? '' : page}`);
     window.scrollTo(0, 0);
   };
 
@@ -51,7 +57,7 @@ function App() {
 
   return (
     <div className="app-container">
-      {(currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'explore') && (
+      {(currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
         <Navbar 
           onNavigate={navigate} 
           currentPage={currentPage} 
@@ -86,7 +92,7 @@ function App() {
         )}
       </main>
 
-      {['welcome','learn','research','assess','analyse','student','learn-discovery','admin'].includes(currentPage) && <Footer onNavigate={navigate} />}
+      {['welcome','learn','research','assess','analyse','learn-discovery'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 

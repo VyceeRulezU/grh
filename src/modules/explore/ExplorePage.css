@@ -33,6 +33,19 @@
   font-size: 14px;
 }
 
+.sidebar-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-icon-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .new-chat-btn {
   background: var(--secondary);
   color: white;

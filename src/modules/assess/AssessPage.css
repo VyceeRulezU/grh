@@ -3,6 +3,7 @@
   background: var(--bg-weak);
   display: flex;
   flex-direction: column;
+  row-gap: 4rem;
   align-items: center;
   padding: 0.5rem;
 }
@@ -233,6 +234,7 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 1.5rem;
+    display: none !important;
   }
 
   .stat-number {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { RESOURCES } from '../../data/legacyData';
 import CtaSection from '../../components/ui/CtaSection';
 import './Library.css';
+import './ResourceViewer.css';
 
 const Library = () => {
   const [search, setSearch] = useState("");
@@ -28,42 +29,67 @@ const Library = () => {
 
   if (readingResource) {
     return (
-      <div className="pdf-reader">
-        <div className="pdf-topbar">
-          <button className="back-btn" onClick={() => setReadingResource(null)}>← Back to Library</button>
-          <div className="pdf-title">
-            <strong>{readingResource.title}</strong>
-            <span>{readingResource.author} ({readingResource.year})</span>
-          </div>
-          <div className="pdf-controls">
-            <button disabled>➖</button>
-            <span>100%</span>
-            <button disabled>➕</button>
-            <button className="btn-primary btn-sm">Download PDF</button>
-          </div>
-        </div>
-        <div className="pdf-viewer">
-          <div className="pdf-page">
-            <div className="pdf-header-mark">
-              <span>GOVHUB RESEARCH LIBRARY</span>
-              <span>{readingResource.type.toUpperCase()}</span>
-            </div>
-            <div className="pdf-content">
-              <h2>{readingResource.title}</h2>
-              <p className="pdf-author">Author: {readingResource.author}</p>
-              <div style={{marginTop: 40}}>
-                <h3>Abstract</h3>
-                <p>{readingResource.description}</p>
-                <div style={{marginTop: 40, height: 400, background: '#f7f9f8', border: '1px dashed #ccc', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888'}}>
-                   PDF Content Rendering Placeholder
-                </div>
+      <div className="viewer-overlay">
+        <div className="viewer-modal animate-in">
+          <header className="viewer-header">
+            <div className="viewer-info">
+              <span className="material-symbols-outlined viewer-icon">description</span>
+              <div>
+                <h3>{readingResource.title}</h3>
+                <p>{readingResource.author} • {readingResource.year} • {readingResource.type}</p>
               </div>
             </div>
-            <div className="pdf-footer-mark">
-              <span>© {readingResource.year} Governance Resource Hub</span>
-              <span>Page 1 of {readingResource.pages}</span>
+            <div className="viewer-controls">
+              <button className="control-btn" title="Zoom Out"><span className="material-symbols-outlined">zoom_out</span></button>
+              <span style={{fontSize: '14px', fontWeight: 600}}>100%</span>
+              <button className="control-btn" title="Zoom In"><span className="material-symbols-outlined">zoom_in</span></button>
+              <button className="special-button" style={{padding: '0.5rem 1rem', fontSize: '0.8rem'}}>Download PDF</button>
+              <button className="viewer-close" onClick={() => setReadingResource(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
             </div>
-          </div>
+          </header>
+
+          <main className="viewer-content">
+            <div className="viewer-page-mock">
+              <div className="pdf-header-mark">
+                <span>GOVHUB RESEARCH LIBRARY</span>
+                <span>{readingResource.type.toUpperCase()}</span>
+              </div>
+              
+              <div className="mock-text-line headline"></div>
+              <h1 style={{fontSize: '2.5rem', marginBottom: '1rem', color: 'var(--secondary)'}}>{readingResource.title}</h1>
+              <p style={{fontSize: '1.1rem', color: 'var(--text-soft)', marginBottom: '3rem'}}>Prepared by {readingResource.author}, {readingResource.year}</p>
+              
+              <div className="mock-text-line"></div>
+              <div className="mock-text-line"></div>
+              <div className="mock-text-line short"></div>
+
+              <div className="mock-image-box" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'}}>
+                <img src={readingResource.coverImage} alt="Cover" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.2}} />
+                <span style={{position: 'absolute', fontWeight: 800, color: 'var(--secondary)', opacity: 0.5}}>RESOURCE PREVIEW</span>
+              </div>
+
+              <div style={{marginTop: '2rem'}}>
+                <h3 style={{fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 700}}>Executive Summary</h3>
+                <p style={{lineHeight: 1.8, color: '#444'}}>{readingResource.description}</p>
+              </div>
+
+              <div style={{marginTop: '3rem'}}>
+                {[...Array(10)].map((_, i) => (
+                  <div key={i} className="mock-text-line" style={{width: `${80 + Math.random() * 20}%`}}></div>
+                ))}
+              </div>
+            </div>
+          </main>
+
+          <footer className="viewer-footer">
+            <div className="page-nav">
+              <button disabled><span className="material-symbols-outlined">chevron_left</span> Previous</button>
+              <span>Page 1 of {readingResource.pages}</span>
+              <button disabled>Next <span className="material-symbols-outlined">chevron_right</span></button>
+            </div>
+          </footer>
         </div>
       </div>
     );
