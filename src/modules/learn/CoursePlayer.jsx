@@ -73,30 +73,41 @@ const CoursePlayer = ({ onNavigate }) => {
 
       <div className="player-main">
         <div className="player-content-area">
-          {/* Fixed-size video — never shrinks */}
+          {/* Fixed-size video — with YouTube fullscreen support */}
           <div className="video-wrapper">
             <div className="video-viewport">
-              <div className="yt-placeholder">
-                <img
-                  src={`https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg`}
-                  alt="Video thumbnail"
-                  className="yt-thumbnail"
-                  onError={e => { e.target.style.display = 'none'; }}
+              {activeLesson.videoUrl ? (
+                <iframe
+                  className="yt-iframe"
+                  src={`https://www.youtube.com/embed/${activeLesson.videoUrl.includes('youtu') ? activeLesson.videoUrl.split(/[=/]/).pop() : activeLesson.videoUrl}?rel=0`}
+                  title={activeLesson.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  frameBorder="0"
                 />
-                <div className="yt-overlay">
-                  <div className="yt-play-btn">
-                    <span className="material-symbols-outlined">play_arrow</span>
-                  </div>
-                  <div className="yt-meta">
-                    <p className="yt-lesson-label">Lesson {activeLesson.id} — {activeLesson.type.toUpperCase()}</p>
-                    <p className="yt-lesson-title">{activeLesson.title}</p>
-                  </div>
-                  <div className="yt-admin-note">
-                    <span className="material-symbols-outlined" style={{fontSize: '1rem', opacity: 0.7}}>info</span>
-                    Video will be assigned by administrator
+              ) : (
+                <div className="yt-placeholder">
+                  <img
+                    src={`https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg`}
+                    alt="Video thumbnail"
+                    className="yt-thumbnail"
+                    onError={e => { e.target.style.display = 'none'; }}
+                  />
+                  <div className="yt-overlay">
+                    <div className="yt-play-btn">
+                      <span className="material-symbols-outlined">play_arrow</span>
+                    </div>
+                    <div className="yt-meta">
+                      <p className="yt-lesson-label">Lesson {activeLesson.id} — {activeLesson.type.toUpperCase()}</p>
+                      <p className="yt-lesson-title">{activeLesson.title}</p>
+                    </div>
+                    <div className="yt-admin-note">
+                      <span className="material-symbols-outlined" style={{fontSize: '1rem', opacity: 0.7}}>info</span>
+                      Video will be assigned by administrator
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

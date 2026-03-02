@@ -10,8 +10,8 @@ const MY_COURSES = [
 ];
 
 const RECOMMENDED = [
-  { id: 101, title: "The Ultimate Guide to Usability Testing and UX Law", price: "$12", level: "Advance", type: "Live Class", lessons: "24 Class" },
-  { id: 102, title: "How to do quality UX Audit for e-commerce website", price: "$16", level: "Advance", type: "Live Class", lessons: "24 Class" },
+  { id: 101, title: "The Ultimate Guide to Usability Testing and UX Law", price: "₦0", level: "Advance", type: "Live Class", lessons: "24 Class" },
+  { id: 102, title: "How to do quality UX Audit for e-commerce website", price: "₦0", level: "Advance", type: "Live Class", lessons: "24 Class" },
 ];
 
 const NAV_GROUPS = [

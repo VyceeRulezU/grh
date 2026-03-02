@@ -2,7 +2,15 @@ import React, { useState } from 'react';
 import { COURSES, MENTORS, TESTIMONIALS } from '../../data/legacyData';
 import CtaSection from '../../components/ui/CtaSection';
 import ModernDropdown from '../../components/ui/ModernDropdown';
+import Tab from '../../components/ui/Tab';
 import './LearnLandingPage.css';
+
+const COURSE_TABS = [
+  { id: 'all', label: 'All Courses' },
+  { id: 'trending', label: 'Trending' },
+  { id: 'featured', label: 'Featured' },
+  { id: 'inprogress', label: 'In Progress' },
+];
 
 const LearnLandingPage = ({ onNavigate, user }) => {
   const [search, setSearch] = useState("");
@@ -90,22 +98,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       </div>
 
       <div className="container learn-content" id="courses-section">
-        <div className="course-tabs">
-          {[
-            {id:"all",l:"All Courses"},
-            {id:"trending",l:"Trending"},
-            {id:"featured",l:"Featured"},
-            {id:"inprogress",l:"In Progress"}
-          ].map(t => (
-            <button 
-              key={t.id} 
-              className={`tab-btn ${activeTab === t.id ? "active" : ""}`} 
-              onClick={() => setActiveTab(t.id)}
-            >
-              {t.l}
-            </button>
-          ))}
-        </div>
+        <Tab tabs={COURSE_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="filter-row">
           <ModernDropdown 

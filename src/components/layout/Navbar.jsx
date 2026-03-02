@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Navbar.css';
 import SpecialButton from '../ui/SpecialButton';
 
-const Navbar = ({ onNavigate, currentPage, onAuthClick }) => {
+const Navbar = ({ onNavigate, currentPage, user, onAuthClick, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -38,12 +38,30 @@ const Navbar = ({ onNavigate, currentPage, onAuthClick }) => {
         </div>
 
         <div className="nav-button-wrapper">
-          <button className="login-link" onClick={() => onAuthClick('login')}>Log in</button>
+          {user ? (
+            /* ── Logged-in: show avatar ── */
+            <div className="nav-user-area">
+              <div className="nav-avatar" onClick={() => handleNavigate('student')}>
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.name || 'User'} />
+                ) : (
+                  <span className="nav-avatar-initial">
+                    {(user.name || user.email || 'U')[0].toUpperCase()}
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* ── Logged-out: login / signup ── */
+            <>
+              <button className="login-link" onClick={() => onAuthClick('login')}>Log in</button>
 
-          <SpecialButton onClick={() => onAuthClick('signup')}>
-            Sign up
-            <span className="material-symbols-outlined">arrow_outward</span>
-          </SpecialButton>
+              <SpecialButton onClick={() => onAuthClick('signup')}>
+                Sign up
+                <span className="material-symbols-outlined">arrow_outward</span>
+              </SpecialButton>
+            </>
+          )}
 
           <button className="mobile-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <i className="ri-close-line"></i> : <i className="ri-menu-line"></i>}

@@ -39,12 +39,18 @@ const RESOURCES = [
   { id: 4, title: 'Electoral System Design Handbook', type: 'SPARC', category: 'Democracy', status: 'Published' },
 ];
 
+const BOOKS = [
+  { id: 1, title: 'Governance in the 21st Century', summary: 'A comprehensive guide to modern governance frameworks and best practices.', imageUrl: '', fileUrl: '#', status: 'Published' },
+  { id: 2, title: 'Public Financial Management Handbook', summary: 'Essential reference for PFM practitioners in developing economies.', imageUrl: '', fileUrl: '#', status: 'Published' },
+];
+
 const NAV_GROUPS = [
   {
     label: 'Content',
     links: [
       { id: 'overview',   icon: 'ri-dashboard-fill',    label: 'Overview' },
       { id: 'courses',    icon: 'ri-book-fill',          label: 'Courses', badge: COURSES.length },
+      { id: 'books',      icon: 'ri-booklet-fill',       label: 'Books' },
       { id: 'resources',  icon: 'ri-folder-fill',        label: 'Library Resources' },
       { id: 'quizzes',    icon: 'ri-file-list-3-fill',   label: 'Quizzes & Assessments' },
     ],
@@ -189,10 +195,110 @@ function ResourceModal({ onClose, onSave }) {
   );
 }
 
+/* ----- BOOK MODAL ----- */
+const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+
+function BookModal({ onClose, onSave }) {
+  const [books, setBooks] = useState([{ title: '', summary: '', imagePreview: '', imageFile: null, bookFile: null }]);
+
+  const updateBook = (i, key, value) => {
+    const updated = [...books];
+    updated[i] = { ...updated[i], [key]: value };
+    setBooks(updated);
+  };
+
+  const handleImageChange = (i, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      updateBook(i, 'imageFile', file);
+      updateBook(i, 'imagePreview', URL.createObjectURL(file));
+    }
+  };
+
+  const handleFileChange = (i, e) => {
+    const file = e.target.files[0];
+    if (file) updateBook(i, 'bookFile', file);
+  };
+
+  const addAnother = () => setBooks(b => [...b, { title: '', summary: '', imagePreview: '', imageFile: null, bookFile: null }]);
+  const removeBook = (i) => setBooks(b => b.filter((_, idx) => idx !== i));
+
+  return (
+    <div className="adm-modal-overlay">
+      <div className="adm-modal animate-up" style={{ maxWidth: 700 }}>
+        <header className="adm-modal-header">
+          <h3>Add Books / Resources</h3>
+          <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
+        </header>
+        <div className="adm-modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+          {books.map((book, i) => (
+            <div key={i} className="adm-book-entry" style={{ padding: '1.25rem', background: 'var(--bg-weak)', borderRadius: 'var(--radius-lg)', marginBottom: '1rem', position: 'relative' }}>
+              {books.length > 1 && (
+                <button className="adm-remove-btn" style={{ position: 'absolute', top: 12, right: 12 }} onClick={() => removeBook(i)}><i className="ri-delete-bin-line"></i></button>
+              )}
+              <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1rem' }}>
+                <div className="adm-book-img-upload" style={{ width: 120, height: 160, borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px dashed var(--stroke-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', flexShrink: 0, background: '#f9f9fb' }}>
+                  <img
+                    src={book.imagePreview || DEFAULT_BOOK_IMG}
+                    alt="Cover"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: book.imagePreview ? 1 : 0.4 }}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(i, e)}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
+                  />
+                  {!book.imagePreview && <span style={{ position: 'absolute', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-soft)', textAlign: 'center', padding: '0.5rem' }}>Click to add cover</span>}
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div className="adm-form-group">
+                    <label>Book Title*</label>
+                    <input placeholder="e.g. Public Financial Management" value={book.title} onChange={e => updateBook(i, 'title', e.target.value)} />
+                  </div>
+                  <div className="adm-form-group">
+                    <label>Summary</label>
+                    <textarea rows="2" placeholder="A short description of this book..." value={book.summary} onChange={e => updateBook(i, 'summary', e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              <div className="adm-form-group">
+                <label>Upload Book File (PDF, EPUB, etc.)</label>
+                <input type="file" accept=".pdf,.epub,.doc,.docx" onChange={(e) => handleFileChange(i, e)} />
+                {book.bookFile && <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: 4 }}>📄 {book.bookFile.name}</span>}
+              </div>
+            </div>
+          ))}
+          <button className="adm-add-btn" type="button" onClick={addAnother} style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }}>
+            <i className="ri-add-line"></i> Add Another Book
+          </button>
+        </div>
+        <footer className="adm-modal-footer">
+          <button className="btn-outline" onClick={onClose}>Cancel</button>
+          <button className="special-button" onClick={() => {
+            const newBooks = books.filter(b => b.title.trim()).map(b => ({
+              id: Date.now() + Math.random(),
+              title: b.title,
+              summary: b.summary,
+              imageUrl: b.imagePreview || '',
+              fileUrl: b.bookFile ? URL.createObjectURL(b.bookFile) : '#',
+              status: 'Draft',
+            }));
+            onSave(newBooks);
+            onClose();
+          }}>
+            Publish {books.length > 1 ? `${books.length} Books` : 'Book'}
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 /* =====================================================================
    PANEL COMPONENTS
 ===================================================================== */
-function OverviewPanel({ onAddCourse }) {
+function OverviewPanel({ onAddCourse, onAddBook }) {
   return (
     <div className="adm-panel">
       <div className="adm-stats-grid">
@@ -246,14 +352,14 @@ function OverviewPanel({ onAddCourse }) {
           <button className="adm-action-card" onClick={onAddCourse}>
             <i className="ri-add-circle-fill"></i><span>Add Course</span>
           </button>
+          <button className="adm-action-card" onClick={onAddBook}>
+            <i className="ri-book-3-fill"></i><span>Add Book</span>
+          </button>
           <button className="adm-action-card">
             <i className="ri-upload-cloud-fill"></i><span>Upload Resource</span>
           </button>
           <button className="adm-action-card">
             <i className="ri-file-list-3-fill"></i><span>Create Quiz</span>
-          </button>
-          <button className="adm-action-card">
-            <i className="ri-user-add-fill"></i><span>Invite User</span>
           </button>
         </div>
       </div>
@@ -415,10 +521,50 @@ function AnalyticsPanel() {
   );
 }
 
+/* --- BOOKS PANEL --- */
+function BooksPanel({ books, setBooks }) {
+  const [modal, setModal] = useState(false);
+  const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+  return (
+    <div className="adm-panel">
+      <div className="adm-panel-header">
+        <h3>Books <span className="adm-count">{books.length}</span></h3>
+        <button className="special-button" onClick={() => setModal(true)}><i className="ri-add-line"></i> Add Book</button>
+      </div>
+      <div className="adm-table-wrap">
+        <table className="adm-table">
+          <thead><tr><th></th><th>Title</th><th>Summary</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {books.map(b => (
+              <tr key={b.id}>
+                <td style={{width: 60}}>
+                  <img src={b.imageUrl || DEFAULT_BOOK_IMG} alt={b.title} style={{width: 40, height: 56, objectFit: 'cover', borderRadius: 6}} />
+                </td>
+                <td><strong>{b.title}</strong></td>
+                <td style={{maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{b.summary}</td>
+                <td><span className={`adm-status-badge ${b.status === 'Published' ? 'published' : 'draft'}`}>{b.status}</span></td>
+                <td>
+                  <div className="adm-row-actions">
+                    <button className="adm-icon-btn" title="Toggle status" onClick={() => setBooks(bs => bs.map(x => x.id === b.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
+                      <i className={b.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                    </button>
+                    <button className="adm-icon-btn danger" onClick={() => setBooks(bs => bs.filter(x => x.id !== b.id))}><i className="ri-delete-bin-line"></i></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {modal && <BookModal onClose={() => setModal(false)} onSave={newBooks => setBooks(bs => [...bs, ...newBooks])} />}
+    </div>
+  );
+}
+
 /* =====================================================================
    MAIN COMPONENT
 ===================================================================== */
-const PANEL_MAP = { overview: OverviewPanel, courses: CoursesPanel, resources: ResourcesPanel, users: UsersPanel, analytics: AnalyticsPanel };
+const PANEL_MAP = { overview: OverviewPanel, courses: CoursesPanel, resources: ResourcesPanel, users: UsersPanel, analytics: AnalyticsPanel, books: BooksPanel };
 const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:'var(--text-soft)'}}>Panel '{id}' — coming soon</p></div>;
 
 const AdminDashboard = ({ onNavigate }) => {
@@ -426,6 +572,7 @@ const AdminDashboard = ({ onNavigate }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courses, setCourses] = useState(COURSES);
   const [resources, setResources] = useState(RESOURCES);
+  const [books, setBooks] = useState(BOOKS);
   const [users] = useState(USERS);
 
   /* --- Main Dashboard --- */
@@ -489,8 +636,9 @@ const AdminDashboard = ({ onNavigate }) => {
           </header>
 
           <div className="adm-content">
-            {activeSection === 'overview'   && <OverviewPanel onAddCourse={() => setActiveSection('courses')} />}
+            {activeSection === 'overview'   && <OverviewPanel onAddCourse={() => setActiveSection('courses')} onAddBook={() => setActiveSection('books')} />}
             {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} />}
+            {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} />}
             {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} />}
             {activeSection === 'users'      && <UsersPanel users={users} />}
             {activeSection === 'analytics'  && <AnalyticsPanel />}

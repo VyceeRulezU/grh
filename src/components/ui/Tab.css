@@ -1,0 +1,53 @@
+/* ===== GLOBAL TAB COMPONENT ===== */
+.tab-container {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.5rem;
+    padding: 0.375rem;
+    background: var(--secondary);
+    border-radius: var(--radius-full);
+    width: fit-content;
+    margin-bottom: 2.5rem;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.tab-container::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-item {
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    transition: var(--transition);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    white-space: nowrap;
+}
+
+.tab-item:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-item.active {
+    background: var(--bg-white);
+    color: var(--secondary);
+    font-weight: 700;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .tab-container {
+        overflow: auto;
+    }
+
+    .tab-item {
+        width: fit-content;
+    }
+}

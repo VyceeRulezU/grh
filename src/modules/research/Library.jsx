@@ -32,11 +32,17 @@ const Library = () => {
       <div className="viewer-overlay">
         <div className="viewer-modal animate-in">
           <header className="viewer-header">
-            <div className="viewer-info">
-              <span className="material-symbols-outlined viewer-icon">description</span>
-              <div>
-                <h3>{readingResource.title}</h3>
-                <p>{readingResource.author} • {readingResource.year} • {readingResource.type}</p>
+            <div className="viewer-header-left">
+              <button className="viewer-mobile-back" onClick={() => setReadingResource(null)}>
+                <span className="material-symbols-outlined">arrow_back</span>
+                <span>Back</span>
+              </button>
+              <div className="viewer-info">
+                <span className="material-symbols-outlined viewer-icon">description</span>
+                <div>
+                  <h3>{readingResource.title}</h3>
+                  <p>{readingResource.author} • {readingResource.year} • {readingResource.type}</p>
+                </div>
               </div>
             </div>
             <div className="viewer-controls">

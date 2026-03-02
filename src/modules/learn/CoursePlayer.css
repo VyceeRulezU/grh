@@ -27,6 +27,11 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.player-back:hover {
+  color: var(--primary);
 }
 
 .player-course-title {
@@ -82,6 +87,15 @@
   /* Prevent shrinking */
   flex-shrink: 0;
   width: 100%;
+}
+
+/* YouTube iframe embed */
+.yt-iframe {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  border: none;
 }
 
 /* YouTube-style placeholder */

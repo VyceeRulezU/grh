@@ -154,6 +154,9 @@
     width: 100%;
     overflow: hidden;
     background: white;
+    border-radius: var(--radius-lg);
+    margin-top: 2rem;
+    margin-bottom: 4rem;
 }
 
 .trusted-by p {
@@ -166,7 +169,7 @@
 }
 
 .trusted-by-carousel {
-    width: 100%;
+    width: var(--max-width);
     overflow: hidden;
     position: relative;
     padding: 1rem 0;

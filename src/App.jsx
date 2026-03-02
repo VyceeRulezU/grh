@@ -37,7 +37,19 @@ function App() {
     }
   };
 
+  // Pages that require authentication
+  const PROTECTED_PAGES = ['learn-player', 'learn-discovery', 'explore', 'student', 'course-player'];
+
   const navigate = (page) => {
+    // Auth gate: redirect to login if trying to access protected pages without login
+    if (PROTECTED_PAGES.includes(page) && !user) {
+      localStorage.setItem('returnPage', page);
+      setCurrentPage('login');
+      const base = import.meta.env.BASE_URL || '/';
+      window.history.pushState({}, '', `${base}login`);
+      window.scrollTo(0, 0);
+      return;
+    }
     setCurrentPage(page);
     localStorage.setItem('currentPage', page);
     // Update browser URL without reload
@@ -49,6 +61,12 @@ function App() {
   const handleLogin = (userData) => {
     setUser(userData);
     setShowAuth(false);
+    // If user was redirected from a protected page, go back there
+    const returnPage = localStorage.getItem('returnPage');
+    if (returnPage) {
+      localStorage.removeItem('returnPage');
+      navigate(returnPage);
+    }
   };
 
   const handleLogout = () => {
@@ -57,7 +75,7 @@ function App() {
 
   return (
     <div className="app-container">
-      {(currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
+      {(currentPage !== 'welcome' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
         <Navbar 
           onNavigate={navigate} 
           currentPage={currentPage} 
@@ -93,7 +111,7 @@ function App() {
         )}
       </main>
 
-      {['welcome','learn','research','assess','analyse','learn-discovery'].includes(currentPage) && <Footer onNavigate={navigate} />}
+      {['learn','research','assess','analyse','learn-discovery'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 

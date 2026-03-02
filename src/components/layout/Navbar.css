@@ -90,6 +90,47 @@
   font-weight: 600;
 }
 
+/* ===== Logged-in user avatar ===== */
+.nav-user-area {
+  display: flex;
+  align-items: center;
+}
+
+.nav-avatar {
+  width: 3rem;
+  height: 3rem;
+  min-width: 3rem;
+  min-height: 3rem;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  border: 2px solid transparent;
+}
+
+.nav-avatar:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(77, 167, 113, 0.2);
+}
+
+.nav-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nav-avatar-initial {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
 .mobile-toggle {
   display: none;
   background: transparent;
