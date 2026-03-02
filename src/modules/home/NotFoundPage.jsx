@@ -7,14 +7,14 @@ const NotFoundPage = ({ onNavigate }) => {
     <div className="notfound-container">
       {/* Background decoration matching welcome page */}
       <div className="notfound-bg-pattern">
-        <img src="assets/hero-vector.svg" alt="" aria-hidden="true" />
+        <img src={`${import.meta.env.BASE_URL}assets/hero-vector.svg`} alt="" aria-hidden="true" />
       </div>
 
       <div className="notfound-content">
         {/* Chip — same as hero-chip on welcome page */}
         <div className="hero-chip notfound-chip">
           <div className="dot">
-            <img src="assets/color-dots-[1.0].svg" alt="" />
+            <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="" />
           </div>
           <p className="chip-text">Page Not Found</p>
         </div>

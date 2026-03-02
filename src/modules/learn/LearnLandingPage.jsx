@@ -39,7 +39,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             <div className="hero-left-container">
               <div className="hero-chip">
                 <div className="dot">
-                  <img src="/assets/color-dots-[1.0].svg" alt="dot" />
+                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
                 </div>
                 <p className="chip-text">Structured Learning Paths</p>
               </div>
@@ -88,7 +88,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((id, i) => (
               <img 
                 key={i} 
-                src="/assets/grh-logo-v2.svg" 
+                src={`${import.meta.env.BASE_URL}assets/grh-logo-v2.svg`} 
                 alt={`Institution partner ${id}`} 
                 className="trusted-by-logo" 
               />

@@ -49,7 +49,7 @@ const WelcomeGateway = ({ onNavigate }) => {
     <div className="welcome-container">
       <div className="hero-section">
         <div className="pattern">
-          <img src="assets/hero-vector.svg" alt="hero background" />
+          <img src={`${import.meta.env.BASE_URL}assets/hero-vector.svg`} alt="hero background" />
         </div>
 
         <div className="title-container">
@@ -57,7 +57,7 @@ const WelcomeGateway = ({ onNavigate }) => {
             <div className="hero-header">
               <div className="hero-chip">
                 <div className="dot">
-                  <img src="assets/color-dots-[1.0].svg" alt="dot" />
+                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
                 </div>
                 <p className="chip-text">Your Governance intelligence Platform</p>
               </div>

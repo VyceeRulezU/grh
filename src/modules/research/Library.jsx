@@ -110,7 +110,7 @@ const Library = () => {
             <div className="hero-inner-left">
               <div className="hero-chip">
                 <div className="dot">
-                  <img src="/assets/color-dots-[1.0].svg" alt="dot" />
+                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
                 </div>
                 <p className="chip-text">Digital e-Library</p>
               </div>

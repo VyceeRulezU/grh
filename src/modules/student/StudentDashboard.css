@@ -531,3 +531,698 @@
 @media (max-width: 600px) {
   .recommended-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SHARED PANEL STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.std-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.std-filter-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.std-filter-btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: var(--bg-weak);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.std-filter-btn:hover { color: var(--secondary); }
+.std-filter-btn.active { background: var(--secondary); color: white; }
+
+.std-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  margin-left: 0.5rem;
+}
+
+.std-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  border: 1.5px dashed var(--stroke-soft);
+}
+
+.std-empty i {
+  font-size: 3rem;
+  color: var(--text-soft);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.std-empty h4 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 0.5rem;
+}
+
+.std-empty p {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  margin-bottom: 1.5rem;
+}
+
+.std-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-weak);
+  color: var(--secondary);
+  font-size: 1rem;
+  transition: var(--transition);
+  cursor: pointer;
+  border: none;
+}
+
+.std-icon-btn:hover { background: var(--primary); color: white; }
+.std-icon-btn.danger:hover { background: #ef4444; color: white; }
+
+/* ═══════════════════════════════════════════════════════════════
+   COURSES PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+.std-course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.std-course-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--stroke-soft);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.std-course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.std-course-thumb {
+  height: 140px;
+  background: linear-gradient(135deg, var(--secondary) 0%, #1a2332 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.std-thumb-emoji {
+  font-size: 3rem;
+}
+
+.std-course-thumb .badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.std-course-info {
+  padding: 1.25rem;
+}
+
+.std-course-cat {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.std-course-info h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin: 0.5rem 0;
+  line-height: 1.3;
+}
+
+.std-instructor {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  margin-bottom: 0.75rem;
+}
+
+.std-instructor i {
+  margin-right: 4px;
+}
+
+.std-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.std-progress-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.std-course-bottom {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
+.std-course-bottom i {
+  margin-right: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TUTORIALS PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+.std-tutorial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.std-tutorial-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--stroke-soft);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.std-tutorial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.std-tutorial-thumb {
+  height: 170px;
+  position: relative;
+  overflow: hidden;
+}
+
+.std-tutorial-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.std-play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.std-tutorial-card:hover .std-play-overlay {
+  opacity: 1;
+}
+
+.std-play-overlay .material-symbols-outlined {
+  font-size: 3rem;
+  color: white;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  padding: 0.5rem;
+  backdrop-filter: blur(4px);
+}
+
+.std-duration {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.std-tutorial-info {
+  padding: 1.25rem;
+}
+
+.std-tut-cat {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.std-tutorial-info h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin: 0.5rem 0 0.5rem;
+  line-height: 1.3;
+}
+
+.std-tutorial-info p {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.std-tutorial-info p i {
+  margin-right: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WORKSHOP PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+.std-workshop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.std-workshop-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--stroke-soft);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: var(--transition);
+}
+
+.std-workshop-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.std-ws-date {
+  flex-shrink: 0;
+  width: 64px;
+  height: 72px;
+  background: linear-gradient(135deg, var(--secondary), #1a2332);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.std-ws-day {
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.std-ws-month {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.std-ws-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.std-ws-info h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 0.5rem;
+}
+
+.std-ws-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  margin-bottom: 0.5rem;
+}
+
+.std-ws-meta i {
+  margin-right: 4px;
+}
+
+.std-ws-tags {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.std-ws-action {
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOKMARK PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+.std-bookmark-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.std-bookmark-card {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid var(--stroke-soft);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: var(--transition);
+}
+
+.std-bookmark-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.std-bk-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--bg-weak);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+.std-bk-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.std-bk-type {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary);
+  background: rgba(77,167,113,0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.std-bk-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--secondary);
+  margin: 0.4rem 0 0.25rem;
+}
+
+.std-bk-info p {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.std-bk-date {
+  font-size: 0.7rem;
+  color: var(--text-soft);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.std-bk-date i {
+  margin-right: 4px;
+  font-size: 0.75rem;
+}
+
+.std-bk-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESOURCES PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+.std-resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.std-resource-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--stroke-soft);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.std-resource-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.std-res-cover {
+  height: 160px;
+  position: relative;
+  overflow: hidden;
+}
+
+.std-res-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.std-res-type {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.type-perl  { background: #eff6ff; color: #2563eb; }
+.type-sparc { background: #fef8e6; color: #a06200; }
+.type-slgp  { background: #edfaf2; color: var(--primary); }
+
+.std-res-info {
+  padding: 1.25rem;
+}
+
+.std-res-info h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+
+.std-res-info p {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  margin-bottom: 0.75rem;
+}
+
+.std-res-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CERTIFICATIONS PANEL
+   ═══════════════════════════════════════════════════════════════ */
+
+.std-cert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.std-cert-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--stroke-soft);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: var(--transition);
+}
+
+.std-cert-card.earned {
+  border-left: 4px solid var(--primary);
+}
+
+.std-cert-card.progress {
+  border-left: 4px solid #f59e0b;
+}
+
+.std-cert-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.std-cert-badge {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.std-cert-badge.earned {
+  background: linear-gradient(135deg, var(--primary), #2d8e56);
+  color: white;
+}
+
+.std-cert-badge.progress {
+  background: #fef8e6;
+  color: #d97706;
+}
+
+.std-cert-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.std-cert-info h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 0.5rem;
+}
+
+.std-cert-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.std-cert-meta i {
+  margin-right: 4px;
+}
+
+.std-cert-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Summary cards */
+.std-cert-summary {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.std-cert-stat {
+  flex: 1;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--stroke-soft);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.std-cert-stat-num {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--secondary);
+}
+
+.std-cert-stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-top: 0.25rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NEW PANELS — RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .std-workshop-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .std-ws-action { width: 100%; }
+  .std-ws-action button { width: 100%; }
+
+  .std-cert-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .std-cert-actions {
+    width: 100%;
+  }
+
+  .std-cert-actions button {
+    flex: 1;
+  }
+
+  .std-bookmark-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .std-bk-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .std-cert-summary {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .std-course-grid,
+  .std-tutorial-grid,
+  .std-resource-grid {
+    grid-template-columns: 1fr;
+  }
+}
