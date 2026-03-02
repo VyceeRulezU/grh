@@ -211,14 +211,24 @@ function CourseModal({ onClose, onSave, initial }) {
   );
 }
 
-function ResourceModal({ onClose, onSave }) {
-  const [form, setForm] = useState({ title: '', type: 'PERL', category: 'Governance', description: '', fileUrl: '' });
+function ResourceModal({ onClose, onSave, initial }) {
+  const [form, setForm] = useState(initial || { title: '', type: 'PERL', category: 'Governance', description: '', fileUrl: '' });
+  const [file, setFile] = useState(null);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      set('fileUrl', URL.createObjectURL(selectedFile));
+    }
+  };
+
   return (
     <div className="adm-modal-overlay">
       <div className="adm-modal animate-up">
         <header className="adm-modal-header">
-          <h3>Add Library Resource</h3>
+          <h3>{initial ? 'Edit Library Resource' : 'Add Library Resource'}</h3>
           <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
         </header>
         <div className="adm-modal-body">
@@ -234,11 +244,16 @@ function ResourceModal({ onClose, onSave }) {
             </div>
           </div>
           <div className="adm-form-group"><label>Description</label><textarea rows="2" value={form.description} onChange={e => set('description', e.target.value)} /></div>
-          <div className="adm-form-group"><label>File / PDF URL</label><input type="url" placeholder="https://... link to document" value={form.fileUrl} onChange={e => set('fileUrl', e.target.value)} /></div>
+          <div className="adm-form-group">
+            <label>Upload Document (PDF/Doc)</label>
+            <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileChange} />
+            {initial && !file && <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: 4}}>Current: {form.fileUrl}</p>}
+            {file && <p style={{fontSize: '0.8rem', color: 'var(--primary)', marginTop: 4}}>New: {file.name}</p>}
+          </div>
         </div>
         <footer className="adm-modal-footer">
           <button className="btn-outline" onClick={onClose}>Cancel</button>
-          <button className="special-button" onClick={() => { onSave(form); onClose(); }}>Save Resource</button>
+          <button className="special-button" onClick={() => { onSave(form); onClose(); }}>{initial ? 'Save Changes' : 'Save Resource'}</button>
         </footer>
       </div>
     </div>
@@ -248,8 +263,8 @@ function ResourceModal({ onClose, onSave }) {
 /* ----- BOOK MODAL ----- */
 const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
 
-function BookModal({ onClose, onSave }) {
-  const [books, setBooks] = useState([{ title: '', summary: '', imagePreview: '', imageFile: null, bookFile: null }]);
+function BookModal({ onClose, onSave, initial }) {
+  const [books, setBooks] = useState(initial ? [initial] : [{ title: '', summary: '', imagePreview: '', imageFile: null, bookFile: null }]);
 
   const updateBook = (i, key, value) => {
     const updated = [...books];
@@ -277,21 +292,21 @@ function BookModal({ onClose, onSave }) {
     <div className="adm-modal-overlay">
       <div className="adm-modal animate-up" style={{ maxWidth: 700 }}>
         <header className="adm-modal-header">
-          <h3>Add Books / Resources</h3>
+          <h3>{initial ? 'Edit Book' : 'Add Books / Resources'}</h3>
           <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
         </header>
         <div className="adm-modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
           {books.map((book, i) => (
             <div key={i} className="adm-book-entry" style={{ padding: '1.25rem', background: 'var(--bg-weak)', borderRadius: 'var(--radius-lg)', marginBottom: '1rem', position: 'relative' }}>
-              {books.length > 1 && (
+              {!initial && books.length > 1 && (
                 <button className="adm-remove-btn" style={{ position: 'absolute', top: 12, right: 12 }} onClick={() => removeBook(i)}><i className="ri-delete-bin-line"></i></button>
               )}
               <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1rem' }}>
                 <div className="adm-book-img-upload" style={{ width: 120, height: 160, borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px dashed var(--stroke-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', flexShrink: 0, background: '#f9f9fb' }}>
                   <img
-                    src={book.imagePreview || DEFAULT_BOOK_IMG}
+                    src={book.imagePreview || book.imageUrl || DEFAULT_BOOK_IMG}
                     alt="Cover"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: book.imagePreview ? 1 : 0.4 }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: (book.imagePreview || book.imageUrl) ? 1 : 0.4 }}
                   />
                   <input
                     type="file"
@@ -299,7 +314,7 @@ function BookModal({ onClose, onSave }) {
                     onChange={(e) => handleImageChange(i, e)}
                     style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
                   />
-                  {!book.imagePreview && <span style={{ position: 'absolute', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-soft)', textAlign: 'center', padding: '0.5rem' }}>Click to add cover</span>}
+                  {!(book.imagePreview || book.imageUrl) && <span style={{ position: 'absolute', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-soft)', textAlign: 'center', padding: '0.5rem' }}>Click to add cover</span>}
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div className="adm-form-group">
@@ -316,28 +331,32 @@ function BookModal({ onClose, onSave }) {
                 <label>Upload Book File (PDF, EPUB, etc.)</label>
                 <input type="file" accept=".pdf,.epub,.doc,.docx" onChange={(e) => handleFileChange(i, e)} />
                 {book.bookFile && <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: 4 }}>📄 {book.bookFile.name}</span>}
+                {initial && !book.bookFile && <span style={{ fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: 4 }}>Current: {book.fileUrl}</span>}
               </div>
             </div>
           ))}
-          <button className="adm-add-btn" type="button" onClick={addAnother} style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }}>
-            <i className="ri-add-line"></i> Add Another Book
-          </button>
+          {!initial && (
+            <button className="adm-add-btn" type="button" onClick={addAnother} style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }}>
+              <i className="ri-add-line"></i> Add Another Book
+            </button>
+          )}
         </div>
         <footer className="adm-modal-footer">
           <button className="btn-outline" onClick={onClose}>Cancel</button>
           <button className="special-button" onClick={() => {
-            const newBooks = books.filter(b => b.title.trim()).map(b => ({
-              id: Date.now() + Math.random(),
+            const resultBooks = books.filter(b => b.title.trim()).map(b => ({
+              id: b.id || (Date.now() + Math.random()),
               title: b.title,
               summary: b.summary,
-              imageUrl: b.imagePreview || '',
-              fileUrl: b.bookFile ? URL.createObjectURL(b.bookFile) : '#',
-              status: 'Draft',
+              imageUrl: b.imagePreview || b.imageUrl || '',
+              fileUrl: b.bookFile ? URL.createObjectURL(b.bookFile) : (b.fileUrl || '#'),
+              status: b.status || 'Draft',
             }));
-            onSave(newBooks);
+            if (initial) onSave(resultBooks[0]);
+            else onSave(resultBooks);
             onClose();
           }}>
-            Publish {books.length > 1 ? `${books.length} Books` : 'Book'}
+            {initial ? 'Save Changes' : `Publish ${books.length > 1 ? `${books.length} Books` : 'Book'}`}
           </button>
         </footer>
       </div>
@@ -458,6 +477,9 @@ function CoursesPanel({ courses, setCourses }) {
                 <td>
                   <div className="adm-row-actions">
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(c.id)}><i className="ri-edit-line"></i></button>
+                    <button className="adm-icon-btn" title="Toggle status" onClick={() => setCourses(cs => cs.map(x => x.id === c.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
+                      <i className={c.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                    </button>
                     <button className="adm-icon-btn danger" title="Delete" onClick={() => setCourses(cs => cs.filter(x => x.id !== c.id))}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
@@ -479,12 +501,22 @@ function CoursesPanel({ courses, setCourses }) {
 }
 
 function ResourcesPanel({ resources, setResources }) {
-  const [modal, setModal] = useState(false);
+  const [modal, setModal] = useState(null); // null | 'add' | number (id)
+  const editItem = resources.find(r => r.id === modal);
+
+  const save = (form) => {
+    if (typeof modal === 'number') {
+      setResources(rs => rs.map(r => r.id === modal ? { ...r, ...form } : r));
+    } else {
+      setResources(rs => [...rs, { ...form, id: Date.now(), status: 'Draft' }]);
+    }
+  };
+
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Library Resources <span className="adm-count">{resources.length}</span></h3>
-        <button className="special-button" onClick={() => setModal(true)}><i className="ri-add-line"></i> Add Resource</button>
+        <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Resource</button>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
@@ -498,6 +530,7 @@ function ResourcesPanel({ resources, setResources }) {
                 <td><span className={`adm-status-badge ${r.status === 'Published' ? 'published' : 'draft'}`}>{r.status}</span></td>
                 <td>
                   <div className="adm-row-actions">
+                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(r.id)}><i className="ri-edit-line"></i></button>
                     <button className="adm-icon-btn" title="Toggle status" onClick={() => setResources(rs => rs.map(x => x.id === r.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
                       <i className={r.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
@@ -509,7 +542,7 @@ function ResourcesPanel({ resources, setResources }) {
           </tbody>
         </table>
       </div>
-      {modal && <ResourceModal onClose={() => setModal(false)} onSave={form => setResources(rs => [...rs, { ...form, id: Date.now(), status: 'Draft' }])} />}
+      {modal && <ResourceModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
     </div>
   );
 }
@@ -679,13 +712,23 @@ function AdminSettingsPanel() {
 
 /* --- BOOKS PANEL --- */
 function BooksPanel({ books, setBooks }) {
-  const [modal, setModal] = useState(false);
+  const [modal, setModal] = useState(null); // null | 'add' | number (id)
+  const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+
+  const save = (data) => {
+    if (typeof modal === 'number') {
+      setBooks(bs => bs.map(b => b.id === modal ? { ...b, ...data } : b));
+    } else {
+      setBooks(bs => [...bs, ...data]);
+    }
+  };
+
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Books <span className="adm-count">{books.length}</span></h3>
-        <button className="special-button" onClick={() => setModal(true)}><i className="ri-add-line"></i> Add Book</button>
+        <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Book</button>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
@@ -701,6 +744,7 @@ function BooksPanel({ books, setBooks }) {
                 <td><span className={`adm-status-badge ${b.status === 'Published' ? 'published' : 'draft'}`}>{b.status}</span></td>
                 <td>
                   <div className="adm-row-actions">
+                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(b.id)}><i className="ri-edit-line"></i></button>
                     <button className="adm-icon-btn" title="Toggle status" onClick={() => setBooks(bs => bs.map(x => x.id === b.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
                       <i className={b.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
@@ -712,7 +756,7 @@ function BooksPanel({ books, setBooks }) {
           </tbody>
         </table>
       </div>
-      {modal && <BookModal onClose={() => setModal(false)} onSave={newBooks => setBooks(bs => [...bs, ...newBooks])} />}
+      {modal && <BookModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
     </div>
   );
 }
