@@ -458,6 +458,10 @@
     border: 1px solid var(--stroke-soft);
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .slider-btn {
