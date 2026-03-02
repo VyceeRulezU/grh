@@ -74,6 +74,56 @@ const NAV_GROUPS = [
 /* =====================================================================
    MODALS
 ===================================================================== */
+function UserModal({ onClose, onSave }) {
+  const [form, setForm] = useState({ name: '', email: '', role: 'Learner', status: 'Active' });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  return (
+    <div className="adm-modal-overlay">
+      <div className="adm-modal animate-up" style={{ maxWidth: 450 }}>
+        <header className="adm-modal-header">
+          <h3>Invite/Add User</h3>
+          <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
+        </header>
+        <div className="adm-modal-body">
+          <div className="adm-form-group">
+            <label>Full Name*</label>
+            <input placeholder="e.g. John Doe" value={form.name} onChange={e => set('name', e.target.value)} />
+          </div>
+          <div className="adm-form-group">
+            <label>Email Address*</label>
+            <input type="email" placeholder="john@example.com" value={form.email} onChange={e => set('email', e.target.value)} />
+          </div>
+          <div className="adm-form-row">
+            <div className="adm-form-group">
+              <label>Role</label>
+              <select value={form.role} onChange={e => set('role', e.target.value)}>
+                {['Learner','Instructor','Admin'].map(r => <option key={r}>{r}</option>)}
+              </select>
+            </div>
+            <div className="adm-form-group">
+              <label>Initial Status</label>
+              <select value={form.status} onChange={e => set('status', e.target.value)}>
+                <option>Active</option>
+                <option>Inactive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <footer className="adm-modal-footer">
+          <button className="btn-outline" onClick={onClose}>Cancel</button>
+          <button className="special-button" onClick={() => { 
+            if(!form.name || !form.email) return alert('Name and Email are required');
+            onSave(form); 
+            onClose(); 
+          }}>
+            Send Invitation
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 function CourseModal({ onClose, onSave, initial }) {
   const [form, setForm] = useState(initial || {
     title: '', category: 'Governance', instructor: '', level: 'Beginner',
@@ -464,12 +514,13 @@ function ResourcesPanel({ resources, setResources }) {
   );
 }
 
-function UsersPanel({ users }) {
+function UsersPanel({ users, setUsers }) {
+  const [modal, setModal] = useState(false);
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Users <span className="adm-count">{users.length}</span></h3>
-        <button className="special-button"><i className="ri-user-add-line"></i> Invite User</button>
+        <button className="special-button" onClick={() => setModal(true)}><i className="ri-user-add-line"></i> Invite User</button>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
@@ -480,12 +531,13 @@ function UsersPanel({ users }) {
                 <td><strong>{u.name}</strong></td>
                 <td>{u.email}</td>
                 <td>{u.role}</td>
-                <td>{u.courses}</td>
-                <td>{u.joined}</td>
+                <td>{u.courses || 0}</td>
+                <td>{u.joined || 'Just now'}</td>
                 <td><span className={`adm-status-badge ${u.status === 'Active' ? 'published' : 'draft'}`}>{u.status}</span></td>
                 <td>
                   <div className="adm-row-actions">
                     <button className="adm-icon-btn"><i className="ri-edit-line"></i></button>
+                    <button className="adm-icon-btn danger" onClick={() => setUsers(us => us.filter(x => x.email !== u.email))}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -493,6 +545,12 @@ function UsersPanel({ users }) {
           </tbody>
         </table>
       </div>
+      {modal && (
+        <UserModal 
+          onClose={() => setModal(false)} 
+          onSave={(nu) => setUsers(us => [{ ...nu, courses: 0, joined: 'Mar 2024' }, ...us])} 
+        />
+      )}
     </div>
   );
 }
@@ -521,6 +579,104 @@ function AnalyticsPanel() {
   );
 }
 
+function AdminQuizzesPanel() {
+  return (
+    <div className="adm-panel">
+      <div className="adm-panel-header"><h3>Quizzes & Assessments</h3></div>
+      <div className="adm-placeholder-card">
+        <i className="ri-file-list-3-line"></i>
+        <h4>Quizzes Management Coming Soon</h4>
+        <p>You'll soon be able to create, edit and grade assessments directly from here.</p>
+      </div>
+    </div>
+  );
+}
+
+function AdminInstructorsPanel() {
+  return (
+    <div className="adm-panel">
+      <div className="adm-panel-header"><h3>Instructors</h3></div>
+      <div className="adm-placeholder-card">
+        <i className="ri-user-star-line"></i>
+        <h4>Instructor Management Coming Soon</h4>
+        <p>A hub to manage your team of governance experts and guest lecturers.</p>
+      </div>
+    </div>
+  );
+}
+
+function AdminSettingsPanel() {
+  const [name, setName] = useState("GRH Admin");
+  const [email, setEmail] = useState("admin@govhub.org");
+  const [avatar, setAvatar] = useState(null);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatar(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  return (
+    <div className="adm-panel">
+      <div className="adm-panel-header"><h3>System Settings</h3></div>
+      <div className="adm-settings-form">
+        <section className="adm-settings-section">
+          <h4>Administrator Profile</h4>
+          
+          <div className="adm-avatar-settings" style={{ display: 'flex', gap: '2rem', alignItems: 'center', marginBottom: '2rem', padding: '1.5rem', background: 'var(--bg-weak)', borderRadius: '12px' }}>
+            <div className="adm-current-avatar" style={{ width: 100, height: 100, borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 700, overflow: 'hidden' }}>
+              {avatar ? <img src={avatar} alt="Admin" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : 'AD'}
+            </div>
+            <div className="adm-avatar-actions">
+              <label className="special-button btn-sm" style={{ cursor: 'pointer', display: 'inline-block', marginBottom: '0.5rem' }}>
+                Change Avatar
+                <input type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+              </label>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}>Upload a professional headshot. JPG, PNG or GIF.</p>
+            </div>
+          </div>
+
+          <div className="adm-form-row">
+            <div className="adm-form-group">
+              <label>Full Name</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} />
+            </div>
+            <div className="adm-form-group">
+              <label>Email Address</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+          </div>
+        </section>
+        
+        <section className="adm-settings-section">
+          <h4>Platform Configuration</h4>
+          <div className="adm-form-group">
+            <label>Platform Name</label>
+            <input type="text" value="Governance Resource Hub" readOnly />
+          </div>
+          <div className="adm-form-group">
+            <label>Timezone</label>
+            <select disabled><option>West Africa Time (WAT)</option></select>
+          </div>
+        </section>
+
+        <section className="adm-settings-section">
+          <h4>Danger Zone</h4>
+          <p style={{fontSize: '0.85rem', color: 'var(--text-soft)', marginBottom: '1rem'}}>Crucial system actions that cannot be undone.</p>
+          <button className="btn-outline danger">Reset Platform Analytics</button>
+        </section>
+        
+        <div className="adm-form-actions">
+          <button className="special-button">Save Configuration</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* --- BOOKS PANEL --- */
 function BooksPanel({ books, setBooks }) {
   const [modal, setModal] = useState(false);
@@ -537,8 +693,8 @@ function BooksPanel({ books, setBooks }) {
           <tbody>
             {books.map(b => (
               <tr key={b.id}>
-                <td style={{width: 60}}>
-                  <img src={b.imageUrl || DEFAULT_BOOK_IMG} alt={b.title} style={{width: 40, height: 56, objectFit: 'cover', borderRadius: 6}} />
+                <td style={{width: 80}}>
+                  <img src={b.imageUrl || DEFAULT_BOOK_IMG} alt={b.title} style={{width: 60, height: 56, objectFit: 'cover', borderRadius: 6}} />
                 </td>
                 <td><strong>{b.title}</strong></td>
                 <td style={{maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{b.summary}</td>
@@ -564,7 +720,17 @@ function BooksPanel({ books, setBooks }) {
 /* =====================================================================
    MAIN COMPONENT
 ===================================================================== */
-const PANEL_MAP = { overview: OverviewPanel, courses: CoursesPanel, resources: ResourcesPanel, users: UsersPanel, analytics: AnalyticsPanel, books: BooksPanel };
+const PANEL_MAP = { 
+  overview: OverviewPanel, 
+  courses: CoursesPanel, 
+  resources: ResourcesPanel, 
+  users: UsersPanel, 
+  analytics: AnalyticsPanel, 
+  books: BooksPanel,
+  quizzes: AdminQuizzesPanel,
+  instructors: AdminInstructorsPanel,
+  settings: AdminSettingsPanel
+};
 const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:'var(--text-soft)'}}>Panel '{id}' — coming soon</p></div>;
 
 const AdminDashboard = ({ onNavigate }) => {
@@ -573,7 +739,7 @@ const AdminDashboard = ({ onNavigate }) => {
   const [courses, setCourses] = useState(COURSES);
   const [resources, setResources] = useState(RESOURCES);
   const [books, setBooks] = useState(BOOKS);
-  const [users] = useState(USERS);
+  const [users, setUsers] = useState(USERS);
 
   /* --- Main Dashboard --- */
 
@@ -640,8 +806,11 @@ const AdminDashboard = ({ onNavigate }) => {
             {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} />}
             {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} />}
             {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} />}
-            {activeSection === 'users'      && <UsersPanel users={users} />}
+            {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} />}
             {activeSection === 'analytics'  && <AnalyticsPanel />}
+            {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
+            {activeSection === 'instructors'&& <AdminInstructorsPanel />}
+            {activeSection === 'settings'   && <AdminSettingsPanel />}
             {!PANEL_MAP[activeSection] && (
               <div className="adm-panel"><p style={{color:'var(--text-soft)', padding:'2rem'}}>Panel '{activeSection}' — coming soon</p></div>
             )}

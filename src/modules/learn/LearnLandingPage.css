@@ -5,7 +5,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 1rem; /* Padding as requested */
+    /* padding: 0 1rem; Padding as requested */
 }
 
 /* ===== HERO SECTION ===== */
@@ -31,6 +31,7 @@
     background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
+    padding: 4rem;
     align-items: center;
     justify-content: flex-end;
 }
@@ -111,7 +112,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem;
 }
 
 .avatar-stack {
@@ -139,7 +139,7 @@
 
 .rating-score {
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--text-white);
 }
 
@@ -549,7 +549,7 @@
     color: var(--text-soft);
     font-size: 1.1rem;
     max-width: 60ch;
-    margin: -2rem auto 4rem;
+    margin: 2rem auto 4rem;
     line-height: 1.6;
 }
 
@@ -762,5 +762,10 @@
     .section-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .social-proof{
+        display: flex;
+        flex-direction: column;
     }
 }

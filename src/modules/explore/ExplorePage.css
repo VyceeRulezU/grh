@@ -133,7 +133,7 @@
 }
 
 .sidebar-footer {
-  height: 9.75rem;
+  height: auto;
   padding: 16px;
   border-top: 1px solid #E5E7EB;
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RESOURCES } from '../../data/legacyData';
 import CtaSection from '../../components/ui/CtaSection';
+import Pagination from '../../components/ui/Pagination';
 import './Library.css';
 import './ResourceViewer.css';
 
@@ -10,6 +11,8 @@ const Library = () => {
   const [selectedCats, setSelectedCats] = useState([]);
   const [viewMode, setViewMode] = useState("grid");
   const [readingResource, setReadingResource] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const toggleType = (t) => {
     setSelectedTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
@@ -26,6 +29,14 @@ const Library = () => {
     const mc = selectedCats.length === 0 || selectedCats.includes(r.category);
     return ms && mt && mc;
   });
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
 
   if (readingResource) {
     return (
@@ -186,7 +197,7 @@ const Library = () => {
             </div>
 
             <div className={viewMode === 'grid' ? 'resources-grid' : 'resources-list'}>
-              {filtered.map((res, i) => (
+              {pagedItems.map((res, i) => (
                 viewMode === 'grid' ? (
                   <div key={res.id} className="resource-card animate-up" style={{animationDelay: `${i*0.05}s`}} onClick={() => setReadingResource(res)}>
                     <div className="resource-cover">
@@ -233,6 +244,12 @@ const Library = () => {
                 )
               ))}
             </div>
+
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
 
             {filtered.length === 0 && (
               <div className="empty-state">

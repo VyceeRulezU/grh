@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import Tab from '../../components/ui/Tab';
+import Pagination from '../../components/ui/Pagination';
 import './CourseDiscovery.css';
 
 const CATEGORY_TABS = [
@@ -36,10 +37,25 @@ const COURSE_IMAGES = [
 
 const CourseDiscovery = ({ onNavigate }) => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filtered = activeCategory === "All" 
     ? ALL_COURSES 
     : ALL_COURSES.filter(c => c.category === activeCategory);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveCategory(tab);
+    setCurrentPage(1); // Reset to first page on category change
+  };
 
   return (
     <div className="discovery-v2 section-padding">
@@ -54,12 +70,12 @@ const CourseDiscovery = ({ onNavigate }) => {
           <Tab 
             tabs={CATEGORY_TABS} 
             activeTab={activeCategory} 
-            onTabChange={setActiveCategory} 
+            onTabChange={handleTabChange} 
           />
         </header>
 
         <div className="discovery-grid-v2">
-          {filtered.map((course, i) => (
+          {pagedItems.map((course, i) => (
             <article 
               key={course.id} 
               className="disc-course-card animate-in" 
@@ -91,6 +107,12 @@ const CourseDiscovery = ({ onNavigate }) => {
             </article>
           ))}
         </div>
+
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

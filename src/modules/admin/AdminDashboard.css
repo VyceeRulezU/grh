@@ -162,11 +162,14 @@
   transition: var(--transition);
   width: 100%;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .adm-nav-link:hover {
   background: rgba(255,255,255,0.1);
-  color: white;
+  color: var(--primary);
 }
 
 .adm-nav-link.active {
@@ -775,4 +778,64 @@
 @media (max-width: 480px) {
   .adm-stats-grid { grid-template-columns: 1fr; }
   .adm-action-row { grid-template-columns: 1fr; }
+}
+
+/* Placeholder & Settings Panels */
+.adm-placeholder-card {
+  background: white;
+  border-radius: 16px;
+  border: 2px dashed var(--stroke-soft);
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.adm-placeholder-card i {
+  font-size: 4rem;
+  color: var(--primary);
+  opacity: 0.2;
+  margin-bottom: 1.5rem;
+}
+
+.adm-placeholder-card h4 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--secondary);
+}
+
+.adm-placeholder-card p {
+  color: var(--text-soft);
+  max-width: 400px;
+}
+
+.adm-settings-form {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  border: 1px solid var(--stroke-soft);
+  max-width: 900px;
+  margin-top: 1rem;
+}
+
+.adm-settings-section {
+  margin-bottom: 2.5rem;
+}
+
+.adm-settings-section h4 {
+  font-size: 1.1rem;
+  color: var(--secondary);
+  border-bottom: 1px solid var(--bg-weak);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.adm-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bg-weak);
 }

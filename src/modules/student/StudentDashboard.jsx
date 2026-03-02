@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { COURSES, RESOURCES } from '../../data/legacyData';
+import Pagination from '../../components/ui/Pagination';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 
@@ -30,14 +31,6 @@ const WORKSHOPS = [
   { id: 5, title: 'Fiscal Decentralisation Forum', date: 'Jan 18, 2024', time: '3:00 PM WAT', status: 'Completed', host: 'UN-Habitat', attendees: 150, format: 'In-person' },
 ];
 
-const BOOKMARKS = [
-  { id: 1, type: 'course', title: 'Foundations of Public Governance', desc: 'A comprehensive introduction to public governance principles.', icon: 'ri-book-fill', savedDate: 'Mar 1, 2024' },
-  { id: 2, type: 'resource', title: 'Public Financial Management Handbook', desc: 'World Bank guide to PFM systems.', icon: 'ri-file-text-fill', savedDate: 'Feb 28, 2024' },
-  { id: 3, type: 'course', title: 'Anti-Corruption & Integrity Systems', desc: 'Build integrity systems and understand anti-corruption legislation.', icon: 'ri-book-fill', savedDate: 'Feb 25, 2024' },
-  { id: 4, type: 'resource', title: 'Electoral Systems and Democratic Governance', desc: 'IDEA International analysis of electoral system design.', icon: 'ri-file-text-fill', savedDate: 'Feb 20, 2024' },
-  { id: 5, type: 'tutorial', title: 'How Anti-Corruption Frameworks Work', desc: '18 min tutorial by Ms. Ngozi Adebayo.', icon: 'ri-movie-fill', savedDate: 'Feb 15, 2024' },
-];
-
 const CERTIFICATIONS = [
   { id: 1, title: 'Foundations of Public Governance', issueDate: 'Jan 15, 2024', credentialId: 'GRH-GOV-2024-001', grade: 'Distinction', status: 'Earned' },
   { id: 2, title: 'Anti-Corruption & Integrity Systems', issueDate: 'Feb 28, 2024', credentialId: 'GRH-INT-2024-014', grade: 'Merit', status: 'Earned' },
@@ -61,7 +54,6 @@ const NAV_GROUPS = [
   {
     label: "Library",
     links: [
-      { name: 'Bookmark',       icon: 'ri-bookmark-fill',   badge: String(BOOKMARKS.length) },
       { name: 'Resources',      icon: 'ri-folder-fill' },
     ]
   },
@@ -144,12 +136,12 @@ function HomePanel({ name, onNavigate }) {
         <div className="recommended-grid">
           {COURSES.filter(c => c.progress === 0).slice(0, 3).map(course => (
             <div key={course.id} className="rec-card">
-              <div className="rec-thumb">
+              <div className="rec-thumb" style={{ backgroundImage: `url(${course.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <span className="rec-price">Free</span>
               </div>
               <div className="rec-body">
-                <h4>{course.title}</h4>
-                <p>{course.description.substring(0, 80)}…</p>
+                <h4 className="truncate-1">{course.title}</h4>
+                <p className="truncate-2">{course.description.substring(0, 80)}…</p>
                 <div className="rec-meta">
                   <span className="badge">{course.level}</span>
                   <span className="badge">{course.duration}</span>
@@ -173,6 +165,9 @@ function HomePanel({ name, onNavigate }) {
 
 function CoursesPanel({ onNavigate }) {
   const [filter, setFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
   const filtered = filter === 'all'
     ? MY_COURSES
     : filter === 'completed'
@@ -181,26 +176,34 @@ function CoursesPanel({ onNavigate }) {
         ? MY_COURSES.filter(c => c.progress > 0 && c.progress < 100)
         : MY_COURSES.filter(c => c.progress === 0);
 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <section className="std-panel">
       <div className="section-header">
         <h3>My Courses</h3>
         <div className="std-filter-row">
           {[{id:'all',l:'All'},{id:'in-progress',l:'In Progress'},{id:'completed',l:'Completed'},{id:'not-started',l:'Not Started'}].map(f => (
-            <button key={f.id} className={`std-filter-btn ${filter === f.id ? 'active' : ''}`} onClick={() => setFilter(f.id)}>{f.l}</button>
+            <button key={f.id} className={`std-filter-btn ${filter === f.id ? 'active' : ''}`} onClick={() => { setFilter(f.id); setCurrentPage(1); }}>{f.l}</button>
           ))}
         </div>
       </div>
       <div className="std-course-grid">
-        {filtered.map(course => (
+        {pagedItems.map(course => (
           <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player')}>
             <div className="std-course-thumb">
-              <span className="std-thumb-emoji">{course.thumbnail}</span>
+              <img src={course.coverImage} alt={course.title} className="std-course-cover-img" />
               <span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span>
             </div>
             <div className="std-course-info">
               <span className="std-course-cat">{course.category}</span>
-              <h4>{course.title}</h4>
+              <h4 className="truncate-1">{course.title}</h4>
               <p className="std-instructor"><i className="ri-user-line"></i> {course.instructor}</p>
               <div className="std-progress-row">
                 <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress}%` }}></div></div>
@@ -214,6 +217,11 @@ function CoursesPanel({ onNavigate }) {
           </div>
         ))}
       </div>
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </section>
   );
 }
@@ -304,60 +312,24 @@ function WorkshopPanel() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PANEL: BOOKMARK
+   PANEL: RESOURCES
    ═══════════════════════════════════════════════════════════════ */
-
-function BookmarkPanel({ onNavigate }) {
-  const [bookmarks, setBookmarks] = useState(BOOKMARKS);
-
-  const removeBookmark = (id) => setBookmarks(bs => bs.filter(b => b.id !== id));
-
-  return (
-    <section className="std-panel">
-      <div className="section-header">
-        <h3>Bookmarks <span className="std-count">{bookmarks.length}</span></h3>
-      </div>
-      {bookmarks.length === 0 ? (
-        <div className="std-empty">
-          <i className="ri-bookmark-line"></i>
-          <h4>No bookmarks yet</h4>
-          <p>Save courses, tutorials, and resources to access them quickly later.</p>
-          <button className="special-button" onClick={() => onNavigate('learn')}>Browse Courses</button>
-        </div>
-      ) : (
-        <div className="std-bookmark-list">
-          {bookmarks.map(b => (
-            <div key={b.id} className="std-bookmark-card">
-              <div className="std-bk-icon">
-                <i className={b.icon}></i>
-              </div>
-              <div className="std-bk-info">
-                <span className="std-bk-type">{b.type}</span>
-                <h4>{b.title}</h4>
-                <p>{b.desc}</p>
-                <span className="std-bk-date"><i className="ri-time-line"></i> Saved {b.savedDate}</span>
-              </div>
-              <div className="std-bk-actions">
-                <button className="std-icon-btn" title="Open" onClick={() => onNavigate(b.type === 'course' ? 'learn-player' : 'research')}>
-                  <i className="ri-arrow-right-line"></i>
-                </button>
-                <button className="std-icon-btn danger" title="Remove" onClick={() => removeBookmark(b.id)}>
-                  <i className="ri-bookmark-fill"></i>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════════════
    PANEL: RESOURCES
    ═══════════════════════════════════════════════════════════════ */
 
 function ResourcesPanel({ onNavigate }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+  const totalPages = Math.ceil(MY_RESOURCES.length / itemsPerPage);
+  const pagedItems = MY_RESOURCES.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <section className="std-panel">
       <div className="section-header">
@@ -365,7 +337,7 @@ function ResourcesPanel({ onNavigate }) {
         <button className="view-all" onClick={() => onNavigate('research')}>Browse Library</button>
       </div>
       <div className="std-resource-grid">
-        {MY_RESOURCES.map(r => (
+        {pagedItems.map(r => (
           <div key={r.id} className="std-resource-card" onClick={() => onNavigate('research')}>
             <div className="std-res-cover">
               <img src={r.coverImage} alt={r.title} loading="lazy" />
@@ -383,6 +355,11 @@ function ResourcesPanel({ onNavigate }) {
           </div>
         ))}
       </div>
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </section>
   );
 }
@@ -441,13 +418,81 @@ function CertificationsPanel() {
           <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'Earned').length}</div>
           <div className="std-cert-stat-label">Earned</div>
         </div>
-        <div className="std-cert-stat">
+      <div className="std-cert-stat">
           <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'In Progress').length}</div>
           <div className="std-cert-stat-label">In Progress</div>
         </div>
         <div className="std-cert-stat">
           <div className="std-cert-stat-num">{COURSES.length - CERTIFICATIONS.length}</div>
           <div className="std-cert-stat-label">Available</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   PANEL: SETTINGS
+   ═══════════════════════════════════════════════════════════════ */
+
+function SettingsPanel({ user }) {
+  const [name, setName] = useState(user?.name || "Alex");
+  const [email, setEmail] = useState(user?.email || "alex@example.com");
+  const [avatar, setAvatar] = useState(null);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatar(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  return (
+    <section className="std-panel">
+      <div className="section-header">
+        <h3>Settings</h3>
+      </div>
+      <div className="std-settings-card">
+        <div className="settings-section">
+          <h4>Profile Information</h4>
+          <div className="avatar-upload-area">
+            <div className="current-avatar">
+              {avatar ? <img src={avatar} alt="Avatar" /> : (user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" /> : <div className="avatar-placeholder">{name[0].toUpperCase()}</div>)}
+            </div>
+            <div className="upload-controls">
+              <label className="special-button btn-sm" style={{ cursor: 'pointer' }}>
+                Change Avatar
+                <input type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+              </label>
+              <p className="upload-hint">JPG, PNG or GIF. Max 2MB.</p>
+            </div>
+          </div>
+          <div className="settings-grid">
+            <div className="input-field">
+              <label>Full Name</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} />
+            </div>
+            <div className="input-field">
+              <label>Email Address</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+            <div className="input-field">
+              <label>Role</label>
+              <input type="text" value="Governance Learner" disabled />
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h4>Security</h4>
+          <button className="btn-outline">Change Password</button>
+        </div>
+
+        <div className="settings-actions">
+          <button className="special-button">Save Changes</button>
         </div>
       </div>
     </section>
@@ -469,9 +514,9 @@ const StudentDashboard = ({ user, onNavigate }) => {
       case 'Courses':        return <CoursesPanel onNavigate={onNavigate} />;
       case 'Tutorials':      return <TutorialsPanel onNavigate={onNavigate} />;
       case 'Workshop':       return <WorkshopPanel />;
-      case 'Bookmark':       return <BookmarkPanel onNavigate={onNavigate} />;
       case 'Resources':      return <ResourcesPanel onNavigate={onNavigate} />;
       case 'Certifications': return <CertificationsPanel />;
+      case 'Settings':       return <SettingsPanel user={user} />;
       default:               return <HomePanel name={name} onNavigate={onNavigate} />;
     }
   };
@@ -520,7 +565,9 @@ const StudentDashboard = ({ user, onNavigate }) => {
 
           <div className="sidebar-footer">
             <span className="sidebar-section-label">Account</span>
-            <button className="sidebar-link"><i className="ri-settings-fill"></i> Settings</button>
+            <button className={`sidebar-link ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => setActiveTab('Settings')}>
+              <i className="ri-settings-fill"></i> Settings
+            </button>
             <button className="sidebar-link"><i className="ri-question-fill"></i> Help Center</button>
             <button className="sidebar-link" onClick={() => onNavigate('welcome')}>
               <i className="ri-arrow-left-line"></i> Back to Site

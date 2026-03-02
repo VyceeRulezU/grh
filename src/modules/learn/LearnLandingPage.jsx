@@ -117,7 +117,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         </div>
 
         <div className="courses-grid">
-          {filtered.map((course, i) => (
+          {filtered.slice(0, 6).map((course, i) => (
             <article 
               key={course.id} 
               className="course-card animate-up" 

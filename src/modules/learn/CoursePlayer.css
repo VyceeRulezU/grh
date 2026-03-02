@@ -409,7 +409,7 @@
 
   .player-course-title { order: -1; width: 100%; text-align: left; }
   .player-back { font-size: 0.8rem; }
-  .player-actions .btn-outline { display: none; }
+  .player-actions .btn-outline { display: flex; }
 
   .video-wrapper { padding: 1rem 1rem 0; }
 
