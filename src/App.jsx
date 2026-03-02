@@ -20,7 +20,9 @@ import './App.css'
 
 function App() {
   const getPageFromUrl = () => {
-    const path = window.location.pathname.replace(/\/grh\/?/, '').replace(/^\//, '');
+    // Dynamically handle base path (e.g., /grh/ or /)
+    const base = import.meta.env.BASE_URL || '/';
+    const path = window.location.pathname.replace(base, '').replace(/^\//, '');
     return path || localStorage.getItem('currentPage') || 'welcome';
   };
 
@@ -54,7 +56,8 @@ function App() {
     localStorage.setItem('currentPage', page);
     // Update browser URL without reload
     const base = import.meta.env.BASE_URL || '/';
-    window.history.pushState({}, '', `${base}${page === 'welcome' ? '' : page}`);
+    const fullPath = `${base}${page === 'welcome' ? '' : page}`.replace(/\/+$/, '') || '/';
+    window.history.pushState({}, '', fullPath);
     window.scrollTo(0, 0);
   };
 
