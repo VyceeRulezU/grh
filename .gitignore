@@ -9,7 +9,17 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Temporary files
 file_list.txt
 legacy/
+.DS_Store
