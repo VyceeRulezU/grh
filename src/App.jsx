@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import WelcomeGateway from './modules/home/WelcomeGateway'
 import LearnLandingPage from './modules/learn/LearnLandingPage'
 import Library from './modules/research/Library'
@@ -30,6 +30,26 @@ function App() {
   const [user, setUser] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [authType, setAuthType] = useState('login');
+
+  // Update document title dynamically
+  useEffect(() => {
+    const pageTitles = {
+      'welcome': 'Governance Resource Hub | Excellence Redefined',
+      'learn': 'Learn | GRH',
+      'research': 'Library | GRH',
+      'explore': 'Explore | GRH',
+      'assess': 'Assess | GRH',
+      'analyse': 'Analyse | GRH',
+      'student': 'Student Dashboard | GRH',
+      'learn-discovery': 'Courses | GRH',
+      'admin': 'Admin Portal | GRH',
+      'learn-player': 'Course Player | GRH',
+      'login': 'Login | GRH',
+      'signup': 'Signup | GRH',
+      'admin-login': 'Admin Login | GRH'
+    };
+    document.title = pageTitles[currentPage] || 'Governance Resource Hub';
+  }, [currentPage]);
 
   const openAuth = (type = 'login') => {
     if (type === 'admin') {
