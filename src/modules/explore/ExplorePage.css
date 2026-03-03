@@ -279,10 +279,10 @@
 }
 
 .suggestions-label {
-  font-size: 15px;
+  font-size: 2rem;
   color: var(--secondary);
   margin-bottom: 20px;
-  font-weight: 800;
+  font-weight: 400;
   text-align: center;
 }
 
@@ -293,7 +293,7 @@
 }
 
 .suggestion-chip {
-  padding: 14px 20px;
+  padding: 16px 20px;
   border: 1.5px solid #E5E7EB;
   border-radius: var(--radius-lg);
   text-align: left;
