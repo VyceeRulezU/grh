@@ -1,11 +1,15 @@
 import React from 'react';
+import hapticFeedback from '../../utils/haptics';
 import './SpecialButton.css';
 
 const SpecialButton = ({ onClick, children, className = '', type = 'button' }) => {
   return (
     <button 
       className={`special-button ${className}`} 
-      onClick={onClick}
+      onClick={(e) => {
+        hapticFeedback.medium();
+        if (onClick) onClick(e);
+      }}
       type={type}
     >
       {children}

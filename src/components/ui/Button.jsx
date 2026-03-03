@@ -1,4 +1,5 @@
 import React from 'react';
+import hapticFeedback from '../../utils/haptics';
 import './Button.css';
 
 const Button = ({ children, variant = 'primary', size = 'md', onClick, disabled, className = '', ...props }) => {
@@ -8,7 +9,10 @@ const Button = ({ children, variant = 'primary', size = 'md', onClick, disabled,
   return (
     <button 
       className={`btn ${variantClass} ${sizeClass} ${className}`}
-      onClick={onClick}
+      onClick={(e) => {
+        hapticFeedback.light();
+        if (onClick) onClick(e);
+      }}
       disabled={disabled}
       {...props}
     >
