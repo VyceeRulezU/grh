@@ -96,7 +96,7 @@
 .hero-summary {
     font-size: 1.4rem;
     font-weight: 300;
-    color: var(--text-soft);
+    color: var(--text-white);
     line-height: 1.7;
     max-width: 600px;
 }
