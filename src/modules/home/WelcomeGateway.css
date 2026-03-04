@@ -95,7 +95,7 @@
     font-weight: 400;
 }
 
-.hero-summary {
+.welcome-hero-summary {
     font-size: 1.25rem;
     color: var(--text-sub);
     max-width: 480px;
@@ -222,7 +222,7 @@
         padding: 0;
     }
     
-    .hero-summary {
+    .welcome-hero-summary {
         max-width: 100%;
     }
     
@@ -249,7 +249,7 @@
         padding-top: 140px;
     }
 
-    .hero-summary {
+    .welcome-hero-summary {
         width: 100%;
         font-size: 1rem;
     }
@@ -278,7 +278,7 @@
         font-size: 1.75rem;
     }
     
-    .hero-summary {
+    .welcome-hero-summary {
         width: 100%;
         font-size: 1rem;
     }

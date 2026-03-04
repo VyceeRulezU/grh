@@ -68,7 +68,7 @@ const WelcomeGateway = ({ onNavigate }) => {
               </h1>
             </div>
 
-            <p className="hero-summary">
+            <p className="welcome-hero-summary">
               One unified platform for Learning, Research, AI Powered Insights and Governance Analytics
             </p>
           </div>
