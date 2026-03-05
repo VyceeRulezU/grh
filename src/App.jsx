@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Analytics } from "@vercel/analytics/react"
 import WelcomeGateway from './modules/home/WelcomeGateway'
 import LearnLandingPage from './modules/learn/LearnLandingPage'
 import Library from './modules/research/Library'
@@ -142,6 +143,7 @@ function App() {
         onLogin={handleLogin}
         initialType={authType}
       />
+      <Analytics />
     </div>
   );
 }
