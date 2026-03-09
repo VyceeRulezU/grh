@@ -777,7 +777,7 @@ const PANEL_MAP = {
 };
 const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:'var(--text-soft)'}}>Panel '{id}' — coming soon</p></div>;
 
-const AdminDashboard = ({ onNavigate }) => {
+const AdminDashboard = ({ onNavigate, onLogout, user }) => {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courses, setCourses] = useState(COURSES);
@@ -825,7 +825,7 @@ const AdminDashboard = ({ onNavigate }) => {
           <div className="adm-sidebar-footer">
             <span className="adm-nav-label">Session</span>
             <button className="adm-nav-link" onClick={() => onNavigate('welcome')}><i className="ri-arrow-left-line"></i> Back to Site</button>
-            <button className="adm-nav-link" onClick={() => setAuthed(false)}><i className="ri-logout-box-line"></i> Sign Out</button>
+            <button className="adm-nav-link" onClick={() => { onLogout(); onNavigate('welcome'); }}><i className="ri-logout-box-line"></i> Sign Out</button>
           </div>
         </aside>
 
@@ -834,7 +834,7 @@ const AdminDashboard = ({ onNavigate }) => {
           <header className="adm-topbar">
             <div className="adm-topbar-title">
               <h2>{NAV_GROUPS.flatMap(g => g.links).find(l => l.id === activeSection)?.label || 'Admin'}</h2>
-              <span>Governance Resource Hub</span>
+              <span>Welcome back, {user?.name || 'Administrator'}</span>
             </div>
             <div className="adm-topbar-actions">
               <button className="adm-topbar-btn"><i className="ri-notification-fill"></i></button>
