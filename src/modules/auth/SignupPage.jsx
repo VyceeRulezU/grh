@@ -16,8 +16,10 @@ const SignupPage = ({ onNavigate, onLogin }) => {
       return;
     }
     // Simulate signup
-    onLogin({ email: email || 'user@example.com', isAdmin: false });
-    onNavigate('welcome');
+    const handled = onLogin({ email: email || 'user@example.com', isAdmin: false });
+    if (!handled) {
+      onNavigate('welcome');
+    }
   };
 
   return (

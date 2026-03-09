@@ -12,7 +12,7 @@ const Library = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [readingResource, setReadingResource] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
 
   const toggleType = (t) => {
     setSelectedTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);

@@ -53,6 +53,10 @@ function App() {
   }, [currentPage]);
 
   const openAuth = (type = 'login') => {
+    // Store current page as return target before navigating to auth
+    if (currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login') {
+      localStorage.setItem('returnPage', currentPage);
+    }
     if (type === 'admin') {
       navigate('admin-login');
     } else {
@@ -90,7 +94,9 @@ function App() {
     if (returnPage) {
       localStorage.removeItem('returnPage');
       navigate(returnPage);
+      return true;
     }
+    return false;
   };
 
   const handleLogout = () => {

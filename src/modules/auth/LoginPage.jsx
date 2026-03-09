@@ -11,8 +11,10 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Simulate login
-    onLogin({ email: email || 'user@example.com', isAdmin });
-    onNavigate(isAdmin ? 'admin' : 'welcome');
+    const handled = onLogin({ email: email || 'user@example.com', isAdmin });
+    if (!handled) {
+      onNavigate(isAdmin ? 'admin' : 'welcome');
+    }
   };
 
   return (

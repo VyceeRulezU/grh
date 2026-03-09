@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import grhIcon from '../../assets/images/Logo/GRH-icon.png';
+import ModernDropdown from '../../components/ui/ModernDropdown';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -74,8 +75,8 @@ const NAV_GROUPS = [
 /* =====================================================================
    MODALS
 ===================================================================== */
-function UserModal({ onClose, onSave }) {
-  const [form, setForm] = useState({ name: '', email: '', role: 'Learner', status: 'Active' });
+function UserModal({ onClose, onSave, initial }) {
+  const [form, setForm] = useState(initial || { name: '', email: '', role: 'Learner', status: 'Active' });
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   return (
     <div className="adm-modal-overlay">
@@ -96,16 +97,19 @@ function UserModal({ onClose, onSave }) {
           <div className="adm-form-row">
             <div className="adm-form-group">
               <label>Role</label>
-              <select value={form.role} onChange={e => set('role', e.target.value)}>
-                {['Learner','Instructor','Admin'].map(r => <option key={r}>{r}</option>)}
-              </select>
+              <ModernDropdown 
+                options={['Learner','Instructor','Admin']} 
+                value={form.role} 
+                onChange={v => set('role', v)} 
+              />
             </div>
             <div className="adm-form-group">
               <label>Initial Status</label>
-              <select value={form.status} onChange={e => set('status', e.target.value)}>
-                <option>Active</option>
-                <option>Inactive</option>
-              </select>
+              <ModernDropdown 
+                options={['Active','Inactive']} 
+                value={form.status} 
+                onChange={v => set('status', v)} 
+              />
             </div>
           </div>
         </div>
@@ -116,7 +120,7 @@ function UserModal({ onClose, onSave }) {
             onSave(form); 
             onClose(); 
           }}>
-            Send Invitation
+            {initial ? 'Save Changes' : 'Send Invitation'}
           </button>
         </footer>
       </div>
@@ -128,11 +132,11 @@ function CourseModal({ onClose, onSave, initial }) {
   const [form, setForm] = useState(initial || {
     title: '', category: 'Governance', instructor: '', level: 'Beginner',
     price: '', description: '',
-    modules: [{ title: '', videoLink: '' }],
+    modules: [{ title: '', videoLink: 'https://youtu.be/svYm5KomARg' }],
   });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-  const addModule = () => setForm(f => ({ ...f, modules: [...f.modules, { title: '', videoLink: '' }] }));
+  const addModule = () => setForm(f => ({ ...f, modules: [...f.modules, { title: '', videoLink: 'https://youtu.be/svYm5KomARg' }] }));
   const updateMod = (i, k, v) => {
     const m = [...form.modules];
     m[i] = { ...m[i], [k]: v };
@@ -155,17 +159,21 @@ function CourseModal({ onClose, onSave, initial }) {
             </div>
             <div className="adm-form-group">
               <label>Level</label>
-              <select value={form.level} onChange={e => set('level', e.target.value)}>
-                {['Beginner','Medium','Advance'].map(l => <option key={l}>{l}</option>)}
-              </select>
+              <ModernDropdown 
+                options={['Beginner','Medium','Advance']} 
+                value={form.level} 
+                onChange={v => set('level', v)} 
+              />
             </div>
           </div>
           <div className="adm-form-row">
             <div className="adm-form-group">
               <label>Category</label>
-              <select value={form.category} onChange={e => set('category', e.target.value)}>
-                {['Governance','Finance','Integrity','Democracy','Transparency','Digital'].map(c => <option key={c}>{c}</option>)}
-              </select>
+              <ModernDropdown 
+                options={['Governance','Finance','Integrity','Democracy','Transparency','Digital']} 
+                value={form.category} 
+                onChange={v => set('category', v)} 
+              />
             </div>
             <div className="adm-form-group">
               <label>Instructor Name*</label>
@@ -236,11 +244,19 @@ function ResourceModal({ onClose, onSave, initial }) {
           <div className="adm-form-row">
             <div className="adm-form-group">
               <label>Type</label>
-              <select value={form.type} onChange={e => set('type', e.target.value)}>{['PERL','SPARC','SLGP'].map(t=><option key={t}>{t}</option>)}</select>
+              <ModernDropdown 
+                options={['PERL','SPARC','SLGP']} 
+                value={form.type} 
+                onChange={v => set('type', v)} 
+              />
             </div>
             <div className="adm-form-group">
               <label>Category</label>
-              <select value={form.category} onChange={e => set('category', e.target.value)}>{['Governance','Finance','Integrity','Democracy','Transparency','Digital'].map(c=><option key={c}>{c}</option>)}</select>
+              <ModernDropdown 
+                options={['Governance','Finance','Integrity','Democracy','Transparency','Digital']} 
+                value={form.category} 
+                onChange={v => set('category', v)} 
+              />
             </div>
           </div>
           <div className="adm-form-group"><label>Description</label><textarea rows="2" value={form.description} onChange={e => set('description', e.target.value)} /></div>
@@ -367,9 +383,34 @@ function BookModal({ onClose, onSave, initial }) {
 /* =====================================================================
    PANEL COMPONENTS
 ===================================================================== */
-function OverviewPanel({ onAddCourse, onAddBook }) {
+function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource }) {
   return (
     <div className="adm-panel">
+      {/* Quick Actions */}
+      <div className="adm-quick-actions">
+        <h4>Quick Actions</h4>
+        <div className="adm-action-row">
+          
+          <button className="btn-outline" onClick={onAddBook}>
+            <i className="ri-book-3-fill"></i><span>Add Book</span>
+          </button>
+
+          <button className="btn-outline" onClick={onAddResource}>
+            <i className="ri-upload-cloud-fill"></i><span>Upload Resource</span>
+          </button>
+
+          <button className="btn-outline" onClick={onAddQuiz}>
+            <i className="ri-file-list-3-fill"></i><span>Create Quiz</span>
+          </button>
+
+          <button className="special-button" onClick={onAddCourse}>
+            <i className="ri-add-circle-fill"></i><span>Add Course</span>
+          </button>
+
+        </div>
+      </div>
+
+      {/* Stats Grid */}
       <div className="adm-stats-grid">
         {[
           { icon: 'ri-team-fill',       label: 'Total Learners',       value: '12,450', delta: '+12%', color: 'blue'   },
@@ -388,6 +429,7 @@ function OverviewPanel({ onAddCourse, onAddBook }) {
         ))}
       </div>
 
+      {/* Charts */}
       <div className="adm-charts-grid">
         <div className="adm-chart-card">
           <h4>Learner Growth</h4>
@@ -415,23 +457,49 @@ function OverviewPanel({ onAddCourse, onAddBook }) {
         </div>
       </div>
 
-      <div className="adm-quick-actions">
-        <h4>Quick Actions</h4>
-        <div className="adm-action-row">
-          <button className="adm-action-card" onClick={onAddCourse}>
-            <i className="ri-add-circle-fill"></i><span>Add Course</span>
-          </button>
-          <button className="adm-action-card" onClick={onAddBook}>
-            <i className="ri-book-3-fill"></i><span>Add Book</span>
-          </button>
-          <button className="adm-action-card">
-            <i className="ri-upload-cloud-fill"></i><span>Upload Resource</span>
-          </button>
-          <button className="adm-action-card">
-            <i className="ri-file-list-3-fill"></i><span>Create Quiz</span>
-          </button>
-        </div>
+      {/* Recent Activity */}
+      <div className="adm-panel-header">
+        <h3>Recent Activity</h3>
+        <span className="adm-count">5 New</span>
       </div>
+
+      <div className="adm-table-wrap">
+        <table className="adm-table">
+          <thead>
+            <tr>
+              <th>Activity</th>
+              <th>User</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1,2,3,4,5].map(i => (
+              <tr key={i}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                      <i className="ri-book-open-line"></i>
+                    </div>
+                    <span>Completed "Public Financial Management"</span>
+                  </div>
+                </td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>
+                      JD
+                    </div>
+                    <span>John Doe</span>
+                  </div>
+                </td>
+                <td>2 hours ago</td>
+                <td><span className="adm-status-badge active">Completed</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 }
@@ -548,12 +616,12 @@ function ResourcesPanel({ resources, setResources }) {
 }
 
 function UsersPanel({ users, setUsers }) {
-  const [modal, setModal] = useState(false);
+  const [modal, setModal] = useState(null); // null | 'add' | user object (edit)
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Users <span className="adm-count">{users.length}</span></h3>
-        <button className="special-button" onClick={() => setModal(true)}><i className="ri-user-add-line"></i> Invite User</button>
+        <button className="special-button" onClick={() => setModal('add')}><i className="ri-user-add-line"></i> Invite User</button>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
@@ -569,8 +637,8 @@ function UsersPanel({ users, setUsers }) {
                 <td><span className={`adm-status-badge ${u.status === 'Active' ? 'published' : 'draft'}`}>{u.status}</span></td>
                 <td>
                   <div className="adm-row-actions">
-                    <button className="adm-icon-btn"><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn danger" onClick={() => setUsers(us => us.filter(x => x.email !== u.email))}><i className="ri-delete-bin-line"></i></button>
+                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(u)}><i className="ri-edit-line"></i></button>
+                    <button className="adm-icon-btn danger" title="Delete" onClick={() => setUsers(us => us.filter(x => x.email !== u.email))}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -580,8 +648,15 @@ function UsersPanel({ users, setUsers }) {
       </div>
       {modal && (
         <UserModal 
-          onClose={() => setModal(false)} 
-          onSave={(nu) => setUsers(us => [{ ...nu, courses: 0, joined: 'Mar 2024' }, ...us])} 
+          initial={typeof modal === 'object' ? modal : null}
+          onClose={() => setModal(null)} 
+          onSave={(nu) => {
+            if (typeof modal === 'object') {
+              setUsers(us => us.map(x => x.email === modal.email ? { ...x, ...nu } : x));
+            } else {
+              setUsers(us => [{ ...nu, courses: 0, joined: 'Mar 2024' }, ...us]);
+            }
+          }} 
         />
       )}
     </div>
@@ -689,10 +764,6 @@ function AdminSettingsPanel() {
           <div className="adm-form-group">
             <label>Platform Name</label>
             <input type="text" value="Governance Resource Hub" readOnly />
-          </div>
-          <div className="adm-form-group">
-            <label>Timezone</label>
-            <select disabled><option>West Africa Time (WAT)</option></select>
           </div>
         </section>
 

@@ -3,12 +3,12 @@ import Button from '../../components/ui/Button';
 import './CoursePlayer.css';
 
 const COURSE_CONTENT = [
-  { id: 1, title: "Introduction to Public Governance", duration: "10:24", type: "video", completed: true },
-  { id: 2, title: "Structural Frameworks & Policy", duration: "15:45", type: "video", completed: true },
-  { id: 3, title: "Anti-Corruption Mechanisms", duration: "12:10", type: "video", completed: true },
-  { id: 4, title: "Decentralisation & Local Gov", duration: "18:30", type: "video", completed: false },
-  { id: 5, title: "Module 1 Quiz", duration: "5 questions", type: "quiz", completed: false },
-  { id: 6, title: "Case Study: Transparency in Procurement", duration: "PDF", type: "reading", completed: false },
+  { id: 1, title: "Introduction to Public Governance", duration: "10:24", type: "video", completed: true, videoUrl: "https://youtu.be/svYm5KomARg" },
+  { id: 2, title: "Structural Frameworks & Policy", duration: "15:45", type: "video", completed: true, videoUrl: "https://youtu.be/svYm5KomARg" },
+  { id: 3, title: "Anti-Corruption Mechanisms", duration: "12:10", type: "video", completed: true, videoUrl: "https://youtu.be/svYm5KomARg" },
+  { id: 4, title: "Decentralisation & Local Gov", duration: "18:30", type: "video", completed: false, videoUrl: "https://youtu.be/svYm5KomARg" },
+  { id: 5, title: "Module 1 Quiz", duration: "5 questions", type: "quiz", completed: false, videoUrl: "https://youtu.be/svYm5KomARg" },
+  { id: 6, title: "Case Study: Transparency in Procurement", duration: "PDF", type: "reading", completed: false, videoUrl: "https://youtu.be/svYm5KomARg" },
 ];
 
 const TAB_CONTENT = {
@@ -50,9 +50,23 @@ const TAB_CONTENT = {
   ),
 };
 
+const getYouTubeVideoId = (url) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
 const CoursePlayer = ({ onNavigate }) => {
   const [activeLesson, setActiveLesson] = useState(COURSE_CONTENT[3]);
   const [activeTab, setActiveTab] = useState('Overview');
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Reset isPlaying when activeLesson changes
+  React.useEffect(() => {
+    setIsPlaying(false);
+  }, [activeLesson]);
+
+  const videoId = activeLesson.videoUrl ? getYouTubeVideoId(activeLesson.videoUrl) : null;
 
   return (
     <div className="course-player">
@@ -76,15 +90,33 @@ const CoursePlayer = ({ onNavigate }) => {
           {/* Fixed-size video — with YouTube fullscreen support */}
           <div className="video-wrapper">
             <div className="video-viewport">
-              {activeLesson.videoUrl ? (
+              {videoId && isPlaying ? (
                 <iframe
                   className="yt-iframe"
-                  src={`https://www.youtube.com/embed/${activeLesson.videoUrl.includes('youtu') ? activeLesson.videoUrl.split(/[=/]/).pop() : activeLesson.videoUrl}?rel=0`}
+                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
                   title={activeLesson.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                   frameBorder="0"
                 />
+              ) : videoId ? (
+                <div className="yt-placeholder" onClick={() => setIsPlaying(true)}>
+                  <img
+                    src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                    alt="Video thumbnail"
+                    className="yt-thumbnail"
+                    onError={e => { e.target.style.display = 'none'; }}
+                  />
+                  <div className="yt-overlay">
+                    <div className="yt-play-btn">
+                      <span className="material-symbols-outlined">play_arrow</span>
+                    </div>
+                    <div className="yt-meta">
+                      <p className="yt-lesson-label">Lesson {activeLesson.id} — {activeLesson.type.toUpperCase()}</p>
+                      <p className="yt-lesson-title">{activeLesson.title}</p>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div className="yt-placeholder">
                   <img
