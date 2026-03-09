@@ -1102,7 +1102,7 @@
 
 .std-cert-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 0 1rem 1rem 0;
   border: 1px solid var(--stroke-soft);
   padding: 1.5rem;
   display: flex;
@@ -1113,10 +1113,12 @@
 
 .std-cert-card.earned {
   border-left: 4px solid var(--primary);
+  border-radius: 0 1rem 1rem 0;
 }
 
 .std-cert-card.progress {
   border-left: 4px solid #f59e0b;
+  border-radius: 0 1rem 1rem 0;
 }
 
 .std-cert-card:hover {
