@@ -126,8 +126,8 @@ function App() {
         {currentPage === 'learn' && <LearnLandingPage onNavigate={navigate} />}
         {currentPage === 'research' && <Library onNavigate={navigate} />}
         {currentPage === 'explore' && <ExplorePage onNavigate={navigate} />}
-        {currentPage === 'assess' && <AssessPage onNavigate={navigate} />}
-        {currentPage === 'analyse' && <AnalysePage onNavigate={navigate} />}
+        {currentPage === 'assess' && <NotFoundPage onNavigate={navigate} />}
+        {currentPage === 'analyse' && <NotFoundPage onNavigate={navigate} />}
         {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} />}
         {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
         {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} />}
