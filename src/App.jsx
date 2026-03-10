@@ -128,6 +128,8 @@ function App() {
         {currentPage === 'explore' && <ExplorePage onNavigate={navigate} />}
         {currentPage === 'assess' && <NotFoundPage onNavigate={navigate} />}
         {currentPage === 'analyse' && <NotFoundPage onNavigate={navigate} />}
+        {currentPage === 'help-center' && <NotFoundPage onNavigate={navigate} />}
+        {currentPage === 'contact' && <NotFoundPage onNavigate={navigate} />}
         {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} />}
         {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
         {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} />}
@@ -136,12 +138,12 @@ function App() {
         {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'admin-login' && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
-        {!['welcome','learn','research','explore','assess','analyse','student','learn-discovery','admin','learn-player','login','signup','admin-login'].includes(currentPage) && (
+        {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login'].includes(currentPage) && (
           <NotFoundPage onNavigate={navigate} />
         )}
       </main>
 
-      {['learn','research','assess','analyse','learn-discovery'].includes(currentPage) && <Footer onNavigate={navigate} />}
+      {['learn','research','assess','analyse','learn-discovery','help-center','contact'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 

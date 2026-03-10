@@ -40,8 +40,8 @@
 }
 
 .sidebar-icon-logo {
-  width: 28px;
-  height: 28px;
+  width: 6rem;
+  height: auto;
   object-fit: contain;
   flex-shrink: 0;
 }

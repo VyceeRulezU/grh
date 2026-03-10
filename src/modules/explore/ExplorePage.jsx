@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HISTORY_DATA, SUGGESTED } from '../../data/legacyData';
-import grhIcon from '../../assets/images/Logo/GRH-icon.png';
+import grhIcon from '../../assets/images/Logo/GRH-alone.png';
 import './ExplorePage.css';
 
 // ---------------------------------------------------------------------------
