@@ -1,0 +1,120 @@
+.status-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.status-modal-container {
+  background: white;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  border: 1px solid var(--stroke-soft);
+}
+
+.status-modal-content {
+  padding: 24px;
+}
+
+.status-modal-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.status-modal-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.status-modal-text {
+  flex: 1;
+}
+
+.status-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--secondary);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.status-modal-desc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.status-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--stroke-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fcfcfc;
+}
+
+.status-modal-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.status-modal-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: white;
+}
+
+.status-modal-checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.status-modal-checkbox i {
+  font-size: 14px;
+}
+
+.status-modal-checkbox-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.status-modal-btn {
+  font-weight: 600 !important;
+  font-size: 15px !important;
+}
+
+@keyframes modalUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-up {
+  animation: modalUp 0.3s ease-out forwards;
+}
