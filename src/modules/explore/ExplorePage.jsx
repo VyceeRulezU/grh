@@ -147,10 +147,15 @@ const ExplorePage = ({ user, onNavigate }) => {
             <img src={grhIcon} alt="GRH" className="sidebar-icon-logo" />
             {/* <span className="sidebar-logo">GovHub AI</span> */}
           </div>
-          <button className="new-chat-btn" onClick={startNewChat}>+ New Chat</button>
         </div>
 
+        
+
         <div className="chat-history">
+
+          <button className="new-chat-btn" onClick={startNewChat}>+ New Chat</button>
+
+
           <div className="history-group-label">RECENT RESEARCH</div>
           {history.map(item => (
             <button
@@ -191,7 +196,7 @@ const ExplorePage = ({ user, onNavigate }) => {
           </div>
 
           {/* Back to website — subtle, right-aligned */}
-          <button className="back-home-btn" onClick={() => onNavigate('welcome')}>
+          <button className="special-button" onClick={() => onNavigate('welcome')}>
             <span className="material-symbols-outlined">arrow_back</span>
             <span className="back-home-text">Back to Website</span>
           </button>
