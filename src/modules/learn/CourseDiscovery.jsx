@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import Tab from '../../components/ui/Tab';
 import Pagination from '../../components/ui/Pagination';
+import CtaSection from '../../components/ui/CtaSection';
 import './CourseDiscovery.css';
 
 const CATEGORY_TABS = [
@@ -38,7 +39,7 @@ const COURSE_IMAGES = [
 const CourseDiscovery = ({ onNavigate }) => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 6;
 
   const filtered = activeCategory === "All" 
     ? ALL_COURSES 
@@ -113,6 +114,18 @@ const CourseDiscovery = ({ onNavigate }) => {
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
+
+        {/* CTA Section */}
+        <CtaSection 
+          eyebrow="Get Certified"
+          title={<>Ready to start your <br /><span className="green-text">Governance Journey?</span></>}
+          description="Start your learning journey today and join a global network of certified governance professionals."
+          primaryActionLabel="Continue Learning"
+          primaryActionOnClick={() => onNavigate('learn')}
+          secondaryActionLabel="Speak with an Expert"
+        />
+
+                
       </div>
     </div>
   );
