@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RESOURCES } from '../../data/legacyData';
+import { RESOURCES, BOOKS } from '../../data/legacyData';
 import CtaSection from '../../components/ui/CtaSection';
 import Pagination from '../../components/ui/Pagination';
 import './Library.css';
@@ -22,9 +22,23 @@ const Library = () => {
     setSelectedCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
   };
 
-  const filtered = RESOURCES.filter(r => {
-    const ms = r.title.toLowerCase().includes(search.toLowerCase()) || 
-               r.description.toLowerCase().includes(search.toLowerCase());
+  // Merge BOOKS into the resources list for research
+  const allResources = [
+    ...RESOURCES,
+    ...(BOOKS || []).map(b => ({
+      ...b,
+      type: "BOOK", // Mark books clearly
+      author: "GRH Lib", // Default if not present
+      year: new Date().getFullYear(),
+      coverImage: b.imageUrl || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=800",
+      category: "Governance", // Default for books if none
+      description: b.summary
+    }))
+  ];
+
+  const filtered = allResources.filter(r => {
+    const ms = (r.title || "").toLowerCase().includes(search.toLowerCase()) || 
+               (r.description || "").toLowerCase().includes(search.toLowerCase());
     const mt = selectedTypes.length === 0 || selectedTypes.includes(r.type);
     const mc = selectedCats.length === 0 || selectedCats.includes(r.category);
     return ms && mt && mc;
@@ -127,7 +141,7 @@ const Library = () => {
               </div>
               <h1 className="section-title text-white">Curated <br /> <span className="green-text">Governance Knowledge</span></h1>
               <p className="hero-subline">
-                Explore {RESOURCES.length}+ professional resources, journals and policy frameworks.
+                Explore {allResources.length}+ professional resources, journals and policy frameworks.
               </p>
               <div className="learn-hero-search">
                 <span className="material-symbols-outlined search-icon">search</span>
@@ -166,11 +180,11 @@ const Library = () => {
 
             <div className="filter-group">
               <div className="filter-group-title">RESOURCE TYPE</div>
-              {["PERL", "SPARC", "SLGP"].map(t => (
+              {["PERL", "SPARC", "SLGP", "BOOK"].map(t => (
                 <label key={t} className="filter-check">
                   <input type="checkbox" checked={selectedTypes.includes(t)} onChange={() => toggleType(t)} />
                   <span>{t}</span>
-                  <span className="filter-count">{RESOURCES.filter(r => r.type === t).length}</span>
+                  <span className="filter-count">{allResources.filter(r => r.type === t).length}</span>
                 </label>
               ))}
             </div>
@@ -181,7 +195,7 @@ const Library = () => {
                 <label key={c} className="filter-check">
                   <input type="checkbox" checked={selectedCats.includes(c)} onChange={() => toggleCat(c)} />
                   <span>{c}</span>
-                  <span className="filter-count">{RESOURCES.filter(r => r.category === c).length}</span>
+                  <span className="filter-count">{allResources.filter(r => r.category === c).length}</span>
                 </label>
               ))}
             </div>

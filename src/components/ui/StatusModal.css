@@ -65,44 +65,9 @@
   border-top: 1px solid var(--stroke-soft);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 12px;
   background: #fcfcfc;
-}
-
-.status-modal-checkbox-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.status-modal-checkbox {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #d1d5db;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  background: white;
-}
-
-.status-modal-checkbox.checked {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
-}
-
-.status-modal-checkbox i {
-  font-size: 14px;
-}
-
-.status-modal-checkbox-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 500;
 }
 
 .status-modal-btn {

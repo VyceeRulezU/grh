@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import grhIcon from '../../assets/images/Logo/GRH-icon.png';
 import ModernDropdown from '../../components/ui/ModernDropdown';
+import StatusModal from '../../components/ui/StatusModal';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -45,32 +46,16 @@ const BOOKS = [
   { id: 2, title: 'Public Financial Management Handbook', summary: 'Essential reference for PFM practitioners in developing economies.', imageUrl: '', fileUrl: '#', status: 'Published' },
 ];
 
-const NAV_GROUPS = [
-  {
-    label: 'Content',
-    links: [
-      { id: 'overview',   icon: 'ri-dashboard-fill',    label: 'Overview' },
-      { id: 'courses',    icon: 'ri-book-fill',          label: 'Courses', badge: COURSES.length },
-      { id: 'books',      icon: 'ri-booklet-fill',       label: 'Books' },
-      { id: 'resources',  icon: 'ri-folder-fill',        label: 'Library Resources' },
-      { id: 'quizzes',    icon: 'ri-file-list-3-fill',   label: 'Quizzes & Assessments' },
-    ],
-  },
-  {
-    label: 'People',
-    links: [
-      { id: 'users',      icon: 'ri-team-fill',          label: 'Users', badge: USERS.length },
-      { id: 'instructors',icon: 'ri-user-star-fill',     label: 'Instructors' },
-    ],
-  },
-  {
-    label: 'System',
-    links: [
-      { id: 'analytics',  icon: 'ri-bar-chart-grouped-fill', label: 'Analytics' },
-      { id: 'settings',   icon: 'ri-settings-4-fill',        label: 'Settings' },
-    ],
-  },
+const WORKSHOPS = [
+  { id: 1, title: 'PFM Reform in Practice', date: '2024-03-15', time: '10:00', status: 'Upcoming', host: 'World Bank Nigeria', attendees: 120, format: 'Virtual', registrations: [
+    { name: 'Sarah Chen', email: 'sarah.chen@gov.org', role: 'Learner', reason: 'To improve fiscal transparency.' },
+    { name: 'Marcus Thorne', email: 'm.thorne@pfm.org', role: 'Learner', reason: 'Practical PFM application.' }
+  ]},
+  { id: 2, title: 'Anti-Corruption Compliance Workshop', date: '2024-03-22', time: '14:00', status: 'Upcoming', host: 'Transparency International', attendees: 85, format: 'Hybrid', registrations: [] },
+  { id: 3, title: 'Open Government Hackathon', date: '2024-04-05', time: '09:00', status: 'Upcoming', host: 'OGP Nigeria', attendees: 200, format: 'In-person', registrations: [] },
 ];
+
+// Removed global NAV_GROUPS to use dynamic version inside AdminDashboard
 
 /* =====================================================================
    MODALS
@@ -383,6 +368,124 @@ function BookModal({ onClose, onSave, initial }) {
 /* =====================================================================
    PANEL COMPONENTS
 ===================================================================== */
+function WorkshopModal({ onClose, onSave, initial }) {
+  const [form, setForm] = useState(initial || { 
+    title: '', 
+    date: '', 
+    time: '', 
+    host: '', 
+    format: 'Virtual', 
+    status: 'Upcoming',
+    attendees: 0,
+    registrations: []
+  });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(form);
+    onClose();
+  };
+
+  return (
+    <div className="adm-modal-overlay">
+      <div className="adm-modal animate-up" style={{ maxWidth: 500 }}>
+        <header className="adm-modal-header">
+          <h3>{initial ? 'Edit Workshop' : 'Create New Workshop'}</h3>
+          <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
+        </header>
+        <div className="adm-modal-body">
+          <form className="adm-form" onSubmit={handleSubmit}>
+            <div className="adm-form-group">
+              <label>Workshop Title*</label>
+              <input type="text" value={form.title} onChange={e => set('title', e.target.value)} required />
+            </div>
+            <div className="adm-form-row">
+              <div className="adm-form-group">
+                <label>Date*</label>
+                <input type="date" value={form.date} onChange={e => set('date', e.target.value)} required />
+              </div>
+              <div className="adm-form-group">
+                <label>Time*</label>
+                <input type="time" value={form.time} onChange={e => set('time', e.target.value)} required />
+              </div>
+            </div>
+            <div className="adm-form-group">
+              <label>Host / Organization*</label>
+              <input type="text" value={form.host} onChange={e => set('host', e.target.value)} required />
+            </div>
+            <div className="adm-form-row">
+              <div className="adm-form-group">
+                <label>Format</label>
+                <select value={form.format} onChange={e => set('format', e.target.value)} style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '100%', background: 'white' }}>
+                  <option>Virtual</option>
+                  <option>Hybrid</option>
+                  <option>In-person</option>
+                </select>
+              </div>
+              <div className="adm-form-group">
+                <label>Status</label>
+                <select value={form.status} onChange={e => set('status', e.target.value)} style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '100%', background: 'white' }}>
+                  <option>Upcoming</option>
+                  <option>Completed</option>
+                  <option>Draft</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <footer className="adm-modal-footer">
+          <button type="button" className="btn-outline" onClick={onClose}>Cancel</button>
+          <button type="button" className="special-button" onClick={handleSubmit}>Save Workshop</button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function WorkshopAttendeesModal({ workshop, onClose }) {
+  return (
+    <div className="adm-modal-overlay">
+      <div className="adm-modal animate-up" style={{ maxWidth: 650 }}>
+        <header className="adm-modal-header">
+          <div>
+            <h3>Workshop Attendees</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-soft)' }}>{workshop.title}</p>
+          </div>
+          <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
+        </header>
+        <div className="adm-modal-body">
+          <div className="adm-table-wrap" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            {workshop.registrations && workshop.registrations.length > 0 ? (
+              <table className="adm-table">
+                <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Reason</th></tr></thead>
+                <tbody>
+                  {workshop.registrations.map((r, i) => (
+                    <tr key={i}>
+                      <td><strong>{r.name}</strong></td>
+                      <td>{r.email}</td>
+                      <td>{r.role}</td>
+                      <td style={{ fontSize: '0.8rem', maxWidth: 200, whiteSpace: 'normal' }}>{r.reason}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-soft)' }}>
+                <i className="ri-team-line" style={{ fontSize: '2rem', display: 'block', marginBottom: '10px' }}></i>
+                No registrations found for this workshop yet.
+              </div>
+            )}
+          </div>
+        </div>
+        <footer className="adm-modal-footer">
+           <button className="special-button" onClick={onClose}>Close</button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource }) {
   return (
     <div className="adm-panel">
@@ -504,7 +607,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource }) {
   );
 }
 
-function CoursesPanel({ courses, setCourses }) {
+function CoursesPanel({ courses, setCourses, onDelete }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (edit id)
   const editCourse = courses.find(c => c.id === modal);
 
@@ -548,7 +651,7 @@ function CoursesPanel({ courses, setCourses }) {
                     <button className="adm-icon-btn" title="Toggle status" onClick={() => setCourses(cs => cs.map(x => x.id === c.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
                       <i className={c.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
-                    <button className="adm-icon-btn danger" title="Delete" onClick={() => setCourses(cs => cs.filter(x => x.id !== c.id))}><i className="ri-delete-bin-line"></i></button>
+                    <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(c, 'course')}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -568,7 +671,7 @@ function CoursesPanel({ courses, setCourses }) {
   );
 }
 
-function ResourcesPanel({ resources, setResources }) {
+function ResourcesPanel({ resources, setResources, onDelete }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (id)
   const editItem = resources.find(r => r.id === modal);
 
@@ -602,7 +705,7 @@ function ResourcesPanel({ resources, setResources }) {
                     <button className="adm-icon-btn" title="Toggle status" onClick={() => setResources(rs => rs.map(x => x.id === r.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
                       <i className={r.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
-                    <button className="adm-icon-btn danger" onClick={() => setResources(rs => rs.filter(x => x.id !== r.id))}><i className="ri-delete-bin-line"></i></button>
+                    <button className="adm-icon-btn danger" onClick={() => onDelete(r, 'resource')}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -615,7 +718,7 @@ function ResourcesPanel({ resources, setResources }) {
   );
 }
 
-function UsersPanel({ users, setUsers }) {
+function UsersPanel({ users, setUsers, onDelete }) {
   const [modal, setModal] = useState(null); // null | 'add' | user object (edit)
   return (
     <div className="adm-panel">
@@ -638,7 +741,7 @@ function UsersPanel({ users, setUsers }) {
                 <td>
                   <div className="adm-row-actions">
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(u)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn danger" title="Delete" onClick={() => setUsers(us => us.filter(x => x.email !== u.email))}><i className="ri-delete-bin-line"></i></button>
+                    <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(u, 'user')}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -782,7 +885,7 @@ function AdminSettingsPanel() {
 }
 
 /* --- BOOKS PANEL --- */
-function BooksPanel({ books, setBooks }) {
+function BooksPanel({ books, setBooks, onDelete }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (id)
   const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
@@ -819,7 +922,7 @@ function BooksPanel({ books, setBooks }) {
                     <button className="adm-icon-btn" title="Toggle status" onClick={() => setBooks(bs => bs.map(x => x.id === b.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
                       <i className={b.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
-                    <button className="adm-icon-btn danger" onClick={() => setBooks(bs => bs.filter(x => x.id !== b.id))}><i className="ri-delete-bin-line"></i></button>
+                    <button className="adm-icon-btn danger" onClick={() => onDelete(b, 'book')}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -844,9 +947,62 @@ const PANEL_MAP = {
   books: BooksPanel,
   quizzes: AdminQuizzesPanel,
   instructors: AdminInstructorsPanel,
-  settings: AdminSettingsPanel
+  settings: AdminSettingsPanel,
+  workshops: WorkshopsPanel
 };
 const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:'var(--text-soft)'}}>Panel '{id}' — coming soon</p></div>;
+
+/* --- WORKSHOPS PANEL --- */
+function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
+  const [modal, setModal] = useState(null); // null | 'add' | number (id)
+  const [attendeeModal, setAttendeeModal] = useState(null); // null | workshop object
+  const editItem = workshops.find(w => w.id === modal);
+
+  const save = (data) => {
+    if (typeof modal === 'number') {
+      setWorkshops(ws => ws.map(w => w.id === modal ? { ...w, ...data } : w));
+    } else {
+      setWorkshops(ws => [...ws, { ...data, id: Date.now(), registrations: [] }]);
+    }
+  };
+
+  return (
+    <div className="adm-panel">
+      <div className="adm-panel-header">
+        <h3>Workshops <span className="adm-count">{workshops.length}</span></h3>
+        <button className="special-button" onClick={() => setModal('add')}><i className="ri-calendar-event-line"></i> Create Workshop</button>
+      </div>
+      <div className="adm-table-wrap">
+        <table className="adm-table">
+          <thead><tr><th>Title</th><th>Date / Time</th><th>Host</th><th>Status</th><th>Attendees</th><th></th></tr></thead>
+          <tbody>
+            {workshops.map(w => (
+              <tr key={w.id}>
+                <td><strong>{w.title}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-soft)'}}>{w.format}</span></td>
+                <td>{w.date} @ {w.time}</td>
+                <td>{w.host}</td>
+                <td><span className={`adm-status-badge ${w.status === 'Upcoming' ? 'published' : (w.status === 'Completed' ? 'draft' : 'draft')}`}>{w.status}</span></td>
+                <td>
+                  <button className="adm-link-btn" onClick={() => setAttendeeModal(w)}>
+                    <i className="ri-user-follow-line"></i> {w.registrations?.length || 0} Registered
+                  </button>
+                </td>
+                <td>
+                  <div className="adm-row-actions">
+                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(w.id)}><i className="ri-edit-line"></i></button>
+                    <button className="adm-icon-btn danger" onClick={() => onDelete(w, 'workshop')}><i className="ri-delete-bin-line"></i></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {modal && <WorkshopModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
+      {attendeeModal && <WorkshopAttendeesModal workshop={attendeeModal} onClose={() => setAttendeeModal(null)} />}
+    </div>
+  );
+}
 
 const AdminDashboard = ({ onNavigate, onLogout, user }) => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -855,8 +1011,76 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
   const [resources, setResources] = useState(RESOURCES);
   const [books, setBooks] = useState(BOOKS);
   const [users, setUsers] = useState(USERS);
+  const [workshops, setWorkshops] = useState(WORKSHOPS);
+
+  // Status Modal State
+  const [statusModal, setStatusModal] = useState({ 
+    isOpen: false, 
+    type: 'warning', 
+    title: '', 
+    message: '', 
+    onConfirm: null 
+  });
+
+  const confirmLogout = () => {
+    setStatusModal({
+      isOpen: true,
+      type: 'warning',
+      title: 'Sign Out',
+      message: 'Are you sure you want to log out of the admin portal?',
+      onConfirm: () => {
+        setStatusModal(prev => ({ ...prev, isOpen: false }));
+        onLogout();
+      }
+    });
+  };
+
+  const confirmDelete = (item, type) => {
+    const itemName = item.title || item.name || 'this item';
+    setStatusModal({
+      isOpen: true,
+      type: 'error',
+      title: 'Confirm Delete',
+      message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the file permanently and this action cannot be undone.`,
+      onConfirm: () => {
+        if (type === 'course') setCourses(cs => cs.filter(x => x.id !== item.id));
+        if (type === 'resource') setResources(rs => rs.filter(x => x.id !== item.id));
+        if (type === 'user') setUsers(us => us.filter(x => x.email !== item.email));
+        if (type === 'book') setBooks(bs => bs.filter(x => x.id !== item.id));
+        if (type === 'workshop') setWorkshops(ws => ws.filter(x => x.id !== item.id));
+        setStatusModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
 
   /* --- Main Dashboard --- */
+  const localNavGroups = [
+    {
+      label: 'Content',
+      links: [
+        { id: 'overview',   icon: 'ri-dashboard-fill',    label: 'Overview' },
+        { id: 'courses',    icon: 'ri-book-fill',         label: 'Courses', badge: courses.length },
+        { id: 'books',      icon: 'ri-booklet-fill',      label: 'Books',   badge: books.length },
+        { id: 'resources',  icon: 'ri-folder-fill',       label: 'Library Resources', badge: resources.length },
+        { id: 'workshops',  icon: 'ri-calendar-event-fill', label: 'Workshops', badge: workshops.length },
+        { id: 'quizzes',    icon: 'ri-file-list-3-fill',  label: 'Quizzes & Assessments' },
+      ],
+    },
+    {
+      label: 'People',
+      links: [
+        { id: 'users',      icon: 'ri-team-fill',         label: 'Users', badge: users.length },
+        { id: 'instructors',icon: 'ri-user-star-fill',    label: 'Instructors' },
+      ],
+    },
+    {
+      label: 'System',
+      links: [
+        { id: 'analytics',  icon: 'ri-bar-chart-grouped-fill', label: 'Analytics' },
+        { id: 'settings',   icon: 'ri-settings-4-fill',        label: 'Settings' },
+      ],
+    },
+  ];
 
   return (
     <>
@@ -871,11 +1095,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
         <aside className={`adm-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <div className="adm-sidebar-logo">
             <img src={mainLogo} alt="Governance Resource Hub" />
-            <span className="adm-portal-label">Admin Portal</span>
+            {/* <span className="adm-portal-label">Admin Portal</span> */}
           </div>
 
           <nav className="adm-sidebar-nav">
-            {NAV_GROUPS.map(group => (
+            {localNavGroups.map(group => (
               <React.Fragment key={group.label}>
                 <span className="adm-nav-label">{group.label}</span>
                 {group.links.map(link => (
@@ -896,7 +1120,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
           <div className="adm-sidebar-footer">
             <span className="adm-nav-label">Session</span>
             <button className="adm-nav-link" onClick={() => onNavigate('welcome')}><i className="ri-arrow-left-line"></i> Back to Site</button>
-            <button className="adm-nav-link" onClick={() => { onLogout(); onNavigate('welcome'); }}><i className="ri-logout-box-line"></i> Sign Out</button>
+            <button className="adm-nav-link" onClick={confirmLogout}><i className="ri-logout-box-line"></i> Sign Out</button>
           </div>
         </aside>
 
@@ -904,7 +1128,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
         <div className="adm-main">
           <header className="adm-topbar">
             <div className="adm-topbar-title">
-              <h2>{NAV_GROUPS.flatMap(g => g.links).find(l => l.id === activeSection)?.label || 'Admin'}</h2>
+              <h2>{localNavGroups.flatMap(g => g.links).find(l => l.id === activeSection)?.label || 'Admin'}</h2>
               <span>Welcome back, {user?.name || 'Administrator'}</span>
             </div>
             <div className="adm-topbar-actions">
@@ -918,10 +1142,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
 
           <div className="adm-content">
             {activeSection === 'overview'   && <OverviewPanel onAddCourse={() => setActiveSection('courses')} onAddBook={() => setActiveSection('books')} />}
-            {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} />}
-            {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} />}
-            {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} />}
-            {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} />}
+            {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} onDelete={confirmDelete} />}
+            {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} onDelete={confirmDelete} />}
+            {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} onDelete={confirmDelete} />}
+            {activeSection === 'workshops'  && <WorkshopsPanel workshops={workshops} setWorkshops={setWorkshops} onDelete={confirmDelete} />}
+            {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} onDelete={confirmDelete} />}
             {activeSection === 'analytics'  && <AnalyticsPanel />}
             {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
             {activeSection === 'instructors'&& <AdminInstructorsPanel />}
@@ -932,6 +1157,19 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
           </div>
         </div>
       </div>
+
+      {statusModal.isOpen && (
+        <StatusModal
+          isOpen={statusModal.isOpen}
+          onClose={() => setStatusModal(prev => ({ ...prev, isOpen: false }))}
+          onCancel={() => setStatusModal(prev => ({ ...prev, isOpen: false }))}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          confirmLabel="Yes, Proceed"
+          onConfirm={statusModal.onConfirm}
+        />
+      )}
     </>
   );
 };

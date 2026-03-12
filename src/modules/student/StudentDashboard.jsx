@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { COURSES, RESOURCES } from '../../data/legacyData';
 import Pagination from '../../components/ui/Pagination';
+import StatusModal from '../../components/ui/StatusModal';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 
@@ -260,10 +261,105 @@ function TutorialsPanel({ onNavigate }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   MODAL: WORKSHOP REGISTRATION
+   ═══════════════════════════════════════════════════════════════ */
+function WorkshopRegistrationModal({ workshop, onClose, onConfirm }) {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    role: '',
+    reason: ''
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onConfirm(form);
+  };
+
+  return (
+    <div className="status-modal-overlay">
+      <div className="status-modal-container animate-up" style={{ maxWidth: '550px' }}>
+        <div className="status-modal-content">
+          <div className="status-modal-header">
+            <div className="status-modal-icon-wrap" style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>
+              <i className="ri-calendar-check-line"></i>
+            </div>
+            <div className="status-modal-text">
+              <h3 className="status-modal-title">Workshop Registration</h3>
+              <p className="status-modal-desc">Registering for: <strong>{workshop.title}</strong></p>
+            </div>
+          </div>
+
+          <form id="registration-form" className="adm-form" style={{ marginTop: '20px' }} onSubmit={handleSubmit}>
+            <div className="adm-form-grid">
+              <div className="input-field">
+                <label>Full Name</label>
+                <input 
+                  type="text" 
+                  placeholder="John Doe" 
+                  required 
+                  value={form.name}
+                  onChange={e => setForm({...form, name: e.target.value})}
+                />
+              </div>
+              <div className="input-field">
+                <label>Email Address</label>
+                <input 
+                  type="email" 
+                  placeholder="john@example.com" 
+                  required 
+                  value={form.email}
+                  onChange={e => setForm({...form, email: e.target.value})}
+                />
+              </div>
+              <div className="input-field">
+                <label>Professional Role</label>
+                <input 
+                  type="text" 
+                  placeholder="Governance Officer, Student, etc." 
+                  required 
+                  value={form.role}
+                  onChange={e => setForm({...form, role: e.target.value})}
+                />
+              </div>
+              <div className="input-field">
+                <label>Reason for Attending</label>
+                <textarea 
+                  placeholder="What do you hope to learn?" 
+                  rows="3" 
+                  required
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px', 
+                    borderRadius: '8px', 
+                    border: '1px solid var(--stroke-soft)', 
+                    fontSize: '0.9rem', 
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  value={form.reason}
+                  onChange={e => setForm({...form, reason: e.target.value})}
+                ></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div className="status-modal-footer">
+          <button className="btn-outline" onClick={onClose}>Cancel</button>
+          <button type="submit" form="registration-form" className="special-button">Confirm Registration</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
    PANEL: WORKSHOP
    ═══════════════════════════════════════════════════════════════ */
-
-function WorkshopPanel() {
+function WorkshopPanel({ onRegister, registeredIds = [] }) {
   const [tab, setTab] = useState('upcoming');
   const filtered = WORKSHOPS.filter(w =>
     tab === 'upcoming' ? w.status === 'Upcoming' : w.status === 'Completed'
@@ -279,33 +375,48 @@ function WorkshopPanel() {
         </div>
       </div>
       <div className="std-workshop-list">
-        {filtered.map(w => (
-          <div key={w.id} className="std-workshop-card">
-            <div className="std-ws-date">
-              <span className="std-ws-day">{w.date.split(',')[0].split(' ')[1]}</span>
-              <span className="std-ws-month">{w.date.split(' ')[0]}</span>
-            </div>
-            <div className="std-ws-info">
-              <h4>{w.title}</h4>
-              <div className="std-ws-meta">
-                <span><i className="ri-time-line"></i> {w.time}</span>
-                <span><i className="ri-user-line"></i> {w.host}</span>
-                <span><i className="ri-team-line"></i> {w.attendees} attendees</span>
+        {filtered.map(w => {
+          const isRegistered = registeredIds.includes(w.id);
+          return (
+            <div key={w.id} className={`std-workshop-card ${isRegistered ? 'registered' : ''}`} style={isRegistered ? { borderColor: '#fbbf24', borderWidth: '2px' } : {}}>
+              <div className="std-ws-date">
+                <span className="std-ws-day">{w.date.split(',')[0].split(' ')[1] || w.date.split(' ')[1]}</span>
+                <span className="std-ws-month">{w.date.split(' ')[0]}</span>
               </div>
-              <div className="std-ws-tags">
-                <span className={`badge ${w.status === 'Upcoming' ? 'beginner' : ''}`}>{w.format}</span>
-                <span className={`badge ${w.status === 'Upcoming' ? 'advance' : 'medium'}`}>{w.status}</span>
+              <div className="std-ws-info">
+                <h4>{w.title}</h4>
+                <div className="std-ws-meta">
+                  <span><i className="ri-time-line"></i> {w.time}</span>
+                  <span><i className="ri-user-line"></i> {w.host}</span>
+                  <span><i className="ri-team-line"></i> {w.attendees} attendees</span>
+                </div>
+                <div className="std-ws-tags">
+                  <span className={`badge ${w.status === 'Upcoming' ? 'beginner' : ''}`}>{w.format}</span>
+                  <span className={`badge ${w.status === 'Upcoming' ? 'advance' : 'medium'}`}>{w.status}</span>
+                </div>
+              </div>
+              <div className="std-ws-action">
+                {w.status === 'Upcoming' ? (
+                  isRegistered ? (
+                    <span className="badge" style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '0.6rem 1.2rem', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <i className="ri-checkbox-circle-fill"></i> Registered
+                    </span>
+                  ) : (
+                    <button 
+                      className="special-button" 
+                      style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}
+                      onClick={() => onRegister(w)}
+                    >
+                      Register
+                    </button>
+                  )
+                ) : (
+                  <button className="btn-outline" style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}>View Replay</button>
+                )}
               </div>
             </div>
-            <div className="std-ws-action">
-              {w.status === 'Upcoming' ? (
-                <button className="special-button" style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}>Register</button>
-              ) : (
-                <button className="btn-outline" style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}>View Replay</button>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -503,17 +614,63 @@ function SettingsPanel({ user }) {
    MAIN: STUDENT DASHBOARD
    ═══════════════════════════════════════════════════════════════ */
 
-const StudentDashboard = ({ user, onNavigate }) => {
+const StudentDashboard = ({ user, onNavigate, onLogout }) => {
   const [activeTab, setActiveTab] = useState("Home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const name = user?.name || "Alex";
+
+  // Status & Registration Modal States
+  const [statusModal, setStatusModal] = useState({ 
+    isOpen: false, 
+    type: 'warning', 
+    title: '', 
+    message: '', 
+    onConfirm: null 
+  });
+  const [regModal, setRegModal] = useState({ isOpen: false, workshop: null });
+  const [registeredWorkshops, setRegisteredWorkshops] = useState([]);
+
+  const confirmLogout = () => {
+    setStatusModal({
+      isOpen: true,
+      type: 'warning',
+      title: 'Sign Out',
+      message: 'Are you sure you want to log out of your student account?',
+      onConfirm: () => {
+        setStatusModal(prev => ({ ...prev, isOpen: false }));
+        onLogout();
+      }
+    });
+  };
+
+  const handleRegistration = (workshop) => {
+    setRegModal({ isOpen: true, workshop });
+  };
+
+  const submitRegistration = (formData) => {
+    console.log('Registration submitted:', formData);
+    const workshopId = regModal.workshop?.id;
+    setRegModal({ isOpen: false, workshop: null });
+    
+    if (workshopId) {
+      setRegisteredWorkshops(prev => [...prev, workshopId]);
+    }
+
+    setStatusModal({
+      isOpen: true,
+      type: 'success',
+      title: 'Registration Successful',
+      message: `You have successfully registered for "${regModal.workshop?.title}". We've sent the details to your email.`,
+      onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
+    });
+  };
 
   const renderPanel = () => {
     switch (activeTab) {
       case 'Home':           return <HomePanel name={name} onNavigate={onNavigate} />;
       case 'Courses':        return <CoursesPanel onNavigate={onNavigate} />;
       case 'Tutorials':      return <TutorialsPanel onNavigate={onNavigate} />;
-      case 'Workshop':       return <WorkshopPanel />;
+      case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} />;
       case 'Resources':      return <ResourcesPanel onNavigate={onNavigate} />;
       case 'Certifications': return <CertificationsPanel />;
       case 'Settings':       return <SettingsPanel user={user} />;
@@ -572,6 +729,9 @@ const StudentDashboard = ({ user, onNavigate }) => {
             <button className="sidebar-link" onClick={() => onNavigate('welcome')}>
               <i className="ri-arrow-left-line"></i> Back to Site
             </button>
+            <button className="sidebar-link" onClick={confirmLogout}>
+              <i className="ri-logout-box-line"></i> Sign Out
+            </button>
           </div>
         </aside>
 
@@ -608,6 +768,27 @@ const StudentDashboard = ({ user, onNavigate }) => {
           </div>
         </main>
       </div>
+
+      {statusModal.isOpen && (
+        <StatusModal
+          isOpen={statusModal.isOpen}
+          onClose={() => setStatusModal(prev => ({ ...prev, isOpen: false }))}
+          onCancel={() => setStatusModal(prev => ({ ...prev, isOpen: false }))}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          confirmLabel={statusModal.type === 'success' ? 'Great!' : 'Yes, Proceed'}
+          onConfirm={statusModal.onConfirm}
+        />
+      )}
+
+      {regModal.isOpen && (
+        <WorkshopRegistrationModal 
+          workshop={regModal.workshop} 
+          onClose={() => setRegModal({ isOpen: false, workshop: null })}
+          onConfirm={submitRegistration}
+        />
+      )}
     </>
   );
 };

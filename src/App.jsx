@@ -19,6 +19,8 @@ import AdminLoginPage from './modules/auth/AdminLoginPage'
 import NotFoundPage from './modules/home/NotFoundPage'
 import './App.css'
 
+const PROTECTED_PAGES = ['learn-player', 'learn-discovery', 'explore', 'student', 'course-player'];
+
 function App() {
   const getPageFromUrl = () => {
     // Dynamically handle base path (e.g., /grh/ or /)
@@ -52,11 +54,22 @@ function App() {
     document.title = pageTitles[currentPage] || 'Governance Resource Hub';
   }, [currentPage]);
 
+  // Enforce authentication for protected pages on change/load
+  useEffect(() => {
+    if (PROTECTED_PAGES.includes(currentPage) && !user) {
+      localStorage.setItem('returnPage', currentPage);
+      setCurrentPage('login');
+      const base = import.meta.env.BASE_URL || '/';
+      window.history.pushState({}, '', `${base}login`);
+    }
+  }, [currentPage, user]);
+
   const openAuth = (type = 'login') => {
     // Store current page as return target before navigating to auth
-    if (currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login') {
+    if (!['login', 'signup', 'admin-login'].includes(currentPage)) {
       localStorage.setItem('returnPage', currentPage);
     }
+    
     if (type === 'admin') {
       navigate('admin-login');
     } else {
@@ -64,11 +77,8 @@ function App() {
     }
   };
 
-  // Pages that require authentication
-  const PROTECTED_PAGES = ['learn-player', 'learn-discovery', 'explore', 'student', 'course-player'];
-
   const navigate = (page) => {
-    // Auth gate: redirect to login if trying to access protected pages without login
+    // Auth gate for protected pages
     if (PROTECTED_PAGES.includes(page) && !user) {
       localStorage.setItem('returnPage', page);
       setCurrentPage('login');
@@ -77,11 +87,14 @@ function App() {
       window.scrollTo(0, 0);
       return;
     }
+
     setCurrentPage(page);
     localStorage.setItem('currentPage', page);
+    
     // Update browser URL without reload
     const base = import.meta.env.BASE_URL || '/';
-    const fullPath = `${base}${page === 'welcome' ? '' : page}`.replace(/\/+$/, '') || '/';
+    const cleanPage = page === 'welcome' ? '' : page;
+    const fullPath = `${base}${cleanPage}`.replace(/\/+$/, '') || '/';
     window.history.pushState({}, '', fullPath);
     window.scrollTo(0, 0);
   };
@@ -89,18 +102,26 @@ function App() {
   const handleLogin = (userData) => {
     setUser(userData);
     setShowAuth(false);
-    // If user was redirected from a protected page, go back there
+    
     const returnPage = localStorage.getItem('returnPage');
-    if (returnPage) {
+    if (returnPage && returnPage !== 'login' && returnPage !== 'signup' && returnPage !== 'admin-login') {
       localStorage.removeItem('returnPage');
       navigate(returnPage);
       return true;
     }
-    return false;
+    
+    // Default redirections
+    if (userData.isAdmin) {
+      navigate('admin');
+    } else {
+      navigate('welcome');
+    }
+    return true;
   };
 
   const handleLogout = () => {
     setUser(null);
+    navigate('welcome');
   };
 
   return (
@@ -130,7 +151,7 @@ function App() {
         {currentPage === 'analyse' && <NotFoundPage onNavigate={navigate} />}
         {currentPage === 'help-center' && <NotFoundPage onNavigate={navigate} />}
         {currentPage === 'contact' && <NotFoundPage onNavigate={navigate} />}
-        {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} />}
+        {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} onLogout={handleLogout} />}
         {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
         {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} />}
         {currentPage === 'admin' && !user?.isAdmin && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
