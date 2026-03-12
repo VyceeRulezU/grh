@@ -71,21 +71,32 @@ function App() {
         // Check initial session
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          setUser({
+          const userData = {
             email: session.user.email,
             id: session.user.id,
             isAdmin: session.user.email?.toLowerCase().includes('admin') || session.user.app_metadata?.role === 'admin'
-          });
+          };
+          setUser(userData);
+          
+          if (['login', 'signup'].includes(currentPage)) {
+            handleLogin(userData);
+          }
         }
 
         // Listen for changes
         const { data } = supabase.auth.onAuthStateChange((_event, session) => {
           if (session) {
-            setUser({
+            const userData = {
               email: session.user.email,
               id: session.user.id,
               isAdmin: session.user.email?.toLowerCase().includes('admin') || session.user.app_metadata?.role === 'admin'
-            });
+            };
+            setUser(userData);
+            
+            // If user just signed in via OAuth (and we're on an auth page), redirect them
+            if (['login', 'signup'].includes(currentPage)) {
+              handleLogin(userData);
+            }
           } else {
             setUser(null);
           }
