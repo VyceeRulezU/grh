@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
+import { supabase } from '../../lib/supabaseClient';
 
 const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +15,18 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
     const handled = onLogin({ email: email || 'user@example.com', isAdmin });
     if (!handled) {
       onNavigate(isAdmin ? 'admin' : 'welcome');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin // Where the user goes after login
+      }
+    });
+    if (error) {
+      console.error('Login error:', error.message);
     }
   };
 
@@ -105,7 +118,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
               {!isAdmin && (
                 <>
                   <p className="auth-or-divider">Or</p>
-                  <button type="button" className="auth-google-btn">
+                  <button type="button" className="auth-google-btn" onClick={handleGoogleLogin}>
                     <img src={googleIcon} alt="Google" />
                     Continue with Google
                   </button>

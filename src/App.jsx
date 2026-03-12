@@ -54,6 +54,49 @@ function App() {
     document.title = pageTitles[currentPage] || 'Governance Resource Hub';
   }, [currentPage]);
 
+  // Listen for auth state changes (crucial for OAuth redirection)
+  useEffect(() => {
+    let subscription = null;
+    
+    const initAuth = async () => {
+      try {
+        const { supabase } = await import('./lib/supabaseClient');
+        
+        // Check initial session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUser({
+            email: session.user.email,
+            id: session.user.id,
+            isAdmin: session.user.email?.toLowerCase().includes('admin') || session.user.app_metadata?.role === 'admin'
+          });
+        }
+
+        // Listen for changes
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (session) {
+            setUser({
+              email: session.user.email,
+              id: session.user.id,
+              isAdmin: session.user.email?.toLowerCase().includes('admin') || session.user.app_metadata?.role === 'admin'
+            });
+          } else {
+            setUser(null);
+          }
+        });
+        subscription = data.subscription;
+      } catch (err) {
+        console.warn('[GRH] Auth listener initialization failed:', err.message);
+      }
+    };
+
+    initAuth();
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
+  }, []);
+
   // Enforce authentication for protected pages on change/load
   useEffect(() => {
     if (PROTECTED_PAGES.includes(currentPage) && !user) {

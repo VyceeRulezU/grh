@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './LoginPage.css'; // Shared styles with LoginPage
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
+import { supabase } from '../../lib/supabaseClient';
 
 const SignupPage = ({ onNavigate, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,18 @@ const SignupPage = ({ onNavigate, onLogin }) => {
     const handled = onLogin({ email: email || 'user@example.com', isAdmin: false });
     if (!handled) {
       onNavigate('welcome');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin // Where the user goes after login
+      }
+    });
+    if (error) {
+      console.error('Login error:', error.message);
     }
   };
 
@@ -108,7 +121,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
               
               <p className="auth-or-divider">Or</p>
               
-              <button type="button" className="auth-google-btn">
+              <button type="button" className="auth-google-btn" onClick={handleGoogleLogin}>
                 <img src={googleIcon} alt="Google" />
                 Continue with Google
               </button>
