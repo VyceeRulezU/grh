@@ -4,12 +4,13 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    '[GRH] Supabase env vars missing – set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env'
+  console.error(
+    '[GRH] CRITICAL: Supabase credentials missing! Authentication will not work. \n' +
+    'Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.'
   );
 }
 
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseUrl || 'https://missing-url.supabase.co',
+  supabaseAnonKey || 'missing-key'
 );
