@@ -17,6 +17,8 @@ import LoginPage from './modules/auth/LoginPage'
 import SignupPage from './modules/auth/SignupPage'
 import AdminLoginPage from './modules/auth/AdminLoginPage'
 import OAuthConsentPage from './modules/auth/OAuthConsentPage'
+import PrivacyPolicy from './modules/legal/PrivacyPolicy'
+import TermsOfService from './modules/legal/TermsOfService'
 import NotFoundPage from './modules/home/NotFoundPage'
 import './App.css'
 
@@ -51,7 +53,9 @@ function App() {
       'login': 'Login | GRH',
       'signup': 'Signup | GRH',
       'admin-login': 'Admin Login | GRH',
-      'oauth-consent': 'Authorize App | GRH'
+      'oauth-consent': 'Authorize App | GRH',
+      'privacy-policy': 'Privacy Policy | GRH',
+      'terms-of-service': 'Terms of Service | GRH'
     };
     document.title = pageTitles[currentPage] || 'Governance Resource Hub';
   }, [currentPage]);
@@ -205,7 +209,9 @@ function App() {
         {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'admin-login' && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'oauth-consent' && <OAuthConsentPage onNavigate={navigate} />}
-        {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent'].includes(currentPage) && (
+        {currentPage === 'privacy-policy' && <PrivacyPolicy />}
+        {currentPage === 'terms-of-service' && <TermsOfService />}
+        {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service'].includes(currentPage) && (
           <NotFoundPage onNavigate={navigate} />
         )}
       </main>

@@ -45,8 +45,8 @@ const Footer = ({ onNavigate }) => {
             <p className="copy-right-text">© 2025 Governance Resource Hub. All rights reserved.</p>
 
             <div className="terms-container">
-              <button className="terms-link text-btn">Privacy Policy</button>
-              <button className="terms-link text-btn">Terms of Service</button>
+              <button className="terms-link text-btn" onClick={() => onNavigate('privacy-policy')}>Privacy Policy</button>
+              <button className="terms-link text-btn" onClick={() => onNavigate('terms-of-service')}>Terms of Service</button>
               <button className="footer-link admin-shield" onClick={() => onNavigate('admin-login')}>
                 <span>🛡️</span> Admin Shield
               </button>
