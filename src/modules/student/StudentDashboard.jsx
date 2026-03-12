@@ -166,16 +166,22 @@ function HomePanel({ name, onNavigate }) {
 
 function CoursesPanel({ onNavigate }) {
   const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const filtered = filter === 'all'
+  const filtered = (filter === 'all'
     ? MY_COURSES
     : filter === 'completed'
       ? MY_COURSES.filter(c => c.progress === 100)
       : filter === 'in-progress'
         ? MY_COURSES.filter(c => c.progress > 0 && c.progress < 100)
-        : MY_COURSES.filter(c => c.progress === 0);
+        : MY_COURSES.filter(c => c.progress === 0)
+  ).filter(c => 
+    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -188,7 +194,18 @@ function CoursesPanel({ onNavigate }) {
   return (
     <section className="std-panel">
       <div className="section-header">
-        <h3>My Courses</h3>
+        <div className="section-title-group">
+          <h3>My Courses</h3>
+          <div className="panel-search">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              placeholder="Filter courses..." 
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            />
+          </div>
+        </div>
         <div className="std-filter-row">
           {[{id:'all',l:'All'},{id:'in-progress',l:'In Progress'},{id:'completed',l:'Completed'},{id:'not-started',l:'Not Started'}].map(f => (
             <button key={f.id} className={`std-filter-btn ${filter === f.id ? 'active' : ''}`} onClick={() => { setFilter(f.id); setCurrentPage(1); }}>{f.l}</button>
@@ -232,14 +249,33 @@ function CoursesPanel({ onNavigate }) {
    ═══════════════════════════════════════════════════════════════ */
 
 function TutorialsPanel({ onNavigate }) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filtered = TUTORIALS.filter(t => 
+    t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <section className="std-panel">
       <div className="section-header">
-        <h3>Video Tutorials</h3>
+        <div className="section-title-group">
+          <h3>Video Tutorials</h3>
+          <div className="panel-search">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              placeholder="Search tutorials..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <button className="view-all" onClick={() => onNavigate('learn')}>Browse All</button>
       </div>
       <div className="std-tutorial-grid">
-        {TUTORIALS.map(t => (
+        {filtered.map(t => (
           <div key={t.id} className="std-tutorial-card">
             <div className="std-tutorial-thumb">
               <img src={t.thumbnail} alt={t.title} loading="lazy" />
@@ -361,14 +397,29 @@ function WorkshopRegistrationModal({ workshop, onClose, onConfirm }) {
    ═══════════════════════════════════════════════════════════════ */
 function WorkshopPanel({ onRegister, registeredIds = [] }) {
   const [tab, setTab] = useState('upcoming');
+  const [searchTerm, setSearchTerm] = useState("");
+
   const filtered = WORKSHOPS.filter(w =>
-    tab === 'upcoming' ? w.status === 'Upcoming' : w.status === 'Completed'
+    (tab === 'upcoming' ? w.status === 'Upcoming' : w.status === 'Completed') &&
+    (w.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     w.host.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
     <section className="std-panel">
       <div className="section-header">
-        <h3>Workshops</h3>
+        <div className="section-title-group">
+          <h3>Workshops</h3>
+          <div className="panel-search">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              placeholder="Filter workshops..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <div className="std-filter-row">
           <button className={`std-filter-btn ${tab === 'upcoming' ? 'active' : ''}`} onClick={() => setTab('upcoming')}>Upcoming</button>
           <button className={`std-filter-btn ${tab === 'completed' ? 'active' : ''}`} onClick={() => setTab('completed')}>Completed</button>
@@ -431,10 +482,18 @@ function WorkshopPanel({ onRegister, registeredIds = [] }) {
    ═══════════════════════════════════════════════════════════════ */
 
 function ResourcesPanel({ onNavigate }) {
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
-  const totalPages = Math.ceil(MY_RESOURCES.length / itemsPerPage);
-  const pagedItems = MY_RESOURCES.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const filtered = MY_RESOURCES.filter(r => 
+    r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -444,7 +503,18 @@ function ResourcesPanel({ onNavigate }) {
   return (
     <section className="std-panel">
       <div className="section-header">
-        <h3>My Resources</h3>
+        <div className="section-title-group">
+          <h3>My Resources</h3>
+          <div className="panel-search">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              placeholder="Search resources..." 
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            />
+          </div>
+        </div>
         <button className="view-all" onClick={() => onNavigate('research')}>Browse Library</button>
       </div>
       <div className="std-resource-grid">
@@ -480,13 +550,57 @@ function ResourcesPanel({ onNavigate }) {
    ═══════════════════════════════════════════════════════════════ */
 
 function CertificationsPanel() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filtered = CERTIFICATIONS.filter(c => 
+    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.credentialId.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <section className="std-panel">
-      <div className="section-header">
-        <h3>Certifications</h3>
+      {/* Achievement summary */}
+      <div className="std-cert-summary">
+        <div className="std-cert-stat">
+          <div className="std-cert-icon green"><i className="ri-medal-line"></i></div>
+          <div className="std-cert-content">
+            <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'Earned').length}</div>
+            <div className="std-cert-stat-label">Earned</div>
+          </div>
+        </div>
+        <div className="std-cert-stat">
+          <div className="std-cert-icon orange"><i className="ri-time-line"></i></div>
+          <div className="std-cert-content">
+            <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'In Progress').length}</div>
+            <div className="std-cert-stat-label">In Progress</div>
+          </div>
+        </div>
+        <div className="std-cert-stat">
+          <div className="std-cert-icon blue"><i className="ri-book-read-line"></i></div>
+          <div className="std-cert-content">
+            <div className="std-cert-stat-num">{COURSES.length - CERTIFICATIONS.length}</div>
+            <div className="std-cert-stat-label">Available</div>
+          </div>
+        </div>
       </div>
+      
+      <div className="section-header">
+        <div className="section-title-group">
+          <h3>Certifications</h3>
+          <div className="panel-search">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              placeholder="Search ceritificates..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="std-cert-list">
-        {CERTIFICATIONS.map(cert => (
+        {filtered.map(cert => (
           <div key={cert.id} className={`std-cert-card ${cert.status === 'Earned' ? 'earned' : 'progress'}`}>
             <div className="std-cert-icon-area">
               {cert.status === 'Earned' ? (
@@ -521,22 +635,6 @@ function CertificationsPanel() {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Achievement summary */}
-      <div className="std-cert-summary">
-        <div className="std-cert-stat">
-          <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'Earned').length}</div>
-          <div className="std-cert-stat-label">Earned</div>
-        </div>
-      <div className="std-cert-stat">
-          <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'In Progress').length}</div>
-          <div className="std-cert-stat-label">In Progress</div>
-        </div>
-        <div className="std-cert-stat">
-          <div className="std-cert-stat-num">{COURSES.length - CERTIFICATIONS.length}</div>
-          <div className="std-cert-stat-label">Available</div>
-        </div>
       </div>
     </section>
   );
@@ -746,10 +844,8 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
                 <p>Continue your governance learning journey.</p>
               </div>
             </div>
-            <div className="topbar-search">
-              <i className="ri-search-line"></i>
-              <input type="text" placeholder="Search courses, resources..." />
-            </div>
+            {/* Remove global search from center as it's now local to panels */}
+            <div className="topbar-spacer" style={{ flex: 1 }}></div>
             <div className="topbar-actions">
               <button className="action-btn"><i className="ri-notification-fill"></i></button>
               <div className="user-profile">
