@@ -362,3 +362,8 @@ export const TESTIMONIALS = [
   }
 ];
 
+export const BOOKS = [
+  { id: 1, title: 'Governance in the 21st Century', summary: 'A comprehensive guide to modern governance frameworks and best practices.', imageUrl: '', fileUrl: '#', status: 'Published' },
+  { id: 2, title: 'Public Financial Management Handbook', summary: 'Essential reference for PFM practitioners in developing economies.', imageUrl: '', fileUrl: '#', status: 'Published' },
+];
+

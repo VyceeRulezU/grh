@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
+import { BOOKS } from '../../data/legacyData';
 import grhIcon from '../../assets/images/Logo/GRH-icon.png';
 import ModernDropdown from '../../components/ui/ModernDropdown';
 import StatusModal from '../../components/ui/StatusModal';
@@ -39,11 +40,6 @@ const RESOURCES = [
   { id: 2, title: 'UNCAC Implementation Guide', type: 'SPARC', category: 'Integrity', status: 'Published' },
   { id: 3, title: 'OGP National Action Plan Template', type: 'SLGP', category: 'Transparency', status: 'Draft' },
   { id: 4, title: 'Electoral System Design Handbook', type: 'SPARC', category: 'Democracy', status: 'Published' },
-];
-
-const BOOKS = [
-  { id: 1, title: 'Governance in the 21st Century', summary: 'A comprehensive guide to modern governance frameworks and best practices.', imageUrl: '', fileUrl: '#', status: 'Published' },
-  { id: 2, title: 'Public Financial Management Handbook', summary: 'Essential reference for PFM practitioners in developing economies.', imageUrl: '', fileUrl: '#', status: 'Published' },
 ];
 
 const WORKSHOPS = [
