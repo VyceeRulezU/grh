@@ -327,10 +327,35 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
     }
   };
 
-  if (loading || !activeLesson) {
+  if (loading) {
     return <div className="course-player" style={{display:'flex', alignItems:'center', justifyContent:'center', minHeight:'500px'}}>
       <div className="empty-state"><h3>Loading Lesson Content...</h3></div>
     </div>;
+  }
+
+  if (!activeLesson) {
+    return (
+      <div className="course-player">
+        <header className="player-header">
+          <div className="player-back" onClick={() => onNavigate('student')}>
+            <i className="ri-arrow-left-line"></i>
+            <span>Back to Dashboard</span>
+          </div>
+          <div className="player-course-title">
+            <h3>{course?.title || 'Course'}</h3>
+            <div className="player-progress-pill">0% Complete</div>
+          </div>
+        </header>
+        <div className="player-main" style={{ justifyContent: 'center', alignItems: 'center', padding: '4rem' }}>
+          <div className="empty-state">
+            <i className="ri-error-warning-line" style={{ fontSize: '3rem', color: 'var(--text-soft)' }}></i>
+            <h3>No modules found for this course.</h3>
+            <p>Please check back later or contact an administrator.</p>
+            <Button className="special-button" style={{ marginTop: '1rem' }} onClick={() => onNavigate('student')}>Return to Dashboard</Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const videoId = getYouTubeVideoId(activeLesson?.video_url);

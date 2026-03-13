@@ -4,9 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import { BOOKS } from '../../data/legacyData';
 import grhIcon from '../../assets/images/Logo/GRH-icon.png';
-import ModernDropdown from '../../components/ui/ModernDropdown';
-import StatusModal from '../../components/ui/StatusModal';
-import { useModal } from '../../hooks/useModal';
+import Pagination from '../../components/ui/Pagination';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -703,6 +701,12 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
 function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
   const [modal, setModal] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(courses.length / itemsPerPage);
+  const paginatedCourses = courses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const editCourse = courses.find(c => c.id === modal);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
@@ -843,12 +847,12 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
             </tr>
           </thead>
           <tbody>
-            {courses.map(c => (
+            {paginatedCourses.map(c => (
               <tr key={c.id}>
                 <td className="adm-course-title-cell">{c.title}</td>
                 <td><span className="adm-cat-badge">{c.category}</span></td>
                 <td>{c.level}</td>
-                <td>{c.learners}</td>
+                <td>{c.learners || 0}</td>
                 <td>
                   <span className={`adm-status-badge ${c.status === 'Published' ? 'published' : 'draft'}`}>
                     {c.status}
@@ -862,7 +866,8 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
                         const newStatus = c.status === 'Published' ? 'Draft' : 'Published';
                         const { error } = await supabase.from('courses').update({ status: newStatus }).eq('id', c.id);
                         if (error) throw error;
-                        window.location.reload();
+                        if (typeof fetchData === 'function') await fetchData();
+                        else window.location.reload();
                       } catch (err) { showError('Error', err.message); }
                     }}>
                       <i className={c.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
@@ -874,6 +879,15 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="adm-pagination-bar">
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(p) => setCurrentPage(p)}
+          itemsPerPage={itemsPerPage}
+        />
       </div>
 
       {modal && (

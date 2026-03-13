@@ -34,8 +34,15 @@ function App() {
     return normalizedPath || localStorage.getItem('currentPage') || 'welcome';
   };
 
+  const getNavDataFromSession = () => {
+    try {
+      const saved = sessionStorage.getItem('navData');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  };
+
   const [currentPage, setCurrentPage] = useState(getPageFromUrl);
-  const [navData, setNavData] = useState(null);
+  const [navData, setNavData] = useState(getNavDataFromSession);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
@@ -105,6 +112,17 @@ function App() {
         if (initialSession) {
           const userData = await fetchProfile(initialSession);
           setUser(userData);
+          
+          // Restore navData if it exists
+          try {
+            const savedNavData = sessionStorage.getItem('navData');
+            if (savedNavData) {
+              setNavData(JSON.parse(savedNavData));
+            }
+          } catch (e) {
+            console.warn("Failed to restore navData:", e);
+          }
+
           if (['login', 'signup', 'admin', 'admin-login'].includes(currentPage)) {
             handleLogin(userData);
           }
@@ -217,6 +235,11 @@ function App() {
     setCurrentPage(targetPage);
     setNavData(targetData);
     localStorage.setItem('currentPage', targetPage);
+    if (targetData) {
+      sessionStorage.setItem('navData', JSON.stringify(targetData));
+    } else {
+      sessionStorage.removeItem('navData');
+    }
     
     // Update browser URL without reload
     const base = import.meta.env.BASE_URL || '/';
