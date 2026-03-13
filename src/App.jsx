@@ -35,6 +35,7 @@ function App() {
   };
 
   const [currentPage, setCurrentPage] = useState(getPageFromUrl);
+  const [navData, setNavData] = useState(null);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
@@ -200,8 +201,9 @@ function App() {
     }
   };
 
-  const navigate = (page) => {
+  const navigate = (page, data = null) => {
     const targetPage = typeof page === 'string' ? page : page.page;
+    const targetData = data || (typeof page === 'object' ? page : null);
     // Auth gate for protected pages
     if (PROTECTED_PAGES.includes(targetPage) && !user) {
       localStorage.setItem('returnPage', targetPage);
@@ -213,6 +215,7 @@ function App() {
     }
 
     setCurrentPage(targetPage);
+    setNavData(targetData);
     localStorage.setItem('currentPage', targetPage);
     
     // Update browser URL without reload
@@ -221,7 +224,7 @@ function App() {
     const fullPath = `${base}${cleanPage}`.replace(/\/+$/, '') || '/';
     
     const navTarget = typeof page === 'string' ? page : page.page;
-    window.history.pushState({ usr: typeof page === 'object' ? page : null }, '', fullPath);
+    window.history.pushState({ usr: targetData }, '', fullPath);
     window.scrollTo(0, 0);
   };
 
@@ -312,7 +315,7 @@ function App() {
         {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
         {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} onRefreshUser={refreshUser} />}
         {currentPage === 'admin' && !user?.isAdmin && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
-        {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} user={user} course={history.state?.usr?.course} />}
+        {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} user={user} course={navData} />}
         {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'oauth-consent' && <OAuthConsentPage onNavigate={navigate} />}

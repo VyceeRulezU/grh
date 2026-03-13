@@ -16,6 +16,29 @@ const TUTORIALS = [
   { id: 3, title: 'Public Finance Overview', category: 'Finance', instructor: 'Dr. Fatima Al-Hassan', duration: '18:10', thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800' },
 ];
 
+const COURSE_IMAGE_BANK = [
+  'https://images.unsplash.com/photo-1529539795054-3c162aab037a',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40',
+  'https://images.unsplash.com/photo-1554224155-6726b3ff858f',
+  'https://images.unsplash.com/photo-1589829545856-d10d557cf95f',
+  'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c',
+  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85',
+  'https://images.unsplash.com/photo-1507537297725-24a1c029d3ca',
+  'https://images.unsplash.com/photo-1551836022-d5d88e9218df',
+  'https://images.unsplash.com/photo-1427751840561-9852520f8ce8',
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
+  'https://images.unsplash.com/photo-1517048676732-d65bc937f952',
+  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
+  'https://images.unsplash.com/photo-1434030216411-0b793f4b4173',
+  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644',
+  'https://images.unsplash.com/photo-1531482615713-2afd69097998',
+  'https://images.unsplash.com/photo-1524178232363-1fb2b075b655',
+  'https://images.unsplash.com/photo-1513258496099-48168024adb0',
+  'https://images.unsplash.com/photo-1523287562758-66c7fc58967f',
+  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4'
+];
+
 const MY_RESOURCES = LEGACY_RESOURCES;
 
 const NAV_GROUPS = [
@@ -79,7 +102,7 @@ function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, cer
                   <span>{course.progress}%</span>
                 </div>
                 <span><span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span></span>
-                <button className="row-action" onClick={() => onNavigate('learn-player', { course })}><i className="ri-play-circle-fill"></i></button>
+                <button className="row-action" onClick={() => onNavigate('learn-player', course)}><i className="ri-play-circle-fill"></i></button>
               </div>
             ))}
             {myCourses.length === 0 && <div style={{padding: '20px', textAlign: 'center', color: 'var(--text-soft)'}}>No courses started yet.</div>}
@@ -125,7 +148,7 @@ function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, cer
                   <span className="badge">{course.duration}</span>
                   <span className="badge">{course.lessons} Lessons</span>
                 </div>
-                <button className="special-button enroll-btn" onClick={() => onNavigate('learn-player', { course })}>
+                <button className="special-button enroll-btn" onClick={() => onNavigate('learn-player', course)}>
                   Enroll Now
                 </button>
               </div>
@@ -192,7 +215,7 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
       </div>
       <div className="std-course-grid">
         {pagedItems.map(course => (
-          <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player', { course })}>
+          <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player', course)}>
             <div className="std-course-thumb">
               <img 
                 src={course.coverImage} 
@@ -828,8 +851,15 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         .select('*');
       
       // Mock progress for now - in a real app, join with user_progress
-      const coursesWithProgress = (coursesData || []).map(c => ({
+      const getSafeImg = (c, i) => {
+        const val = c.thumbnail || c.cover_image || c.coverImage || "";
+        if (val && val.length > 10) return val;
+        return `${COURSE_IMAGE_BANK[i % COURSE_IMAGE_BANK.length]}?auto=format&fit=crop&w=600&q=80`;
+      };
+
+      const coursesWithProgress = (coursesData || []).map((c, i) => ({
         ...c,
+        coverImage: getSafeImg(c, i),
         progress: Math.floor(Math.random() * 101) // mock
       }));
 

@@ -110,11 +110,11 @@ const CourseDiscovery = ({ onNavigate }) => {
               key={course.id} 
               className="disc-course-card animate-in" 
               style={{ animationDelay: `${i * 0.05}s` }}
-              onClick={() => onNavigate('learn-player', { course })}
+              onClick={() => onNavigate('learn-player', course)}
             >
               <figure className="disc-course-img">
                 <img 
-                  src={COURSE_IMAGES[i % COURSE_IMAGES.length]} 
+                  src={(course.thumbnail && course.thumbnail.length > 10) ? course.thumbnail : COURSE_IMAGES[i % COURSE_IMAGES.length]} 
                   alt={course.title} 
                   loading="lazy" 
                   onError={(e) => {

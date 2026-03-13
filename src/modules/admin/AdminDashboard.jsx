@@ -53,6 +53,29 @@ const WORKSHOPS = [
   { id: 3, title: 'Open Government Hackathon', date: '2024-04-05', time: '09:00', status: 'Upcoming', host: 'OGP Nigeria', attendees: 200, format: 'In-person', registrations: [] },
 ];
 
+const COURSE_IMAGE_BANK = [
+  'https://images.unsplash.com/photo-1529539795054-3c162aab037a',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40',
+  'https://images.unsplash.com/photo-1554224155-6726b3ff858f',
+  'https://images.unsplash.com/photo-1589829545856-d10d557cf95f',
+  'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c',
+  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85',
+  'https://images.unsplash.com/photo-1507537297725-24a1c029d3ca',
+  'https://images.unsplash.com/photo-1551836022-d5d88e9218df',
+  'https://images.unsplash.com/photo-1427751840561-9852520f8ce8',
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
+  'https://images.unsplash.com/photo-1517048676732-d65bc937f952',
+  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
+  'https://images.unsplash.com/photo-1434030216411-0b793f4b4173',
+  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644',
+  'https://images.unsplash.com/photo-1531482615713-2afd69097998',
+  'https://images.unsplash.com/photo-1524178232363-1fb2b075b655',
+  'https://images.unsplash.com/photo-1513258496099-48168024adb0',
+  'https://images.unsplash.com/photo-1523287562758-66c7fc58967f',
+  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4'
+];
+
 // Removed global NAV_GROUPS to use dynamic version inside AdminDashboard
 
 /* =====================================================================
@@ -113,7 +136,7 @@ function UserModal({ onClose, onSave, initial }) {
 
 function CourseModal({ onClose, onSave, initial }) {
   const [form, setForm] = useState(initial || {
-    title: '', category: 'Governance', instructor: '', level: 'Beginner',
+    title: '', category: 'Governance', instructor: '', level: 'Beginner', thumbnail: '',
     price: '', description: '',
     chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: 'https://youtu.be/svYm5KomARg', description: '' }] }],
   });
@@ -190,13 +213,20 @@ function CourseModal({ onClose, onSave, initial }) {
               <input placeholder="Dr. Sarah Chen" value={form.instructor} onChange={e => set('instructor', e.target.value)} required />
             </div>
             <div className="adm-form-group">
-              <label>Price (₦)</label>
-              <input type="number" placeholder="0 = Free" value={form.price} onChange={e => set('price', e.target.value)} />
+              <label>Price</label>
+              <input type="text" placeholder="e.g. Free or 5000" value={form.price} onChange={e => set('price', e.target.value)} />
             </div>
           </div>
-          <div className="adm-form-group">
-            <label>Description</label>
-            <textarea rows="2" placeholder="What learners will gain from this course..." value={form.description} onChange={e => set('description', e.target.value)} />
+          <div className="adm-form-row">
+            <div className="adm-form-group adm-flex-2">
+              <label>Description</label>
+              <textarea rows="2" placeholder="What learners will gain from this course..." value={form.description} onChange={e => set('description', e.target.value)} />
+            </div>
+            <div className="adm-form-group adm-flex-2">
+              <label>Thumbnail / Cover Image URL (Optional)</label>
+              <input placeholder="https://images.unsplash.com/..." value={form.thumbnail} onChange={e => set('thumbnail', e.target.value)} />
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-soft)' }}>If empty, a random high-quality image will be chosen.</span>
+            </div>
           </div>
 
           <div className="adm-chapters-section">
@@ -671,74 +701,130 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
   );
 }
 
-function CoursesPanel({ courses, setCourses, onDelete }) {
+function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
   const [modal, setModal] = useState(null);
   const editCourse = courses.find(c => c.id === modal);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const save = async (form) => {
+    console.log("Saving course with form:", form);
     try {
-      const { chapters, ...courseData } = form;
-      let courseId = modal;
+      const { chapters } = form;
+      
+      // Defensively handle price to satisfy both numeric and text column types
+      // If it's an empty string or null, we use '0' which works for both.
+      let finalPrice = form.price;
+      if (finalPrice === '' || finalPrice === null || finalPrice === undefined) {
+        finalPrice = '0';
+      } else {
+        finalPrice = String(finalPrice);
+      }
 
-      if (typeof modal !== 'number' && typeof modal !== 'string' || modal === 'add') {
+      const coursePayload = {
+        title: form.title,
+        category: form.category,
+        level: form.level,
+        description: form.description,
+        instructor: form.instructor,
+        price: finalPrice,
+        status: 'Published',
+        thumbnail: form.thumbnail || `${COURSE_IMAGE_BANK[Math.floor(Math.random() * COURSE_IMAGE_BANK.length)]}?auto=format&fit=crop&w=600&q=80`,
+        cover_image: form.thumbnail || null
+      };
+
+      console.log("Defensive Payload to Supabase:", coursePayload);
+
+      let courseId;
+
+      if (modal === 'add' || (typeof modal !== 'number' && typeof modal !== 'string')) {
         // Create Course
         const { data: newCourse, error } = await supabase
           .from('courses')
-          .insert([{ ...courseData, status: 'Published' }])
+          .insert([coursePayload])
           .select()
           .single();
-        if (error) throw error;
+        
+        if (error) {
+          console.error("Supabase Course Insert Error:", error);
+          if (error.message.includes('row-level security')) throw new Error("Permission Denied: You must be an Admin in the 'profiles' table to create courses.");
+          throw error;
+        }
         courseId = newCourse.id;
       } else {
         // Update Course
+        courseId = modal;
         const { error } = await supabase
           .from('courses')
-          .update(courseData)
-          .eq('id', modal);
-        if (error) throw error;
+          .update(coursePayload)
+          .eq('id', courseId);
+        
+        if (error) {
+          console.error("Supabase Course Update Error:", error);
+          if (error.message.includes('row-level security')) throw new Error("Permission Denied: You must be an Admin in the 'profiles' table to update courses.");
+          throw error;
+        }
       }
 
-      // Save Chapters & Modules
+      // 2. Save Chapters & Modules
+      // We force foreign keys to Numbers to be safe
+      const targetCourseId = Number(courseId);
+
       if (chapters && chapters.length > 0) {
         // Clear existing for simplicity on edits
-        if (typeof modal === 'number' || typeof modal === 'string' && modal !== 'add') {
-           await supabase.from('chapters').delete().eq('course_id', courseId);
-           // Modules will be deleted cascade by chapters deletion
+        if (modal !== 'add') {
+           console.log("Clearing old chapters/modules for course:", targetCourseId);
+           await supabase.from('chapters').delete().eq('course_id', targetCourseId);
         }
 
-        // Insert Chapters one by one to get IDs for nested modules
+        // Insert Chapters one by one
         for (let i = 0; i < chapters.length; i++) {
           const chap = chapters[i];
           const { data: newChap, error: chapErr } = await supabase
             .from('chapters')
-            .insert([{ course_id: courseId, title: chap.title, sequence_order: i + 1 }])
+            .insert([{ 
+              course_id: targetCourseId, 
+              title: chap.title || 'Untitled Chapter', 
+              sequence_order: i + 1 
+            }])
             .select()
             .single();
           
-          if (chapErr) throw chapErr;
+          if (chapErr) {
+            console.error("Chapter Insert Error:", chapErr);
+            throw chapErr;
+          }
 
           if (chap.modules && chap.modules.length > 0) {
             const modulesToInsert = chap.modules.map((m, mi) => ({
-              course_id: courseId,
-              chapter_id: newChap.id,
-              title: m.title,
-              video_url: m.videoLink,
-              description: m.description,
+              course_id: targetCourseId,
+              chapter_id: Number(newChap.id),
+              title: m.title || 'Untitled Module',
+              video_url: m.videoLink || '',
+              description: m.description || '',
               sequence_order: mi + 1
             }));
+
+            console.log(`Inserting ${modulesToInsert.length} modules for chapter ${newChap.id}`);
             const { error: modError } = await supabase.from('modules').insert(modulesToInsert);
-            if (modError) throw modError;
+            if (modError) {
+              console.error("Module Insert Error:", modError);
+              throw modError;
+            }
           }
         }
       }
 
-      showSuccess('Course Saved', 'Course saved successfully with chapters!');
+      showSuccess('Course Saved', 'The course and its content have been successfully saved!');
       setModal(null);
-      await fetchData(); // Refresh list 
-      // window.location.reload(); // Removed reload to avoid resetting tab state
+      if (typeof fetchData === 'function') {
+        await fetchData();
+      } else {
+        console.warn('fetchData not provided to CoursesPanel, reloading...');
+        window.location.reload();
+      }
     } catch (err) {
-      showError('Save Error', 'Error saving course: ' + err.message);
+      console.error("Final Save Operation Error:", err);
+      showError('Save Error', err.message || "An unexpected error occurred while saving.");
     }
   };
 
@@ -802,7 +888,7 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
   );
 }
 
-function ResourcesPanel({ resources, setResources, onDelete }) {
+function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
   const [modal, setModal] = useState(null);
   const editItem = resources.find(r => r.id === modal);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
@@ -818,7 +904,11 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
       }
       showSuccess('Resource Saved', 'Resource saved successfully!');
       setModal(null);
-      window.location.reload();
+      if (typeof fetchData === 'function') {
+        await fetchData();
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       showError('Save Error', 'Error saving resource: ' + err.message);
     }
@@ -867,7 +957,7 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
   );
 }
 
-function UsersPanel({ users, setUsers, onDelete, loggedInUser }) {
+function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
   const [modal, setModal] = useState(null);
   const [loading, setLoading] = useState(false);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
@@ -914,7 +1004,11 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser }) {
         }
 
         showSuccess('Invitation Sent', 'User invited successfully!');
-        setUsers(us => [{ ...nu, courses: 0, joined: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }, ...us]);
+        if (typeof fetchData === 'function') {
+          await fetchData();
+        } else {
+          setUsers(us => [{ ...nu, courses: 0, joined: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }, ...us]);
+        }
         setModal(null);
       }
     } catch (err) {
@@ -1168,7 +1262,7 @@ function AdminSettingsPanel({ user }) {
 }
 
 /* --- BOOKS PANEL --- */
-function BooksPanel({ books, setBooks, onDelete }) {
+function BooksPanel({ books, setBooks, onDelete, fetchData }) {
   const [modal, setModal] = useState(null);
   const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
@@ -1185,7 +1279,11 @@ function BooksPanel({ books, setBooks, onDelete }) {
       }
       showSuccess('Books Saved', 'Books saved successfully!');
       setModal(null);
-      window.location.reload();
+      if (typeof fetchData === 'function') {
+        await fetchData();
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       showError('Save Error', 'Error saving books: ' + err.message);
     }
@@ -1254,7 +1352,7 @@ const PANEL_MAP = {
 const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:'var(--text-soft)'}}>Panel '{id}' — coming soon</p></div>;
 
 /* --- WORKSHOPS PANEL --- */
-function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
+function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (id)
   const [attendeeModal, setAttendeeModal] = useState(null); // null | workshop object
   const editItem = workshops.find(w => w.id === modal);
@@ -1272,7 +1370,11 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
        }
        showSuccess('Workshop Saved', 'Workshop saved successfully!');
        setModal(null);
-       window.location.reload();
+       if (typeof fetchData === 'function') {
+         await fetchData();
+       } else {
+         window.location.reload();
+       }
     } catch (err) {
       showError('Save Error', 'Error saving workshop: ' + err.message);
     }
@@ -1333,21 +1435,57 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     recentActivities: []
   });
 
+  // Diagnostic: Check if current user is actually an admin in the profiles table
+  useEffect(() => {
+    if (!user?.id) return;
+    const checkAdmin = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      if (data && data.role !== 'Admin') {
+        console.warn("DIAGNOSTIC: User is NOT an Admin in profiles table. Role found:", data.role);
+        // Only show error if they are on a page that requires admin
+        showError("Access Restriction", `Your account role is '${data.role}'. Admin privileges are required to save changes. Please contact the system owner to elevate your role.`);
+      }
+    };
+    checkAdmin();
+  }, [user?.id]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [crs, res, bks, usr, wks, progress] = await Promise.all([
-        supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }),
-        supabase.from('library_resources').select('*').order('created_at', { ascending: false }),
-        supabase.from('books').select('*').order('created_at', { ascending: false }),
-        supabase.from('profiles').select('*'),
-        supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }),
+      // Fetch data with individual error handling to prevent total crash if one schema is missing
+      let [crs, res, bks, usr, wks, progress] = await Promise.all([
+        supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).catch(e => ({ error: e })),
+        supabase.from('library_resources').select('*').order('created_at', { ascending: false }).catch(e => ({ error: e })),
+        supabase.from('books').select('*').order('created_at', { ascending: false }).catch(e => ({ error: e })),
+        supabase.from('profiles').select('*').catch(e => ({ error: e })),
+        supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }).catch(e => ({ error: e })),
         supabase.from('user_progress')
           .select('*, profiles(name), courses(title)')
           .eq('completed', true)
           .order('last_accessed', { ascending: false })
-          .limit(5)
+          .limit(5).catch(e => ({ error: e }))
       ]);
+
+      // ULTRA-RESILIENT FALLBACK: If join query failed (likely due to missing chapters table), try simple select
+      if (crs.error || !crs.data) {
+        console.warn("Complex course fetch failed, trying simple fetch fallback...");
+        const fallback = await supabase.from('courses').select('*').order('created_at', { ascending: false });
+        if (!fallback.error) {
+           crs = fallback;
+        }
+      }
+
+      if (crs.error) console.error("Courses Fetch Error:", crs.error);
+      if (res.error) console.error("Resources Fetch Error:", res.error);
+      if (bks.error) console.error("Books Fetch Error:", bks.error);
+      if (usr.error) console.error("Users Fetch Error:", usr.error);
+      if (wks.error) console.error("Workshops Fetch Error:", wks.error);
+      if (progress.error) console.error("Progress Fetch Error:", progress.error);
 
       if (crs.data) {
         const mappedCourses = crs.data.map(c => ({
@@ -1543,11 +1681,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
                 onAddResource={() => setActiveSection('resources')}
                 stats={stats}
               />}
-            {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} onDelete={confirmDelete} />}
-            {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} onDelete={confirmDelete} />}
-            {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} onDelete={confirmDelete} />}
-            {activeSection === 'workshops'  && <WorkshopsPanel workshops={workshops} setWorkshops={setWorkshops} onDelete={confirmDelete} />}
-            {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} onDelete={confirmDelete} loggedInUser={user} />}
+            {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} onDelete={confirmDelete} fetchData={fetchData} />}
+            {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} onDelete={confirmDelete} fetchData={fetchData} />}
+            {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} onDelete={confirmDelete} fetchData={fetchData} />}
+            {activeSection === 'workshops'  && <WorkshopsPanel workshops={workshops} setWorkshops={setWorkshops} onDelete={confirmDelete} fetchData={fetchData} />}
+            {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} onDelete={confirmDelete} loggedInUser={user} fetchData={fetchData} />}
             {activeSection === 'analytics'  && <AnalyticsPanel stats={stats} />}
             {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
             {activeSection === 'instructors'&& <AdminInstructorsPanel />}

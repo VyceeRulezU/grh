@@ -168,9 +168,13 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             >
               <figure className="course-img">
                 <img 
-                   src={`https://images.unsplash.com/photo-${i === 0 ? '1529539795054-3c162aab037a' : i === 1 ? '1454165804606-c3d57bc86b40' : i === 2 ? '1554224155-6726b3ff858f' : i === 3 ? '1589829545856-d10d557cf95f' : i === 4 ? '1540910419892-4a36d2c3266c' : '1450101499163-c8848c66ca85'}?auto=format&fit=crop&w=600&q=80`} 
+                   src={(course.thumbnail && course.thumbnail.length > 10) ? course.thumbnail : `https://images.unsplash.com/photo-${i === 0 ? '1529539795054-3c162aab037a' : i === 1 ? '1454165804606-c3d57bc86b40' : i === 2 ? '1554224155-6726b3ff858f' : i === 3 ? '1589829545856-d10d557cf95f' : i === 4 ? '1540910419892-4a36d2c3266c' : '1450101499163-c8848c66ca85'}?auto=format&fit=crop&w=600&q=80`}
                    alt={course.title} 
                    loading="lazy" 
+                   onError={(e) => {
+                     e.target.onerror = null;
+                     e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800';
+                   }}
                 />
                 {course.trending && <figcaption className="course-badge">Bestseller</figcaption>}
                 {course.featured && !course.trending && <figcaption className="course-badge course-badge--new">Featured</figcaption>}
