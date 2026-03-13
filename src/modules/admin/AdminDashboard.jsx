@@ -1574,6 +1574,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the file permanently and this action cannot be undone.`,
       onConfirm: async () => {
         try {
+          let table = '';
           if (type === 'course') table = 'courses';
           if (type === 'resource') table = 'library_resources';
           if (type === 'book') table = 'books';
@@ -1586,12 +1587,28 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           }
 
           setStatusModal(prev => ({ ...prev, isOpen: false }));
-          setStatusModal({ isOpen: true, type: 'success', title: 'Deleted', message: `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`, onConfirm: () => { setStatusModal(p => ({ ...p, isOpen: false })); window.location.reload(); } });
+          // Use a small delay or ensure we don't overlap modals
+          setTimeout(() => {
+            setStatusModal({ 
+              isOpen: true, 
+              type: 'success', 
+              title: 'Deleted', 
+              message: `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`, 
+              onConfirm: () => { 
+                setStatusModal(p => ({ ...p, isOpen: false })); 
+                fetchData(); 
+              } 
+            });
+          }, 100);
         } catch (err) {
-          setStatusModal(prev => ({ ...prev, isOpen: false }));
-          setStatusModal({ isOpen: true, type: 'error', title: 'Delete Failed', message: 'Delete failed: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
+          setStatusModal({ 
+            isOpen: true, 
+            type: 'error', 
+            title: 'Delete Failed', 
+            message: 'Delete failed: ' + err.message, 
+            onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) 
+          });
         }
-        setStatusModal(prev => ({ ...prev, isOpen: false }));
       }
     });
   };
