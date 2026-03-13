@@ -104,7 +104,7 @@
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  background: var(--primary);
+  background: var(--bg-weak);
   display: flex;
   align-items: center;
   justify-content: center;
