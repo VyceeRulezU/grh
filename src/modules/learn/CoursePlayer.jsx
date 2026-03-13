@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { jsPDF } from 'jspdf';
 import Button from '../../components/ui/Button';
+import StatusModal from '../../components/ui/StatusModal';
+import { useModal } from '../../hooks/useModal';
 import './CoursePlayer.css';
 
 const TAB_CONTENT = {
@@ -86,6 +88,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const [newMsg, setNewMsg] = useState("");
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
+  const { modal, closeModal, showSuccess, showError } = useModal();
 
   // 1. Initial Data Fetch
   useEffect(() => {
@@ -284,9 +287,9 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           note_text: note
         }, { onConflict: 'user_id,module_id' });
        if (error) throw error;
-       alert("Note saved!");
+       showSuccess('Note Saved', 'Your note has been saved successfully.');
     } catch (err) {
-      alert("Failed to save note: " + err.message);
+      showError('Save Failed', 'Failed to save note: ' + err.message);
     }
   };
 
@@ -308,7 +311,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
       setDiscussions(prev => [...prev, { ...data, user_name: user.name }]);
       setNewMsg("");
     } catch (err) {
-      alert("Failed to post: " + err.message);
+      showError('Post Failed', 'Failed to post: ' + err.message);
     }
   };
 
@@ -329,7 +332,8 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   };
 
   return (
-    <div className="course-player">
+    <>
+      <div className="course-player">
       <header className="player-header">
         <div className="player-back" onClick={() => onNavigate('student')}>
           <i className="ri-arrow-left-line"></i>
@@ -449,6 +453,19 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         </div>
       </div>
     </div>
+    <StatusModal
+      isOpen={modal.isOpen}
+      title={modal.title}
+      message={modal.message}
+      icon={modal.icon}
+      iconColor={modal.iconColor}
+      iconBg={modal.iconBg}
+      onConfirm={modal.onConfirm}
+      onCancel={closeModal}
+      confirmLabel="OK"
+      cancelLabel="Close"
+    />
+    </>
   );
 };
 

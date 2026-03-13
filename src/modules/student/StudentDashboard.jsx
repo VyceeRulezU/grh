@@ -17,7 +17,7 @@ const NAV_GROUPS = [
     label: "Learning",
     links: [
       { name: 'Home',           icon: 'ri-home-fill' },
-      { name: 'Courses',        icon: 'ri-book-fill',       badge: String(MY_COURSES.length) },
+      { name: 'Courses',        icon: 'ri-book-fill' },
       { name: 'Tutorials',      icon: 'ri-movie-fill' },
       { name: 'Workshop',       icon: 'ri-tools-fill' },
     ]
@@ -31,7 +31,7 @@ const NAV_GROUPS = [
   {
     label: "Progress",
     links: [
-      { name: 'Certifications', icon: 'ri-award-fill',      badge: String(CERTIFICATIONS.filter(c => c.status === 'Earned').length) },
+      { name: 'Certifications', icon: 'ri-award-fill' },
     ]
   }
 ];
@@ -650,9 +650,9 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
       if (updateError) throw updateError;
 
       setProfileAvatar(publicUrl);
-      alert("Avatar updated!");
+      setStatusModal({ isOpen: true, type: 'success', title: 'Avatar Updated', message: 'Your profile picture has been updated.', onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
     } catch (err) {
-      alert("Error uploading avatar: " + err.message);
+      setStatusModal({ isOpen: true, type: 'error', title: 'Upload Failed', message: 'Error uploading avatar: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
     } finally {
       setSaving(false);
     }
@@ -668,10 +668,10 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
         .eq('id', user.id);
 
       if (error) throw error;
-      alert("Profile updated!");
+      setStatusModal({ isOpen: true, type: 'success', title: 'Profile Updated', message: 'Your profile name has been saved.', onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
       if (fetchData) fetchData();
     } catch (err) {
-      alert("Error saving profile: " + err.message);
+      setStatusModal({ isOpen: true, type: 'error', title: 'Save Failed', message: 'Error saving profile: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
     } finally {
       setSaving(false);
     }
@@ -792,7 +792,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
         onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
       });
     } catch (err) {
-      alert("Registration failed: " + err.message);
+      setStatusModal({ isOpen: true, type: 'error', title: 'Registration Failed', message: 'Registration failed: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
     }
   };
 

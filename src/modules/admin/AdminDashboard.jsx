@@ -6,6 +6,7 @@ import { BOOKS } from '../../data/legacyData';
 import grhIcon from '../../assets/images/Logo/GRH-icon.png';
 import ModernDropdown from '../../components/ui/ModernDropdown';
 import StatusModal from '../../components/ui/StatusModal';
+import { useModal } from '../../hooks/useModal';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -97,10 +98,10 @@ function UserModal({ onClose, onSave, initial }) {
         </div>
         <footer className="adm-modal-footer">
           <button className="btn-outline" onClick={onClose}>Cancel</button>
-          <button className="special-button" onClick={() => { 
-            if(!form.name || !form.email) return alert('Name and Email are required');
-            onSave(form); 
-            onClose(); 
+          <button className="special-button" onClick={() => {
+            if (!form.name || !form.email) return;
+            onSave(form);
+            onClose();
           }}>
             {initial ? 'Save Changes' : 'Send Invitation'}
           </button>
@@ -605,8 +606,9 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 }
 
 function CoursesPanel({ courses, setCourses, onDelete }) {
-  const [modal, setModal] = useState(null); // null | 'add' | number (edit id)
+  const [modal, setModal] = useState(null);
   const editCourse = courses.find(c => c.id === modal);
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const save = async (form) => {
     try {
@@ -647,12 +649,11 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
         if (modError) throw modError;
       }
 
-      alert("Course saved successfully!");
+      showSuccess('Course Saved', 'Course saved successfully!');
       setModal(null);
-      // Refresh data would be better, but for now we can just update local state or re-fetch
-      window.location.reload(); 
+      window.location.reload();
     } catch (err) {
-      alert("Error saving course: " + err.message);
+      showError('Save Error', 'Error saving course: ' + err.message);
     }
   };
 
@@ -691,7 +692,7 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
                         const { error } = await supabase.from('courses').update({ status: newStatus }).eq('id', c.id);
                         if (error) throw error;
                         window.location.reload();
-                      } catch (err) { alert(err.message); }
+                      } catch (err) { showError('Error', err.message); }
                     }}>
                       <i className={c.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
@@ -711,13 +712,15 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
           onSave={save}
         />
       )}
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
 
 function ResourcesPanel({ resources, setResources, onDelete }) {
-  const [modal, setModal] = useState(null); // null | 'add' | number (id)
+  const [modal, setModal] = useState(null);
   const editItem = resources.find(r => r.id === modal);
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const save = async (form) => {
     try {
@@ -728,11 +731,11 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
         const { error } = await supabase.from('library_resources').insert([{ ...form, status: 'Published' }]);
         if (error) throw error;
       }
-      alert("Resource saved!");
+      showSuccess('Resource Saved', 'Resource saved successfully!');
       setModal(null);
       window.location.reload();
     } catch (err) {
-      alert("Error saving resource: " + err.message);
+      showError('Save Error', 'Error saving resource: ' + err.message);
     }
   };
 
@@ -761,7 +764,7 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
                         const { error } = await supabase.from('library_resources').update({ status: newStatus }).eq('id', r.id);
                         if (error) throw error;
                         window.location.reload();
-                      } catch (err) { alert(err.message); }
+                      } catch (err) { showError('Error', err.message); }
                     }}>
                       <i className={r.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
@@ -774,13 +777,15 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
         </table>
       </div>
       {modal && <ResourceModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
 
 function UsersPanel({ users, setUsers, onDelete, loggedInUser }) {
-  const [modal, setModal] = useState(null); // null | 'add' | user object (edit)
+  const [modal, setModal] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const handleSave = async (nu) => {
     setLoading(true);
@@ -812,12 +817,12 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser }) {
           throw new Error(result.error || 'Failed to invite user');
         }
 
-        alert('User invited successfully!');
+        showSuccess('Invitation Sent', 'User invited successfully!');
         setUsers(us => [{ ...nu, courses: 0, joined: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }, ...us]);
         setModal(null);
       }
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showError('Error', err.message);
     } finally {
       setLoading(false);
     }
@@ -860,6 +865,7 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser }) {
           onSave={handleSave} 
         />
       )}
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
@@ -890,6 +896,7 @@ function AnalyticsPanel({ stats }) {
 }
 
 function AdminQuizzesPanel() {
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
   return (
     <div className="adm-panel">
       <div className="adm-panel-header"><h3>Quizzes & Assessments</h3></div>
@@ -898,11 +905,13 @@ function AdminQuizzesPanel() {
         <h4>Quizzes Management Coming Soon</h4>
         <p>You'll soon be able to create, edit and grade assessments directly from here.</p>
       </div>
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
 
 function AdminInstructorsPanel() {
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
   return (
     <div className="adm-panel">
       <div className="adm-panel-header"><h3>Instructors</h3></div>
@@ -911,6 +920,7 @@ function AdminInstructorsPanel() {
         <h4>Instructor Management Coming Soon</h4>
         <p>A hub to manage your team of governance experts and guest lecturers.</p>
       </div>
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
@@ -920,6 +930,7 @@ function AdminSettingsPanel({ user }) {
   const [email, setEmail] = useState(user?.email || "admin@govhub.org");
   const [avatar, setAvatar] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   useEffect(() => {
     // Fetch user profile to get existing avatar
@@ -963,9 +974,9 @@ function AdminSettingsPanel({ user }) {
          if (updateError) throw updateError;
          
          setAvatar(publicUrl);
-         alert("Avatar updated successfully! Note: You may need to refresh the page to see changes in the top bar.");
+         showSuccess('Avatar Updated', 'Avatar updated successfully! Refresh the page to see changes in the top bar.');
        } catch (err) {
-         alert(`Failed to upload avatar: ${err.message}`);
+         showError('Upload Failed', `Failed to upload avatar: ${err.message}`);
        } finally {
          setLoading(false);
        }
@@ -1022,15 +1033,17 @@ function AdminSettingsPanel({ user }) {
           <button className="special-button">Save Configuration</button>
         </div>
       </div>
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
 
 /* --- BOOKS PANEL --- */
 function BooksPanel({ books, setBooks, onDelete }) {
-  const [modal, setModal] = useState(null); // null | 'add' | number (id)
+  const [modal, setModal] = useState(null);
   const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const save = async (data) => {
     try {
@@ -1041,11 +1054,11 @@ function BooksPanel({ books, setBooks, onDelete }) {
         const { error } = await supabase.from('books').insert(data.map(b => ({ ...b, status: 'Published' })));
         if (error) throw error;
       }
-      alert("Books saved!");
+      showSuccess('Books Saved', 'Books saved successfully!');
       setModal(null);
       window.location.reload();
     } catch (err) {
-      alert("Error saving books: " + err.message);
+      showError('Save Error', 'Error saving books: ' + err.message);
     }
   };
 
@@ -1076,7 +1089,7 @@ function BooksPanel({ books, setBooks, onDelete }) {
                         const { error } = await supabase.from('books').update({ status: newStatus }).eq('id', b.id);
                         if (error) throw error;
                         window.location.reload();
-                      } catch (err) { alert(err.message); }
+                      } catch (err) { showError('Error', err.message); }
                     }}>
                       <i className={b.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
@@ -1089,6 +1102,7 @@ function BooksPanel({ books, setBooks, onDelete }) {
         </table>
       </div>
       {modal && <BookModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
@@ -1115,6 +1129,7 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (id)
   const [attendeeModal, setAttendeeModal] = useState(null); // null | workshop object
   const editItem = workshops.find(w => w.id === modal);
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const save = async (data) => {
     try {
@@ -1126,11 +1141,11 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
          const { error } = await supabase.from('workshops').insert([{ ...wData, status: 'Upcoming' }]);
          if (error) throw error;
        }
-       alert("Workshop saved!");
+       showSuccess('Workshop Saved', 'Workshop saved successfully!');
        setModal(null);
        window.location.reload();
     } catch (err) {
-      alert("Error saving workshop: " + err.message);
+      showError('Save Error', 'Error saving workshop: ' + err.message);
     }
   };
 
@@ -1272,10 +1287,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
             if (error) throw error;
           }
 
-          alert(`${type} deleted successfully`);
-          window.location.reload();
+          setStatusModal(prev => ({ ...prev, isOpen: false }));
+          setStatusModal({ isOpen: true, type: 'success', title: 'Deleted', message: `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`, onConfirm: () => { setStatusModal(p => ({ ...p, isOpen: false })); window.location.reload(); } });
         } catch (err) {
-          alert("Delete failed: " + err.message);
+          setStatusModal(prev => ({ ...prev, isOpen: false }));
+          setStatusModal({ isOpen: true, type: 'error', title: 'Delete Failed', message: 'Delete failed: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
         }
         setStatusModal(prev => ({ ...prev, isOpen: false }));
       }

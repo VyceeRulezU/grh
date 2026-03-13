@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import './LoginPage.css'; // Shared styles with LoginPage
+import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
 import { supabase } from '../../lib/supabaseClient';
+import StatusModal from '../../components/ui/StatusModal';
+import { useModal } from '../../hooks/useModal';
 
 const SignupPage = ({ onNavigate, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,6 +13,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { modal, closeModal, showSuccess, showError, showWarning } = useModal();
 
   const validations = {
     length: password.length >= 8,
@@ -29,11 +32,11 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isPasswordValid) {
-      alert("Please ensure your password meets all requirements.");
+      showWarning('Weak Password', 'Please ensure your password meets all requirements.');
       return;
     }
     if (password !== confirmPassword) {
-      alert("Passwords don't match!");
+      showError('Password Mismatch', "Passwords don't match. Please re-enter them.");
       return;
     }
 
@@ -42,19 +45,22 @@ const SignupPage = ({ onNavigate, onLogin }) => {
       email,
       password,
       options: {
-        data: { full_name: fullName, role: 'Learner' }
+        data: { full_name: fullName, role: 'learner' }
       }
     });
     setLoading(false);
 
     if (error) {
-      alert(error.message);
+      showError('Signup Failed', error.message);
     } else {
       if (data?.user?.identities?.length === 0) {
-         alert("Email already exists. Please login instead.");
+        showWarning('Email Already Exists', 'An account with this email already exists. Please log in instead.',
+          () => { closeModal(); onNavigate('login'); }
+        );
       } else {
-         alert("Signup successful!");
-         onNavigate('login');
+        showSuccess('Account Created!', 'Your account has been created successfully. You can now log in.',
+          () => { closeModal(); onNavigate('login'); }
+        );
       }
     }
   };
@@ -72,7 +78,20 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   };
 
   return (
-    <div className="auth-page-wrapper">
+    <>
+      <StatusModal
+        isOpen={modal.isOpen}
+        title={modal.title}
+        message={modal.message}
+        icon={modal.icon}
+        iconColor={modal.iconColor}
+        iconBg={modal.iconBg}
+        onConfirm={modal.onConfirm}
+        onCancel={closeModal}
+        confirmLabel="OK"
+        cancelLabel="Close"
+      />
+      <div className="auth-page-wrapper">
       <div className="auth-left-container">
         <div className="auth-title-row">
           <div className="auth-logo-box" onClick={() => onNavigate('welcome')}>
@@ -88,7 +107,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
         <div className="auth-marketing-content">
           <h1 className="auth-marketing-title">Governance Resource Hub</h1>
           <p className="auth-marketing-summary">
-            Everything you need to learn, research, and explore governance. Join the hub to access exclusive resources.
+            Everything you need to learn, research, and explore governance in one hub.
           </p>
         </div>
       </div>
@@ -98,7 +117,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
           <div className="auth-header-row">
             <h2 className="auth-welcome-title">Sign up to access the Hub</h2>
             <p className="auth-welcome-subtitle">
-              Sign in to continue learning, research trusted resources, and explore AI-powered insights designed to support effective Governance.
+              Join to access verified resources and AI-powered governance insights.
             </p>
           </div>
 
@@ -153,7 +172,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                 <div className="auth-password-complexity">
                   <div className="strength-meter-container">
                     <div className="strength-labels">
-                      <span>Password Strength: <strong>{strengthLabel}</strong></span>
+                      <span>Strength: <strong>{strengthLabel}</strong></span>
                     </div>
                     <div className="strength-bar-bg">
                       <div 
@@ -163,29 +182,6 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                           backgroundColor: strengthColor
                         }}
                       ></div>
-                    </div>
-                  </div>
-                  
-                  <div className="auth-password-hints">
-                    <div className={`auth-hint ${validations.length ? 'valid' : 'invalid'}`}>
-                      <span className="material-symbols-outlined auth-hint-icon">{validations.length ? 'check_circle' : 'cancel'}</span>
-                      At least 8 characters
-                    </div>
-                    <div className={`auth-hint ${validations.uppercase ? 'valid' : 'invalid'}`}>
-                      <span className="material-symbols-outlined auth-hint-icon">{validations.uppercase ? 'check_circle' : 'cancel'}</span>
-                      One uppercase letter
-                    </div>
-                    <div className={`auth-hint ${validations.lowercase ? 'valid' : 'invalid'}`}>
-                      <span className="material-symbols-outlined auth-hint-icon">{validations.lowercase ? 'check_circle' : 'cancel'}</span>
-                      One lowercase letter
-                    </div>
-                    <div className={`auth-hint ${validations.number ? 'valid' : 'invalid'}`}>
-                      <span className="material-symbols-outlined auth-hint-icon">{validations.number ? 'check_circle' : 'cancel'}</span>
-                      One number
-                    </div>
-                    <div className={`auth-hint ${validations.special ? 'valid' : 'invalid'}`}>
-                      <span className="material-symbols-outlined auth-hint-icon">{validations.special ? 'check_circle' : 'cancel'}</span>
-                      One special character (e.g. !@#$%)
                     </div>
                   </div>
                 </div>
@@ -227,6 +223,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

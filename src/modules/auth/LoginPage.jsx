@@ -3,11 +3,14 @@ import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
 import { supabase } from '../../lib/supabaseClient';
+import StatusModal from '../../components/ui/StatusModal';
+import { useModal } from '../../hooks/useModal';
 
 const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { modal, closeModal, showError } = useModal();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,16 +25,35 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin // Where the user goes after login
+        redirectTo: window.location.origin
       }
     });
     if (error) {
-      console.error('Login error:', error.message);
+      showModal({
+        title: 'Google Login Failed',
+        message: error.message,
+        icon: 'ri-close-circle-line',
+        iconColor: '#ef4444',
+        iconBg: '#fef2f2',
+      });
     }
   };
 
   return (
-    <div className="auth-page-wrapper">
+    <>
+      <StatusModal
+        isOpen={modal.isOpen}
+        title={modal.title}
+        message={modal.message}
+        icon={modal.icon}
+        iconColor={modal.iconColor}
+        iconBg={modal.iconBg}
+        onConfirm={closeModal}
+        onCancel={closeModal}
+        confirmLabel="OK"
+        cancelLabel="Close"
+      />
+      <div className="auth-page-wrapper">
       <div className="auth-left-container">
         <div className="auth-title-row">
           <div className="auth-logo-box" onClick={() => onNavigate('welcome')}>
@@ -46,12 +68,12 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
 
         <div className="auth-marketing-content">
           <h1 className="auth-marketing-title">
-            {isAdmin ? 'Admin Portal for Governance Insights' : 'A Trusted Platform for Governance Knowledge'}
+            {isAdmin ? 'Admin Portal' : 'A Trusted Platform'}
           </h1>
           <p className="auth-marketing-summary">
             {isAdmin 
-              ? 'Manage courses, analyze data, and oversee the governance resource hub with specialized administrative tools.'
-              : 'Access structured courses, verified research, and AI-assisted insights built to support informed decision-making.'}
+              ? 'Manage courses, analyze data, and oversee the hub.'
+              : 'Access courses, verified research materials, and AI insights.'}
           </p>
         </div>
       </div>
@@ -62,8 +84,8 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
             <h2 className="auth-welcome-title">{isAdmin ? 'Admin Login' : 'Welcome Back!'}</h2>
             <p className="auth-welcome-subtitle">
               {isAdmin 
-                ? 'Authorized access only. Please log in with your administrative credentials.'
-                : 'Log in to access courses, research materials, and intelligent tools that help you learn, analyse, and govern with confidence.'}
+                ? 'Please log in with your administrative credentials.'
+                : 'Log in to access your dashboard and governance tools.'}
             </p>
           </div>
 
@@ -138,6 +160,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
