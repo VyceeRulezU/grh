@@ -1459,16 +1459,16 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       setLoading(true);
       // Fetch data with individual error handling to prevent total crash if one schema is missing
       let [crs, res, bks, usr, wks, progress] = await Promise.all([
-        supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).catch(e => ({ error: e })),
-        supabase.from('library_resources').select('*').order('created_at', { ascending: false }).catch(e => ({ error: e })),
-        supabase.from('books').select('*').order('created_at', { ascending: false }).catch(e => ({ error: e })),
-        supabase.from('profiles').select('*').catch(e => ({ error: e })),
-        supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }).catch(e => ({ error: e })),
+        supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('profiles').select('*').then(r => r, e => ({ error: e })),
+        supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('user_progress')
           .select('*, profiles(name), courses(title)')
           .eq('completed', true)
           .order('last_accessed', { ascending: false })
-          .limit(5).catch(e => ({ error: e }))
+          .limit(5).then(r => r, e => ({ error: e }))
       ]);
 
       // ULTRA-RESILIENT FALLBACK: If join query failed (likely due to missing chapters table), try simple select
@@ -1490,13 +1490,13 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (crs.data) {
         const mappedCourses = crs.data.map(c => ({
           ...c,
-          chapters: c.chapters?.sort((a,b) => a.sequence_order - b.sequence_order).map(ch => ({
+          chapters: (c.chapters || []).sort((a,b) => a.sequence_order - b.sequence_order).map(ch => ({
             ...ch,
-            modules: ch.modules?.sort((a,b) => a.sequence_order - b.sequence_order).map(m => ({
+            modules: (ch.modules || []).sort((a,b) => a.sequence_order - b.sequence_order).map(m => ({
               ...m,
               videoLink: m.video_url
-            })) || []
-          })) || []
+            }))
+          }))
         }));
         setCourses(mappedCourses);
       }

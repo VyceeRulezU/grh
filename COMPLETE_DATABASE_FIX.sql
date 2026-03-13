@@ -1,4 +1,4 @@
--- FINAL DATABASE FIX SCRIPT (Corrected for BigInt IDs)
+-- FINAL DATABASE FIX SCRIPT (Corrected for BigInt IDs & Admin Policies)
 -- RUN THIS IN YOUR SUPABASE SQL EDITOR
 
 -- 1. Remove the broken chapters table if it was created with the wrong ID type
@@ -13,14 +13,12 @@ CREATE TABLE public.chapters (
     created_at timestamp with time zone DEFAULT now()
 );
 
--- 3. Update Modules table (Add chapter_id and description)
+-- 3. Update Modules table (Force chapter_id foreign key)
+ALTER TABLE IF EXISTS public.modules DROP COLUMN IF EXISTS chapter_id CASCADE;
+ALTER TABLE public.modules ADD COLUMN chapter_id bigint REFERENCES public.chapters(id) ON DELETE CASCADE;
+
 DO $$ 
 BEGIN 
-    -- Add chapter_id as bigint
-    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='modules' AND COLUMN_NAME='chapter_id') THEN
-        ALTER TABLE public.modules ADD COLUMN chapter_id bigint REFERENCES public.chapters(id) ON DELETE CASCADE;
-    END IF;
-    
     -- Add description
     IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='modules' AND COLUMN_NAME='description') THEN
         ALTER TABLE public.modules ADD COLUMN description text;
@@ -46,3 +44,65 @@ FOR ALL USING (
     AND profiles.role = 'Admin'
   )
 );
+
+-- 6. Add RLS for Courses (Fixes "new row violates row-level security policy for table courses")
+ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Courses are viewable by everyone" ON public.courses;
+CREATE POLICY "Courses are viewable by everyone" ON public.courses FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admins can manage courses" ON public.courses;
+CREATE POLICY "Admins can manage courses" ON public.courses 
+FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role = 'Admin'
+  )
+);
+
+-- 7. Add RLS for Modules
+ALTER TABLE public.modules ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Modules are viewable by everyone" ON public.modules;
+CREATE POLICY "Modules are viewable by everyone" ON public.modules FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admins can manage modules" ON public.modules;
+CREATE POLICY "Admins can manage modules" ON public.modules 
+FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role = 'Admin'
+  )
+);
+
+-- 8. Add missing columns to Courses
+DO $$ 
+BEGIN 
+    -- Add cover_image
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='courses' AND COLUMN_NAME='cover_image') THEN
+        ALTER TABLE public.courses ADD COLUMN cover_image text;
+    END IF;
+    
+    -- Add thumbnail
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='courses' AND COLUMN_NAME='thumbnail') THEN
+        ALTER TABLE public.courses ADD COLUMN thumbnail text;
+    END IF;
+END $$;
+
+-- 9. Fix User Progress Foreign Keys (Ensures Dashboard Analytics work)
+DO $$ 
+BEGIN 
+    -- Ensure course_id References courses(id)
+    IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='user_progress' AND COLUMN_NAME='course_id') THEN
+        ALTER TABLE IF EXISTS public.user_progress DROP CONSTRAINT IF EXISTS user_progress_course_id_fkey;
+        ALTER TABLE public.user_progress ADD CONSTRAINT user_progress_course_id_fkey FOREIGN KEY (course_id) REFERENCES public.courses(id) ON DELETE CASCADE;
+    END IF;
+
+    -- Ensure user_id References profiles(id)
+    IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='user_progress' AND COLUMN_NAME='user_id') THEN
+        ALTER TABLE IF EXISTS public.user_progress DROP CONSTRAINT IF EXISTS user_progress_user_id_fkey;
+        ALTER TABLE public.user_progress ADD CONSTRAINT user_progress_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+    END IF;
+END $$;

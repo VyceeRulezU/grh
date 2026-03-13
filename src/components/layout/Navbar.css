@@ -127,7 +127,7 @@
 .nav-avatar-initial {
   font-size: 1.1rem;
   font-weight: 400;
-  color: white;
+  color: var(--secondary);
   line-height: 1;
 }
 
