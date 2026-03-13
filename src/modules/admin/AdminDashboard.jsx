@@ -912,22 +912,33 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
 
   const save = async (form) => {
     try {
+      setLoading(true);
+      const payload = {
+        title: form.title,
+        type: form.type,
+        category: form.category,
+        description: form.description,
+        file_url: form.file_url || form.fileUrl || '',
+        status: form.status || 'Published'
+      };
+
       if (typeof modal === 'number' || typeof modal === 'string') {
-        const { error } = await supabase.from('library_resources').update(form).eq('id', modal);
+        const { error } = await supabase.from('library_resources').update(payload).eq('id', modal);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('library_resources').insert([{ ...form, status: 'Published' }]);
+        const { error } = await supabase.from('library_resources').insert([payload]);
         if (error) throw error;
       }
       showSuccess('Resource Saved', 'Resource saved successfully!');
       setModal(null);
       if (typeof fetchData === 'function') {
         await fetchData();
-      } else {
-        window.location.reload();
       }
     } catch (err) {
+      console.error("Save Resource Error:", err);
       showError('Save Error', 'Error saving resource: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1001,6 +1012,10 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
       } else {
         // Invite new user via Edge Function
         const { data: { session } } = await supabase.auth.getSession();
+        // Use a timeout for the fetch to avoid hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-user`, {
           method: 'POST',
           headers: {
@@ -1011,13 +1026,20 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
             email: nu.email,
             name: nu.name,
             role: nu.role
-          })
+          }),
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
-        const result = await response.json();
+        let result = {};
+        try {
+          result = await response.json();
+        } catch (e) {
+          console.warn("Could not parse invitation result as JSON", e);
+        }
         
         if (!response.ok) {
-          throw new Error(result.error || 'Failed to invite user');
+          throw new Error(result.error || `Failed to invite user (Status: ${response.status})`);
         }
 
         showSuccess('Invitation Sent', 'User invited successfully!');
@@ -1287,22 +1309,33 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
 
   const save = async (data) => {
     try {
+      setLoading(true);
+      const formatBook = (b) => ({
+        title: b.title,
+        summary: b.summary,
+        image_url: b.image_url || b.imageUrl || '',
+        file_url: b.file_url || b.fileUrl || '',
+        status: b.status || 'Published'
+      });
+
       if (typeof modal === 'number' || typeof modal === 'string') {
-        const { error } = await supabase.from('books').update(data).eq('id', modal);
+        const { error } = await supabase.from('books').update(formatBook(data)).eq('id', modal);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('books').insert(data.map(b => ({ ...b, status: 'Published' })));
+        const payload = Array.isArray(data) ? data.map(formatBook) : [formatBook(data)];
+        const { error } = await supabase.from('books').insert(payload);
         if (error) throw error;
       }
       showSuccess('Books Saved', 'Books saved successfully!');
       setModal(null);
       if (typeof fetchData === 'function') {
         await fetchData();
-      } else {
-        window.location.reload();
       }
     } catch (err) {
+      console.error("Save Books Error:", err);
       showError('Save Error', 'Error saving books: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1377,23 +1410,36 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
 
   const save = async (data) => {
     try {
+       setLoading(true);
        const { registrations, ...wData } = data;
+       
+       // Map to snake_case if UI uses camelCase (though WorkshopModal seems to use snake_case or neutral names)
+       const payload = {
+         title: wData.title,
+         date: wData.date,
+         time: wData.time,
+         host: wData.host,
+         format: wData.format,
+         status: wData.status || 'Upcoming'
+       };
+
        if (typeof modal === 'number' || typeof modal === 'string') {
-         const { error } = await supabase.from('workshops').update(wData).eq('id', modal);
+         const { error } = await supabase.from('workshops').update(payload).eq('id', modal);
          if (error) throw error;
        } else {
-         const { error } = await supabase.from('workshops').insert([{ ...wData, status: 'Upcoming' }]);
+         const { error } = await supabase.from('workshops').insert([payload]);
          if (error) throw error;
        }
        showSuccess('Workshop Saved', 'Workshop saved successfully!');
        setModal(null);
        if (typeof fetchData === 'function') {
          await fetchData();
-       } else {
-         window.location.reload();
        }
     } catch (err) {
+      console.error("Save Workshop Error:", err);
       showError('Save Error', 'Error saving workshop: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1462,7 +1508,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         .eq('id', user.id)
         .single();
       
-      if (data && data.role !== 'Admin') {
+      if (data && data.role?.toLowerCase() !== 'admin') {
         console.warn("DIAGNOSTIC: User is NOT an Admin in profiles table. Role found:", data.role);
         // Only show error if they are on a page that requires admin
         showError("Access Restriction", `Your account role is '${data.role}'. Admin privileges are required to save changes. Please contact the system owner to elevate your role.`);
@@ -1517,8 +1563,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         }));
         setCourses(mappedCourses);
       }
-      if (res.data) setResources(res.data);
-      if (bks.data) setBooks(bks.data);
+      if (res.data) setResources(res.data.map(r => ({ ...r, fileUrl: r.file_url })));
+      if (bks.data) setBooks(bks.data.map(b => ({ ...b, fileUrl: b.file_url, imageUrl: b.image_url })));
       if (usr.data) setUsers(usr.data.map(u => ({ 
         ...u, 
         email: u.email || 'No email', 

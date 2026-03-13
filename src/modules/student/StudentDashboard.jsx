@@ -502,7 +502,7 @@ function WorkshopPanel({ onRegister, registeredIds = [], workshops = [] }) {
 function ResourcesPanel({ onNavigate }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
 
   const filtered = MY_RESOURCES.filter(r => 
     r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
