@@ -95,6 +95,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
   const { modal, closeModal, showSuccess, showError } = useModal();
+  const [loadError, setLoadError] = useState(null);
 
   // 1. Initial Data Fetch
   useEffect(() => {
@@ -113,7 +114,12 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           .eq('course_id', course.id)
           .order('sequence_order', { ascending: true });
         
-        if (chapErr) throw chapErr;
+        if (chapErr) {
+          console.error("Chapters fetch error:", chapErr);
+          setLoadError(`Could not load course content: ${chapErr.message}`);
+          setLoading(false);
+          return;
+        }
 
         // Fetch User Progress
         const { data: prog, error: progErr } = await supabase
@@ -145,6 +151,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         }
       } catch (err) {
         console.error("CoursePlayer loading error:", err);
+        setLoadError(`Failed to load course: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -331,6 +338,31 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
     return <div className="course-player" style={{display:'flex', alignItems:'center', justifyContent:'center', minHeight:'500px'}}>
       <div className="empty-state"><h3>Loading Lesson Content...</h3></div>
     </div>;
+  }
+
+  if (loadError) {
+    return (
+      <div className="course-player">
+        <header className="player-header">
+          <div className="player-back" onClick={() => onNavigate('student')}>
+            <i className="ri-arrow-left-line"></i>
+            <span>Back to Dashboard</span>
+          </div>
+          <div className="player-course-title">
+            <h3>{course?.title || 'Course'}</h3>
+          </div>
+        </header>
+        <div className="player-main" style={{ justifyContent: 'center', alignItems: 'center', padding: '4rem' }}>
+          <div className="empty-state">
+            <i className="ri-error-warning-line" style={{ fontSize: '3rem', color: 'var(--danger)' }}></i>
+            <h3>Could not load this course</h3>
+            <p style={{color:'var(--text-soft)', marginTop:'0.5rem'}}>{loadError}</p>
+            <p style={{fontSize:'0.8rem', color:'var(--text-soft)', marginTop:'0.5rem'}}>Tip: Make sure the course has chapters and modules added via the Admin Dashboard, and that RLS policies allow learners to read chapters.</p>
+            <Button className="special-button" style={{ marginTop: '1.5rem' }} onClick={() => onNavigate('student')}>Return to Dashboard</Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!activeLesson) {

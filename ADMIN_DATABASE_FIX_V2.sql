@@ -105,9 +105,7 @@ ALTER TABLE IF EXISTS public.modules ENABLE ROW LEVEL SECURITY;
 
 -- Public can read chapters/modules for published courses
 DROP POLICY IF EXISTS "Public Select Chapters" ON public.chapters;
-CREATE POLICY "Public Select Chapters" ON public.chapters FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.courses WHERE id = course_id AND status = 'Published')
-);
+CREATE POLICY "Public Select Chapters" ON public.chapters FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Public Select Modules" ON public.modules;
 CREATE POLICY "Public Select Modules" ON public.modules FOR SELECT USING (true);

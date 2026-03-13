@@ -49,6 +49,7 @@ function App() {
   const [authType, setAuthType] = useState('login');
   const [statusModal, setStatusModal] = useState({ isOpen: false, title: '', message: '', type: 'success' });
   const lastLoginHandled = useRef(0);
+  const currentPageRef = useRef(currentPage);
 
   // Update document title dynamically
   useEffect(() => {
@@ -135,7 +136,7 @@ function App() {
           if (session) {
             const userData = await fetchProfile(session);
             setUser(userData);
-            if (['login', 'signup', 'admin', 'admin-login'].includes(currentPage) && event === 'SIGNED_IN') {
+            if (['login', 'signup', 'admin', 'admin-login'].includes(currentPageRef.current) && event === 'SIGNED_IN') {
               console.log("[GRH DEBUG] onAuthStateChange SIGNED_IN detected - calling handleLogin");
               handleLogin(userData);
             }
@@ -226,6 +227,7 @@ function App() {
     if (PROTECTED_PAGES.includes(targetPage) && !user) {
       localStorage.setItem('returnPage', targetPage);
       setCurrentPage('login');
+      currentPageRef.current = 'login';
       const base = import.meta.env.BASE_URL || '/';
       window.history.pushState({}, '', `${base}login`);
       window.scrollTo(0, 0);
@@ -233,6 +235,7 @@ function App() {
     }
 
     setCurrentPage(targetPage);
+    currentPageRef.current = targetPage;
     setNavData(targetData);
     localStorage.setItem('currentPage', targetPage);
     if (targetData) {
