@@ -35,7 +35,7 @@ serve(async (req) => {
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'Admin' && (!user.email || !user.email.toLowerCase().includes('admin'))) {
+    if (profile?.role?.toLowerCase() !== 'admin' && (!user.email || !user.email.toLowerCase().includes('admin'))) {
       return new Response(JSON.stringify({ error: 'Forbidden: Requires Admin Role' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 403,

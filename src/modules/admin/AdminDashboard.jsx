@@ -713,9 +713,11 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
   const editCourse = courses.find(c => c.id === modal);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
+  const [loading, setLoading] = useState(false);
   const save = async (form) => {
     console.log("Saving course with form:", form);
     try {
+      setLoading(true);
       const { chapters } = form;
       
       // Defensively handle price to satisfy both numeric and text column types
@@ -908,6 +910,7 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
 function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
   const [modal, setModal] = useState(null);
   const editItem = resources.find(r => r.id === modal);
+  const [loading, setLoading] = useState(false);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const save = async (form) => {
@@ -1012,6 +1015,11 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
       } else {
         // Invite new user via Edge Function
         const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.access_token) {
+          throw new Error('Authentication session expired. Please log in again.');
+        }
+
         // Use a timeout for the fetch to avoid hanging
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -1020,7 +1028,8 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
           },
           body: JSON.stringify({
             email: nu.email,
@@ -1303,6 +1312,7 @@ function AdminSettingsPanel({ user }) {
 /* --- BOOKS PANEL --- */
 function BooksPanel({ books, setBooks, onDelete, fetchData }) {
   const [modal, setModal] = useState(null);
+  const [loading, setLoading] = useState(false);
   const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
@@ -1406,6 +1416,7 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (id)
   const [attendeeModal, setAttendeeModal] = useState(null); // null | workshop object
   const editItem = workshops.find(w => w.id === modal);
+  const [loading, setLoading] = useState(false);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const save = async (data) => {
