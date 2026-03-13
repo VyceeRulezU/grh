@@ -45,7 +45,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
       email,
       password,
       options: {
-        data: { full_name: fullName, role: 'learner' }
+        data: { full_name: fullName, role: 'Learner' }
       }
     });
     setLoading(false);

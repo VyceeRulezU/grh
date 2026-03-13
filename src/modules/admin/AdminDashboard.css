@@ -618,10 +618,11 @@
 .adm-form-group input,
 .adm-form-group select,
 .adm-form-group textarea {
-  padding: 0.5rem 0.875rem;
+  padding: 0.5rem 1rem;
   border: 1px solid var(--sc-border);
   border-radius: var(--sc-radius);
   font-size: 0.875rem;
+  height: 40px;
   font-family: var(--font-family-base);
   color: var(--sc-foreground);
   outline: none;

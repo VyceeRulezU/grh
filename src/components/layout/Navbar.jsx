@@ -41,7 +41,7 @@ const Navbar = ({ onNavigate, currentPage, user, onAuthClick, onLogout }) => {
           {user ? (
             /* ── Logged-in: show avatar ── */
             <div className="nav-user-area">
-              <div className="nav-avatar" onClick={() => onNavigate(user.isAdmin ? 'admin' : 'student')}>
+              <div className="nav-avatar" onClick={() => onNavigate(user?.isAdmin ? 'admin' : 'student')}>
                 {user.avatar_url ? (
                   <img src={user.avatar_url} alt={user.name || 'User'} />
                 ) : (

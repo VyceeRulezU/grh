@@ -25,8 +25,26 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
 
       if (error) throw error;
       
-      // onLogin will be called automatically by the listener in App.jsx
-      // which detects the session change.
+      if (onLogin && data.user) {
+        // Fetch profile immediately to ensure Admin status is recognized
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, name, avatar_url')
+          .eq('id', data.user.id)
+          .single();
+
+        const userData = {
+          email: data.user.email,
+          id: data.user.id,
+          name: profile?.name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
+          isAdmin: (profile?.role === 'Admin') || 
+                   (data.user.user_metadata?.role === 'Admin') || 
+                   (data.user.email?.toLowerCase().includes('admin') && !data.user.email?.toLowerCase().includes('learner')),
+          avatar_url: profile?.avatar_url || data.user.user_metadata?.avatar_url
+        };
+        
+        onLogin(userData);
+      }
     } catch (err) {
       showError('Login Failed', err.message);
     } finally {

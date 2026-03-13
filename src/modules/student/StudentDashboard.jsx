@@ -11,9 +11,9 @@ import mainLogo from '../../assets/images/Logo/Main logo.png';
 
 
 const TUTORIALS = [
-  { id: 1, title: 'Introduction to Governance', category: 'Basics', instructor: 'Dr. Amaka Okonkwo', duration: '15:20', thumbnail: '🏛️' },
-  { id: 2, title: 'Corporate Ethics 101', category: 'Corporate', instructor: 'Prof. Chidi Nwachukwu', duration: '22:45', thumbnail: '📊' },
-  { id: 3, title: 'Public Finance Overview', category: 'Finance', instructor: 'Dr. Fatima Al-Hassan', duration: '18:10', thumbnail: '💰' },
+  { id: 1, title: 'Introduction to Governance', category: 'Basics', instructor: 'Dr. Amaka Okonkwo', duration: '15:20', thumbnail: 'https://images.unsplash.com/photo-1521791136364-798a7bc0d262?auto=format&fit=crop&q=80&w=800' },
+  { id: 2, title: 'Corporate Ethics 101', category: 'Corporate', instructor: 'Prof. Chidi Nwachukwu', duration: '22:45', thumbnail: 'https://images.unsplash.com/photo-1507679799987-c7377bc56509?auto=format&fit=crop&q=80&w=800' },
+  { id: 3, title: 'Public Finance Overview', category: 'Finance', instructor: 'Dr. Fatima Al-Hassan', duration: '18:10', thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800' },
 ];
 
 const MY_RESOURCES = LEGACY_RESOURCES;
@@ -194,7 +194,15 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
         {pagedItems.map(course => (
           <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player', { course })}>
             <div className="std-course-thumb">
-              <img src={course.coverImage} alt={course.title} className="std-course-cover-img" />
+              <img 
+                src={course.coverImage} 
+                alt={course.title} 
+                className="std-course-cover-img" 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800';
+                }}
+              />
               <span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span>
             </div>
             <div className="std-course-info">
@@ -257,7 +265,15 @@ function TutorialsPanel({ onNavigate }) {
         {filtered.map(t => (
           <div key={t.id} className="std-tutorial-card">
             <div className="std-tutorial-thumb">
-              <img src={t.thumbnail} alt={t.title} loading="lazy" />
+              <img 
+                src={t.thumbnail} 
+                alt={t.title} 
+                loading="lazy" 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://images.unsplash.com/photo-1517245366810-54070744a417?auto=format&fit=crop&q=80&w=800';
+                }}
+              />
               <div className="std-play-overlay">
                 <span className="material-symbols-outlined">play_arrow</span>
               </div>
@@ -624,7 +640,7 @@ function CertificationsPanel({ certificates = [], allCoursesCount = 0 }) {
    PANEL: SETTINGS
    ═══════════════════════════════════════════════════════════════ */
 
-function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setProfileAvatar, fetchData, setStatusModal }) {
+function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setProfileAvatar, fetchData, setStatusModal, onRefreshUser }) {
   const [email, setEmail] = useState(user?.email || "alex@example.com");
   const [saving, setSaving] = useState(false);
 
@@ -669,6 +685,7 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
 
       setProfileAvatar(publicUrl);
       setStatusModal({ isOpen: true, type: 'success', title: 'Avatar Updated', message: 'Your profile picture has been updated.', onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
+      if (onRefreshUser) onRefreshUser();
     } catch (err) {
       setStatusModal({ isOpen: true, type: 'error', title: 'Upload Failed', message: 'Error uploading avatar: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
     } finally {
@@ -691,6 +708,7 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
       if (error) throw error;
       setStatusModal({ isOpen: true, type: 'success', title: 'Profile Updated', message: 'Your profile name has been saved.', onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
       if (fetchData) fetchData();
+      if (onRefreshUser) onRefreshUser();
     } catch (err) {
       setStatusModal({ isOpen: true, type: 'error', title: 'Save Failed', message: 'Error saving profile: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
     } finally {
@@ -753,16 +771,19 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
    MAIN: STUDENT DASHBOARD
    ═══════════════════════════════════════════════════════════════ */
 
-const StudentDashboard = ({ user, onNavigate, onLogout }) => {
+const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
   const [activeTab, setActiveTab] = useState("Home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileName, setProfileName] = useState(user?.name || user?.email?.split('@')[0] || "Alex");
   const [profileAvatar, setProfileAvatar] = useState(user?.avatar_url || null);
+  const [stats, setStats] = useState({ courses: 0, lessons: 0, certifications: 0 });
 
+  // Keep local profile state in sync with global user prop
   useEffect(() => {
-    if (user?.name) setProfileName(user.name);
-    if (user?.avatar_url) setProfileAvatar(user.avatar_url);
-    if (user) console.log("[GRH DEBUG] StudentDashboard user sync:", user);
+    if (user) {
+      if (user.name) setProfileName(user.name);
+      if (user.avatar_url) setProfileAvatar(user.avatar_url);
+    }
   }, [user]);
 
   // Status & Registration Modal States

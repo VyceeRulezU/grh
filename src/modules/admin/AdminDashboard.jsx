@@ -790,14 +790,25 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser }) {
   const handleSave = async (nu) => {
     setLoading(true);
     try {
-      if (typeof modal === 'object') {
-        // Just local state update for edits for now (dummy update)
-        setUsers(us => us.map(x => x.email === modal.email ? { ...x, ...nu } : x));
+      if (typeof modal === 'object' && modal.id) {
+        // Real update for existing user
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            name: nu.name,
+            role: nu.role,
+            status: nu.status
+          })
+          .eq('id', modal.id);
+        
+        if (error) throw error;
+        
+        showSuccess('User Updated', 'User profile updated successfully.');
+        setUsers(us => us.map(x => x.id === modal.id ? { ...x, ...nu } : x));
         setModal(null);
       } else {
         // Invite new user via Edge Function
         const { data: { session } } = await supabase.auth.getSession();
-        
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-user`, {
           method: 'POST',
           headers: {
@@ -984,6 +995,7 @@ function AdminSettingsPanel({ user }) {
       
       setAvatar(publicUrl);
       showSuccess('Avatar Updated', 'Avatar updated successfully! The sidebar logo will sync on next reload.');
+      if (onRefreshUser) onRefreshUser();
     } catch (err) {
       showError('Upload Failed', `Failed to upload avatar: ${err.message}`);
     } finally {
@@ -1219,7 +1231,7 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
   );
 }
 
-const AdminDashboard = ({ onNavigate, onLogout, user }) => {
+const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courses, setCourses] = useState([]);
@@ -1255,7 +1267,13 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
       if (crs.data) setCourses(crs.data);
       if (res.data) setResources(res.data);
       if (bks.data) setBooks(bks.data);
-      if (usr.data) setUsers(usr.data.map(u => ({ ...u, email: u.id, courses: 0, joined: 'Jan 2025', status: 'Active' })));
+      if (usr.data) setUsers(usr.data.map(u => ({ 
+        ...u, 
+        email: u.email || 'No email', 
+        courses: 0, 
+        joined: u.joined_at ? new Date(u.joined_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Jan 2025', 
+        status: u.status || 'Active' 
+      })));
       if (wks.data) setWorkshops(wks.data.map(w => ({ ...w, registrations: w.workshop_registrations })));
 
       setStats({
@@ -1307,12 +1325,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
       message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the file permanently and this action cannot be undone.`,
       onConfirm: async () => {
         try {
-          let table = '';
           if (type === 'course') table = 'courses';
           if (type === 'resource') table = 'library_resources';
           if (type === 'book') table = 'books';
           if (type === 'workshop') table = 'workshops';
-          // (Users delete skipped for safety or handled separately)
+          if (type === 'user') table = 'profiles';
 
           if (table) {
             const { error } = await supabase.from(table).delete().eq('id', item.id);
@@ -1396,8 +1413,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
 
           <div className="adm-sidebar-footer">
             <span className="adm-nav-label">Session</span>
-            <button className="adm-nav-link" onClick={() => onNavigate('welcome')}><i className="ri-arrow-left-line"></i> Back to Site</button>
-            <button className="adm-nav-link" onClick={confirmLogout}><i className="ri-logout-box-line"></i> Sign Out</button>
+            <button className="adm-nav-link" onClick={() => onNavigate('welcome')}><i className="ri-arrow-left-line"></i> Exit Portal</button>
+            <button className="adm-nav-link" onClick={confirmLogout}><i className="ri-logout-box-line"></i> Logout Admin</button>
           </div>
         </aside>
 
@@ -1405,14 +1422,18 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
         <div className="adm-main">
           <header className="adm-topbar">
             <div className="adm-topbar-title">
-              <h2>{localNavGroups.flatMap(g => g.links).find(l => l.id === activeSection)?.label || 'Admin'}</h2>
-              <span>Welcome back, {user?.name || 'Administrator'}</span>
+              <h2>{localNavGroups.flatMap(g => g.links).find(l => l.id === activeSection)?.label || 'Admin Panel'}</h2>
+              <span>GRH Administrator Management</span>
             </div>
             <div className="adm-topbar-actions">
               <button className="adm-topbar-btn"><i className="ri-notification-fill"></i></button>
-              <div className="adm-admin-badge">
-                <div className="adm-admin-avatar">AD</div>
-                <span>Admin</span>
+              <div className="adm-admin-badge" onClick={() => setActiveSection('settings')} style={{ cursor: 'pointer' }}>
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="Admin" className="adm-admin-avatar" style={{ objectFit: 'cover' }} />
+                ) : (
+                  <div className="adm-admin-avatar">{user?.name ? user.name[0].toUpperCase() : 'A'}</div>
+                )}
+                <span>Administrator</span>
               </div>
             </div>
           </header>
@@ -1433,7 +1454,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
             {activeSection === 'analytics'  && <AnalyticsPanel stats={stats} />}
             {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
             {activeSection === 'instructors'&& <AdminInstructorsPanel />}
-            {activeSection === 'settings'   && <AdminSettingsPanel user={user} />}
+            {activeSection === 'settings'   && <AdminSettingsPanel user={user} onRefreshUser={onRefreshUser} />}
             {!PANEL_MAP[activeSection] && (
               <div className="adm-panel"><p style={{color:'var(--text-soft)', padding:'2rem'}}>Panel '{activeSection}' — coming soon</p></div>
             )}

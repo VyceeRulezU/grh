@@ -117,6 +117,10 @@ const CourseDiscovery = ({ onNavigate }) => {
                   src={COURSE_IMAGES[i % COURSE_IMAGES.length]} 
                   alt={course.title} 
                   loading="lazy" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800';
+                  }}
                 />
                 <figcaption className="disc-course-badge">{course.level}</figcaption>
               </figure>

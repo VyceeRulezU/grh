@@ -370,6 +370,14 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
                     src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
                     alt="Video thumbnail"
                     className="yt-thumbnail"
+                    onError={(e) => {
+                      if (e.target.src.includes('maxresdefault.jpg')) {
+                        e.target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                      } else {
+                        e.target.onerror = null; 
+                        e.target.src = 'https://images.unsplash.com/photo-1517245366810-54070744a417?auto=format&fit=crop&q=80&w=800'; 
+                      }
+                    }}
                   />
                   <div className="yt-overlay">
                     <div className="yt-play-btn"><span className="material-symbols-outlined">play_arrow</span></div>
