@@ -925,7 +925,7 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
         status: form.status || 'Published'
       };
 
-      if (typeof modal === 'number' || typeof modal === 'string') {
+      if (modal && modal !== 'add') {
         const { error } = await supabase.from('library_resources').update(payload).eq('id', modal);
         if (error) throw error;
       } else {
@@ -1014,41 +1014,21 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
         setModal(null);
       } else {
         // Invite new user via Edge Function
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session?.access_token) {
-          throw new Error('Authentication session expired. Please log in again.');
-        }
-
-        // Use a timeout for the fetch to avoid hanging
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-user`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
-          },
-          body: JSON.stringify({
+        // Using built-in invoke() is safer as it handles headers/auth automatically
+        const { data: result, error: invError } = await supabase.functions.invoke('invite-user', {
+          body: {
             email: nu.email,
             name: nu.name,
             role: nu.role
-          }),
-          signal: controller.signal
+          },
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+          }
         });
-        clearTimeout(timeoutId);
-
-        let result = {};
-        try {
-          result = await response.json();
-        } catch (e) {
-          console.warn("Could not parse invitation result as JSON", e);
-        }
         
-        if (!response.ok) {
-          throw new Error(result.error || `Failed to invite user (Status: ${response.status})`);
+        if (invError) {
+          console.error("Invitation error details:", invError);
+          throw new Error(invError.message || 'Failed to invite user');
         }
 
         showSuccess('Invitation Sent', 'User invited successfully!');
@@ -1328,7 +1308,7 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
         status: b.status || 'Published'
       });
 
-      if (typeof modal === 'number' || typeof modal === 'string') {
+      if (modal && modal !== 'add') {
         const { error } = await supabase.from('books').update(formatBook(data)).eq('id', modal);
         if (error) throw error;
       } else {
@@ -1434,7 +1414,7 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
          status: wData.status || 'Upcoming'
        };
 
-       if (typeof modal === 'number' || typeof modal === 'string') {
+       if (modal && modal !== 'add') {
          const { error } = await supabase.from('workshops').update(payload).eq('id', modal);
          if (error) throw error;
        } else {
