@@ -99,6 +99,36 @@ CREATE POLICY "Admin Manage Workshops" ON public.workshops FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND (role = 'Admin' OR role = 'admin'))
 );
 
+-- 4b. RLS Policies for chapters and modules (needed for course editing)
+ALTER TABLE IF EXISTS public.chapters ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.modules ENABLE ROW LEVEL SECURITY;
+
+-- Public can read chapters/modules for published courses
+DROP POLICY IF EXISTS "Public Select Chapters" ON public.chapters;
+CREATE POLICY "Public Select Chapters" ON public.chapters FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.courses WHERE id = course_id AND status = 'Published')
+);
+
+DROP POLICY IF EXISTS "Public Select Modules" ON public.modules;
+CREATE POLICY "Public Select Modules" ON public.modules FOR SELECT USING (true);
+
+-- Admins can do everything on chapters and modules
+DROP POLICY IF EXISTS "Admin Manage Chapters" ON public.chapters;
+CREATE POLICY "Admin Manage Chapters" ON public.chapters FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND (role = 'Admin' OR role = 'admin'))
+);
+
+DROP POLICY IF EXISTS "Admin Manage Modules" ON public.modules;
+CREATE POLICY "Admin Manage Modules" ON public.modules FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND (role = 'Admin' OR role = 'admin'))
+);
+
+-- Also ensure courses table allows admin ALL operations
+DROP POLICY IF EXISTS "Admin Manage Courses" ON public.courses;
+CREATE POLICY "Admin Manage Courses" ON public.courses FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND (role = 'Admin' OR role = 'admin'))
+);
+
 -- 5. Fix Profile Role Consistency
 -- Aggressively drop ANY constraint that could be blocking the update
 DO $$ 

@@ -673,8 +673,8 @@
 }
 
 .adm-add-btn:hover { 
-  background: var(--bg-strong); 
-  color: var(--secondary); 
+  background: var(--primary); 
+  color: var(--bg-white); 
 }
 
 .adm-module-row {
