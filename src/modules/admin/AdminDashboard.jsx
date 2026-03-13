@@ -993,6 +993,25 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
   const [loading, setLoading] = useState(false);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
+  const handleExportCSV = () => {
+    const headers = ['Name', 'Email', 'Role', 'Status', 'Joined'];
+    const rows = users.map(u => [
+      `"${(u.name || u.full_name || '').replace(/"/g, '""')}"`,
+      `"${(u.email || '').replace(/"/g, '""')}"`,
+      `"${(u.role || '').replace(/"/g, '""')}"`,
+      `"${(u.status || 'Active').replace(/"/g, '""')}"`,
+      `"${(u.joined || '').replace(/"/g, '""')}"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grh-users-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSave = async (nu) => {
     setLoading(true);
     try {
@@ -1028,7 +1047,14 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
         
         if (invError) {
           console.error("Invitation error details:", invError);
-          throw new Error(invError.message || 'Failed to invite user');
+          // Provide a more helpful message based on common errors
+          let errMsg = invError.message || 'Failed to invite user';
+          if (errMsg.includes('already') || errMsg.includes('exists')) {
+            errMsg = `A user with email "${nu.email}" already exists.`;
+          } else if (errMsg.includes('non-2xx') || errMsg.includes('401') || errMsg.includes('403')) {
+            errMsg = 'Permission denied. Only admins can invite users. Check your role in the database.';
+          }
+          throw new Error(errMsg);
         }
 
         showSuccess('Invitation Sent', 'User invited successfully!');
@@ -1050,7 +1076,12 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Users <span className="adm-count">{users.length}</span></h3>
-        <button className="special-button" onClick={() => setModal('add')} disabled={loading}><i className="ri-user-add-line"></i> {loading ? 'Inviting...' : 'Invite User'}</button>
+        <div style={{display:'flex', gap:'0.75rem'}}>
+          <button className="btn-outline" title="Export CSV" onClick={handleExportCSV}>
+            <i className="ri-download-2-line"></i> Export CSV
+          </button>
+          <button className="special-button" onClick={() => setModal('add')} disabled={loading}><i className="ri-user-add-line"></i> {loading ? 'Inviting...' : 'Invite User'}</button>
+        </div>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
