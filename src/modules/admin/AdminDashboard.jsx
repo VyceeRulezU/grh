@@ -774,52 +774,43 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
         }
       }
 
-      // 2. Save Chapters & Modules
-      // We force foreign keys to Numbers to be safe
+      // 2. Save Modules to course_modules table (the actual DB table)
       const targetCourseId = Number(courseId);
 
+      // Flatten all modules from all chapters into a single list for course_modules
+      const allModules = [];
       if (chapters && chapters.length > 0) {
-        // Clear existing for simplicity on edits
-        if (modal !== 'add') {
-           console.log("Clearing old chapters/modules for course:", targetCourseId);
-           await supabase.from('chapters').delete().eq('course_id', targetCourseId);
-        }
-
-        // Insert Chapters one by one
-        for (let i = 0; i < chapters.length; i++) {
-          const chap = chapters[i];
-          const { data: newChap, error: chapErr } = await supabase
-            .from('chapters')
-            .insert([{ 
-              course_id: targetCourseId, 
-              title: chap.title || 'Untitled Chapter', 
-              sequence_order: i + 1 
-            }])
-            .select()
-            .single();
-          
-          if (chapErr) {
-            console.error("Chapter Insert Error:", chapErr);
-            throw chapErr;
-          }
-
+        chapters.forEach((chap) => {
           if (chap.modules && chap.modules.length > 0) {
-            const modulesToInsert = chap.modules.map((m, mi) => ({
-              course_id: targetCourseId,
-              chapter_id: Number(newChap.id),
-              title: m.title || 'Untitled Module',
-              video_url: m.videoLink || '',
-              description: m.description || '',
-              sequence_order: mi + 1
-            }));
-
-            console.log(`Inserting ${modulesToInsert.length} modules for chapter ${newChap.id}`);
-            const { error: modError } = await supabase.from('modules').insert(modulesToInsert);
-            if (modError) {
-              console.error("Module Insert Error:", modError);
-              throw modError;
-            }
+            chap.modules.forEach((m) => {
+              allModules.push({
+                title: m.title || chap.title || 'Untitled Module',
+                video_url: m.videoLink || m.video_url || '',
+                course_id: targetCourseId
+              });
+            });
+          } else {
+            // Chapter with no sub-modules — treat the chapter itself as a module
+            allModules.push({
+              title: chap.title || 'Untitled Module',
+              video_url: chap.videoLink || chap.video_url || '',
+              course_id: targetCourseId
+            });
           }
+        });
+      }
+
+      if (allModules.length > 0) {
+        // Delete existing modules on edits
+        if (modal !== 'add') {
+          await supabase.from('course_modules').delete().eq('course_id', targetCourseId);
+        }
+        // Insert with sort_order
+        const modulesWithOrder = allModules.map((m, i) => ({ ...m, sort_order: i }));
+        const { error: modError } = await supabase.from('course_modules').insert(modulesWithOrder);
+        if (modError) {
+          console.error("Module Insert Error:", modError);
+          throw modError;
         }
       }
 

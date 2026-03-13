@@ -100,54 +100,60 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   // 1. Initial Data Fetch
   useEffect(() => {
     if (!course?.id) {
-       onNavigate('learn');
+       onNavigate('student');
        return;
     }
 
     const loadData = async () => {
       try {
         setLoading(true);
-        // Fetch Chapters with Modules
-        const { data: chaps, error: chapErr } = await supabase
-          .from('chapters')
-          .select('*, modules(*)')
+        setLoadError(null);
+
+        // Fetch modules from the correct table: course_modules
+        const { data: modulesData, error: modErr } = await supabase
+          .from('course_modules')
+          .select('*')
           .eq('course_id', course.id)
-          .order('sequence_order', { ascending: true });
+          .order('sort_order', { ascending: true });
         
-        if (chapErr) {
-          console.error("Chapters fetch error:", chapErr);
-          setLoadError(`Could not load course content: ${chapErr.message}`);
+        if (modErr) {
+          console.error("Modules fetch error:", modErr);
+          setLoadError(`Could not load course content: ${modErr.message}`);
           setLoading(false);
           return;
         }
 
-        // Fetch User Progress
-        const { data: prog, error: progErr } = await supabase
-          .from('user_progress')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('course_id', course.id);
-        
-        if (progErr) throw progErr;
-
-        const progMap = {};
-        prog.forEach(p => progMap[p.module_id] = p);
+        // Fetch User Progress (gracefully ignore if table doesn't exist)
+        let progMap = {};
+        try {
+          const { data: prog } = await supabase
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('course_id', course.id);
+          
+          if (prog) {
+            prog.forEach(p => progMap[p.module_id] = p);
+          }
+        } catch (e) {
+          console.warn("Could not fetch progress (table may not exist):", e);
+        }
         setProgress(progMap);
 
-        const mappedChapters = chaps.map(chap => ({
-          ...chap,
-          modules: chap.modules?.sort((a,b) => a.sequence_order - b.sequence_order).map(m => ({
-            ...m,
-            completed: progMap[m.id]?.completed || false,
-            watched_seconds: progMap[m.id]?.watched_seconds || 0,
-            type: 'video'
-          })) || []
+        // Map modules to lesson format
+        const mappedLessons = (modulesData || []).map(m => ({
+          ...m,
+          // Normalize video URL field name (could be video_url or videoUrl or videoLink)
+          videoLink: m.video_url || m.videoUrl || m.videoLink || '',
+          completed: progMap[m.id]?.completed || false,
+          watched_seconds: progMap[m.id]?.watched_seconds || 0,
+          type: 'video'
         }));
 
-        setLessons(mappedChapters); // lessons now holds chapters for accordion
-        // Default active lesson = first module of first chapter
-        if (mappedChapters.length > 0 && mappedChapters[0].modules.length > 0) {
-          setActiveLesson(mappedChapters[0].modules[0]);
+        setLessons(mappedLessons);
+        // Default active lesson = first module
+        if (mappedLessons.length > 0) {
+          setActiveLesson(mappedLessons[0]);
         }
       } catch (err) {
         console.error("CoursePlayer loading error:", err);
@@ -158,7 +164,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
     };
 
     loadData();
-  }, [course?.id, user.id]);
+  }, [course?.id, user?.id]);
 
   // 2. Tab Content Loading (Notes & Discussions)
   useEffect(() => {
@@ -390,49 +396,17 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
     );
   }
 
-  const videoId = getYouTubeVideoId(activeLesson?.video_url);
+  const videoId = getYouTubeVideoId(activeLesson?.videoLink || activeLesson?.video_url);
   
-  // Flatten modules for stats
-  const allModules = lessons.flatMap(c => c.modules || []);
-  const totalCompleted = allModules.filter(m => m.completed).length;
-  const progressPercent = allModules.length > 0 ? Math.round((totalCompleted / allModules.length) * 100) : 0;
+  // Flat lessons list stats
+  const totalCompleted = lessons.filter(l => l.completed).length;
+  const progressPercent = lessons.length > 0 ? Math.round((totalCompleted / lessons.length) * 100) : 0;
 
-  // Lock logic: next video is locked if current is not complete
-  const isModuleLocked = (chapterIndex, moduleIndex) => {
-    // First module of first chapter is never locked
-    if (chapterIndex === 0 && moduleIndex === 0) return false;
-    
-    // If it's not the first module in the chapter, check previous module in the same chapter
-    if (moduleIndex > 0) {
-      return !lessons[chapterIndex].modules[moduleIndex - 1].completed;
-    }
-    
-    // If it's the first module in a chapter (but not the first chapter), check the last module of the previous chapter
-    if (chapterIndex > 0) {
-      const prevChapterModules = lessons[chapterIndex - 1].modules;
-      if (prevChapterModules && prevChapterModules.length > 0) {
-        return !prevChapterModules[prevChapterModules.length - 1].completed;
-      }
-    }
-    
-    return false;
+  // Simple lock logic: next lesson is locked if previous is not complete
+  const isLessonLocked = (index) => {
+    if (index === 0) return false;
+    return !lessons[index - 1]?.completed;
   };
-
-  const [expandedChapters, setExpandedChapters] = useState({});
-
-  const toggleChapter = (id) => {
-    setExpandedChapters(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  // Auto-expand active chapter
-  useEffect(() => {
-    if (activeLesson) {
-      const activeChap = lessons.find(c => c.modules?.some(m => m.id === activeLesson.id));
-      if (activeChap && !expandedChapters[activeChap.id]) {
-        setExpandedChapters(prev => ({ ...prev, [activeChap.id]: true }));
-      }
-    }
-  }, [activeLesson, lessons]);
 
   return (
     <>
@@ -526,7 +500,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
             <h3>Course Content</h3>
             <div className="course-progress-mini">
               <div className="mini-prog-bar"><div className="mini-prog-fill" style={{width: `${progressPercent}%`}}></div></div>
-              <span>{totalCompleted}/{allModules.length} Lessons</span>
+              <span>{totalCompleted}/{lessons.length} Lessons</span>
             </div>
             
             {isCourseComplete && (
@@ -540,41 +514,25 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
             )}
           </div>
           
-          <div className="lesson-list chapters-accordion">
-            {lessons.map((chapter, ci) => (
-              <div key={chapter.id} className={`chapter-group ${expandedChapters[chapter.id] ? 'expanded' : ''}`}>
-                <div className="chapter-header" onClick={() => toggleChapter(chapter.id)}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                     <i className={expandedChapters[chapter.id] ? 'ri-arrow-down-s-line' : 'ri-arrow-right-s-line'}></i>
-                     <strong>{chapter.title}</strong>
-                   </div>
-                   <span className="chapter-meta">{chapter.modules?.length || 0} Lessons</span>
-                </div>
-                
-                {expandedChapters[chapter.id] && (
-                  <div className="chapter-modules-list anim-fade-in">
-                    {chapter.modules?.map((mod, mi) => {
-                      const locked = isModuleLocked(ci, mi);
-                      return (
-                        <div
-                          key={mod.id}
-                          className={`lesson-item ${activeLesson.id === mod.id ? 'active' : ''} ${mod.completed ? 'completed' : ''} ${locked ? 'locked' : ''}`}
-                          onClick={() => !locked && setActiveLesson(mod)}
-                        >
-                          <div className="lesson-status">
-                            {locked ? <i className="ri-lock-fill"></i> : mod.completed ? <i className="ri-checkbox-circle-fill"></i> : <i className="ri-play-line"></i>}
-                          </div>
-                          <div className="lesson-text" style={{ opacity: mod.completed ? 0.6 : 1, fontWeight: mod.completed ? 400 : 600 }}>
-                            <p className="lesson-title">{mod.title}</p>
-                            <span className="lesson-meta">{mod.duration || 'Video'}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
+          <div className="lesson-list">
+            {lessons.map((lesson, index) => {
+              const locked = isLessonLocked(index);
+              return (
+                <div
+                  key={lesson.id}
+                  className={`lesson-item ${activeLesson?.id === lesson.id ? 'active' : ''} ${lesson.completed ? 'completed' : ''} ${locked ? 'locked' : ''}`}
+                  onClick={() => !locked && setActiveLesson(lesson)}
+                >
+                  <div className="lesson-status">
+                    {locked ? <i className="ri-lock-fill"></i> : lesson.completed ? <i className="ri-checkbox-circle-fill"></i> : <i className="ri-play-line"></i>}
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="lesson-text" style={{ opacity: lesson.completed ? 0.6 : 1, fontWeight: lesson.completed ? 400 : 600 }}>
+                    <p className="lesson-title">{lesson.title}</p>
+                    <span className="lesson-meta">{lesson.duration || 'Video'}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
