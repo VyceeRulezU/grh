@@ -61,15 +61,29 @@ const TAB_CONTENT = {
           </div>
         ))}
       </div>
-      <div style={{display: 'flex', gap: '0.5rem'}}>
+      <div style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}>
         <input 
-          className="form-input" 
-          placeholder="Ask a question..." 
+          style={{
+            flex: 1,
+            padding: '0.75rem 1rem',
+            border: '1.5px solid var(--stroke-soft, #d1d5db)',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            background: 'var(--bg-white, #fff)',
+            color: 'var(--text-main, #1e293b)',
+            outline: 'none',
+            transition: 'border-color 0.2s'
+          }}
+          placeholder="Ask a question or share your thoughts..." 
           value={msg} 
           onChange={e => setMsg(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && onPost()}
+          onFocus={e => e.target.style.borderColor = 'var(--primary, #16a34a)'}
+          onBlur={e => e.target.style.borderColor = 'var(--stroke-soft, #d1d5db)'}
         />
-        <button className="special-button" onClick={onPost} style={{padding: '0.75rem 1.5rem'}}>Post</button>
+        <button className="special-button" onClick={onPost} style={{padding: '0.75rem 1.5rem', whiteSpace: 'nowrap'}}>
+          <i className="ri-send-plane-fill" style={{marginRight: '0.25rem'}}></i> Post
+        </button>
       </div>
     </div>
   ),
@@ -168,34 +182,38 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
 
   // 2. Tab Content Loading (Notes & Discussions)
   useEffect(() => {
-    if (!activeLesson || !user.id) return;
+    if (!activeLesson || !user?.id) return;
 
     const fetchTabData = async () => {
-      // Fetch Notes
-      const { data: notes } = await supabase
-        .from('user_notes')
-        .select('note_text')
-        .eq('user_id', user.id)
-        .eq('module_id', activeLesson.id)
-        .maybeSingle();
-      setNote(notes?.note_text || "");
+      // Fetch Notes (gracefully handle missing table)
+      try {
+        const { data: notes } = await supabase
+          .from('user_notes')
+          .select('note_text')
+          .eq('user_id', user.id)
+          .eq('module_id', activeLesson.id)
+          .maybeSingle();
+        setNote(notes?.note_text || "");
+      } catch (e) {
+        console.warn('Notes fetch failed:', e);
+      }
 
-      // Fetch Discussions
-      const { data: discs } = await supabase
-        .from('discussions')
-        .select('*, profiles(name)')
-        .eq('module_id', activeLesson.id)
-        .order('created_at', { ascending: true });
-      
-      const formattedDiscs = discs?.map(d => ({
-        ...d,
-        user_name: d.profiles?.name || 'Anonymous'
-      })) || [];
-      setDiscussions(formattedDiscs);
+      // Fetch Discussions (no profiles join — table has no FK)
+      try {
+        const { data: discs } = await supabase
+          .from('discussions')
+          .select('*')
+          .eq('module_id', activeLesson.id)
+          .order('created_at', { ascending: true });
+        
+        setDiscussions(discs || []);
+      } catch (e) {
+        console.warn('Discussions fetch failed:', e);
+      }
     };
 
     fetchTabData();
-  }, [activeLesson, user.id]);
+  }, [activeLesson, user?.id]);
 
   // 3. YouTube API Progress Tracking
   useEffect(() => {
@@ -214,7 +232,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   }, [isPlaying, activeLesson]);
 
   const saveProgress = async (completed = false) => {
-    if (!activeLesson || !user.id) return;
+    if (!activeLesson || !user?.id) return;
     
     try {
       const { error } = await supabase
@@ -228,14 +246,21 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           status: completed ? 'completed' : 'in-progress'
         }, { onConflict: 'user_id,module_id' });
 
-      if (error) console.error("Progress save error:", error);
+      if (error) {
+        console.error("Progress save error:", error);
+        showError('Save Failed', 'Could not save progress: ' + error.message);
+        return;
+      }
       
       if (completed) {
         setLessons(prev => prev.map(l => l.id === activeLesson.id ? { ...l, completed: true } : l));
         setProgress(prev => ({ ...prev, [activeLesson.id]: { ...prev[activeLesson.id], completed: true } }));
+        setActiveLesson(prev => ({ ...prev, completed: true }));
+        showSuccess('Lesson Complete', 'You have completed this lesson!');
       }
     } catch (err) {
       console.error(err);
+      showError('Error', 'An unexpected error occurred.');
     }
   };
 
@@ -329,11 +354,11 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           module_id: activeLesson.id,
           message: newMsg
         })
-        .select('*, profiles(name)')
+        .select()
         .single();
       
       if (error) throw error;
-      setDiscussions(prev => [...prev, { ...data, user_name: user.name }]);
+      setDiscussions(prev => [...prev, { ...data, user_name: user?.name || 'You' }]);
       setNewMsg("");
     } catch (err) {
       showError('Post Failed', 'Failed to post: ' + err.message);

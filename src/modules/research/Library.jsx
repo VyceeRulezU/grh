@@ -26,15 +26,32 @@ const Library = () => {
           supabase.from('books').select('*').eq('status', 'Published')
         ]);
 
-        const mappedRes = (res.data || []).map(r => ({ ...r, type: r.type || 'PERL' }));
+        const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
+        const TYPE_IMAGES = {
+          'PERL': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80',
+          'SPARC': 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=400&q=80',
+          'SLGP': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=400&q=80',
+        };
+        const mappedRes = (res.data || []).map(r => {
+          const normalizedType = (r.type || 'PERL').toUpperCase();
+          return {
+            ...r,
+            type: normalizedType,
+            coverImage: TYPE_IMAGES[normalizedType] || DEFAULT_IMG,
+            author: 'GRH',
+            year: new Date(r.created_at || Date.now()).getFullYear(),
+            file_url: r.file_url || ''
+          };
+        });
         const mappedBooks = (bks.data || []).map(b => ({
           ...b,
           type: "BOOK",
           author: "GRH Lib",
           year: new Date(b.created_at || Date.now()).getFullYear(),
-          coverImage: b.imageUrl || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+          coverImage: b.image_url || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
           category: b.category || "Governance",
-          description: b.summary
+          description: b.summary,
+          file_url: b.file_url || ''
         }));
 
         // Merge with legacy if Supabase is empty or for baseline
@@ -112,7 +129,7 @@ const Library = () => {
               <button className="control-btn" title="Zoom Out"><span className="material-symbols-outlined">zoom_out</span></button>
               <span style={{fontSize: '14px', fontWeight: 600}}>100%</span>
               <button className="control-btn" title="Zoom In"><span className="material-symbols-outlined">zoom_in</span></button>
-              <button className="special-button" style={{padding: '0.5rem 1rem', fontSize: '0.8rem'}}>Download PDF</button>
+              <button className="special-button" style={{padding: '0.5rem 1rem', fontSize: '0.8rem'}} onClick={() => { if (readingResource.file_url) window.open(readingResource.file_url, '_blank'); }}>Download PDF</button>
               <button className="viewer-close" onClick={() => setReadingResource(null)}>
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -120,6 +137,13 @@ const Library = () => {
           </header>
 
           <main className="viewer-content">
+            {readingResource.file_url ? (
+              <iframe
+                src={readingResource.file_url}
+                title={readingResource.title}
+                style={{ width: '100%', height: '100%', border: 'none', minHeight: '70vh' }}
+              />
+            ) : (
             <div className="viewer-page-mock">
               <div className="pdf-header-mark">
                 <span>GOVHUB RESEARCH LIBRARY</span>
@@ -136,7 +160,7 @@ const Library = () => {
 
               <div className="mock-image-box" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'}}>
                 <img src={readingResource.coverImage} alt="Cover" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.2}} />
-                <span style={{position: 'absolute', fontWeight: 800, color: 'var(--secondary)', opacity: 0.5}}>RESOURCE PREVIEW</span>
+                <span style={{position: 'absolute', fontWeight: 800, color: 'var(--secondary)', opacity: 0.5}}>NO PDF UPLOADED</span>
               </div>
 
               <div style={{marginTop: '2rem'}}>
@@ -150,6 +174,7 @@ const Library = () => {
                 ))}
               </div>
             </div>
+            )}
           </main>
 
           <footer className="viewer-footer">

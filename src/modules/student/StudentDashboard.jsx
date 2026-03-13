@@ -135,7 +135,7 @@ function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, cer
           <button className="view-all" onClick={() => onNavigate('learn')}>Browse All</button>
         </div>
         <div className="recommended-grid">
-          {myCourses.filter(c => c.progress === 0).slice(0, 3).map(course => (
+          {[...myCourses].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3).map(course => (
             <div key={course.id} className="rec-card">
               <div className="rec-thumb" style={{ backgroundImage: `url(${course.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <span className="rec-price">Free</span>
@@ -145,8 +145,8 @@ function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, cer
                 <p className="truncate-2">{course.description?.[0] === '{' ? 'Course details...' : course.description?.substring(0, 80)}…</p>
                 <div className="rec-meta">
                   <span className="badge">{course.level}</span>
-                  <span className="badge">{course.duration}</span>
-                  <span className="badge">{course.lessons} Lessons</span>
+                  <span className="badge">{course.duration || 'Self-paced'}</span>
+                  <span className="badge">{course.lessons || 0} Lessons</span>
                 </div>
                 <button className="special-button enroll-btn" onClick={() => onNavigate('learn-player', course)}>
                   Enroll Now
@@ -154,7 +154,7 @@ function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, cer
               </div>
             </div>
           ))}
-          {myCourses.filter(c => c.progress === 0).length === 0 && <div style={{gridColumn: '1/-1', textAlign: 'center', padding: '20px', color: 'var(--text-soft)'}}>Browse all courses to find your next lesson.</div>}
+          {myCourses.length === 0 && <div style={{gridColumn: '1/-1', textAlign: 'center', padding: '20px', color: 'var(--text-soft)'}}>Browse all courses to find your next lesson.</div>}
         </div>
       </section>
     </>
@@ -830,6 +830,12 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       setLoading(false);
       return;
     }
+    
+    // Safety timeout to prevent stuck loading screens
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
     try {
       setLoading(true);
       
@@ -880,6 +886,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
     } finally {
+      clearTimeout(safetyTimer);
       setLoading(false);
     }
   };

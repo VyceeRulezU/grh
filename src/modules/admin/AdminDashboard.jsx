@@ -139,8 +139,32 @@ function CourseModal({ onClose, onSave, initial }) {
   const [form, setForm] = useState(initial || {
     title: '', category: 'Governance', instructor: '', level: 'Beginner', thumbnail: '',
     price: '', description: '',
-    chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: 'https://youtu.be/svYm5KomARg', description: '' }] }],
+    chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: '', description: '' }] }],
   });
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initial?.id) {
+      setLoading(true);
+      import('../../lib/supabaseClient').then(({ supabase }) => {
+        supabase.from('course_modules').select('*').eq('course_id', initial.id).order('sort_order', { ascending: true })
+          .then(({ data }) => {
+            if (data && data.length > 0) {
+              setForm(f => ({
+                ...f,
+                chapters: [{ title: 'Course Content', modules: data.map(m => ({ title: m.title, videoLink: m.video_url || '', description: '' })) }]
+              }));
+            } else {
+              setForm(f => ({ ...f, chapters: [{ title: 'Course Content', modules: [{ title: '', videoLink: '', description: '' }] }] }));
+            }
+            setLoading(false);
+          });
+      });
+    } else if (initial && !initial.chapters) {
+      setForm(f => ({ ...f, chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: '', description: '' }] }] }));
+    }
+  }, [initial]);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   

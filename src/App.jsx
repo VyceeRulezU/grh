@@ -91,8 +91,8 @@ function App() {
             .eq('id', session.user.id)
             .single();
           
-          const isAdminVal = (profile?.role === 'Admin') || 
-                             (session.user.user_metadata?.role === 'Admin') || 
+          const isAdminVal = (profile?.role?.toLowerCase() === 'admin') || 
+                             (session.user.user_metadata?.role?.toLowerCase() === 'admin') || 
                              (session.user.email?.toLowerCase().includes('admin') && !session.user.email?.toLowerCase().includes('learner')) ||
                              (session.user.email?.toLowerCase() === 'governanceresourcehub@gmail.com');
 
@@ -199,8 +199,8 @@ function App() {
           .eq('id', session.user.id)
           .single();
         
-        const isAdminVal = (profile?.role === 'Admin') || 
-                             (session.user.user_metadata?.role === 'Admin') || 
+        const isAdminVal = (profile?.role?.toLowerCase() === 'admin') || 
+                             (session.user.user_metadata?.role?.toLowerCase() === 'admin') || 
                              (session.user.email?.toLowerCase().includes('admin') && !session.user.email?.toLowerCase().includes('learner')) ||
                              (session.user.email?.toLowerCase() === 'governanceresourcehub@gmail.com');
 
@@ -323,6 +323,13 @@ function App() {
       )}
       
       <main className="main-content">
+        {authLoading && PROTECTED_PAGES.includes(currentPage) ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '1rem' }}>
+            <div className="spinner"></div>
+            <p style={{ color: 'var(--text-soft, #64748b)' }}>Verifying session...</p>
+          </div>
+        ) : (
+        <>
         {currentPage === 'welcome' && (
           <WelcomeGateway 
             onNavigate={navigate} 
@@ -349,6 +356,8 @@ function App() {
         {currentPage === 'terms-of-service' && <TermsOfService />}
         {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service'].includes(currentPage) && (
           <NotFoundPage onNavigate={navigate} />
+        )}
+        </>
         )}
       </main>
 
