@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
 import { COURSES, MENTORS, TESTIMONIALS } from '../../data/legacyData';
 import CtaSection from '../../components/ui/CtaSection';
 import ModernDropdown from '../../components/ui/ModernDropdown';
@@ -17,10 +18,46 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   const [category, setCategory] = useState("All");
   const [level, setLevel] = useState("All Levels");
   const [activeTab, setActiveTab] = useState("all");
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = COURSES.filter(c => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+
+        // If no courses in DB, fallback to legacy
+        if (!data || data.length === 0) {
+          setCourses(COURSES);
+        } else {
+          // Map DB fields to match component expectations
+          const formattedCourses = data.map(c => ({
+             ...c,
+             description: c.description || 'A comprehensive guide to this topic.',
+             students: 0,
+             duration: '2h 30m',
+             progress: 0
+          }));
+          setCourses([...formattedCourses, ...COURSES].slice(0, 6)); // Top 6 most recently added
+        }
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+        setCourses(COURSES); // fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const filtered = courses.filter(c => {
     const ms = c.title.toLowerCase().includes(search.toLowerCase()) || 
-               c.description.toLowerCase().includes(search.toLowerCase());
+               (c.description && c.description.toLowerCase().includes(search.toLowerCase()));
     const mc = category === "All" || c.category === category;
     const ml = level === "All Levels" || c.level === level;
     const mt = activeTab === "all" || 
@@ -117,7 +154,12 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         </div>
 
         <div className="courses-grid">
-          {filtered.slice(0, 6).map((course, i) => (
+          {loading ? (
+             <div className="empty-state">
+              <span className="empty-icon">⏳</span>
+              <h3>Loading Courses...</h3>
+             </div>
+          ) : filtered.slice(0, 6).map((course, i) => (
             <article 
               key={course.id} 
               className="course-card animate-up" 
@@ -151,7 +193,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
           ))}
         </div>
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="empty-state">
             <span className="empty-icon">🔍</span>
             <h3>No courses found</h3>

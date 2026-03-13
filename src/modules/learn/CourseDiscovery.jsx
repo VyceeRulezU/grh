@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
+import { COURSES as ALL_COURSES } from '../../data/legacyData';
 import Button from '../../components/ui/Button';
 import Tab from '../../components/ui/Tab';
 import Pagination from '../../components/ui/Pagination';
@@ -12,17 +14,6 @@ const CATEGORY_TABS = [
   { id: 'Ethics', label: 'Ethics' },
   { id: 'Policy', label: 'Policy' },
   { id: 'Digital', label: 'Digital' },
-];
-
-const ALL_COURSES = [
-  { id: 1, title: "Foundations of Public Governance", category: "Governance", price: "Free", rating: 4.8, students: 1240, author: "Dr. Sarah Chen", icon: "ri-government-line", level: "Beginner", duration: "12 hours", description: "Explore the core principles of public governance and institutional frameworks." },
-  { id: 2, title: "Public Financial Management", category: "Finance", price: "₦49,990", rating: 4.9, students: 850, author: "Marcus Thorne", icon: "ri-bank-card-line", level: "Intermediate", duration: "24 hours", description: "Master public financial management frameworks and fiscal policy analysis." },
-  { id: 3, title: "Anti-Corruption & Integrity", category: "Ethics", price: "Free", rating: 4.7, students: 2100, author: "Elena Rossi", icon: "ri-scales-3-line", level: "Beginner", duration: "10 hours", description: "Learn integrity frameworks and anti-corruption mechanisms in governance." },
-  { id: 4, title: "Electoral Systems & Democracy", category: "Policy", price: "₦29,990", rating: 4.6, students: 640, author: "Prof. John Doe", icon: "ri-input-method-line", level: "Advanced", duration: "32 hours", description: "Deep dive into electoral system design and democratic processes." },
-  { id: 5, title: "Decentralisation Strategies", category: "Management", price: "Free", rating: 4.5, students: 920, author: "Amara Okoro", icon: "ri-node-tree", level: "Intermediate", duration: "15 hours", description: "Study decentralisation models and their impact on local governance." },
-  { id: 6, title: "Public Policy Analysis 101", category: "Policy", price: "₦39,990", rating: 4.8, students: 1100, author: "Dr. Kevin Park", icon: "ri-pie-chart-line", level: "Beginner", duration: "20 hours", description: "Learn systematic approaches to analysing and evaluating public policy." },
-  { id: 7, title: "Digital Governance & AI", category: "Digital", price: "₦59,990", rating: 4.9, students: 450, author: "Alex Rivers", icon: "ri-computer-line", level: "Advanced", duration: "18 hours", description: "Explore the intersection of technology, AI and public sector governance." },
-  { id: 8, title: "Legislative Drafting", category: "Policy", price: "Free", rating: 4.4, students: 310, author: "Sarah Jenkins", icon: "ri-quill-pen-line", level: "Expert", duration: "40 hours", description: "Gain practical skills in drafting legislation and regulatory frameworks." },
 ];
 
 const COURSE_IMAGES = [
@@ -39,11 +30,44 @@ const COURSE_IMAGES = [
 const CourseDiscovery = ({ onNavigate }) => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
 
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const formatted = data.map(c => ({
+            ...c,
+            students: 0,
+            duration: '2h 30m',
+            author: 'GRH Expert'
+          }));
+          setCourses([...formatted, ...ALL_COURSES]);
+        } else {
+          setCourses(ALL_COURSES);
+        }
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+        setCourses(ALL_COURSES);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
   const filtered = activeCategory === "All" 
-    ? ALL_COURSES 
-    : ALL_COURSES.filter(c => c.category === activeCategory);
+    ? courses
+    : courses.filter(c => c.category === activeCategory);
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -76,12 +100,17 @@ const CourseDiscovery = ({ onNavigate }) => {
         </header>
 
         <div className="discovery-grid-v2">
-          {pagedItems.map((course, i) => (
+          {loading ? (
+             <div className="empty-state" style={{ gridColumn: '1/-1', padding: '4rem 0' }}>
+               <span className="empty-icon">⏳</span>
+               <h3>Loading Courses...</h3>
+             </div>
+          ) : pagedItems.map((course, i) => (
             <article 
               key={course.id} 
               className="disc-course-card animate-in" 
               style={{ animationDelay: `${i * 0.05}s` }}
-              onClick={() => onNavigate('course-player')}
+              onClick={() => onNavigate('learn-player', { course })}
             >
               <figure className="disc-course-img">
                 <img 

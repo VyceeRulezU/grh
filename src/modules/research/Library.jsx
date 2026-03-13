@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { RESOURCES, BOOKS } from '../../data/legacyData';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
+import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../data/legacyData';
 import CtaSection from '../../components/ui/CtaSection';
 import Pagination from '../../components/ui/Pagination';
 import './Library.css';
@@ -12,7 +13,58 @@ const Library = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [readingResource, setReadingResource] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [allResources, setAllResources] = useState([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [res, bks] = await Promise.all([
+          supabase.from('library_resources').select('*').eq('status', 'Published'),
+          supabase.from('books').select('*').eq('status', 'Published')
+        ]);
+
+        const mappedRes = (res.data || []).map(r => ({ ...r, type: r.type || 'PERL' }));
+        const mappedBooks = (bks.data || []).map(b => ({
+          ...b,
+          type: "BOOK",
+          author: "GRH Lib",
+          year: new Date(b.created_at || Date.now()).getFullYear(),
+          coverImage: b.imageUrl || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+          category: b.category || "Governance",
+          description: b.summary
+        }));
+
+        // Merge with legacy if Supabase is empty or for baseline
+        const final = [...mappedRes, ...mappedBooks];
+        if (final.length === 0) {
+           // Fallback to legacy
+           const legacyMerged = [
+            ...LEGACY_RESOURCES,
+            ...LEGACY_BOOKS.map(b => ({
+              ...b,
+              type: "BOOK",
+              author: "GRH Lib",
+              year: 2024,
+              coverImage: b.imageUrl,
+              category: "Governance",
+              description: b.summary
+            }))
+           ];
+           setAllResources(legacyMerged);
+        } else {
+           setAllResources(final);
+        }
+      } catch (err) {
+        console.error("Library fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const toggleType = (t) => {
     setSelectedTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
@@ -21,20 +73,6 @@ const Library = () => {
   const toggleCat = (c) => {
     setSelectedCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
   };
-
-  // Merge BOOKS into the resources list for research
-  const allResources = [
-    ...RESOURCES,
-    ...(BOOKS || []).map(b => ({
-      ...b,
-      type: "BOOK", // Mark books clearly
-      author: "GRH Lib", // Default if not present
-      year: new Date().getFullYear(),
-      coverImage: b.imageUrl || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=800",
-      category: "Governance", // Default for books if none
-      description: b.summary
-    }))
-  ];
 
   const filtered = allResources.filter(r => {
     const ms = (r.title || "").toLowerCase().includes(search.toLowerCase()) || 

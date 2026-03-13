@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
 import { HISTORY_DATA, SUGGESTED } from '../../data/legacyData';
 import grhIcon from '../../assets/images/Logo/GRH-alone.png';
 import './ExplorePage.css';
@@ -89,8 +90,24 @@ const ExplorePage = ({ user, onNavigate }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
   const [typing, setTyping] = useState(false);
+  const [suggestions, setSuggestions] = useState(SUGGESTED);
 
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      try {
+        const { data } = await supabase.from('library_resources').select('title').limit(4);
+        if (data && data.length > 0) {
+          const titles = data.map(r => r.title);
+          setSuggestions(prev => Array.from(new Set([...titles, ...prev])).slice(0, 6));
+        }
+      } catch (err) {
+        console.error("Error fetching suggestions:", err);
+      }
+    };
+    fetchSuggestions();
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -207,7 +224,7 @@ const ExplorePage = ({ user, onNavigate }) => {
             <div className="suggestions-area">
               <div className="suggestions-label">Explore common research topics:</div>
               <div className="suggestions-grid">
-                {SUGGESTED.map(s => (
+                {suggestions.map(s => (
                   <button key={s} className="suggestion-chip" onClick={() => handleSend(s)}>
                     {s}
                   </button>

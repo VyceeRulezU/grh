@@ -6,20 +6,56 @@ import { supabase } from '../../lib/supabaseClient';
 
 const SignupPage = ({ onNavigate, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const validations = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+  
+  const strengthScore = Object.values(validations).filter(Boolean).length;
+  const strengthLabel = strengthScore <= 2 ? 'Weak' : strengthScore <= 4 ? 'Fair' : 'Strong';
+  const strengthColor = strengthScore <= 2 ? '#ef4444' : strengthScore <= 4 ? '#f59e0b' : '#22c55e';
+  
+  const isPasswordValid = strengthScore === 5;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isPasswordValid) {
+      alert("Please ensure your password meets all requirements.");
+      return;
+    }
     if (password !== confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
-    // Simulate signup
-    const handled = onLogin({ email: email || 'user@example.com', isAdmin: false });
-    if (!handled) {
-      onNavigate('welcome');
+
+    setLoading(true);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName, role: 'Learner' }
+      }
+    });
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      if (data?.user?.identities?.length === 0) {
+         alert("Email already exists. Please login instead.");
+      } else {
+         alert("Signup successful!");
+         onNavigate('login');
+      }
     }
   };
 
@@ -68,6 +104,19 @@ const SignupPage = ({ onNavigate, onLogin }) => {
 
           <form className="auth-form-box" onSubmit={handleSubmit}>
             <div className="auth-input-group">
+              <label htmlFor="fullName">Full Name</label>
+              <input 
+                type="text" 
+                id="fullName" 
+                className="auth-input-field" 
+                placeholder="John Doe" 
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="auth-input-group">
               <label htmlFor="email">Email</label>
               <input 
                 type="email" 
@@ -99,6 +148,48 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </span>
               </div>
+              
+              {password && (
+                <div className="auth-password-complexity">
+                  <div className="strength-meter-container">
+                    <div className="strength-labels">
+                      <span>Password Strength: <strong>{strengthLabel}</strong></span>
+                    </div>
+                    <div className="strength-bar-bg">
+                      <div 
+                        className="strength-bar-fill" 
+                        style={{ 
+                          width: `${(strengthScore / 5) * 100}%`,
+                          backgroundColor: strengthColor
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div className="auth-password-hints">
+                    <div className={`auth-hint ${validations.length ? 'valid' : 'invalid'}`}>
+                      <span className="material-symbols-outlined auth-hint-icon">{validations.length ? 'check_circle' : 'cancel'}</span>
+                      At least 8 characters
+                    </div>
+                    <div className={`auth-hint ${validations.uppercase ? 'valid' : 'invalid'}`}>
+                      <span className="material-symbols-outlined auth-hint-icon">{validations.uppercase ? 'check_circle' : 'cancel'}</span>
+                      One uppercase letter
+                    </div>
+                    <div className={`auth-hint ${validations.lowercase ? 'valid' : 'invalid'}`}>
+                      <span className="material-symbols-outlined auth-hint-icon">{validations.lowercase ? 'check_circle' : 'cancel'}</span>
+                      One lowercase letter
+                    </div>
+                    <div className={`auth-hint ${validations.number ? 'valid' : 'invalid'}`}>
+                      <span className="material-symbols-outlined auth-hint-icon">{validations.number ? 'check_circle' : 'cancel'}</span>
+                      One number
+                    </div>
+                    <div className={`auth-hint ${validations.special ? 'valid' : 'invalid'}`}>
+                      <span className="material-symbols-outlined auth-hint-icon">{validations.special ? 'check_circle' : 'cancel'}</span>
+                      One special character (e.g. !@#$%)
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="auth-input-group">
@@ -117,7 +208,9 @@ const SignupPage = ({ onNavigate, onLogin }) => {
             </div>
 
             <div className="auth-button-stack">
-              <button type="submit" className="auth-primary-btn">Sign Up</button>
+              <button type="submit" className="auth-primary-btn" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Sign Up'}
+              </button>
               
               <p className="auth-or-divider">Or</p>
               

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import { BOOKS } from '../../data/legacyData';
@@ -482,7 +483,7 @@ function WorkshopAttendeesModal({ workshop, onClose }) {
   );
 }
 
-function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource }) {
+function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats }) {
   return (
     <div className="adm-panel">
       {/* Quick Actions */}
@@ -512,17 +513,16 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource }) {
       {/* Stats Grid */}
       <div className="adm-stats-grid">
         {[
-          { icon: 'ri-team-fill',       label: 'Total Learners',       value: '12,450', delta: '+12%', color: 'blue'   },
-          { icon: 'ri-book-fill',       label: 'Active Courses',       value: '142',    delta: 'Stable', color: 'green' },
-          { icon: 'ri-award-fill',      label: 'Certifications Issued',value: '3,120',  delta: '+5%',  color: 'orange' },
-          { icon: 'ri-folder-fill',     label: 'Library Resources',    value: '284',    delta: '+8%',  color: 'purple' },
+          { icon: 'ri-team-fill',       label: 'Total Learners',       value: stats.learners,       delta: '+0%', color: 'blue'   },
+          { icon: 'ri-book-fill',       label: 'Active Courses',       value: stats.courses,       delta: 'Stable', color: 'green' },
+          { icon: 'ri-award-fill',      label: 'Certifications Issued',value: stats.certs,  delta: '+0%',  color: 'orange' },
+          { icon: 'ri-folder-fill',     label: 'Library Resources',    value: stats.resources,    delta: '+0%',  color: 'purple' },
         ].map(s => (
           <div key={s.label} className="adm-stat-card">
             <div className={`adm-stat-icon ${s.color}`}><i className={s.icon}></i></div>
             <div>
               <span className="adm-stat-label">{s.label}</span>
-              <h3 className="adm-stat-value">{s.value}</h3>
-              <span className="adm-stat-delta">{s.delta}</span>
+              <h3 className="adm-stat-value">{s.value.toLocaleString()}</h3>
             </div>
           </div>
         ))}
@@ -558,8 +558,8 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource }) {
 
       {/* Recent Activity */}
       <div className="adm-panel-header">
-        <h3>Recent Activity</h3>
-        <span className="adm-count">5 New</span>
+        <h3>Recent Completions</h3>
+        <span className="adm-count">{stats.recentActivities.length} New</span>
       </div>
 
       <div className="adm-table-wrap">
@@ -573,32 +573,33 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource }) {
             </tr>
           </thead>
           <tbody>
-            {[1,2,3,4,5].map(i => (
-              <tr key={i}>
+            {stats.recentActivities.length > 0 ? stats.recentActivities.map(act => (
+              <tr key={act.id}>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                       <i className="ri-book-open-line"></i>
                     </div>
-                    <span>Completed "Public Financial Management"</span>
+                    <span>Finished "{act.courses?.title || 'Course'}"</span>
                   </div>
                 </td>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>
-                      JD
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', color: 'white' }}>
+                      {act.profiles?.name?.substring(0,2).toUpperCase() || '??'}
                     </div>
-                    <span>John Doe</span>
+                    <span>{act.profiles?.name || 'Anonymous'}</span>
                   </div>
                 </td>
-                <td>2 hours ago</td>
-                <td><span className="adm-status-badge active">Completed</span></td>
+                <td>{new Date(act.last_accessed).toLocaleDateString()}</td>
+                <td><span className="adm-status-badge published">Completed</span></td>
               </tr>
-            ))}
+            )) : (
+              <tr><td colSpan="4" style={{textAlign:'center', padding:'2rem', color:'var(--text-soft)'}}>No recent completions yet.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }
@@ -607,11 +608,51 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (edit id)
   const editCourse = courses.find(c => c.id === modal);
 
-  const save = (form) => {
-    if (typeof modal === 'number') {
-      setCourses(cs => cs.map(c => c.id === modal ? { ...c, ...form } : c));
-    } else {
-      setCourses(cs => [...cs, { ...form, id: Date.now(), learners: 0, status: 'Draft' }]);
+  const save = async (form) => {
+    try {
+      const { modules, ...courseData } = form;
+      let courseId = modal;
+
+      if (typeof modal !== 'number' && typeof modal !== 'string') {
+        // Create Course
+        const { data: newCourse, error } = await supabase
+          .from('courses')
+          .insert([{ ...courseData, status: 'Published' }])
+          .select()
+          .single();
+        if (error) throw error;
+        courseId = newCourse.id;
+      } else {
+        // Update Course
+        const { error } = await supabase
+          .from('courses')
+          .update(courseData)
+          .eq('id', modal);
+        if (error) throw error;
+      }
+
+      // Save Modules
+      if (modules && modules.length > 0) {
+        // For simplicity, we'll delete and re-insert for edits, or just insert for new
+        if (typeof modal === 'number' || typeof modal === 'string') {
+           await supabase.from('modules').delete().eq('course_id', courseId);
+        }
+        const modulesToInsert = modules.map((m, i) => ({
+          course_id: courseId,
+          title: m.title,
+          video_url: m.videoLink,
+          sequence_order: i + 1
+        }));
+        const { error: modError } = await supabase.from('modules').insert(modulesToInsert);
+        if (modError) throw modError;
+      }
+
+      alert("Course saved successfully!");
+      setModal(null);
+      // Refresh data would be better, but for now we can just update local state or re-fetch
+      window.location.reload(); 
+    } catch (err) {
+      alert("Error saving course: " + err.message);
     }
   };
 
@@ -644,7 +685,14 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
                 <td>
                   <div className="adm-row-actions">
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(c.id)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn" title="Toggle status" onClick={() => setCourses(cs => cs.map(x => x.id === c.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
+                    <button className="adm-icon-btn" title="Toggle status" onClick={async () => {
+                      try {
+                        const newStatus = c.status === 'Published' ? 'Draft' : 'Published';
+                        const { error } = await supabase.from('courses').update({ status: newStatus }).eq('id', c.id);
+                        if (error) throw error;
+                        window.location.reload();
+                      } catch (err) { alert(err.message); }
+                    }}>
                       <i className={c.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
                     <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(c, 'course')}><i className="ri-delete-bin-line"></i></button>
@@ -671,11 +719,20 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (id)
   const editItem = resources.find(r => r.id === modal);
 
-  const save = (form) => {
-    if (typeof modal === 'number') {
-      setResources(rs => rs.map(r => r.id === modal ? { ...r, ...form } : r));
-    } else {
-      setResources(rs => [...rs, { ...form, id: Date.now(), status: 'Draft' }]);
+  const save = async (form) => {
+    try {
+      if (typeof modal === 'number' || typeof modal === 'string') {
+        const { error } = await supabase.from('library_resources').update(form).eq('id', modal);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('library_resources').insert([{ ...form, status: 'Published' }]);
+        if (error) throw error;
+      }
+      alert("Resource saved!");
+      setModal(null);
+      window.location.reload();
+    } catch (err) {
+      alert("Error saving resource: " + err.message);
     }
   };
 
@@ -698,7 +755,14 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
                 <td>
                   <div className="adm-row-actions">
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(r.id)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn" title="Toggle status" onClick={() => setResources(rs => rs.map(x => x.id === r.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
+                    <button className="adm-icon-btn" title="Toggle status" onClick={async () => {
+                      try {
+                        const newStatus = r.status === 'Published' ? 'Draft' : 'Published';
+                        const { error } = await supabase.from('library_resources').update({ status: newStatus }).eq('id', r.id);
+                        if (error) throw error;
+                        window.location.reload();
+                      } catch (err) { alert(err.message); }
+                    }}>
                       <i className={r.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
                     <button className="adm-icon-btn danger" onClick={() => onDelete(r, 'resource')}><i className="ri-delete-bin-line"></i></button>
@@ -714,16 +778,60 @@ function ResourcesPanel({ resources, setResources, onDelete }) {
   );
 }
 
-function UsersPanel({ users, setUsers, onDelete }) {
+function UsersPanel({ users, setUsers, onDelete, loggedInUser }) {
   const [modal, setModal] = useState(null); // null | 'add' | user object (edit)
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async (nu) => {
+    setLoading(true);
+    try {
+      if (typeof modal === 'object') {
+        // Just local state update for edits for now (dummy update)
+        setUsers(us => us.map(x => x.email === modal.email ? { ...x, ...nu } : x));
+        setModal(null);
+      } else {
+        // Invite new user via Edge Function
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-user`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            email: nu.email,
+            name: nu.name,
+            role: nu.role
+          })
+        });
+
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to invite user');
+        }
+
+        alert('User invited successfully!');
+        setUsers(us => [{ ...nu, courses: 0, joined: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }, ...us]);
+        setModal(null);
+      }
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Users <span className="adm-count">{users.length}</span></h3>
-        <button className="special-button" onClick={() => setModal('add')}><i className="ri-user-add-line"></i> Invite User</button>
+        <button className="special-button" onClick={() => setModal('add')} disabled={loading}><i className="ri-user-add-line"></i> {loading ? 'Inviting...' : 'Invite User'}</button>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
+           {/* ... existing table code ... */}
           <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Courses</th><th>Joined</th><th>Status</th><th></th></tr></thead>
           <tbody>
             {users.map(u => (
@@ -749,20 +857,14 @@ function UsersPanel({ users, setUsers, onDelete }) {
         <UserModal 
           initial={typeof modal === 'object' ? modal : null}
           onClose={() => setModal(null)} 
-          onSave={(nu) => {
-            if (typeof modal === 'object') {
-              setUsers(us => us.map(x => x.email === modal.email ? { ...x, ...nu } : x));
-            } else {
-              setUsers(us => [{ ...nu, courses: 0, joined: 'Mar 2024' }, ...us]);
-            }
-          }} 
+          onSave={handleSave} 
         />
       )}
     </div>
   );
 }
 
-function AnalyticsPanel() {
+function AnalyticsPanel({ stats }) {
   return (
     <div className="adm-panel">
       <div className="adm-panel-header"><h3>Analytics</h3></div>
@@ -779,8 +881,9 @@ function AnalyticsPanel() {
         </ResponsiveContainer>
       </div>
       <div className="adm-analytics-placeholder">
-        <i className="ri-map-pin-user-line"></i>
-        <p>Global engagement heatmap coming soon</p>
+        <i className="ri-award-fill" style={{fontSize: '3rem', color: 'var(--primary)', marginBottom: '1rem'}}></i>
+        <h3>{stats.certs}</h3>
+        <p>Total Certificates Generated to Date</p>
       </div>
     </div>
   );
@@ -812,17 +915,60 @@ function AdminInstructorsPanel() {
   );
 }
 
-function AdminSettingsPanel() {
-  const [name, setName] = useState("GRH Admin");
-  const [email, setEmail] = useState("admin@govhub.org");
+function AdminSettingsPanel({ user }) {
+  const [name, setName] = useState(user?.name || "GRH Admin");
+  const [email, setEmail] = useState(user?.email || "admin@govhub.org");
   const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleAvatarChange = (e) => {
+  useEffect(() => {
+    // Fetch user profile to get existing avatar
+    const fetchProfile = async () => {
+       if (!user?.id) return;
+       const { data, error } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single();
+       if (data?.avatar_url) {
+         setAvatar(data.avatar_url);
+       }
+    };
+    fetchProfile();
+  }, [user?.id]);
+
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setAvatar(reader.result);
-      reader.readAsDataURL(file);
+    if (file && user?.id) {
+       setLoading(true);
+       try {
+         const fileExt = file.name.split('.').pop();
+         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+         const filePath = `${fileName}`;
+
+         // 1. Upload to storage
+         const { error: uploadError } = await supabase.storage
+           .from('avatars')
+           .upload(filePath, file, { upsert: true });
+         
+         if (uploadError) throw uploadError;
+
+         // 2. Get public URL
+         const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+
+         // 3. Update profile
+         const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: publicUrl })
+            .eq('id', user.id);
+
+         if (updateError) throw updateError;
+         
+         setAvatar(publicUrl);
+         alert("Avatar updated successfully! Note: You may need to refresh the page to see changes in the top bar.");
+       } catch (err) {
+         alert(`Failed to upload avatar: ${err.message}`);
+       } finally {
+         setLoading(false);
+       }
     }
   };
   
@@ -835,25 +981,25 @@ function AdminSettingsPanel() {
           
           <div className="adm-avatar-settings" style={{ display: 'flex', gap: '2rem', alignItems: 'center', marginBottom: '2rem', padding: '1.5rem', background: 'var(--bg-weak)', borderRadius: '12px' }}>
             <div className="adm-current-avatar" style={{ width: 100, height: 100, borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 700, overflow: 'hidden' }}>
-              {avatar ? <img src={avatar} alt="Admin" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : 'AD'}
+              {avatar ? <img src={avatar} alt="Admin" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (name.substring(0,2).toUpperCase())}
             </div>
             <div className="adm-avatar-actions">
-              <label className="special-button btn-sm" style={{ cursor: 'pointer', display: 'inline-block', marginBottom: '0.5rem' }}>
-                Change Avatar
-                <input type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+              <label className={`special-button btn-sm ${loading ? 'opacity-50' : ''}`} style={{ cursor: loading ? 'not-allowed' : 'pointer', display: 'inline-block', marginBottom: '0.5rem' }}>
+                {loading ? 'Uploading...' : 'Change Avatar'}
+                <input type="file" accept="image/*" hidden onChange={handleAvatarChange} disabled={loading} />
               </label>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}>Upload a professional headshot. JPG, PNG or GIF.</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}>Upload a professional headshot. JPG, PNG or GIF. Max 2MB.</p>
             </div>
           </div>
 
           <div className="adm-form-row">
             <div className="adm-form-group">
               <label>Full Name</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} />
+              <input type="text" value={name} onChange={e => setName(e.target.value)} disabled />
             </div>
             <div className="adm-form-group">
               <label>Email Address</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} disabled />
             </div>
           </div>
         </section>
@@ -886,11 +1032,20 @@ function BooksPanel({ books, setBooks, onDelete }) {
   const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
 
-  const save = (data) => {
-    if (typeof modal === 'number') {
-      setBooks(bs => bs.map(b => b.id === modal ? { ...b, ...data } : b));
-    } else {
-      setBooks(bs => [...bs, ...data]);
+  const save = async (data) => {
+    try {
+      if (typeof modal === 'number' || typeof modal === 'string') {
+        const { error } = await supabase.from('books').update(data).eq('id', modal);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('books').insert(data.map(b => ({ ...b, status: 'Published' })));
+        if (error) throw error;
+      }
+      alert("Books saved!");
+      setModal(null);
+      window.location.reload();
+    } catch (err) {
+      alert("Error saving books: " + err.message);
     }
   };
 
@@ -915,7 +1070,14 @@ function BooksPanel({ books, setBooks, onDelete }) {
                 <td>
                   <div className="adm-row-actions">
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(b.id)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn" title="Toggle status" onClick={() => setBooks(bs => bs.map(x => x.id === b.id ? { ...x, status: x.status === 'Published' ? 'Draft' : 'Published' } : x))}>
+                    <button className="adm-icon-btn" title="Toggle status" onClick={async () => {
+                      try {
+                        const newStatus = b.status === 'Published' ? 'Draft' : 'Published';
+                        const { error } = await supabase.from('books').update({ status: newStatus }).eq('id', b.id);
+                        if (error) throw error;
+                        window.location.reload();
+                      } catch (err) { alert(err.message); }
+                    }}>
                       <i className={b.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
                     </button>
                     <button className="adm-icon-btn danger" onClick={() => onDelete(b, 'book')}><i className="ri-delete-bin-line"></i></button>
@@ -954,11 +1116,21 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
   const [attendeeModal, setAttendeeModal] = useState(null); // null | workshop object
   const editItem = workshops.find(w => w.id === modal);
 
-  const save = (data) => {
-    if (typeof modal === 'number') {
-      setWorkshops(ws => ws.map(w => w.id === modal ? { ...w, ...data } : w));
-    } else {
-      setWorkshops(ws => [...ws, { ...data, id: Date.now(), registrations: [] }]);
+  const save = async (data) => {
+    try {
+       const { registrations, ...wData } = data;
+       if (typeof modal === 'number' || typeof modal === 'string') {
+         const { error } = await supabase.from('workshops').update(wData).eq('id', modal);
+         if (error) throw error;
+       } else {
+         const { error } = await supabase.from('workshops').insert([{ ...wData, status: 'Upcoming' }]);
+         if (error) throw error;
+       }
+       alert("Workshop saved!");
+       setModal(null);
+       window.location.reload();
+    } catch (err) {
+      alert("Error saving workshop: " + err.message);
     }
   };
 
@@ -1003,11 +1175,59 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete }) {
 const AdminDashboard = ({ onNavigate, onLogout, user }) => {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [courses, setCourses] = useState(COURSES);
-  const [resources, setResources] = useState(RESOURCES);
-  const [books, setBooks] = useState(BOOKS);
-  const [users, setUsers] = useState(USERS);
-  const [workshops, setWorkshops] = useState(WORKSHOPS);
+  const [courses, setCourses] = useState([]);
+  const [resources, setResources] = useState([]);
+  const [books, setBooks] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [workshops, setWorkshops] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    learners: 0,
+    courses: 0,
+    resources: 0,
+    certs: 0,
+    recentActivities: []
+  });
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [crs, res, bks, usr, wks, progress] = await Promise.all([
+        supabase.from('courses').select('*').order('created_at', { ascending: false }),
+        supabase.from('library_resources').select('*').order('created_at', { ascending: false }),
+        supabase.from('books').select('*').order('created_at', { ascending: false }),
+        supabase.from('profiles').select('*'),
+        supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }),
+        supabase.from('user_progress')
+          .select('*, profiles(name), courses(title)')
+          .eq('completed', true)
+          .order('last_accessed', { ascending: false })
+          .limit(5)
+      ]);
+
+      if (crs.data) setCourses(crs.data);
+      if (res.data) setResources(res.data);
+      if (bks.data) setBooks(bks.data);
+      if (usr.data) setUsers(usr.data.map(u => ({ ...u, email: u.id, courses: 0, joined: 'Jan 2025', status: 'Active' })));
+      if (wks.data) setWorkshops(wks.data.map(w => ({ ...w, registrations: w.workshop_registrations })));
+
+      setStats({
+        learners: usr.data?.length || 0,
+        courses: crs.data?.length || 0,
+        resources: (res.data?.length || 0) + (bks.data?.length || 0),
+        certs: progress.data?.length || 0,
+        recentActivities: progress.data || []
+      });
+    } catch (err) {
+      console.error("Error fetching admin data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Status Modal State
   const [statusModal, setStatusModal] = useState({ 
@@ -1038,12 +1258,25 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
       type: 'error',
       title: 'Confirm Delete',
       message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the file permanently and this action cannot be undone.`,
-      onConfirm: () => {
-        if (type === 'course') setCourses(cs => cs.filter(x => x.id !== item.id));
-        if (type === 'resource') setResources(rs => rs.filter(x => x.id !== item.id));
-        if (type === 'user') setUsers(us => us.filter(x => x.email !== item.email));
-        if (type === 'book') setBooks(bs => bs.filter(x => x.id !== item.id));
-        if (type === 'workshop') setWorkshops(ws => ws.filter(x => x.id !== item.id));
+      onConfirm: async () => {
+        try {
+          let table = '';
+          if (type === 'course') table = 'courses';
+          if (type === 'resource') table = 'library_resources';
+          if (type === 'book') table = 'books';
+          if (type === 'workshop') table = 'workshops';
+          // (Users delete skipped for safety or handled separately)
+
+          if (table) {
+            const { error } = await supabase.from(table).delete().eq('id', item.id);
+            if (error) throw error;
+          }
+
+          alert(`${type} deleted successfully`);
+          window.location.reload();
+        } catch (err) {
+          alert("Delete failed: " + err.message);
+        }
         setStatusModal(prev => ({ ...prev, isOpen: false }));
       }
     });
@@ -1137,16 +1370,22 @@ const AdminDashboard = ({ onNavigate, onLogout, user }) => {
           </header>
 
           <div className="adm-content">
-            {activeSection === 'overview'   && <OverviewPanel onAddCourse={() => setActiveSection('courses')} onAddBook={() => setActiveSection('books')} />}
+            {activeSection === 'overview'   && <OverviewPanel 
+                onAddCourse={() => setActiveSection('courses')} 
+                onAddBook={() => setActiveSection('books')} 
+                onAddQuiz={() => setActiveSection('quizzes')} 
+                onAddResource={() => setActiveSection('resources')}
+                stats={stats}
+              />}
             {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} onDelete={confirmDelete} />}
             {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} onDelete={confirmDelete} />}
             {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} onDelete={confirmDelete} />}
             {activeSection === 'workshops'  && <WorkshopsPanel workshops={workshops} setWorkshops={setWorkshops} onDelete={confirmDelete} />}
-            {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} onDelete={confirmDelete} />}
-            {activeSection === 'analytics'  && <AnalyticsPanel />}
+            {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} onDelete={confirmDelete} loggedInUser={user} />}
+            {activeSection === 'analytics'  && <AnalyticsPanel stats={stats} />}
             {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
             {activeSection === 'instructors'&& <AdminInstructorsPanel />}
-            {activeSection === 'settings'   && <AdminSettingsPanel />}
+            {activeSection === 'settings'   && <AdminSettingsPanel user={user} />}
             {!PANEL_MAP[activeSection] && (
               <div className="adm-panel"><p style={{color:'var(--text-soft)', padding:'2rem'}}>Panel '{activeSection}' — coming soon</p></div>
             )}

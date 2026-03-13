@@ -1,44 +1,14 @@
-import React, { useState } from 'react';
-import { COURSES, RESOURCES } from '../../data/legacyData';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabaseClient';
+import { COURSES as LEGACY_COURSES, RESOURCES as LEGACY_RESOURCES } from '../../data/legacyData';
 import Pagination from '../../components/ui/Pagination';
 import StatusModal from '../../components/ui/StatusModal';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 
 /* ───────────────────────── MOCK DATA ───────────────────────── */
+// (Keep for fallback if needed, but we'll try to use Supabase first)
 
-const MY_COURSES = COURSES.map((c, i) => ({
-  ...c,
-  instructor: c.instructor,
-  progress: [80, 60, 20, 70, 0, 15][i] ?? 0,
-  next: ['Apr 27, 2024', 'Apr 1, 2024', 'Apr 24, 2024', 'Mar 15, 2024', 'Enrol Now', 'May 3, 2024'][i] ?? '',
-  icon: ['ri-government-line', 'ri-bar-chart-fill', 'ri-bank-card-line', 'ri-scales-3-line', 'ri-input-method-line', 'ri-global-line'][i] ?? 'ri-book-fill',
-}));
-
-const TUTORIALS = [
-  { id: 1, title: 'Understanding the PEFA Framework', duration: '12 min', instructor: 'Dr. Fatima Al-Hassan', thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80', category: 'Finance' },
-  { id: 2, title: 'How Anti-Corruption Frameworks Work', duration: '18 min', instructor: 'Ms. Ngozi Adebayo', thumbnail: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80', category: 'Integrity' },
-  { id: 3, title: 'Introduction to Electoral Systems', duration: '15 min', instructor: 'Dr. Emeka Chibuike', thumbnail: 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=600&q=80', category: 'Democracy' },
-  { id: 4, title: 'Open Government & Civic Tech', duration: '20 min', instructor: 'Adaeze Eze, MSc', thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80', category: 'Digital' },
-  { id: 5, title: 'Budget Execution Best Practices', duration: '10 min', instructor: 'Dr. Amaka Okonkwo', thumbnail: 'https://images.unsplash.com/photo-1529539795054-3c162aab037a?auto=format&fit=crop&w=600&q=80', category: 'Finance' },
-  { id: 6, title: 'Participatory Governance Models', duration: '14 min', instructor: 'Prof. Chidi Nwachukwu', thumbnail: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80', category: 'Governance' },
-];
-
-const WORKSHOPS = [
-  { id: 1, title: 'PFM Reform in Practice', date: 'Mar 15, 2024', time: '10:00 AM WAT', status: 'Upcoming', host: 'World Bank Nigeria', attendees: 120, format: 'Virtual' },
-  { id: 2, title: 'Anti-Corruption Compliance Workshop', date: 'Mar 22, 2024', time: '2:00 PM WAT', status: 'Upcoming', host: 'Transparency International', attendees: 85, format: 'Hybrid' },
-  { id: 3, title: 'Open Government Hackathon', date: 'Apr 5, 2024', time: '9:00 AM WAT', status: 'Upcoming', host: 'OGP Nigeria', attendees: 200, format: 'In-person' },
-  { id: 4, title: 'Legislative Oversight Masterclass', date: 'Feb 20, 2024', time: '11:00 AM WAT', status: 'Completed', host: 'NDI', attendees: 64, format: 'Virtual' },
-  { id: 5, title: 'Fiscal Decentralisation Forum', date: 'Jan 18, 2024', time: '3:00 PM WAT', status: 'Completed', host: 'UN-Habitat', attendees: 150, format: 'In-person' },
-];
-
-const CERTIFICATIONS = [
-  { id: 1, title: 'Foundations of Public Governance', issueDate: 'Jan 15, 2024', credentialId: 'GRH-GOV-2024-001', grade: 'Distinction', status: 'Earned' },
-  { id: 2, title: 'Anti-Corruption & Integrity Systems', issueDate: 'Feb 28, 2024', credentialId: 'GRH-INT-2024-014', grade: 'Merit', status: 'Earned' },
-  { id: 3, title: 'Corporate Governance Essentials', issueDate: 'In Progress', credentialId: '—', grade: '—', status: 'In Progress' },
-];
-
-const MY_RESOURCES = RESOURCES.slice(0, 6);
 
 /* ───────────────────────── NAV GROUPS ───────────────────────── */
 
@@ -70,10 +40,13 @@ const NAV_GROUPS = [
    PANEL: HOME
    ═══════════════════════════════════════════════════════════════ */
 
-function HomePanel({ name, onNavigate }) {
+function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, certificates = [], workshops = [], registeredWorkshops = [] }) {
+  const enrolledCount = myCourses.length;
+  const certificatesCount = certificates.length;
+  const attendedWorkshopsCount = workshops.filter(w => w.status === 'Completed' && registeredWorkshops.includes(w.id)).length;
+
   return (
     <>
-      {/* Course progress table */}
       <section className="courses-progress-section">
         <div className="progress-card">
           <div className="section-header" style={{marginBottom: '1rem'}}>
@@ -85,11 +58,10 @@ function HomePanel({ name, onNavigate }) {
             <span>Instructor</span>
             <span>Progress</span>
             <span>Level</span>
-            <span>Next Assignment</span>
-            <span></span>
+            <span>Action</span>
           </div>
           <div className="table-body">
-            {MY_COURSES.slice(0, 3).map(course => (
+            {myCourses.slice(0, 3).map(course => (
               <div key={course.id} className="table-row">
                 <span className="course-name-cell">
                   <i className={course.icon}></i>
@@ -101,59 +73,59 @@ function HomePanel({ name, onNavigate }) {
                   <span>{course.progress}%</span>
                 </div>
                 <span><span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span></span>
-                <span>{course.next}</span>
-                <button className="row-action" onClick={() => onNavigate('learn-player')}><i className="ri-play-circle-fill"></i></button>
+                <button className="row-action" onClick={() => onNavigate('learn-player', { course })}><i className="ri-play-circle-fill"></i></button>
               </div>
             ))}
+            {myCourses.length === 0 && <div style={{padding: '20px', textAlign: 'center', color: 'var(--text-soft)'}}>No courses started yet.</div>}
           </div>
         </div>
 
         <div className="stats-sidebar">
           <div className="stat-box">
             <div className="stat-icon blue"><i className="ri-book-open-fill"></i></div>
-            <div><strong>{MY_COURSES.length} Courses</strong><span>Enrolled</span></div>
+            <div><strong>{enrolledCount} Courses</strong><span>Enrolled</span></div>
           </div>
           <div className="stat-box">
             <div className="stat-icon green"><i className="ri-clipboard-fill"></i></div>
-            <div><strong>56 Lessons</strong><span>Completed</span></div>
+            <div><strong>{completedLessons} Lessons</strong><span>Completed</span></div>
           </div>
           <div className="stat-box">
             <div className="stat-icon orange"><i className="ri-star-fill"></i></div>
-            <div><strong>{CERTIFICATIONS.filter(c => c.status === 'Earned').length} Certificates</strong><span>Earned</span></div>
+            <div><strong>{certificatesCount} Certificates</strong><span>Earned</span></div>
           </div>
           <div className="stat-box">
             <div className="stat-icon red"><i className="ri-team-fill"></i></div>
-            <div><strong>{WORKSHOPS.filter(w => w.status === 'Completed').length} Workshops</strong><span>Attended</span></div>
+            <div><strong>{attendedWorkshopsCount} Workshops</strong><span>Attended</span></div>
           </div>
         </div>
       </section>
 
-      {/* Recommended courses */}
       <section className="recommended-section">
         <div className="section-header">
           <h3>Recommended Courses</h3>
           <button className="view-all" onClick={() => onNavigate('learn')}>Browse All</button>
         </div>
         <div className="recommended-grid">
-          {COURSES.filter(c => c.progress === 0).slice(0, 3).map(course => (
+          {myCourses.filter(c => c.progress === 0).slice(0, 3).map(course => (
             <div key={course.id} className="rec-card">
               <div className="rec-thumb" style={{ backgroundImage: `url(${course.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <span className="rec-price">Free</span>
               </div>
               <div className="rec-body">
                 <h4 className="truncate-1">{course.title}</h4>
-                <p className="truncate-2">{course.description.substring(0, 80)}…</p>
+                <p className="truncate-2">{course.description?.[0] === '{' ? 'Course details...' : course.description?.substring(0, 80)}…</p>
                 <div className="rec-meta">
                   <span className="badge">{course.level}</span>
                   <span className="badge">{course.duration}</span>
                   <span className="badge">{course.lessons} Lessons</span>
                 </div>
-                <button className="special-button enroll-btn" onClick={() => onNavigate('learn-player')}>
+                <button className="special-button enroll-btn" onClick={() => onNavigate('learn-player', { course })}>
                   Enroll Now
                 </button>
               </div>
             </div>
           ))}
+          {myCourses.filter(c => c.progress === 0).length === 0 && <div style={{gridColumn: '1/-1', textAlign: 'center', padding: '20px', color: 'var(--text-soft)'}}>Browse all courses to find your next lesson.</div>}
         </div>
       </section>
     </>
@@ -164,19 +136,19 @@ function HomePanel({ name, onNavigate }) {
    PANEL: COURSES
    ═══════════════════════════════════════════════════════════════ */
 
-function CoursesPanel({ onNavigate }) {
+function CoursesPanel({ onNavigate, myCourses = [] }) {
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   const filtered = (filter === 'all'
-    ? MY_COURSES
+    ? myCourses
     : filter === 'completed'
-      ? MY_COURSES.filter(c => c.progress === 100)
+      ? myCourses.filter(c => c.progress === 100)
       : filter === 'in-progress'
-        ? MY_COURSES.filter(c => c.progress > 0 && c.progress < 100)
-        : MY_COURSES.filter(c => c.progress === 0)
+        ? myCourses.filter(c => c.progress > 0 && c.progress < 100)
+        : myCourses.filter(c => c.progress === 0)
   ).filter(c => 
     c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -214,7 +186,7 @@ function CoursesPanel({ onNavigate }) {
       </div>
       <div className="std-course-grid">
         {pagedItems.map(course => (
-          <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player')}>
+          <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player', { course })}>
             <div className="std-course-thumb">
               <img src={course.coverImage} alt={course.title} className="std-course-cover-img" />
               <span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span>
@@ -234,6 +206,7 @@ function CoursesPanel({ onNavigate }) {
             </div>
           </div>
         ))}
+        {filtered.length === 0 && <div style={{gridColumn:'1/-1', textAlign:'center', padding:'40px', color:'var(--text-soft)'}}>No courses found matching your criteria.</div>}
       </div>
       <Pagination 
         currentPage={currentPage}
@@ -395,14 +368,14 @@ function WorkshopRegistrationModal({ workshop, onClose, onConfirm }) {
 /* ═══════════════════════════════════════════════════════════════
    PANEL: WORKSHOP
    ═══════════════════════════════════════════════════════════════ */
-function WorkshopPanel({ onRegister, registeredIds = [] }) {
+function WorkshopPanel({ onRegister, registeredIds = [], workshops = [] }) {
   const [tab, setTab] = useState('upcoming');
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filtered = WORKSHOPS.filter(w =>
+  const filtered = workshops.filter(w =>
     (tab === 'upcoming' ? w.status === 'Upcoming' : w.status === 'Completed') &&
     (w.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     w.host.toLowerCase().includes(searchTerm.toLowerCase()))
+     (w.host || "").toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -549,36 +522,35 @@ function ResourcesPanel({ onNavigate }) {
    PANEL: CERTIFICATIONS
    ═══════════════════════════════════════════════════════════════ */
 
-function CertificationsPanel() {
+function CertificationsPanel({ certificates = [], allCoursesCount = 0 }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filtered = CERTIFICATIONS.filter(c => 
+  const filtered = certificates.filter(c => 
     c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.credentialId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <section className="std-panel">
-      {/* Achievement summary */}
       <div className="std-cert-summary">
         <div className="std-cert-stat">
           <div className="std-cert-icon green"><i className="ri-medal-line"></i></div>
           <div className="std-cert-content">
-            <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'Earned').length}</div>
+            <div className="std-cert-stat-num">{certificates.filter(c => c.status === 'Earned').length}</div>
             <div className="std-cert-stat-label">Earned</div>
           </div>
         </div>
         <div className="std-cert-stat">
           <div className="std-cert-icon orange"><i className="ri-time-line"></i></div>
           <div className="std-cert-content">
-            <div className="std-cert-stat-num">{CERTIFICATIONS.filter(c => c.status === 'In Progress').length}</div>
+            <div className="std-cert-stat-num">{certificates.filter(c => c.status === 'In Progress').length}</div>
             <div className="std-cert-stat-label">In Progress</div>
           </div>
         </div>
         <div className="std-cert-stat">
           <div className="std-cert-icon blue"><i className="ri-book-read-line"></i></div>
           <div className="std-cert-content">
-            <div className="std-cert-stat-num">{COURSES.length - CERTIFICATIONS.length}</div>
+            <div className="std-cert-stat-num">{allCoursesCount - certificates.length}</div>
             <div className="std-cert-stat-label">Available</div>
           </div>
         </div>
@@ -635,6 +607,7 @@ function CertificationsPanel() {
             </div>
           </div>
         ))}
+        {filtered.length === 0 && <div style={{textAlign:'center', padding:'40px', color:'var(--text-soft)'}}>No certifications found.</div>}
       </div>
     </section>
   );
@@ -645,17 +618,62 @@ function CertificationsPanel() {
    PANEL: SETTINGS
    ═══════════════════════════════════════════════════════════════ */
 
-function SettingsPanel({ user }) {
-  const [name, setName] = useState(user?.name || "Alex");
+function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setProfileAvatar, fetchData }) {
   const [email, setEmail] = useState(user?.email || "alex@example.com");
-  const [avatar, setAvatar] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setAvatar(reader.result);
-      reader.readAsDataURL(file);
+    if (!file || !user) return;
+    
+    try {
+      setSaving(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfileAvatar(publicUrl);
+      alert("Avatar updated!");
+    } catch (err) {
+      alert("Error uploading avatar: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    try {
+      setSaving(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name: profileName })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      alert("Profile updated!");
+      if (fetchData) fetchData();
+    } catch (err) {
+      alert("Error saving profile: " + err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -669,12 +687,12 @@ function SettingsPanel({ user }) {
           <h4>Profile Information</h4>
           <div className="avatar-upload-area">
             <div className="current-avatar">
-              {avatar ? <img src={avatar} alt="Avatar" /> : (user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" /> : <div className="avatar-placeholder">{name[0].toUpperCase()}</div>)}
+              {profileAvatar ? <img src={profileAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} /> : <div className="avatar-placeholder">{profileName[0]?.toUpperCase() || 'A'}</div>}
             </div>
             <div className="upload-controls">
               <label className="special-button btn-sm" style={{ cursor: 'pointer' }}>
-                Change Avatar
-                <input type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+                {saving ? "Processing..." : "Change Avatar"}
+                <input type="file" accept="image/*" hidden onChange={handleAvatarChange} disabled={saving} />
               </label>
               <p className="upload-hint">JPG, PNG or GIF. Max 2MB.</p>
             </div>
@@ -682,11 +700,11 @@ function SettingsPanel({ user }) {
           <div className="settings-grid">
             <div className="input-field">
               <label>Full Name</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} />
+              <input type="text" value={profileName} onChange={e => setProfileName(e.target.value)} disabled={saving} />
             </div>
             <div className="input-field">
               <label>Email Address</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+              <input type="email" value={email} disabled />
             </div>
             <div className="input-field">
               <label>Role</label>
@@ -701,7 +719,9 @@ function SettingsPanel({ user }) {
         </div>
 
         <div className="settings-actions">
-          <button className="special-button">Save Changes</button>
+          <button className="special-button" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
         </div>
       </div>
     </section>
@@ -715,7 +735,8 @@ function SettingsPanel({ user }) {
 const StudentDashboard = ({ user, onNavigate, onLogout }) => {
   const [activeTab, setActiveTab] = useState("Home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const name = user?.name || "Alex";
+  const [profileName, setProfileName] = useState(user?.name || user?.email?.split('@')[0] || "Alex");
+  const [profileAvatar, setProfileAvatar] = useState(user?.avatar_url || null);
 
   // Status & Registration Modal States
   const [statusModal, setStatusModal] = useState({ 
@@ -745,34 +766,48 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
     setRegModal({ isOpen: true, workshop });
   };
 
-  const submitRegistration = (formData) => {
-    console.log('Registration submitted:', formData);
-    const workshopId = regModal.workshop?.id;
-    setRegModal({ isOpen: false, workshop: null });
-    
-    if (workshopId) {
-      setRegisteredWorkshops(prev => [...prev, workshopId]);
-    }
+  const submitRegistration = async (formData) => {
+    if (!user) return;
+    try {
+      const workshopId = regModal.workshop?.id;
+      const { error } = await supabase.from('workshop_registrations').insert([{
+        workshop_id: workshopId,
+        user_id: user.id,
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        reason: formData.reason
+      }]);
 
-    setStatusModal({
-      isOpen: true,
-      type: 'success',
-      title: 'Registration Successful',
-      message: `You have successfully registered for "${regModal.workshop?.title}". We've sent the details to your email.`,
-      onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
-    });
+      if (error) throw error;
+
+      setRegModal({ isOpen: false, workshop: null });
+      setRegisteredWorkshops(prev => [...prev, workshopId]);
+
+      setStatusModal({
+        isOpen: true,
+        type: 'success',
+        title: 'Registration Successful',
+        message: `You have successfully registered for "${regModal.workshop?.title}". We've sent the details to your email.`,
+        onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
+      });
+    } catch (err) {
+      alert("Registration failed: " + err.message);
+    }
   };
 
   const renderPanel = () => {
+    if (loading) return <div className="std-panel" style={{display:'flex', alignItems:'center', justifyContent:'center', minHeight:'400px'}}>Loading dashboard...</div>;
+
     switch (activeTab) {
-      case 'Home':           return <HomePanel name={name} onNavigate={onNavigate} />;
-      case 'Courses':        return <CoursesPanel onNavigate={onNavigate} />;
+      case 'Home':           return <HomePanel name={profileName} onNavigate={onNavigate} myCourses={myCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
+      case 'Courses':        return <CoursesPanel onNavigate={onNavigate} myCourses={myCourses} />;
       case 'Tutorials':      return <TutorialsPanel onNavigate={onNavigate} />;
-      case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} />;
+      case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} workshops={workshops} />;
       case 'Resources':      return <ResourcesPanel onNavigate={onNavigate} />;
-      case 'Certifications': return <CertificationsPanel />;
-      case 'Settings':       return <SettingsPanel user={user} />;
-      default:               return <HomePanel name={name} onNavigate={onNavigate} />;
+      case 'Certifications': return <CertificationsPanel certificates={certificates} allCoursesCount={myCourses.length} />;
+      case 'Settings':       return <SettingsPanel user={user} profileName={profileName} setProfileName={setProfileName} profileAvatar={profileAvatar} setProfileAvatar={setProfileAvatar} fetchData={fetchData} />;
+      default:               return <HomePanel name={profileName} onNavigate={onNavigate} myCourses={myCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
     }
   };
 
@@ -840,7 +875,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
             <div className="topbar-welcome">
               <span role="img" aria-label="wave">👋</span>
               <div>
-                <h3>Welcome back, {name}!</h3>
+                <h3>Welcome back, {profileName}!</h3>
                 <p>Continue your governance learning journey.</p>
               </div>
             </div>
@@ -849,9 +884,13 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
             <div className="topbar-actions">
               <button className="action-btn"><i className="ri-notification-fill"></i></button>
               <div className="user-profile">
-                <div className="user-avatar">{name[0].toUpperCase()}</div>
+                {profileAvatar ? (
+                  <img src={profileAvatar} alt="Avatar" className="user-avatar" style={{ objectFit: 'cover' }} />
+                ) : (
+                  <div className="user-avatar">{profileName[0]?.toUpperCase() || 'A'}</div>
+                )}
                 <div className="user-info">
-                  <strong>{name}</strong>
+                  <strong>{profileName}</strong>
                   <span>Governance Learner</span>
                 </div>
               </div>

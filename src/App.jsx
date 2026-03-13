@@ -68,32 +68,37 @@ function App() {
       try {
         const { supabase } = await import('./lib/supabaseClient');
         
-        // Check initial session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          const userData = {
+        const fetchProfile = async (session) => {
+          if (!session) return null;
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+          
+          return {
             email: session.user.email,
             id: session.user.id,
-            isAdmin: session.user.email?.toLowerCase().includes('admin') || session.user.app_metadata?.role === 'admin'
+            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
+            isAdmin: (profile?.role === 'Admin') || session.user.email?.toLowerCase().includes('admin')
           };
+        };
+
+        // Check initial session
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (initialSession) {
+          const userData = await fetchProfile(initialSession);
           setUser(userData);
-          
           if (['login', 'signup'].includes(currentPage)) {
             handleLogin(userData);
           }
         }
 
         // Listen for changes
-        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
           if (session) {
-            const userData = {
-              email: session.user.email,
-              id: session.user.id,
-              isAdmin: session.user.email?.toLowerCase().includes('admin') || session.user.app_metadata?.role === 'admin'
-            };
+            const userData = await fetchProfile(session);
             setUser(userData);
-            
-            // If user just signed in via OAuth (and we're on an auth page), redirect them
             if (['login', 'signup'].includes(currentPage)) {
               handleLogin(userData);
             }
@@ -138,9 +143,10 @@ function App() {
   };
 
   const navigate = (page) => {
+    const targetPage = typeof page === 'string' ? page : page.page;
     // Auth gate for protected pages
-    if (PROTECTED_PAGES.includes(page) && !user) {
-      localStorage.setItem('returnPage', page);
+    if (PROTECTED_PAGES.includes(targetPage) && !user) {
+      localStorage.setItem('returnPage', targetPage);
       setCurrentPage('login');
       const base = import.meta.env.BASE_URL || '/';
       window.history.pushState({}, '', `${base}login`);
@@ -148,14 +154,16 @@ function App() {
       return;
     }
 
-    setCurrentPage(page);
-    localStorage.setItem('currentPage', page);
+    setCurrentPage(targetPage);
+    localStorage.setItem('currentPage', targetPage);
     
     // Update browser URL without reload
     const base = import.meta.env.BASE_URL || '/';
-    const cleanPage = page === 'welcome' ? '' : page;
+    const cleanPage = typeof page === 'string' ? (page === 'welcome' ? '' : page) : (page.page === 'welcome' ? '' : page.page);
     const fullPath = `${base}${cleanPage}`.replace(/\/+$/, '') || '/';
-    window.history.pushState({}, '', fullPath);
+    
+    const navTarget = typeof page === 'string' ? page : page.page;
+    window.history.pushState({ usr: typeof page === 'object' ? page : null }, '', fullPath);
     window.scrollTo(0, 0);
   };
 
@@ -215,7 +223,7 @@ function App() {
         {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
         {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} />}
         {currentPage === 'admin' && !user?.isAdmin && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
-        {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} />}
+        {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} user={user} course={history.state?.usr?.course} />}
         {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
         {currentPage === 'admin-login' && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
