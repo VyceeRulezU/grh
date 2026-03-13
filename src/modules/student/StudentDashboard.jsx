@@ -10,7 +10,13 @@ import mainLogo from '../../assets/images/Logo/Main logo.png';
 // (Keep for fallback if needed, but we'll try to use Supabase first)
 
 
-/* ───────────────────────── NAV GROUPS ───────────────────────── */
+const TUTORIALS = [
+  { id: 1, title: 'Introduction to Governance', category: 'Basics', instructor: 'Dr. Amaka Okonkwo', duration: '15:20', thumbnail: '🏛️' },
+  { id: 2, title: 'Corporate Ethics 101', category: 'Corporate', instructor: 'Prof. Chidi Nwachukwu', duration: '22:45', thumbnail: '📊' },
+  { id: 3, title: 'Public Finance Overview', category: 'Finance', instructor: 'Dr. Fatima Al-Hassan', duration: '18:10', thumbnail: '💰' },
+];
+
+const MY_RESOURCES = LEGACY_RESOURCES;
 
 const NAV_GROUPS = [
   {
@@ -618,9 +624,13 @@ function CertificationsPanel({ certificates = [], allCoursesCount = 0 }) {
    PANEL: SETTINGS
    ═══════════════════════════════════════════════════════════════ */
 
-function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setProfileAvatar, fetchData }) {
+function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setProfileAvatar, fetchData, setStatusModal }) {
   const [email, setEmail] = useState(user?.email || "alex@example.com");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    console.log("[GRH DEBUG] SettingsPanel User:", user);
+  }, [user]);
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -634,13 +644,21 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, { 
+          cacheControl: '3600',
+          upsert: true 
+        });
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
+
+      if (!user?.id || user.id === 'undefined') {
+        console.error("[GRH ERROR] Missing User ID during avatar upload:", user);
+        throw new Error("Valid User ID is required for profile update. Current ID: " + (user?.id || 'null'));
+      }
 
       const { error: updateError } = await supabase
         .from('profiles')
@@ -659,7 +677,10 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user?.id || user.id === 'undefined') {
+      setStatusModal({ isOpen: true, type: 'error', title: 'Save Failed', message: 'You must be logged in with a valid account to save changes.', onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
+      return;
+    }
     try {
       setSaving(true);
       const { error } = await supabase
@@ -738,6 +759,12 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
   const [profileName, setProfileName] = useState(user?.name || user?.email?.split('@')[0] || "Alex");
   const [profileAvatar, setProfileAvatar] = useState(user?.avatar_url || null);
 
+  useEffect(() => {
+    if (user?.name) setProfileName(user.name);
+    if (user?.avatar_url) setProfileAvatar(user.avatar_url);
+    if (user) console.log("[GRH DEBUG] StudentDashboard user sync:", user);
+  }, [user]);
+
   // Status & Registration Modal States
   const [statusModal, setStatusModal] = useState({ 
     isOpen: false, 
@@ -748,6 +775,67 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
   });
   const [regModal, setRegModal] = useState({ isOpen: false, workshop: null });
   const [registeredWorkshops, setRegisteredWorkshops] = useState([]);
+  const [myCourses, setMyCourses] = useState([]);
+  const [workshops, setWorkshops] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [completedLessons, setCompletedLessons] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      
+      // Fetch user's profile to sync name/avatar
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (profile) {
+        setProfileName(profile.name || user.email?.split('@')[0]);
+        setProfileAvatar(profile.avatar_url);
+      }
+
+      // Fetch all courses
+      const { data: coursesData } = await supabase
+        .from('courses')
+        .select('*');
+      
+      // Mock progress for now - in a real app, join with user_progress
+      const coursesWithProgress = (coursesData || []).map(c => ({
+        ...c,
+        progress: Math.floor(Math.random() * 101) // mock
+      }));
+
+      // Fetch workshops
+      const { data: workshopsData } = await supabase
+        .from('workshops')
+        .select('*');
+
+      setMyCourses(coursesWithProgress);
+      setWorkshops(workshopsData || []);
+      
+      // Mock certificates
+      setCertificates([
+        { id: 1, title: 'Governance Fundamentals', issueDate: 'Oct 2023', credentialId: 'GRH-123456', grade: 'A', status: 'Earned' }
+      ]);
+      setCompletedLessons(12);
+
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [user]);
 
   const confirmLogout = () => {
     setStatusModal({
@@ -806,7 +894,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout }) => {
       case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} workshops={workshops} />;
       case 'Resources':      return <ResourcesPanel onNavigate={onNavigate} />;
       case 'Certifications': return <CertificationsPanel certificates={certificates} allCoursesCount={myCourses.length} />;
-      case 'Settings':       return <SettingsPanel user={user} profileName={profileName} setProfileName={setProfileName} profileAvatar={profileAvatar} setProfileAvatar={setProfileAvatar} fetchData={fetchData} />;
+      case 'Settings':       return <SettingsPanel user={user} profileName={profileName} setProfileName={setProfileName} profileAvatar={profileAvatar} setProfileAvatar={setProfileAvatar} fetchData={fetchData} setStatusModal={setStatusModal} />;
       default:               return <HomePanel name={profileName} onNavigate={onNavigate} myCourses={myCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
     }
   };

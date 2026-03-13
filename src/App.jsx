@@ -29,7 +29,8 @@ function App() {
     // Dynamically handle base path (e.g., /grh/ or /)
     const base = import.meta.env.BASE_URL || '/';
     const path = window.location.pathname.replace(base, '').replace(/^\//, '');
-    return path || localStorage.getItem('currentPage') || 'welcome';
+    const normalizedPath = path === 'admin-dashboard' ? 'admin' : path;
+    return normalizedPath || localStorage.getItem('currentPage') || 'welcome';
   };
 
   const [currentPage, setCurrentPage] = useState(getPageFromUrl);
@@ -70,18 +71,21 @@ function App() {
         
         const fetchProfile = async (session) => {
           if (!session) return null;
+          console.log("[GRH DEBUG] Internal fetchProfile Session UserID:", session.user.id);
           const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', session.user.id)
             .single();
           
-          return {
+          const result = {
             email: session.user.email,
             id: session.user.id,
             name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
             isAdmin: (profile?.role === 'Admin') || session.user.email?.toLowerCase().includes('admin')
           };
+          console.log("[GRH DEBUG] fetchProfile result:", result);
+          return result;
         };
 
         // Check initial session
@@ -122,6 +126,7 @@ function App() {
   // Enforce authentication for protected pages on change/load
   useEffect(() => {
     if (PROTECTED_PAGES.includes(currentPage) && !user) {
+      console.log("[GRH DEBUG] Auth Gate triggered for:", currentPage, "User:", user);
       localStorage.setItem('returnPage', currentPage);
       setCurrentPage('login');
       const base = import.meta.env.BASE_URL || '/';

@@ -12,12 +12,25 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
   const [password, setPassword] = useState('');
   const { modal, closeModal, showError } = useModal();
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate login
-    const handled = onLogin({ email: email || 'user@example.com', isAdmin });
-    if (!handled) {
-      onNavigate(isAdmin ? 'admin' : 'welcome');
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      
+      // onLogin will be called automatically by the listener in App.jsx
+      // which detects the session change.
+    } catch (err) {
+      showError('Login Failed', err.message);
+    } finally {
+      setLoading(false);
     }
   };
 

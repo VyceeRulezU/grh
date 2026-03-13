@@ -946,40 +946,70 @@ function AdminSettingsPanel({ user }) {
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file && user?.id) {
-       setLoading(true);
-       try {
-         const fileExt = file.name.split('.').pop();
-         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-         const filePath = `${fileName}`;
+    if (!file) return;
+    
+    if (!user?.id || user.id === 'undefined') {
+      showError('Upload Failed', 'A valid administrator ID is required to update the avatar.');
+      return;
+    }
 
-         // 1. Upload to storage
-         const { error: uploadError } = await supabase.storage
-           .from('avatars')
-           .upload(filePath, file, { upsert: true });
-         
-         if (uploadError) throw uploadError;
+    setLoading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-         // 2. Get public URL
-         const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(filePath);
+      // 1. Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { 
+          cacheControl: '3600',
+          upsert: true 
+        });
+      
+      if (uploadError) throw uploadError;
 
-         // 3. Update profile
-         const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ avatar_url: publicUrl })
-            .eq('id', user.id);
+      // 2. Get public URL
+      const { data: { publicUrl } } = supabase.storage
+         .from('avatars')
+         .getPublicUrl(filePath);
 
-         if (updateError) throw updateError;
-         
-         setAvatar(publicUrl);
-         showSuccess('Avatar Updated', 'Avatar updated successfully! Refresh the page to see changes in the top bar.');
-       } catch (err) {
-         showError('Upload Failed', `Failed to upload avatar: ${err.message}`);
-       } finally {
-         setLoading(false);
-       }
+      // 3. Update profile
+      const { error: updateError } = await supabase
+         .from('profiles')
+         .update({ avatar_url: publicUrl })
+         .eq('id', user.id);
+
+      if (updateError) throw updateError;
+      
+      setAvatar(publicUrl);
+      showSuccess('Avatar Updated', 'Avatar updated successfully! The sidebar logo will sync on next reload.');
+    } catch (err) {
+      showError('Upload Failed', `Failed to upload avatar: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user?.id || user.id === 'undefined') {
+      showError('Save Failed', 'A valid administrator ID is required to save changes.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name: name })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      showSuccess('Profile Updated', 'Administrator profile details saved successfully.');
+    } catch (err) {
+      showError('Save Failed', `Failed to save changes: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -1006,11 +1036,11 @@ function AdminSettingsPanel({ user }) {
           <div className="adm-form-row">
             <div className="adm-form-group">
               <label>Full Name</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} disabled />
+              <input type="text" value={name} onChange={e => setName(e.target.value)} disabled={loading} />
             </div>
             <div className="adm-form-group">
               <label>Email Address</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} disabled />
+              <input type="email" value={email} disabled />
             </div>
           </div>
         </section>
@@ -1030,7 +1060,9 @@ function AdminSettingsPanel({ user }) {
         </section>
         
         <div className="adm-form-actions">
-          <button className="special-button">Save Configuration</button>
+          <button className="special-button" onClick={handleSave} disabled={loading}>
+            {loading ? 'Saving...' : 'Save Configuration'}
+          </button>
         </div>
       </div>
       <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
