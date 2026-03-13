@@ -10,7 +10,13 @@ const TAB_CONTENT = {
   Overview: (lesson) => (
     <div className="tab-panel">
       <h2>{lesson.title}</h2>
-      <p>{lesson.description || "In this lesson, we explore the core principles of governance and policy frameworks. We will examine case studies and discuss structural reforms relevant to this module."}</p>
+      <div className="module-description-rich">
+        {lesson.description ? (
+          <p style={{ whiteSpace: 'pre-wrap' }}>{lesson.description}</p>
+        ) : (
+          <p>In this lesson, we explore the core principles of governance and policy frameworks. We will examine case studies and discuss structural reforms relevant to this module.</p>
+        )}
+      </div>
       <div className="instructor-card-sm glass">
         <div className="inst-avatar"><i className="ri-user-star-line"></i></div>
         <div>
@@ -100,14 +106,14 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // Fetch Modules
-        const { data: mods, error: modsErr } = await supabase
-          .from('modules')
-          .select('*')
+        // Fetch Chapters with Modules
+        const { data: chaps, error: chapErr } = await supabase
+          .from('chapters')
+          .select('*, modules(*)')
           .eq('course_id', course.id)
           .order('sequence_order', { ascending: true });
         
-        if (modsErr) throw modsErr;
+        if (chapErr) throw chapErr;
 
         // Fetch User Progress
         const { data: prog, error: progErr } = await supabase
@@ -122,15 +128,21 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         prog.forEach(p => progMap[p.module_id] = p);
         setProgress(progMap);
 
-        const mappedLessons = mods.map(m => ({
-          ...m,
-          completed: progMap[m.id]?.completed || false,
-          watched_seconds: progMap[m.id]?.watched_seconds || 0,
-          type: 'video' // Default
+        const mappedChapters = chaps.map(chap => ({
+          ...chap,
+          modules: chap.modules?.sort((a,b) => a.sequence_order - b.sequence_order).map(m => ({
+            ...m,
+            completed: progMap[m.id]?.completed || false,
+            watched_seconds: progMap[m.id]?.watched_seconds || 0,
+            type: 'video'
+          })) || []
         }));
 
-        setLessons(mappedLessons);
-        setActiveLesson(mappedLessons[0]);
+        setLessons(mappedChapters); // lessons now holds chapters for accordion
+        // Default active lesson = first module of first chapter
+        if (mappedChapters.length > 0 && mappedChapters[0].modules.length > 0) {
+          setActiveLesson(mappedChapters[0].modules[0]);
+        }
       } catch (err) {
         console.error("CoursePlayer loading error:", err);
       } finally {
@@ -321,15 +333,49 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
     </div>;
   }
 
-  const videoId = getYouTubeVideoId(activeLesson.video_url);
-  const totalCompleted = lessons.filter(l => l.completed).length;
-  const progressPercent = Math.round((totalCompleted / lessons.length) * 100);
+  const videoId = getYouTubeVideoId(activeLesson?.video_url);
+  
+  // Flatten modules for stats
+  const allModules = lessons.flatMap(c => c.modules || []);
+  const totalCompleted = allModules.filter(m => m.completed).length;
+  const progressPercent = allModules.length > 0 ? Math.round((totalCompleted / allModules.length) * 100) : 0;
 
   // Lock logic: next video is locked if current is not complete
-  const isLessonLocked = (index) => {
-    if (index === 0) return false;
-    return !lessons[index - 1].completed;
+  const isModuleLocked = (chapterIndex, moduleIndex) => {
+    // First module of first chapter is never locked
+    if (chapterIndex === 0 && moduleIndex === 0) return false;
+    
+    // If it's not the first module in the chapter, check previous module in the same chapter
+    if (moduleIndex > 0) {
+      return !lessons[chapterIndex].modules[moduleIndex - 1].completed;
+    }
+    
+    // If it's the first module in a chapter (but not the first chapter), check the last module of the previous chapter
+    if (chapterIndex > 0) {
+      const prevChapterModules = lessons[chapterIndex - 1].modules;
+      if (prevChapterModules && prevChapterModules.length > 0) {
+        return !prevChapterModules[prevChapterModules.length - 1].completed;
+      }
+    }
+    
+    return false;
   };
+
+  const [expandedChapters, setExpandedChapters] = useState({});
+
+  const toggleChapter = (id) => {
+    setExpandedChapters(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // Auto-expand active chapter
+  useEffect(() => {
+    if (activeLesson) {
+      const activeChap = lessons.find(c => c.modules?.some(m => m.id === activeLesson.id));
+      if (activeChap && !expandedChapters[activeChap.id]) {
+        setExpandedChapters(prev => ({ ...prev, [activeChap.id]: true }));
+      }
+    }
+  }, [activeLesson, lessons]);
 
   return (
     <>
@@ -422,8 +468,8 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           <div className="sidebar-header">
             <h3>Course Content</h3>
             <div className="course-progress-mini">
-              <div className="mini-prog-bar"><div className="mini-prog-fill" style={{width: `${Math.round((lessons.filter(l => l.completed).length / lessons.length) * 100 || 0)}%`}}></div></div>
-              <span>{lessons.filter(l => l.completed).length}/{lessons.length} Lessons</span>
+              <div className="mini-prog-bar"><div className="mini-prog-fill" style={{width: `${progressPercent}%`}}></div></div>
+              <span>{totalCompleted}/{allModules.length} Lessons</span>
             </div>
             
             {isCourseComplete && (
@@ -437,26 +483,41 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
             )}
           </div>
           
-          <div className="lesson-list">
-            {lessons.map((lesson, i) => {
-              const locked = isLessonLocked(i);
-              return (
-                <div
-                  key={lesson.id}
-                  className={`lesson-item ${activeLesson.id === lesson.id ? 'active' : ''} ${lesson.completed ? 'completed' : ''} ${locked ? 'locked' : ''}`}
-                  onClick={() => !locked && setActiveLesson(lesson)}
-                >
-                  <div className="lesson-status">
-                    {locked ? <i className="ri-lock-fill"></i> : lesson.completed ? <i className="ri-checkbox-circle-fill"></i> : <i className="ri-play-line"></i>}
-                  </div>
-                  <div className="lesson-text" style={{ opacity: lesson.completed ? 0.6 : 1, fontWeight: lesson.completed ? 400 : 600 }}>
-                    <span className="lesson-label">Lesson {i + 1}</span>
-                    <p className="lesson-title">{lesson.title}</p>
-                    <span className="lesson-meta">{lesson.duration || 'Video'}</span>
-                  </div>
+          <div className="lesson-list chapters-accordion">
+            {lessons.map((chapter, ci) => (
+              <div key={chapter.id} className={`chapter-group ${expandedChapters[chapter.id] ? 'expanded' : ''}`}>
+                <div className="chapter-header" onClick={() => toggleChapter(chapter.id)}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <i className={expandedChapters[chapter.id] ? 'ri-arrow-down-s-line' : 'ri-arrow-right-s-line'}></i>
+                     <strong>{chapter.title}</strong>
+                   </div>
+                   <span className="chapter-meta">{chapter.modules?.length || 0} Lessons</span>
                 </div>
-              );
-            })}
+                
+                {expandedChapters[chapter.id] && (
+                  <div className="chapter-modules-list anim-fade-in">
+                    {chapter.modules?.map((mod, mi) => {
+                      const locked = isModuleLocked(ci, mi);
+                      return (
+                        <div
+                          key={mod.id}
+                          className={`lesson-item ${activeLesson.id === mod.id ? 'active' : ''} ${mod.completed ? 'completed' : ''} ${locked ? 'locked' : ''}`}
+                          onClick={() => !locked && setActiveLesson(mod)}
+                        >
+                          <div className="lesson-status">
+                            {locked ? <i className="ri-lock-fill"></i> : mod.completed ? <i className="ri-checkbox-circle-fill"></i> : <i className="ri-play-line"></i>}
+                          </div>
+                          <div className="lesson-text" style={{ opacity: mod.completed ? 0.6 : 1, fontWeight: mod.completed ? 400 : 600 }}>
+                            <p className="lesson-title">{mod.title}</p>
+                            <span className="lesson-meta">{mod.duration || 'Video'}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>

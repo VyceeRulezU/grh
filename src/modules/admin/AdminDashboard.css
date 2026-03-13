@@ -641,6 +641,12 @@
 /* ===== MODULES SECTION ===== */
 .adm-modules-section { display: flex; flex-direction: column; gap: 0.75rem; }
 
+.adm-chapters-section { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0.75rem; 
+}
+
 .adm-section-subtitle {
   display: flex;
   align-items: center;

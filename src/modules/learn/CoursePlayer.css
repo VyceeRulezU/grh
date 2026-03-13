@@ -418,3 +418,71 @@
   .lesson-tabs { gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
   .lesson-tabs::-webkit-scrollbar { display: none; }
 }
+
+/* Chapters Accordion */
+.chapters-accordion {
+  padding: 0;
+}
+
+.chapter-group {
+  border-bottom: 1px solid var(--border);
+}
+
+.chapter-header {
+  padding: 16px 24px;
+  background: var(--bg-weak);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.chapter-header:hover {
+  background: rgba(77, 167, 113, 0.05);
+}
+
+.chapter-header strong {
+  font-size: 14px;
+  color: var(--secondary);
+}
+
+.chapter-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.chapter-modules-list {
+  background: white;
+}
+
+.chapter-group.expanded .chapter-header {
+  border-bottom: 1px solid var(--border);
+  background: rgba(77, 167, 113, 0.08);
+}
+
+.chapter-modules-list .lesson-item {
+  padding-left: 48px;
+}
+
+/* Module Description Rich Text */
+.module-description-rich {
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+.module-description-rich p {
+  color: var(--text-secondary) !important;
+}
+
+.anim-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

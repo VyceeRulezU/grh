@@ -115,21 +115,48 @@ function CourseModal({ onClose, onSave, initial }) {
   const [form, setForm] = useState(initial || {
     title: '', category: 'Governance', instructor: '', level: 'Beginner',
     price: '', description: '',
-    modules: [{ title: '', videoLink: 'https://youtu.be/svYm5KomARg' }],
+    chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: 'https://youtu.be/svYm5KomARg', description: '' }] }],
   });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-  const addModule = () => setForm(f => ({ ...f, modules: [...f.modules, { title: '', videoLink: 'https://youtu.be/svYm5KomARg' }] }));
-  const updateMod = (i, k, v) => {
-    const m = [...form.modules];
-    m[i] = { ...m[i], [k]: v };
-    setForm(f => ({ ...f, modules: m }));
+  
+  const addChapter = () => setForm(f => ({ 
+    ...f, 
+    chapters: [...f.chapters, { title: '', modules: [{ title: '', videoLink: 'https://youtu.be/svYm5KomARg', description: '' }] }] 
+  }));
+
+  const removeChapter = (ci) => setForm(f => ({
+    ...f,
+    chapters: f.chapters.filter((_, idx) => idx !== ci)
+  }));
+
+  const updateChapter = (ci, title) => {
+    const caps = [...form.chapters];
+    caps[ci].title = title;
+    setForm(f => ({ ...f, chapters: caps }));
   };
-  const removeMod = (i) => setForm(f => ({ ...f, modules: f.modules.filter((_, idx) => idx !== i) }));
+
+  const addModule = (ci) => {
+    const caps = [...form.chapters];
+    caps[ci].modules = [...caps[ci].modules, { title: '', videoLink: 'https://youtu.be/svYm5KomARg', description: '' }];
+    setForm(f => ({ ...f, chapters: caps }));
+  };
+
+  const updateMod = (ci, mi, k, v) => {
+    const caps = [...form.chapters];
+    caps[ci].modules[mi] = { ...caps[ci].modules[mi], [k]: v };
+    setForm(f => ({ ...f, chapters: caps }));
+  };
+
+  const removeMod = (ci, mi) => {
+    const caps = [...form.chapters];
+    caps[ci].modules = caps[ci].modules.filter((_, idx) => idx !== mi);
+    setForm(f => ({ ...f, chapters: caps }));
+  };
 
   return (
     <div className="adm-modal-overlay">
-      <div className="adm-modal animate-up">
+      <div className="adm-modal animate-up" style={{ maxWidth: 850 }}>
         <header className="adm-modal-header">
           <h3>{initial ? 'Edit Course' : 'Add New Course'}</h3>
           <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
@@ -169,26 +196,65 @@ function CourseModal({ onClose, onSave, initial }) {
           </div>
           <div className="adm-form-group">
             <label>Description</label>
-            <textarea rows="3" placeholder="What learners will gain from this course..." value={form.description} onChange={e => set('description', e.target.value)} />
+            <textarea rows="2" placeholder="What learners will gain from this course..." value={form.description} onChange={e => set('description', e.target.value)} />
           </div>
 
-          <div className="adm-modules-section">
+          <div className="adm-chapters-section">
             <div className="adm-section-subtitle">
-              <h4>Modules</h4>
-              <button className="adm-add-btn" type="button" onClick={addModule}><i className="ri-add-line"></i> Add Module</button>
+              <h4>Chapters & Modules</h4>
             </div>
-            {form.modules.map((mod, i) => (
-              <div key={i} className="adm-module-row">
-                <span className="adm-module-num">{i + 1}</span>
-                <div className="adm-module-fields">
-                  <input placeholder="Module title" value={mod.title} onChange={e => updateMod(i, 'title', e.target.value)} />
-                  <input type="url" placeholder="Video URL (YouTube/Vimeo) — leave blank until admin assigns" value={mod.videoLink} onChange={e => updateMod(i, 'videoLink', e.target.value)} />
+            
+            {form.chapters.map((chap, ci) => (
+              <div key={ci} className="adm-chapter-box" style={{ background: 'var(--bg-weak)', padding: '1.25rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid var(--stroke-soft)' }}>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
+                   <div className="adm-form-group" style={{ flex: 1 }}>
+                     <label>Chapter Name</label>
+                     <input placeholder="e.g. Introduction" value={chap.title} onChange={e => updateChapter(ci, e.target.value)} />
+                   </div>
+                   {form.chapters.length > 1 && (
+                     <button className="adm-remove-btn" type="button" onClick={() => removeChapter(ci)} style={{ marginTop: '1.5rem' }}><i className="ri-delete-bin-line"></i></button>
+                   )}
                 </div>
-                {form.modules.length > 1 && (
-                  <button className="adm-remove-btn" type="button" onClick={() => removeMod(i)}><i className="ri-delete-bin-line"></i></button>
-                )}
+
+                <div className="adm-chapter-modules" style={{ background: 'white', padding: '1rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h5 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0 }}>Modules ({chap.modules.length})</h5>
+                  </div>
+
+                  {chap.modules.map((mod, mi) => (
+                    <div key={mi} className="adm-module-item-nested" style={{ padding: '1rem', border: '1px solid var(--stroke-soft)', borderRadius: '8px', position: 'relative' }}>
+                       {chap.modules.length > 1 && (
+                         <button className="adm-remove-btn" type="button" style={{ position: 'absolute', top: 10, right: 10 }} onClick={() => removeMod(ci, mi)}><i className="ri-close-line"></i></button>
+                       )}
+                       <div className="adm-form-row">
+                         <div className="adm-form-group">
+                           <label>Module Title</label>
+                           <input placeholder="Module title" value={mod.title} onChange={e => updateMod(ci, mi, 'title', e.target.value)} />
+                         </div>
+                         <div className="adm-form-group">
+                           <label>Video URL</label>
+                           <input type="url" placeholder="YouTube/Vimeo URL" value={mod.videoLink} onChange={e => updateMod(ci, mi, 'videoLink', e.target.value)} />
+                         </div>
+                       </div>
+                       <div className="adm-form-group" style={{ marginTop: '0.5rem' }}>
+                         <label>Module Description (Optional)</label>
+                         <textarea rows="2" placeholder="Module specific details..." value={mod.description} onChange={e => updateMod(ci, mi, 'description', e.target.value)} />
+                       </div>
+                    </div>
+                  ))}
+
+                  {chap.modules.length === 0 && (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', margin: '1rem 0' }}>No modules in this chapter yet.</p>
+                  )}
+                  
+                  <button className="adm-add-btn" type="button" style={{ fontSize: '0.8rem', width: '100%', justifyContent: 'center', padding: '0.75rem' }} onClick={() => addModule(ci)}><i className="ri-add-line"></i> Add Module to {chap.title || 'this chapter'}</button>
+                </div>
               </div>
             ))}
+            
+            <button className="adm-add-btn" type="button" style={{ width: '100%', justifyContent: 'center', padding: '1rem', borderStyle: 'dashed', background: 'transparent' }} onClick={addChapter}>
+              <i className="ri-add-line"></i> Add New Chapter
+            </button>
           </div>
         </div>
         <footer className="adm-modal-footer">
@@ -612,10 +678,10 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
 
   const save = async (form) => {
     try {
-      const { modules, ...courseData } = form;
+      const { chapters, ...courseData } = form;
       let courseId = modal;
 
-      if (typeof modal !== 'number' && typeof modal !== 'string') {
+      if (typeof modal !== 'number' && typeof modal !== 'string' || modal === 'add') {
         // Create Course
         const { data: newCourse, error } = await supabase
           .from('courses')
@@ -633,25 +699,44 @@ function CoursesPanel({ courses, setCourses, onDelete }) {
         if (error) throw error;
       }
 
-      // Save Modules
-      if (modules && modules.length > 0) {
-        // For simplicity, we'll delete and re-insert for edits, or just insert for new
-        if (typeof modal === 'number' || typeof modal === 'string') {
-           await supabase.from('modules').delete().eq('course_id', courseId);
+      // Save Chapters & Modules
+      if (chapters && chapters.length > 0) {
+        // Clear existing for simplicity on edits
+        if (typeof modal === 'number' || typeof modal === 'string' && modal !== 'add') {
+           await supabase.from('chapters').delete().eq('course_id', courseId);
+           // Modules will be deleted cascade by chapters deletion
         }
-        const modulesToInsert = modules.map((m, i) => ({
-          course_id: courseId,
-          title: m.title,
-          video_url: m.videoLink,
-          sequence_order: i + 1
-        }));
-        const { error: modError } = await supabase.from('modules').insert(modulesToInsert);
-        if (modError) throw modError;
+
+        // Insert Chapters one by one to get IDs for nested modules
+        for (let i = 0; i < chapters.length; i++) {
+          const chap = chapters[i];
+          const { data: newChap, error: chapErr } = await supabase
+            .from('chapters')
+            .insert([{ course_id: courseId, title: chap.title, sequence_order: i + 1 }])
+            .select()
+            .single();
+          
+          if (chapErr) throw chapErr;
+
+          if (chap.modules && chap.modules.length > 0) {
+            const modulesToInsert = chap.modules.map((m, mi) => ({
+              course_id: courseId,
+              chapter_id: newChap.id,
+              title: m.title,
+              video_url: m.videoLink,
+              description: m.description,
+              sequence_order: mi + 1
+            }));
+            const { error: modError } = await supabase.from('modules').insert(modulesToInsert);
+            if (modError) throw modError;
+          }
+        }
       }
 
-      showSuccess('Course Saved', 'Course saved successfully!');
+      showSuccess('Course Saved', 'Course saved successfully with chapters!');
       setModal(null);
-      window.location.reload();
+      await fetchData(); // Refresh list 
+      // window.location.reload(); // Removed reload to avoid resetting tab state
     } catch (err) {
       showError('Save Error', 'Error saving course: ' + err.message);
     }
@@ -1252,7 +1337,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     try {
       setLoading(true);
       const [crs, res, bks, usr, wks, progress] = await Promise.all([
-        supabase.from('courses').select('*').order('created_at', { ascending: false }),
+        supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }),
         supabase.from('books').select('*').order('created_at', { ascending: false }),
         supabase.from('profiles').select('*'),
@@ -1264,7 +1349,19 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           .limit(5)
       ]);
 
-      if (crs.data) setCourses(crs.data);
+      if (crs.data) {
+        const mappedCourses = crs.data.map(c => ({
+          ...c,
+          chapters: c.chapters?.sort((a,b) => a.sequence_order - b.sequence_order).map(ch => ({
+            ...ch,
+            modules: ch.modules?.sort((a,b) => a.sequence_order - b.sequence_order).map(m => ({
+              ...m,
+              videoLink: m.video_url
+            })) || []
+          })) || []
+        }));
+        setCourses(mappedCourses);
+      }
       if (res.data) setResources(res.data);
       if (bks.data) setBooks(bks.data);
       if (usr.data) setUsers(usr.data.map(u => ({ 
