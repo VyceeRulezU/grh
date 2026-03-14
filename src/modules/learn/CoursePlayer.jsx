@@ -7,7 +7,7 @@ import { useModal } from '../../hooks/useModal';
 import './CoursePlayer.css';
 
 const TAB_CONTENT = {
-  Overview: (lesson) => (
+  Overview: (lesson, course) => (
     <div className="tab-panel">
       <h2>{lesson.title}</h2>
       <div className="module-description-rich">
@@ -20,8 +20,8 @@ const TAB_CONTENT = {
       <div className="instructor-card-sm glass">
         <div className="inst-avatar"><i className="ri-user-star-line"></i></div>
         <div>
-          <strong>Dr. Sarah Chen</strong>
-          <span>Governance Specialist, World Bank</span>
+          <strong>{course?.instructor || 'Governance Resource Hub'}</strong>
+          <span>Course Instructor</span>
         </div>
       </div>
     </div>
@@ -512,7 +512,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
               ))}
             </div>
             <div className="lesson-detail-content">
-              {activeTab === 'Overview' && TAB_CONTENT.Overview(activeLesson)}
+              {activeTab === 'Overview' && TAB_CONTENT.Overview(activeLesson, course)}
               {activeTab === 'Resources' && TAB_CONTENT.Resources()}
               {activeTab === 'Notes' && TAB_CONTENT.Notes({ note, onNoteChange: setNote, onNoteSave: handleNoteSave })}
               {activeTab === 'Discussions' && TAB_CONTENT.Discussions({ discussions, onPost: handlePostDiscussion, msg: newMsg, setMsg: setNewMsg })}

@@ -381,7 +381,7 @@ function ResourceModal({ onClose, onSave, initial }) {
         </div>
         <footer className="adm-modal-footer">
           <button className="btn-outline" onClick={onClose}>Cancel</button>
-          <button className="special-button" onClick={() => { onSave(form); onClose(); }}>{initial ? 'Save Changes' : 'Save Resource'}</button>
+          <button className="special-button" onClick={() => { onSave({ ...form, fileItem: file }); onClose(); }}>{initial ? 'Save Changes' : 'Save Resource'}</button>
         </footer>
       </div>
     </div>
@@ -478,6 +478,8 @@ function BookModal({ onClose, onSave, initial }) {
               summary: b.summary,
               imageUrl: b.imagePreview || b.imageUrl || '',
               fileUrl: b.bookFile ? URL.createObjectURL(b.bookFile) : (b.fileUrl || '#'),
+              bookFile: b.bookFile,
+              imageFile: b.imageFile,
               status: b.status || 'Draft',
             }));
             if (initial) onSave(resultBooks[0]);
@@ -942,12 +944,24 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
   const save = async (form) => {
     try {
       setLoading(true);
+      let finalFileUrl = form.file_url || form.fileUrl || '';
+
+      if (form.fileItem) {
+        const ext = form.fileItem.name.split('.').pop();
+        const fileName = `resources/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`;
+        const { error: docErr } = await supabase.storage.from('avatars').upload(fileName, form.fileItem, { cacheControl: '3600', upsert: true });
+        if (!docErr) {
+          const { data: pubUrl } = supabase.storage.from('avatars').getPublicUrl(fileName);
+          finalFileUrl = pubUrl.publicUrl;
+        }
+      }
+
       const payload = {
         title: form.title,
         type: form.type,
         category: form.category,
         description: form.description,
-        file_url: form.file_url || form.fileUrl || '',
+        file_url: finalFileUrl,
         status: form.status || 'Published'
       };
 
@@ -1357,19 +1371,47 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
   const save = async (data) => {
     try {
       setLoading(true);
-      const formatBook = (b) => ({
-        title: b.title,
-        summary: b.summary,
-        image_url: b.image_url || b.imageUrl || '',
-        file_url: b.file_url || b.fileUrl || '',
-        status: b.status || 'Published'
-      });
+      
+      const processBook = async (b) => {
+        let finalImageUrl = b.imageUrl || b.image_url || '';
+        let finalFileUrl = b.fileUrl || b.file_url || '';
+
+        if (b.imageFile) {
+          const ext = b.imageFile.name.split('.').pop();
+          const fileName = `covers/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`;
+          const { error: imgErr } = await supabase.storage.from('avatars').upload(fileName, b.imageFile, { cacheControl: '3600', upsert: true });
+          if (!imgErr) {
+            const { data: pubUrl } = supabase.storage.from('avatars').getPublicUrl(fileName);
+            finalImageUrl = pubUrl.publicUrl;
+          }
+        }
+
+        if (b.bookFile) {
+          const ext = b.bookFile.name.split('.').pop();
+          const fileName = `documents/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`;
+          const { error: docErr } = await supabase.storage.from('avatars').upload(fileName, b.bookFile, { cacheControl: '3600', upsert: true });
+          if (!docErr) {
+            const { data: pubUrl } = supabase.storage.from('avatars').getPublicUrl(fileName);
+            finalFileUrl = pubUrl.publicUrl;
+          }
+        }
+
+        return {
+          title: b.title,
+          summary: b.summary,
+          image_url: finalImageUrl,
+          file_url: finalFileUrl,
+          status: b.status || 'Published'
+        };
+      };
 
       if (modal && modal !== 'add') {
-        const { error } = await supabase.from('books').update(formatBook(data)).eq('id', modal);
+        const payload = await processBook(data);
+        const { error } = await supabase.from('books').update(payload).eq('id', modal);
         if (error) throw error;
       } else {
-        const payload = Array.isArray(data) ? data.map(formatBook) : [formatBook(data)];
+        const payloadArr = Array.isArray(data) ? data : [data];
+        const payload = await Promise.all(payloadArr.map(processBook));
         const { error } = await supabase.from('books').insert(payload);
         if (error) throw error;
       }

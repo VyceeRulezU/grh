@@ -938,7 +938,13 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
       });
     } catch (err) {
-      setStatusModal({ isOpen: true, type: 'error', title: 'Registration Failed', message: 'Registration failed: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
+      if (err.message?.includes('duplicate key value')) {
+        setRegModal({ isOpen: false, workshop: null });
+        setRegisteredWorkshops(prev => [...prev, regModal.workshop?.id]);
+        setStatusModal({ isOpen: true, type: 'success', title: 'Already Registered', message: 'You are already registered for this workshop.', onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
+      } else {
+        setStatusModal({ isOpen: true, type: 'error', title: 'Registration Failed', message: 'Registration failed: ' + err.message, onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false })) });
+      }
     }
   };
 
