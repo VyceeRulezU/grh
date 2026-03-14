@@ -540,24 +540,39 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           </div>
           
           <div className="lesson-list">
-            {lessons.map((lesson, index) => {
-              const locked = isLessonLocked(index);
-              return (
-                <div
-                  key={lesson.id}
-                  className={`lesson-item ${activeLesson?.id === lesson.id ? 'active' : ''} ${lesson.completed ? 'completed' : ''} ${locked ? 'locked' : ''}`}
-                  onClick={() => !locked && setActiveLesson(lesson)}
-                >
-                  <div className="lesson-status">
-                    {locked ? <i className="ri-lock-fill"></i> : lesson.completed ? <i className="ri-checkbox-circle-fill"></i> : <i className="ri-play-line"></i>}
-                  </div>
-                  <div className="lesson-text" style={{ opacity: lesson.completed ? 0.6 : 1, fontWeight: lesson.completed ? 400 : 600 }}>
-                    <p className="lesson-title">{lesson.title}</p>
-                    <span className="lesson-meta">{lesson.duration || 'Video'}</span>
-                  </div>
+            {Object.entries(
+              lessons.reduce((acc, l) => {
+                const chap = l.chapter_title || 'Course Content';
+                if (!acc[chap]) acc[chap] = [];
+                acc[chap].push(l);
+                return acc;
+              }, {})
+            ).map(([chapter, mods]) => (
+              <div key={chapter} className="player-chapter-group">
+                <div className="player-chapter-header" style={{ padding: '0.75rem 1.25rem', background: 'var(--bg-weak)', borderBottom: '1px solid var(--stroke-soft)', borderTop: '1px solid transparent', marginTop: '0.2rem' }}>
+                  <h4 style={{ fontSize: '0.75rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{chapter}</h4>
                 </div>
-              );
-            })}
+                {mods.map((lesson) => {
+                  const index = lessons.findIndex(x => x.id === lesson.id);
+                  const locked = isLessonLocked(index);
+                  return (
+                    <div
+                      key={lesson.id}
+                      className={`lesson-item ${activeLesson?.id === lesson.id ? 'active' : ''} ${lesson.completed ? 'completed' : ''} ${locked ? 'locked' : ''}`}
+                      onClick={() => !locked && setActiveLesson(lesson)}
+                    >
+                      <div className="lesson-status">
+                        {locked ? <i className="ri-lock-fill"></i> : lesson.completed ? <i className="ri-checkbox-circle-fill"></i> : <i className="ri-play-line"></i>}
+                      </div>
+                      <div className="lesson-text" style={{ opacity: lesson.completed ? 0.6 : 1, fontWeight: lesson.completed ? 400 : 600 }}>
+                        <p className="lesson-title">{lesson.title}</p>
+                        <span className="lesson-meta">{lesson.duration || 'Video'}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </div>

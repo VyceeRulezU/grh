@@ -444,13 +444,13 @@ function WorkshopPanel({ onRegister, registeredIds = [], workshops = [] }) {
         </div>
       </div>
       <div className="std-workshop-list">
-        {filtered.map(w => {
+        {filtered.map((w, index) => {
           const isRegistered = registeredIds.includes(w.id);
           return (
             <div key={w.id} className={`std-workshop-card ${isRegistered ? 'registered' : ''}`} style={isRegistered ? { borderColor: '#fbbf24', borderWidth: '2px' } : {}}>
-              <div className="std-ws-date">
-                <span className="std-ws-day">{w.date.split(',')[0].split(' ')[1] || w.date.split(' ')[1]}</span>
-                <span className="std-ws-month">{w.date.split(' ')[0]}</span>
+              <div className="std-ws-date" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <span className="std-ws-month" style={{ fontSize: '0.75rem', opacity: 0.8, letterSpacing: '1px' }}>WS</span>
+                <span className="std-ws-day" style={{ fontSize: '1.6rem', fontWeight: 'bold', lineHeight: 1 }}>{index + 1}</span>
               </div>
               <div className="std-ws-info">
                 <h4>{w.title}</h4>

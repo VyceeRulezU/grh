@@ -677,6 +677,24 @@
   color: var(--bg-white); 
 }
 
+.chpt-adm-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  border-radius: 20px;
+  padding: 0.35rem 0.875rem;
+  transition: var(--transition);
+}
+
+.chpt-adm-add-btn:hover { 
+  background-color: var(--bg-weak); 
+  color: var(--secondary); 
+}
+
 .adm-module-row {
   display: flex;
   align-items: center;

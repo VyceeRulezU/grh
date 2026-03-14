@@ -151,12 +151,20 @@ function CourseModal({ onClose, onSave, initial }) {
         supabase.from('course_modules').select('*').eq('course_id', initial.id).order('sort_order', { ascending: true })
           .then(({ data }) => {
             if (data && data.length > 0) {
+              const chaptersMap = new Map();
+              data.forEach(m => {
+                const chapTitle = m.chapter_title || 'Introduction';
+                if (!chaptersMap.has(chapTitle)) {
+                  chaptersMap.set(chapTitle, { title: chapTitle, modules: [] });
+                }
+                chaptersMap.get(chapTitle).modules.push({ title: m.title, videoLink: m.video_url || '', description: m.description || '' });
+              });
               setForm(f => ({
                 ...f,
-                chapters: [{ title: 'Course Content', modules: data.map(m => ({ title: m.title, videoLink: m.video_url || '', description: '' })) }]
+                chapters: Array.from(chaptersMap.values())
               }));
             } else {
-              setForm(f => ({ ...f, chapters: [{ title: 'Course Content', modules: [{ title: '', videoLink: '', description: '' }] }] }));
+              setForm(f => ({ ...f, chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: '', description: '' }] }] }));
             }
             setLoading(false);
           });
@@ -307,7 +315,7 @@ function CourseModal({ onClose, onSave, initial }) {
               </div>
             ))}
             
-            <button className="adm-add-btn" type="button" style={{ width: '100%', justifyContent: 'center', padding: '1rem', borderStyle: 'dashed', background: 'transparent' }} onClick={addChapter}>
+            <button className="chpt-adm-add-btn" type="button" style={{ width: '100%', justifyContent: 'center', padding: '1rem', borderStyle: 'dashed', backgroundColor: 'transparent' }} onClick={addChapter}>
               <i className="ri-add-line"></i> Add New Chapter
             </button>
           </div>
@@ -808,16 +816,19 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
           if (chap.modules && chap.modules.length > 0) {
             chap.modules.forEach((m) => {
               allModules.push({
-                title: m.title || chap.title || 'Untitled Module',
+                chapter_title: chap.title || 'Untitled Chapter',
+                title: m.title || 'Untitled Module',
                 video_url: m.videoLink || m.video_url || '',
+                description: m.description || '',
                 course_id: targetCourseId
               });
             });
           } else {
             // Chapter with no sub-modules — treat the chapter itself as a module
             allModules.push({
-              title: chap.title || 'Untitled Module',
-              video_url: chap.videoLink || chap.video_url || '',
+              chapter_title: chap.title || 'Untitled Chapter',
+              title: 'Untitled Module',
+              video_url: '',
               course_id: targetCourseId
             });
           }
