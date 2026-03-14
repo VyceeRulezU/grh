@@ -193,6 +193,13 @@ CREATE POLICY "Admin Manage Workshops" ON public.workshops FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND LOWER(role) = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND LOWER(role) = 'admin'));
 
+-- ── Workshop Registrations: everyone reads, users create own ──
+DROP POLICY IF EXISTS "Public select workshop registrations" ON public.workshop_registrations;
+CREATE POLICY "Public select workshop registrations" ON public.workshop_registrations FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Users insert own registrations" ON public.workshop_registrations;
+CREATE POLICY "Users insert own registrations" ON public.workshop_registrations FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
 -- ── User Notes: users manage own notes ──
 DROP POLICY IF EXISTS "Users manage own notes" ON public.user_notes;
 CREATE POLICY "Users manage own notes" ON public.user_notes FOR ALL

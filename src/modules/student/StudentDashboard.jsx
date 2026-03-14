@@ -874,6 +874,16 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         .from('workshops')
         .select('*');
 
+      // Fetch user's registered workshops
+      const { data: regsData } = await supabase
+        .from('workshop_registrations')
+        .select('workshop_id')
+        .eq('user_id', user.id);
+
+      if (regsData) {
+        setRegisteredWorkshops(regsData.map(r => r.workshop_id));
+      }
+
       setMyCourses(coursesWithProgress);
       setWorkshops(workshopsData || []);
       
