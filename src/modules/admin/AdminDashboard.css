@@ -262,15 +262,15 @@
   gap: 0.5rem;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--bg-weak);
+  color: var(--secondary);
 }
 
 .adm-admin-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--secondary);
-  color: white;
+  background: var(--bg-weak);
+  color: var(--text-strong);
   display: flex;
   align-items: center;
   justify-content: center;
