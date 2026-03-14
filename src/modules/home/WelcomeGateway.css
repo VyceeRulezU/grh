@@ -268,6 +268,9 @@
 @media (max-width: 480px) {
     .section-container {
         row-gap: 4rem;
+        padding: 0;
+        width: 100%;
+        align-items: center;
     }
 
     .title-container{

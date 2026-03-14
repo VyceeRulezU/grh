@@ -101,6 +101,10 @@
     max-width: 600px;
 }
 
+.show-on-mobile {
+    display: none;
+}
+
 .hero-cta-row {
     display: flex;
     gap: 1rem;
@@ -729,10 +733,24 @@
 
     .hero-cta-row{
         width: 100%;
+        align-items: center;
+        justify-content: center;    
     }
 
     .hero-title{
         font-size: 2rem;
+    }
+
+    .hero-summary {
+        font-size: 1.1rem;
+    }
+
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    .show-on-mobile {
+        display: inline !important;
     }
 
     .hero-stats {

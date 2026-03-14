@@ -87,7 +87,8 @@ const LearnLandingPage = ({ onNavigate, user }) => {
               </h1>
 
               <p className="hero-summary">
-                Expert-led modules on Public Financial Management, anti-corruption frameworks, electoral systems, and institutional governance — all in one place.
+                <span className="hide-on-mobile">Expert-led modules on Public Financial Management, anti-corruption frameworks, electoral systems, and institutional governance — all in one place.</span>
+                <span className="show-on-mobile">Expert-led modules on Governance, Financial Management and Institutional building.</span>
               </p>
 
               <div className="hero-cta-row">
