@@ -47,12 +47,25 @@ const TermsOfService = () => {
         <section className="legal-section">
           <h2>4. Prohibited Activities</h2>
           <p>
-            You may not access or use the Site for any purpose other than that for which we make the Site available. The Site may not be used in connection with any commercial endeavors except those that are specifically endorsed or approved by us.
+            You may not access or use the Site for any purpose other than that for which we make the Site available. Prohibited activities include, but are not limited to:
+          </p>
+          <ul>
+            <li>Systematic retrieval of data or other content from the Site to create or compile a collection, compilation, database, or directory.</li>
+            <li>Trick, defraud, or mislead us and other users, especially in any attempt to learn sensitive account information such as user passwords.</li>
+            <li>Attempt to impersonate another user or person or use the username of another user.</li>
+            <li>Use the Site in a manner inconsistent with any applicable laws or regulations.</li>
+          </ul>
+        </section>
+
+        <section className="legal-section">
+          <h2>5. Account Termination</h2>
+          <p>
+            We reserve the right to terminate or suspend your account and access to the Site at our sole discretion, without notice, for conduct that we believe violates these Terms of Service or is harmful to other users of the Site, us, or third parties, or for any other reason.
           </p>
         </section>
 
         <section className="legal-section">
-          <h2>5. Limitation of Liability</h2>
+          <h2>6. Limitation of Liability</h2>
           <p>
             In no event will we or our directors, employees, or agents be liable to you or any third party for any direct, indirect, consequential, exemplary, incidental, special, or punitive damages, including lost profit, lost revenue, loss of data, or other damages arising from your use of the site.
           </p>
@@ -71,7 +84,7 @@ const TermsOfService = () => {
             If you have any questions or concerns about these Terms, please contact us at:
           </p>
           <p>
-            <strong>Email:</strong> legal@grh.org
+            <strong>Email:</strong> admin@governanceresourcehub.com
           </p>
         </section>
       </div>
