@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import { supabase } from '../../services/supabase/supabaseClient';
@@ -10,13 +10,34 @@ const ForgotPasswordPage = ({ onNavigate }) => {
   const [loading, setLoading] = useState(false);
   const { modal, closeModal, showSuccess, showError, showWarning } = useModal();
 
+  useEffect(() => {
+    const renderTurnstile = () => {
+      if (window.turnstile?.render) {
+        try {
+          const container = document.getElementById('forgot-turnstile');
+          if (container && container.innerHTML === '') {
+            window.turnstile.render('#forgot-turnstile', {
+              sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
+            });
+          }
+        } catch (e) {
+          console.warn('Turnstile render failed:', e);
+        }
+      }
+    };
+
+    renderTurnstile();
+    const timer = setTimeout(renderTurnstile, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Check reCAPTCHA
-    const captchaToken = window.grecaptcha?.getResponse();
+    // Check Turnstile
+    const captchaToken = window.turnstile?.getResponse();
     if (!captchaToken) {
-      showWarning('Security Check', 'Please complete the reCAPTCHA verification.');
+      showWarning('Security Check', 'Please complete the security verification.');
       return;
     }
 
@@ -38,7 +59,7 @@ const ForgotPasswordPage = ({ onNavigate }) => {
       showError('Reset Failed', err.message);
     } finally {
       setLoading(false);
-      window.grecaptcha?.reset();
+      window.turnstile?.reset();
     }
   };
 
@@ -100,8 +121,9 @@ const ForgotPasswordPage = ({ onNavigate }) => {
 
               <div className="auth-input-group recaptcha-wrapper">
                 <div 
-                  className="g-recaptcha" 
-                  data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                  id="forgot-turnstile" 
+                  className="cf-turnstile" 
+                  data-sitekey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
                 ></div>
               </div>
 

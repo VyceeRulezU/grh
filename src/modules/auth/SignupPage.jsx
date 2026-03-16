@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
@@ -14,6 +14,27 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { modal, closeModal, showSuccess, showError, showWarning } = useModal();
+
+  useEffect(() => {
+    const renderTurnstile = () => {
+      if (window.turnstile?.render) {
+        try {
+          const container = document.getElementById('signup-turnstile');
+          if (container && container.innerHTML === '') {
+            window.turnstile.render('#signup-turnstile', {
+              sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
+            });
+          }
+        } catch (e) {
+          console.warn('Turnstile render failed:', e);
+        }
+      }
+    };
+
+    renderTurnstile();
+    const timer = setTimeout(renderTurnstile, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const validations = {
     length: password.length >= 8,
@@ -32,10 +53,10 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Check reCAPTCHA
-    const captchaToken = window.grecaptcha?.getResponse();
+    // 1. Check Turnstile
+    const captchaToken = window.turnstile?.getResponse();
     if (!captchaToken) {
-      showWarning('Security Check', 'Please complete the reCAPTCHA verification.');
+      showWarning('Security Check', 'Please complete the security verification.');
       return;
     }
 
@@ -214,8 +235,9 @@ const SignupPage = ({ onNavigate, onLogin }) => {
 
             <div className="auth-input-group recaptcha-wrapper">
               <div 
-                className="g-recaptcha" 
-                data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                id="signup-turnstile"
+                className="cf-turnstile" 
+                data-sitekey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
               ></div>
             </div>
 
