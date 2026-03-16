@@ -19,6 +19,8 @@ import AdminLoginPage from './modules/auth/AdminLoginPage'
 import OAuthConsentPage from './modules/auth/OAuthConsentPage'
 import PrivacyPolicy from './modules/legal/PrivacyPolicy'
 import TermsOfService from './modules/legal/TermsOfService'
+import ForgotPasswordPage from './modules/auth/ForgotPasswordPage'
+import ResetPasswordPage from './modules/auth/ResetPasswordPage'
 import NotFoundPage from './modules/home/NotFoundPage'
 import StatusModal from './shared/ui/StatusModal'
 import './App.css'
@@ -69,7 +71,9 @@ function App() {
       'admin-login': 'Admin Login | GRH',
       'oauth-consent': 'Authorize App | GRH',
       'privacy-policy': 'Privacy Policy | GRH',
-      'terms-of-service': 'Terms of Service | GRH'
+      'terms-of-service': 'Terms of Service | GRH',
+      'forgot-password': 'Forgot Password | GRH',
+      'reset-password': 'Reset Password | GRH'
     };
     document.title = pageTitles[currentPage] || 'Governance Resource Hub';
   }, [currentPage]);
@@ -122,7 +126,7 @@ function App() {
             console.warn("Failed to restore navData:", e);
           }
 
-          if (['login', 'signup', 'admin', 'admin-login'].includes(currentPage)) {
+          if (['login', 'signup', 'admin', 'admin-login', 'forgot-password', 'reset-password'].includes(currentPage)) {
             handleLogin(userData);
           }
         }
@@ -134,7 +138,7 @@ function App() {
           if (session) {
             const userData = await fetchProfile(session);
             setUser(userData);
-            if (['login', 'signup', 'admin', 'admin-login'].includes(currentPageRef.current) && event === 'SIGNED_IN') {
+            if (['login', 'signup', 'admin', 'admin-login', 'forgot-password', 'reset-password'].includes(currentPageRef.current) && event === 'SIGNED_IN') {
               console.log("[GRH DEBUG] onAuthStateChange SIGNED_IN detected - calling handleLogin");
               handleLogin(userData);
             }
@@ -172,7 +176,7 @@ function App() {
 
   const openAuth = (type = 'login') => {
     // Store current page as return target before navigating to auth
-    if (!['login', 'signup', 'admin-login'].includes(currentPage)) {
+    if (!['login', 'signup', 'admin-login', 'forgot-password', 'reset-password'].includes(currentPage)) {
       localStorage.setItem('returnPage', currentPage);
     }
     
@@ -308,7 +312,7 @@ function App() {
 
   return (
     <div className="app-container">
-      {(currentPage !== 'welcome' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
+      {(currentPage !== 'welcome' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'forgot-password' && currentPage !== 'reset-password' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
         <Navbar 
           onNavigate={navigate} 
           currentPage={currentPage} 
@@ -350,7 +354,9 @@ function App() {
         {currentPage === 'oauth-consent' && <OAuthConsentPage onNavigate={navigate} />}
         {currentPage === 'privacy-policy' && <PrivacyPolicy />}
         {currentPage === 'terms-of-service' && <TermsOfService />}
-        {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service'].includes(currentPage) && (
+        {currentPage === 'forgot-password' && <ForgotPasswordPage onNavigate={navigate} />}
+        {currentPage === 'reset-password' && <ResetPasswordPage onNavigate={navigate} />}
+        {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
           <NotFoundPage onNavigate={navigate} />
         )}
         </>

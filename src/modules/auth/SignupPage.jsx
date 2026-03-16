@@ -31,6 +31,14 @@ const SignupPage = ({ onNavigate, onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. Check reCAPTCHA
+    const captchaToken = window.grecaptcha?.getResponse();
+    if (!captchaToken) {
+      showWarning('Security Check', 'Please complete the reCAPTCHA verification.');
+      return;
+    }
+
     if (!isPasswordValid) {
       showWarning('Weak Password', 'Please ensure your password meets all requirements.');
       return;
@@ -45,7 +53,8 @@ const SignupPage = ({ onNavigate, onLogin }) => {
       email,
       password,
       options: {
-        data: { full_name: fullName, role: 'learner' }
+        data: { full_name: fullName, role: 'learner' },
+        captchaToken: captchaToken
       }
     });
     setLoading(false);
@@ -201,6 +210,13 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                   required
                 />
               </div>
+            </div>
+
+            <div className="auth-input-group recaptcha-wrapper">
+              <div 
+                className="g-recaptcha" 
+                data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              ></div>
             </div>
 
             <div className="auth-button-stack">

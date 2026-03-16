@@ -16,11 +16,22 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. Check reCAPTCHA
+    const captchaToken = window.grecaptcha?.getResponse();
+    if (!captchaToken) {
+      showError('Security Check', 'Please complete the reCAPTCHA verification.');
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          captchaToken: captchaToken
+        }
       });
 
       if (error) throw error;
@@ -159,8 +170,15 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
                   <input type="checkbox" id="remember" />
                   <label htmlFor="remember">Remember Me</label>
                 </div>
-                <button type="button" className="auth-forgot-link">Forgot Password?</button>
+                <button type="button" className="auth-forgot-link" onClick={() => onNavigate('forgot-password')}>Forgot Password?</button>
               </div>
+            </div>
+
+            <div className="auth-input-group recaptcha-wrapper">
+              <div 
+                className="g-recaptcha" 
+                data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              ></div>
             </div>
 
             <div className="auth-button-stack">
