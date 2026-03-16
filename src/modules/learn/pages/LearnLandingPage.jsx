@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { COURSES, MENTORS, TESTIMONIALS } from '../../data/legacyData';
-import CtaSection from '../../components/ui/CtaSection';
-import ModernDropdown from '../../components/ui/ModernDropdown';
-import Tab from '../../components/ui/Tab';
+import { supabase } from '../../../services/supabase/supabaseClient';
+import { COURSES, MENTORS, TESTIMONIALS } from '../../../data/legacyData';
+import CtaSection from '../../../shared/ui/CtaSection';
+import ModernDropdown from '../../../shared/ui/ModernDropdown';
+import Tab from '../../../shared/ui/Tab';
 import './LearnLandingPage.css';
 
 const COURSE_TABS = [

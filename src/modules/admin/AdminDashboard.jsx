@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase } from '../../services/supabase/supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import { BOOKS } from '../../data/legacyData';
 import grhIcon from '../../assets/images/Logo/GRH-icon.png';
-import Pagination from '../../components/ui/Pagination';
-import ModernDropdown from '../../components/ui/ModernDropdown';
-import StatusModal from '../../components/ui/StatusModal';
-import { useModal } from '../../hooks/useModal';
+import Pagination from '../../shared/ui/Pagination';
+import ModernDropdown from '../../shared/ui/ModernDropdown';
+import StatusModal from '../../shared/ui/StatusModal';
+import { useModal } from '../../shared/hooks/useModal';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -147,7 +147,7 @@ function CourseModal({ onClose, onSave, initial }) {
   useEffect(() => {
     if (initial?.id) {
       setLoading(true);
-      import('../../lib/supabaseClient').then(({ supabase }) => {
+      import('../../services/supabase/supabaseClient').then(({ supabase }) => {
         supabase.from('course_modules').select('*').eq('course_id', initial.id).order('sort_order', { ascending: true })
           .then(({ data }) => {
             if (data && data.length > 0) {

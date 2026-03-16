@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { COUNTRIES, DIMENSIONS } from '../../data/legacyData';
-import CtaSection from '../../components/ui/CtaSection';
+import { COUNTRIES, DIMENSIONS } from '../../../data/legacyData';
+import CtaSection from '../../../shared/ui/CtaSection';
 import './AnalysePage.css';
 
 const AnalysePage = () => {

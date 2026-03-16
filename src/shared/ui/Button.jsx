@@ -1,5 +1,5 @@
 import React from 'react';
-import hapticFeedback from '../../utils/haptics';
+import hapticFeedback from '../utils/haptics';
 import './Button.css';
 
 const Button = ({ children, variant = 'primary', size = 'md', onClick, disabled, className = '', ...props }) => {

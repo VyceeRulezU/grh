@@ -1,5 +1,5 @@
 import React from 'react';
-import SpecialButton from '../../components/ui/SpecialButton';
+import SpecialButton from '../../shared/ui/SpecialButton';
 import './NotFoundPage.css';
 
 const NotFoundPage = ({ onNavigate }) => {

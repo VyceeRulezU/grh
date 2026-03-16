@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase } from '../../../services/supabase/supabaseClient';
 import { jsPDF } from 'jspdf';
-import Button from '../../components/ui/Button';
-import StatusModal from '../../components/ui/StatusModal';
-import { useModal } from '../../hooks/useModal';
+import Button from '../../../shared/ui/Button';
+import StatusModal from '../../../shared/ui/StatusModal';
+import { useModal } from '../../../shared/hooks/useModal';
+import CertificatePreview from '../../../shared/ui/CertificatePreview';
 import './CoursePlayer.css';
 
 const TAB_CONTENT = {
@@ -110,6 +111,8 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const intervalRef = useRef(null);
   const { modal, closeModal, showSuccess, showError } = useModal();
   const [loadError, setLoadError] = useState(null);
+  const [showCertificatePreview, setShowCertificatePreview] = useState(false);
+  const [certificatePdfUrl, setCertificatePdfUrl] = useState(null);
 
   // 1. Initial Data Fetch
   useEffect(() => {
@@ -266,64 +269,95 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
 
   const isCourseComplete = lessons.length > 0 && lessons.every(l => l.completed);
 
-  const downloadCertificate = () => {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4'
-    });
+  const generateCertificate = (isDownload = false) => {
+    if (!user || !course) {
+      showError('Safety Check', 'User or course data is missing. Cannot generate certificate.');
+      return;
+    }
 
-    // Border
-    doc.setConstants = {
-      GREEN: [22, 163, 74],
-      DARK: [30, 41, 59],
-      SOFT: [100, 116, 139]
-    };
+    try {
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
 
-    doc.setDrawColor(22, 163, 74);
-    doc.setLineWidth(2);
-    doc.rect(10, 10, 277, 190);
+      // Colors
+      const COLORS = {
+        GREEN: [22, 163, 74],
+        DARK: [30, 41, 59],
+        SOFT: [100, 116, 139]
+      };
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(45);
-    doc.setTextColor(30, 41, 59);
-    doc.text("CERTIFICATE", 148.5, 50, { align: "center" });
-    
-    doc.setFontSize(20);
-    doc.text("OF COMPLETION", 148.5, 65, { align: "center" });
+      // Border
+      doc.setDrawColor(COLORS.GREEN[0], COLORS.GREEN[1], COLORS.GREEN[2]);
+      doc.setLineWidth(2);
+      doc.rect(10, 10, 277, 190);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(16);
-    doc.setTextColor(100, 116, 139);
-    doc.text("This is to certify that", 148.5, 90, { align: "center" });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(45);
+      doc.setTextColor(COLORS.DARK[0], COLORS.DARK[1], COLORS.DARK[2]);
+      doc.text("CERTIFICATE", 148.5, 50, { align: "center" });
+      
+      doc.setFontSize(20);
+      doc.text("OF COMPLETION", 148.5, 65, { align: "center" });
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(35);
-    doc.setTextColor(22, 163, 74);
-    doc.text(user?.name || user?.email?.split('@')[0] || "Governance Learner", 148.5, 110, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(16);
+      doc.setTextColor(COLORS.SOFT[0], COLORS.SOFT[1], COLORS.SOFT[2]);
+      doc.text("This is to certify that", 148.5, 90, { align: "center" });
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(16);
-    doc.setTextColor(100, 116, 139);
-    doc.text("has successfully completed the course", 148.5, 125, { align: "center" });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(35);
+      doc.setTextColor(COLORS.GREEN[0], COLORS.GREEN[1], COLORS.GREEN[2]);
+      doc.text(user?.name || user?.email?.split('@')[0] || "Governance Learner", 148.5, 110, { align: "center" });
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(26);
-    doc.setTextColor(30, 41, 59);
-    doc.text(course?.title || "Professional Governance Course", 148.5, 140, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(16);
+      doc.setTextColor(COLORS.SOFT[0], COLORS.SOFT[1], COLORS.SOFT[2]);
+      doc.text("has successfully completed the course", 148.5, 125, { align: "center" });
 
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Issued on: ${new Date().toLocaleDateString()}`, 148.5, 165, { align: "center" });
-    doc.text(`Certificate ID: GRH-${course.id}-${user.id.substring(0,8).toUpperCase()}`, 148.5, 175, { align: "center" });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(26);
+      doc.setTextColor(COLORS.DARK[0], COLORS.DARK[1], COLORS.DARK[2]);
+      doc.text(course?.title || "Professional Governance Course", 148.5, 140, { align: "center" });
 
-    // Mock signature lines
-    doc.line(60, 185, 110, 185);
-    doc.text("Hub Director", 85, 190, { align: "center" });
-    doc.line(185, 185, 235, 185);
-    doc.text("Academic Dean", 210, 190, { align: "center" });
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Issued on: ${new Date().toLocaleDateString()}`, 148.5, 165, { align: "center" });
+      
+      const certId = `GRH-${course.id?.toString().substring(0,6)}-${user.id?.toString().substring(0,8)}`.toUpperCase();
+      doc.text(`Certificate ID: ${certId}`, 148.5, 175, { align: "center" });
 
-    doc.save(`GRH_Certificate_${course.title.replace(/\s+/g, '_')}.pdf`);
+      // Mock signature lines
+      doc.line(60, 185, 110, 185);
+      doc.text("Hub Director", 85, 190, { align: "center" });
+      doc.line(185, 185, 235, 185);
+      doc.text("Academic Dean", 210, 190, { align: "center" });
+
+      const fileName = `GRH_Certificate_${(course.title || "Course").replace(/\s+/g, '_')}.pdf`;
+
+      if (isDownload) {
+        doc.save(fileName);
+      } else {
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        setCertificatePdfUrl(url);
+        setShowCertificatePreview(true);
+      }
+    } catch (err) {
+      console.error("Certificate generation failed:", err);
+      showError('Generation Error', 'Failed to generate certificate PDF.');
+    }
+  };
+
+  // Cleanup Blob URL when preview closes
+  const closePreview = () => {
+    if (certificatePdfUrl) {
+      URL.revokeObjectURL(certificatePdfUrl);
+    }
+    setCertificatePdfUrl(null);
+    setShowCertificatePreview(false);
   };
 
   const handleNoteSave = async () => {
@@ -532,9 +566,9 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
               <button 
                 className="special-button btn-sm" 
                 style={{width: '100%', marginTop: '1rem', background: 'var(--secondary)', color: 'white'}}
-                onClick={downloadCertificate}
+                onClick={() => generateCertificate(false)}
               >
-                <i className="ri-award-fill"></i> Download Certificate
+                <i className="ri-award-fill"></i> View Certificate
               </button>
             )}
           </div>
@@ -588,6 +622,13 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
       onCancel={closeModal}
       confirmLabel="OK"
       cancelLabel="Close"
+    />
+    <CertificatePreview
+      isOpen={showCertificatePreview}
+      onClose={closePreview}
+      pdfUrl={certificatePdfUrl}
+      courseTitle={course.title}
+      downloadAction={() => generateCertificate(true)}
     />
     </>
   );

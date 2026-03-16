@@ -1,18 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 import { Analytics } from "@vercel/analytics/react"
 import WelcomeGateway from './modules/home/WelcomeGateway'
-import LearnLandingPage from './modules/learn/LearnLandingPage'
-import Library from './modules/research/Library'
-import ExplorePage from './modules/explore/ExplorePage'
-import AssessPage from './modules/assess/AssessPage'
-import AnalysePage from './modules/analyse/AnalysePage'
-import CourseDiscovery from './modules/learn/CourseDiscovery'
+import LearnLandingPage from './modules/learn/pages/LearnLandingPage'
+import Library from './modules/research/pages/Library'
+import ExplorePage from './modules/explore/pages/ExplorePage'
+import AssessPage from './modules/assess/pages/AssessPage'
+import AnalysePage from './modules/analyse/pages/AnalysePage'
+import CourseDiscovery from './modules/learn/pages/CourseDiscovery'
 import StudentDashboard from './modules/student/StudentDashboard'
-import Navbar from './components/layout/Navbar'
-import Footer from './components/layout/Footer'
+import Navbar from './shared/layout/Navbar'
+import Footer from './shared/layout/Footer'
 import AdminDashboard from './modules/admin/AdminDashboard'
-import CoursePlayer from './modules/learn/CoursePlayer'
-import AuthModal from './components/modals/AuthModal'
+import CoursePlayer from './modules/learn/pages/CoursePlayer'
+import AuthModal from './shared/ui/AuthModal'
 import LoginPage from './modules/auth/LoginPage'
 import SignupPage from './modules/auth/SignupPage'
 import AdminLoginPage from './modules/auth/AdminLoginPage'
@@ -20,7 +20,7 @@ import OAuthConsentPage from './modules/auth/OAuthConsentPage'
 import PrivacyPolicy from './modules/legal/PrivacyPolicy'
 import TermsOfService from './modules/legal/TermsOfService'
 import NotFoundPage from './modules/home/NotFoundPage'
-import StatusModal from './components/ui/StatusModal'
+import StatusModal from './shared/ui/StatusModal'
 import './App.css'
 
 const PROTECTED_PAGES = ['learn-player', 'learn-discovery', 'explore', 'student', 'course-player'];
@@ -80,7 +80,7 @@ function App() {
     
     const initAuth = async () => {
       try {
-        const { supabase } = await import('./lib/supabaseClient');
+        const { supabase } = await import('./services/supabase/supabaseClient');
         
         const fetchProfile = async (session) => {
           if (!session) return null;
@@ -92,9 +92,7 @@ function App() {
             .single();
           
           const isAdminVal = (profile?.role?.toLowerCase() === 'admin') || 
-                             (session.user.user_metadata?.role?.toLowerCase() === 'admin') || 
-                             (session.user.email?.toLowerCase().includes('admin') && !session.user.email?.toLowerCase().includes('learner')) ||
-                             (session.user.email?.toLowerCase() === 'governanceresourcehub@gmail.com');
+                             (session.user.user_metadata?.role?.toLowerCase() === 'admin');
 
           const result = {
             email: session.user.email,
@@ -188,7 +186,7 @@ function App() {
   const refreshUser = async () => {
     if (!user) return;
     try {
-      const { supabase } = await import('./lib/supabaseClient');
+      const { supabase } = await import('./services/supabase/supabaseClient');
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         // Internal fetchProfile logic is already defined in useEffect, 
@@ -200,9 +198,7 @@ function App() {
           .single();
         
         const isAdminVal = (profile?.role?.toLowerCase() === 'admin') || 
-                             (session.user.user_metadata?.role?.toLowerCase() === 'admin') || 
-                             (session.user.email?.toLowerCase().includes('admin') && !session.user.email?.toLowerCase().includes('learner')) ||
-                             (session.user.email?.toLowerCase() === 'governanceresourcehub@gmail.com');
+                             (session.user.user_metadata?.role?.toLowerCase() === 'admin');
 
         const userData = {
           email: session.user.email,
@@ -304,7 +300,7 @@ function App() {
   };
 
   const handleLogout = async () => {
-    const { supabase } = await import('./lib/supabaseClient');
+    const { supabase } = await import('./services/supabase/supabaseClient');
     await supabase.auth.signOut();
     setUser(null);
     navigate('welcome');

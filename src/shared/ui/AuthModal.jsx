@@ -28,7 +28,7 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
         
         <div className="auth-header">
           <div className="auth-logo">
-            <img src={LogoV2} alt="Logo" />
+            <img src={`${import.meta.env.BASE_URL}assets/grh-logo-v2.svg`} alt="Logo" />
           </div>
           <h2 className="auth-title">{mode === 'login' ? 'Welcome Back' : 'Join the Hub'}</h2>
           <p className="auth-subtitle">{mode === 'login' ? 'Access your governance toolkit' : 'Start your excellence journey'}</p>

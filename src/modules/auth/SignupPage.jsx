@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
-import { supabase } from '../../lib/supabaseClient';
-import StatusModal from '../../components/ui/StatusModal';
-import { useModal } from '../../hooks/useModal';
+import { supabase } from '../../services/supabase/supabaseClient';
+import StatusModal from '../../shared/ui/StatusModal';
+import { useModal } from '../../shared/hooks/useModal';
 
 const SignupPage = ({ onNavigate, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);

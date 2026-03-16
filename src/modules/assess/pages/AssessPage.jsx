@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import CtaSection from '../../components/ui/CtaSection';
+import CtaSection from '../../../shared/ui/CtaSection';
 import './AssessPage.css';
 
 const AssessPage = ({ onNavigate }) => {

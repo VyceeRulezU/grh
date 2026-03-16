@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../data/legacyData';
-import CtaSection from '../../components/ui/CtaSection';
-import Pagination from '../../components/ui/Pagination';
+import { supabase } from '../../../services/supabase/supabaseClient';
+import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../../data/legacyData';
+import CtaSection from '../../../shared/ui/CtaSection';
+import Pagination from '../../../shared/ui/Pagination';
 import './Library.css';
-import './ResourceViewer.css';
+import '../components/ResourceViewer.css';
 
 const Library = () => {
   const [search, setSearch] = useState("");

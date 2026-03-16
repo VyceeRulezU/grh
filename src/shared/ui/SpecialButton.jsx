@@ -1,5 +1,5 @@
 import React from 'react';
-import hapticFeedback from '../../utils/haptics';
+import hapticFeedback from '../utils/haptics';
 import './SpecialButton.css';
 
 const SpecialButton = ({ onClick, children, className = '', type = 'button' }) => {

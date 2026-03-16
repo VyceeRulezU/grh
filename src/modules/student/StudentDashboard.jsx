@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase } from '../../services/supabase/supabaseClient';
 import { COURSES as LEGACY_COURSES, RESOURCES as LEGACY_RESOURCES } from '../../data/legacyData';
-import Pagination from '../../components/ui/Pagination';
-import StatusModal from '../../components/ui/StatusModal';
+import Pagination from '../../shared/ui/Pagination';
+import StatusModal from '../../shared/ui/StatusModal';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 

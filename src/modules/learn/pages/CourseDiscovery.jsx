@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { COURSES as ALL_COURSES } from '../../data/legacyData';
-import Button from '../../components/ui/Button';
-import Tab from '../../components/ui/Tab';
-import Pagination from '../../components/ui/Pagination';
-import CtaSection from '../../components/ui/CtaSection';
+import { supabase } from '../../../services/supabase/supabaseClient';
+import { COURSES as ALL_COURSES } from '../../../data/legacyData';
+import Button from '../../../shared/ui/Button';
+import Tab from '../../../shared/ui/Tab';
+import Pagination from '../../../shared/ui/Pagination';
+import CtaSection from '../../../shared/ui/CtaSection';
 import './CourseDiscovery.css';
 
 const CATEGORY_TABS = [
