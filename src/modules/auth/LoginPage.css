@@ -98,6 +98,12 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   max-height: 95vh;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.auth-form-card::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .auth-header-row {
