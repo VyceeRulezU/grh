@@ -95,17 +95,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin // Where the user goes after login
-      }
-    });
-    if (error) {
-      console.error('Login error:', error.message);
-    }
-  };
+  // Google login removed for branding compliance
 
   return (
     <>
@@ -248,9 +238,9 @@ const SignupPage = ({ onNavigate, onLogin }) => {
               
               <p className="auth-or-divider">Or</p>
               
-              <button type="button" className="auth-google-btn" onClick={handleGoogleLogin}>
-                <img src={googleIcon} alt="Google" />
-                Continue with Google
+              <button type="button" className="auth-magic-btn" onClick={() => onNavigate('login')}>
+                <span className="material-symbols-outlined">auto_fix_high</span>
+                Use Magic Link (No Password)
               </button>
               
               <p className="auth-switch-link">

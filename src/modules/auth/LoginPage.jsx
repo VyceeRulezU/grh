@@ -10,7 +10,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { modal, closeModal, showError } = useModal();
+  const { modal, closeModal, showError, showSuccess } = useModal();
 
   const [loading, setLoading] = useState(false);
 
@@ -84,21 +84,37 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-    if (error) {
-      showModal({
-        title: 'Google Login Failed',
-        message: error.message,
-        icon: 'ri-close-circle-line',
-        iconColor: '#ef4444',
-        iconBg: '#fef2f2',
+  const handleMagicLink = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      showError('Email Required', 'Please enter your email to receive a magic link.');
+      return;
+    }
+
+    // 1. Check Turnstile
+    const captchaToken = window.turnstile?.getResponse();
+    if (!captchaToken) {
+      showError('Security Check', 'Please complete the security verification.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin,
+          captchaToken: captchaToken
+        }
       });
+
+      if (error) throw error;
+      
+      showSuccess('Magic Link Sent!', 'Check your email for a login link. It may take a minute to arrive.');
+    } catch (err) {
+      showError('Magic Link Failed', err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -204,16 +220,21 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
             </div>
 
             <div className="auth-button-stack">
-              <button type="submit" className="auth-primary-btn">
-                {isAdmin ? 'Admin Login' : 'Login'}
+              <button type="submit" className="auth-primary-btn" disabled={loading}>
+                {loading ? 'Verifying...' : (isAdmin ? 'Admin Login' : 'Login with Password')}
               </button>
               
               {!isAdmin && (
                 <>
                   <p className="auth-or-divider">Or</p>
-                  <button type="button" className="auth-google-btn" onClick={handleGoogleLogin}>
-                    <img src={googleIcon} alt="Google" />
-                    Continue with Google
+                  <button 
+                    type="button" 
+                    className="auth-magic-btn" 
+                    onClick={handleMagicLink}
+                    disabled={loading}
+                  >
+                    <span className="material-symbols-outlined">auto_fix_high</span>
+                    {loading ? 'Sending...' : 'Send Magic Link to Email'}
                   </button>
                   <p className="auth-switch-link">
                     Don't have an Account? <span className="auth-link-text" onClick={() => onNavigate('signup')}>Sign Up Here</span>
