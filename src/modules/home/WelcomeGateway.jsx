@@ -47,7 +47,7 @@ const SECTIONS_DATA = [
 const WelcomeGateway = ({ onNavigate }) => {
   return (
     <div className="welcome-container">
-      <div className="hero-section">
+      <div className="welcome-hero-section">
         <div className="pattern">
           <img src={`${import.meta.env.BASE_URL}assets/hero-vector.svg`} alt="hero background" />
         </div>
@@ -104,7 +104,7 @@ const WelcomeGateway = ({ onNavigate }) => {
         <div className="legal-container">
 
           <p className="copyright-text">© 2025 Governance Resource Hub. All rights reserved.</p>
-          
+
           <div className="legal-links">
             <button onClick={() => onNavigate('privacy-policy')}>Privacy Policy</button>
             <span className="separator">•</span>
