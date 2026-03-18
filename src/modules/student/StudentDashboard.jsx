@@ -11,8 +11,8 @@ import mainLogo from '../../assets/images/Logo/Main logo.png';
 
 
 const TUTORIALS = [
-  { id: 1, title: 'Introduction to Governance', category: 'Basics', instructor: 'Dr. Amaka Okonkwo', duration: '15:20', thumbnail: 'https://images.unsplash.com/photo-1521791136364-798a7bc0d262?auto=format&fit=crop&q=80&w=800' },
-  { id: 2, title: 'Corporate Ethics 101', category: 'Corporate', instructor: 'Prof. Chidi Nwachukwu', duration: '22:45', thumbnail: 'https://images.unsplash.com/photo-1507679799987-c7377bc56509?auto=format&fit=crop&q=80&w=800' },
+  { id: 1, title: 'Introduction to Governance', category: 'Basics', instructor: 'Dr. Amaka Okonkwo', duration: '15:20', thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800' },
+  { id: 2, title: 'Corporate Ethics 101', category: 'Corporate', instructor: 'Prof. Chidi Nwachukwu', duration: '22:45', thumbnail: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=800' },
   { id: 3, title: 'Public Finance Overview', category: 'Finance', instructor: 'Dr. Fatima Al-Hassan', duration: '18:10', thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800' },
 ];
 
@@ -36,7 +36,8 @@ const COURSE_IMAGE_BANK = [
   'https://images.unsplash.com/photo-1524178232363-1fb2b075b655',
   'https://images.unsplash.com/photo-1513258496099-48168024adb0',
   'https://images.unsplash.com/photo-1523287562758-66c7fc58967f',
-  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4'
+  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4',
+  'https://images.unsplash.com/photo-1517245366810-54070744a417'
 ];
 
 const MY_RESOURCES = LEGACY_RESOURCES;
