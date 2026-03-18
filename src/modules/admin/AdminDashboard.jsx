@@ -1572,7 +1572,14 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
 }
 
 const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState(() => {
+    return localStorage.getItem('adminActiveSection') || 'overview';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('adminActiveSection', activeSection);
+  }, [activeSection]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courses, setCourses] = useState([]);
   const [resources, setResources] = useState([]);
@@ -1680,6 +1687,50 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
 
   useEffect(() => {
     fetchData();
+
+    // Subscribe to real-time changes
+    const coursesChannel = supabase
+      .channel('admin-dashboard:courses')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const resourcesChannel = supabase
+      .channel('admin-dashboard:library_resources')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'library_resources' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const booksChannel = supabase
+      .channel('admin-dashboard:books')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel('admin-dashboard:profiles')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const workshopsChannel = supabase
+      .channel('admin-dashboard:workshops')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workshops' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(coursesChannel);
+      supabase.removeChannel(resourcesChannel);
+      supabase.removeChannel(booksChannel);
+      supabase.removeChannel(profilesChannel);
+      supabase.removeChannel(workshopsChannel);
+    };
   }, []);
 
   // Status Modal State

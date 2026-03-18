@@ -53,7 +53,20 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         setLoading(false);
       }
     };
+
     fetchCourses();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('public:courses')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, () => {
+        fetchCourses();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const filtered = courses.filter(c => {

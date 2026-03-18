@@ -795,7 +795,14 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
    ═══════════════════════════════════════════════════════════════ */
 
 const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
-  const [activeTab, setActiveTab] = useState("Home");
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('studentActiveTab') || "Home";
+  });
+
+  useEffect(() => {
+    localStorage.setItem('studentActiveTab', activeTab);
+  }, [activeTab]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileName, setProfileName] = useState(user?.name || user?.email?.split('@')[0] || "Alex");
   const [profileAvatar, setProfileAvatar] = useState(user?.avatar_url || null);
@@ -903,6 +910,42 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
 
   useEffect(() => {
     fetchData();
+
+    // Subscribe to real-time changes
+    const coursesChannel = supabase
+      .channel('student-dashboard:courses')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const workshopsChannel = supabase
+      .channel('student-dashboard:workshops')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workshops' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const resourcesChannel = supabase
+      .channel('student-dashboard:library_resources')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'library_resources' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const booksChannel = supabase
+      .channel('student-dashboard:books')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(coursesChannel);
+      supabase.removeChannel(workshopsChannel);
+      supabase.removeChannel(resourcesChannel);
+      supabase.removeChannel(booksChannel);
+    };
   }, [user]);
 
   const confirmLogout = () => {
