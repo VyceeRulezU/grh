@@ -679,8 +679,8 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
     try {
       setSaving(true);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const fileName = `${Math.random().toString(36).substr(2, 9)}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')

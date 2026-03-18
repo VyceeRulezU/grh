@@ -1245,7 +1245,7 @@ function AdminSettingsPanel({ user }) {
     setLoading(true);
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const fileName = `${Math.random().toString(36).substr(2, 9)}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       // 1. Upload to storage

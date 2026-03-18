@@ -1,8 +1,17 @@
 import React from 'react';
 import './CertificatePreview.css';
+import ModernCertificate from './ModernCertificate';
 
-const CertificatePreview = ({ isOpen, onClose, pdfUrl, courseTitle, downloadAction }) => {
-  if (!isOpen || !pdfUrl) return null;
+const CertificatePreview = ({ 
+  isOpen, 
+  onClose, 
+  recipientName, 
+  courseTitle, 
+  date, 
+  certificateId, 
+  downloadAction 
+}) => {
+  if (!isOpen) return null;
 
   return (
     <div className="viewer-overlay" onClick={onClose}>
@@ -31,12 +40,15 @@ const CertificatePreview = ({ isOpen, onClose, pdfUrl, courseTitle, downloadActi
           </div>
         </header>
 
-        <main className="viewer-content">
-          <iframe
-            src={pdfUrl}
-            title="Certificate Preview"
-            className="certificate-iframe"
-          />
+        <main className="viewer-content" style={{ padding: '20px', background: '#f0f2f5', overflowY: 'auto', display: 'flex', justifyContent: 'center' }}>
+          <div className="certificate-snapshot-wrapper" style={{ width: '100%', maxWidth: '1000px' }}>
+            <ModernCertificate 
+              recipientName={recipientName}
+              courseTitle={courseTitle}
+              date={date}
+              certificateId={certificateId}
+            />
+          </div>
         </main>
 
         <footer className="viewer-footer">
