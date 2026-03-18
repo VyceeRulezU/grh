@@ -350,5 +350,19 @@
         width: 100%;
         font-size: 1rem;
     }
+
+    .legal-container{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .copyright-text{
+        text-align: center;
+    }
 }
 
