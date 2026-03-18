@@ -15,6 +15,7 @@ export const COURSES = [
     trending:true, 
     featured:true, 
     progress:0,
+    created_at: "2026-03-16T10:00:00Z",
     sections:[
       {title:"Introduction to Governance",topics:["What is Governance?","Historical Context","Governance Models Quiz"]},
       {title:"Accountability Frameworks",topics:["Horizontal Accountability","Vertical Accountability","Case Study Practice"]},
@@ -46,6 +47,7 @@ export const COURSES = [
     trending:true, 
     featured:false, 
     progress:35,
+    created_at: "2026-03-11T12:00:00Z",
     sections:[
       {title:"Corporate Governance Intro",topics:["History","OECD Principles","Why It Matters"]},
       {title:"Board of Directors",topics:["Board Composition","Independent Directors","Board Committees"]},
@@ -79,6 +81,7 @@ export const COURSES = [
     trending:false, 
     featured:true, 
     progress:0,
+    created_at: "2026-03-04T09:30:00Z",
     sections:[
       {title:"PFM Systems Overview",topics:["PFM Framework","PEFA Assessment","Key Players"]},
       {title:"Budget Preparation",topics:["MTEF","Budget Circular","Sector Ceilings"]},
@@ -110,6 +113,7 @@ export const COURSES = [
     trending:true, 
     featured:false, 
     progress:70,
+    created_at: "2026-02-18T15:45:00Z",
     sections:[
       {title:"Understanding Corruption",topics:["Definitions","Types & Forms","Measurement Indices"]},
       {title:"UNCAC Framework",topics:["Prevention","Criminalisation","Asset Recovery"]},
@@ -141,6 +145,7 @@ export const COURSES = [
     trending:false, 
     featured:false, 
     progress:0, 
+    created_at: "2026-01-18T11:20:00Z",
     sections:[
       {title:"Democracy Fundamentals",topics:["Types of Democracy","Democratic Values","Global Trends"]},
       {title:"Electoral Systems",topics:["Proportional Representation","First-Past-the-Post","Mixed Systems"]},
@@ -172,6 +177,7 @@ export const COURSES = [
     trending:false, 
     featured:false, 
     progress:15, 
+    created_at: "2025-12-18T08:00:00Z",
     sections:[
       {title:"Open Government Partnership",topics:["OGP Overview","National Action Plans","Key Commitments"]},
       {title:"Transparency Tools",topics:["Freedom of Info Laws","Proactive Disclosure","Open Contracting"]},

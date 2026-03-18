@@ -5,6 +5,7 @@ import Button from '../../../shared/ui/Button';
 import Tab from '../../../shared/ui/Tab';
 import Pagination from '../../../shared/ui/Pagination';
 import CtaSection from '../../../shared/ui/CtaSection';
+import { getRelativeTime } from '../../../shared/utils/dateUtils';
 import './CourseDiscovery.css';
 
 const CATEGORY_TABS = [
@@ -132,6 +133,7 @@ const CourseDiscovery = ({ onNavigate }) => {
                   <div className="disc-course-meta">
                     <span>⏱ {course.duration}</span>
                     <span>👤 {course.students.toLocaleString()} enrolled</span>
+                    <span className="course-upload-time">📅 {getRelativeTime(course.created_at)}</span>
                   </div>
                   <div className="disc-course-price">
                     <span className="price">{course.price}</span>

@@ -4,6 +4,7 @@ import { COURSES, MENTORS, TESTIMONIALS } from '../../../data/legacyData';
 import CtaSection from '../../../shared/ui/CtaSection';
 import ModernDropdown from '../../../shared/ui/ModernDropdown';
 import Tab from '../../../shared/ui/Tab';
+import { getRelativeTime } from '../../../shared/utils/dateUtils';
 import './LearnLandingPage.css';
 
 const COURSE_TABS = [
@@ -186,8 +187,9 @@ const LearnLandingPage = ({ onNavigate, user }) => {
                 <p className="course-desc">{course.description}</p>
                 <footer className="course-footer">
                   <div className="course-meta">
-                    <span>⏱ {course.duration}</span>
+                     <span className="course-upload-time">⏱ {getRelativeTime(course.created_at)}</span>
                     <span>👤 {course.students.toLocaleString()} enrolled</span>
+                   
                   </div>
                   <div className="course-price">
                     <span className="price">Free</span>
