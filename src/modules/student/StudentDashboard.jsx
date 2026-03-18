@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase/supabaseClient';
+import { generateCertificatePDF } from '../../shared/utils/certificateGenerator';
 import { COURSES as LEGACY_COURSES, RESOURCES as LEGACY_RESOURCES } from '../../data/legacyData';
 import Pagination from '../../shared/ui/Pagination';
 import StatusModal from '../../shared/ui/StatusModal';
+import CertificatePreview from '../../shared/ui/CertificatePreview';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 
@@ -568,7 +570,13 @@ function ResourcesPanel({ onNavigate }) {
    PANEL: CERTIFICATIONS
    ═══════════════════════════════════════════════════════════════ */
 
-function CertificationsPanel({ certificates = [], allCoursesCount = 0 }) {
+function CertificationsPanel({ 
+  certificates = [], 
+  allCoursesCount = 0,
+  onPreview,
+  onDownload,
+  onShare 
+}) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filtered = certificates.filter(c => 
@@ -619,7 +627,7 @@ function CertificationsPanel({ certificates = [], allCoursesCount = 0 }) {
 
       <div className="std-cert-list">
         {filtered.map(cert => (
-          <div key={cert.id} className={`std-cert-card ${cert.status === 'Earned' ? 'earned' : 'progress'}`}>
+          <div key={cert.id} className={`std-cert-card ${cert.status === 'Earned' ? 'earned' : 'progress'}`} onClick={() => cert.status === 'Earned' && onPreview(cert)}>
             <div className="std-cert-icon-area">
               {cert.status === 'Earned' ? (
                 <div className="std-cert-badge earned"><i className="ri-award-fill"></i></div>
@@ -638,10 +646,18 @@ function CertificationsPanel({ certificates = [], allCoursesCount = 0 }) {
             <div className="std-cert-actions">
               {cert.status === 'Earned' ? (
                 <>
-                  <button className="special-button" style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}>
+                  <button 
+                    className="special-button" 
+                    style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}
+                    onClick={(e) => { e.stopPropagation(); onDownload(cert); }}
+                  >
                     <i className="ri-download-line"></i> Download
                   </button>
-                  <button className="btn-outline" style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}>
+                  <button 
+                    className="btn-outline" 
+                    style={{fontSize: '0.8rem', padding: '0.5rem 1rem'}}
+                    onClick={(e) => { e.stopPropagation(); onShare(cert); }}
+                  >
                     <i className="ri-share-line"></i> Share
                   </button>
                 </>
@@ -833,6 +849,12 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
   const [completedLessons, setCompletedLessons] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Certificate Preview State
+  const [certPreview, setCertPreview] = useState({ 
+    isOpen: false, 
+    certificate: null 
+  });
+
   const fetchData = async () => {
     if (!user) {
       setLoading(false);
@@ -907,6 +929,45 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       clearTimeout(safetyTimer);
       setLoading(false);
     }
+  };
+
+  const handleCertDownload = (cert) => {
+    generateCertificatePDF({
+      recipientName: profileName,
+      courseTitle: cert.title,
+      date: cert.issueDate,
+      certificateId: cert.credentialId
+    }, true);
+  };
+
+  const handleCertShare = async (cert) => {
+    const text = `I just earned my certification in ${cert.title} from Governance Resource Hub! Credential ID: ${cert.credentialId}`;
+    const url = window.location.origin;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Governance Certificate: ${cert.title}`,
+          text,
+          url
+        });
+      } catch (err) {
+        console.log('Share failed or cancelled', err);
+      }
+    } else {
+      navigator.clipboard.writeText(`${text} ${url}`);
+      setStatusModal({
+        isOpen: true,
+        type: 'success',
+        title: 'Share link copied',
+        message: 'The certificate information and link have been copied to your clipboard.',
+        onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
+      });
+    }
+  };
+
+  const handleCertPreview = (cert) => {
+    setCertPreview({ isOpen: true, certificate: cert });
   };
 
   useEffect(() => {
@@ -1011,7 +1072,15 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       case 'Tutorials':      return <TutorialsPanel onNavigate={onNavigate} />;
       case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} workshops={workshops} />;
       case 'Resources':      return <ResourcesPanel onNavigate={onNavigate} />;
-      case 'Certifications': return <CertificationsPanel certificates={certificates} allCoursesCount={myCourses.length} />;
+      case 'Certifications': return (
+        <CertificationsPanel 
+          certificates={certificates} 
+          allCoursesCount={myCourses.length}
+          onPreview={handleCertPreview}
+          onDownload={handleCertDownload}
+          onShare={handleCertShare}
+        />
+      );
       case 'Settings':       return <SettingsPanel user={user} profileName={profileName} setProfileName={setProfileName} profileAvatar={profileAvatar} setProfileAvatar={setProfileAvatar} fetchData={fetchData} setStatusModal={setStatusModal} />;
       default:               return <HomePanel name={profileName} onNavigate={onNavigate} myCourses={myCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
     }
@@ -1130,6 +1199,16 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
           onConfirm={submitRegistration}
         />
       )}
+      {/* Certificate Preview Modal */}
+      <CertificatePreview 
+        isOpen={certPreview.isOpen}
+        onClose={() => setCertPreview({ isOpen: false, certificate: null })}
+        recipientName={profileName}
+        courseTitle={certPreview.certificate?.title}
+        date={certPreview.certificate?.issueDate}
+        certificateId={certPreview.certificate?.credentialId}
+        downloadAction={() => handleCertDownload(certPreview.certificate)}
+      />
     </>
   );
 };
