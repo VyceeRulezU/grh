@@ -616,6 +616,24 @@ function WorkshopAttendeesModal({ workshop, onClose }) {
 }
 
 function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats }) {
+  const handleExportActivityCSV = () => {
+    const headers = ['Activity', 'User', 'Time', 'Status'];
+    const rows = stats.recentActivities.map(act => [
+      `"Finished ${act.courses?.title || 'Course'}"`,
+      `"${act.profiles?.name || 'Learner'}"`,
+      `"${new Date(act.updated_at || act.created_at || act.last_accessed).toLocaleDateString()}"`,
+      `"Completed"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grh-activity-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="adm-panel">
       {/* Quick Actions */}
@@ -690,8 +708,10 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
       {/* Recent Activity */}
       <div className="adm-panel-header">
-        <h3>Recent Completions</h3>
-        <span className="adm-count">{stats.recentActivities.length} New</span>
+        <h3>Recent Completions <span className="adm-count">{stats.recentActivities.length} New</span></h3>
+        <button className="btn-outline btn-sm" onClick={handleExportActivityCSV} title="Export CSV">
+          <i className="ri-download-2-line"></i> Export CSV
+        </button>
       </div>
 
       <div className="adm-table-wrap">
@@ -723,11 +743,15 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
                     <span>{act.profiles?.name || 'Anonymous'}</span>
                   </div>
                 </td>
-                <td>{new Date(act.last_accessed).toLocaleDateString()}</td>
+                <td>{new Date(act.updated_at || act.created_at || act.last_accessed).toLocaleDateString()}</td>
                 <td><span className="adm-status-badge published">Completed</span></td>
               </tr>
             )) : (
-              <tr><td colSpan="4" style={{textAlign:'center', padding:'2rem', color:'var(--text-soft)'}}>No recent completions yet.</td></tr>
+              <tr>
+                <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-soft)' }}>
+                  No recent completions yet.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
@@ -1627,8 +1651,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         supabase.from('user_progress')
           .select('*, profiles(name), courses(title)')
           .eq('completed', true)
-          .order('last_accessed', { ascending: false })
-          .limit(5).then(r => r, e => ({ error: e }))
+          .order('updated_at', { ascending: false })
+          .limit(10).then(r => r, e => ({ error: e }))
       ]);
 
       // ULTRA-RESILIENT FALLBACK: If join query failed (likely due to missing chapters table), try simple select
@@ -1647,9 +1671,28 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (wks.error) console.error("Workshops Fetch Error:", wks.error);
       if (progress.error) console.error("Progress Fetch Error:", progress.error);
 
+      // 2. Fetch ALL progress for counting and recent activity (Manual join fallback)
+      const { data: allProgress, error: allProgErr } = await supabase
+        .from('user_progress')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (allProgErr) console.error("All Progress Fetch Error:", allProgErr);
+
+      // 3. Map Course Data with Dynamic Learner Counts
       if (crs.data) {
+        // Calculate unique learners per course (Force string keys to prevent type mismatch)
+        const learnerCounts = {};
+        (allProgress || []).forEach(p => {
+          const cid = String(p.course_id);
+          const uid = String(p.user_id);
+          if (!learnerCounts[cid]) learnerCounts[cid] = new Set();
+          learnerCounts[cid].add(uid);
+        });
+
         const mappedCourses = crs.data.map(c => ({
           ...c,
+          learners: learnerCounts[String(c.id)]?.size || 0,
           chapters: (c.chapters || []).sort((a,b) => a.sequence_order - b.sequence_order).map(ch => ({
             ...ch,
             modules: (ch.modules || []).sort((a,b) => a.sequence_order - b.sequence_order).map(m => ({
@@ -1660,6 +1703,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         }));
         setCourses(mappedCourses);
       }
+
+      // 4. Map Users, Resources, Workshops
       if (res.data) setResources(res.data.map(r => ({ ...r, fileUrl: r.file_url })));
       if (bks.data) setBooks(bks.data.map(b => ({ ...b, fileUrl: b.file_url, imageUrl: b.image_url })));
       if (usr.data) setUsers(usr.data.map(u => ({ 
@@ -1671,12 +1716,34 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       })));
       if (wks.data) setWorkshops(wks.data.map(w => ({ ...w, registrations: w.workshop_registrations })));
 
+      // 5. Calculate Stats and Recent Activities
+      const profilesMap = (usr.data || []).reduce((acc, p) => ({ ...acc, [String(p.id)]: p }), {});
+      const coursesMap = (crs.data || []).reduce((acc, c) => ({ ...acc, [String(c.id)]: c }), {});
+
+      const completedProgress = (allProgress || []).filter(p => {
+        // Handle various boolean representations just in case
+        return p.completed === true || p.completed === 'true' || p.completed === 't';
+      });
+      
+      if (allProgress && allProgress.length > 0) {
+        console.log(`DIAGNOSTIC: Found ${allProgress.length} progress records.`);
+      } else {
+        console.warn("DIAGNOSTIC: No records found in user_progress for Admin. This may be an RLS policy issue.");
+      }
+
+      // Manual mapping for recent activities to ensure they show even if Supabase join fails
+      const mappedRecent = (progress.data && progress.data.length > 0 ? progress.data : completedProgress.slice(0, 10)).map(p => ({
+        ...p,
+        profiles: p.profiles || profilesMap[String(p.user_id)] || { name: 'Learner' },
+        courses: p.courses || coursesMap[String(p.course_id)] || { title: 'Governance Course' }
+      }));
+
       setStats({
         learners: usr.data?.length || 0,
         courses: crs.data?.length || 0,
         resources: (res.data?.length || 0) + (bks.data?.length || 0),
-        certs: progress.data?.length || 0,
-        recentActivities: progress.data || []
+        certs: completedProgress.length,
+        recentActivities: mappedRecent
       });
     } catch (err) {
       console.error("Error fetching admin data:", err);

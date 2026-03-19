@@ -246,7 +246,8 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           course_id: course.id,
           completed: completed,
           watched_seconds: 0, 
-          status: completed ? 'completed' : 'in-progress'
+          status: completed ? 'completed' : 'in-progress',
+          last_accessed: new Date().toISOString()
         }, { onConflict: 'user_id,module_id' });
 
       if (error) {

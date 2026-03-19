@@ -1092,7 +1092,8 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
           course_id: course.id,
           module_id: modules[0].id,
           completed: false,
-          status: 'in-progress'
+          status: 'in-progress',
+          last_accessed: new Date().toISOString()
         }, { onConflict: 'user_id,module_id' });
 
       if (error) throw error;
