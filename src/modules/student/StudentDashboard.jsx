@@ -1195,7 +1195,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         />
       );
       case 'Settings':       return <SettingsPanel user={user} profileName={profileName} setProfileName={setProfileName} profileAvatar={profileAvatar} setProfileAvatar={setProfileAvatar} fetchData={fetchData} setStatusModal={setStatusModal} />;
-      default:               return <HomePanel name={profileName} onNavigate={onNavigate} myCourses={myCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
+      default:               return <HomePanel name={profileName} onNavigate={onNavigate} onEnroll={handleEnroll} myCourses={myCourses} allCourses={allCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
     }
   };
 
