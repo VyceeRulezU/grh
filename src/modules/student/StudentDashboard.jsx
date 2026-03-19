@@ -893,11 +893,15 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         return `${COURSE_IMAGE_BANK[i % COURSE_IMAGE_BANK.length]}?auto=format&fit=crop&w=600&q=80`;
       };
 
-      const coursesWithProgress = (coursesData || []).map((c, i) => ({
-        ...c,
-        coverImage: getSafeImg(c, i),
-        progress: Math.floor(Math.random() * 101) // mock
-      }));
+      const coursesWithProgress = (coursesData || []).map((c, i) => {
+        const total = courseModuleCounts[c.id] || 0;
+        const completed = userCompletedModulesPerCourse[c.id] || 0;
+        return {
+          ...c,
+          coverImage: getSafeImg(c, i),
+          progress: total > 0 ? Math.round((completed / total) * 100) : 0
+        };
+      });
 
       // Fetch workshops
       const { data: workshopsData } = await supabase
@@ -914,14 +918,51 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         setRegisteredWorkshops(regsData.map(r => r.workshop_id));
       }
 
+      // ─── NEW: REAL PROGRESS & CERTIFICATES ───
+      // Fetch all user progress
+      const { data: userProgress } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', user.id);
+
+      // Fetch all course modules to check completion
+      const { data: allModules } = await supabase
+        .from('course_modules')
+        .select('id, course_id');
+
+      // Calculate total completed lessons
+      const completedCount = (userProgress || []).filter(p => p.completed).length;
+      setCompletedLessons(completedCount);
+
+      // Calculate certificates (courses where all modules are completed)
+      const courseModuleCounts = (allModules || []).reduce((acc, m) => {
+        acc[m.course_id] = (acc[m.course_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      const userCompletedModulesPerCourse = (userProgress || []).filter(p => p.completed).reduce((acc, p) => {
+        acc[p.course_id] = (acc[p.course_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      const earnedCertificates = (coursesData || []).filter(course => {
+        const total = courseModuleCounts[course.id] || 0;
+        const completed = userCompletedModulesPerCourse[course.id] || 0;
+        return total > 0 && completed >= total;
+      }).map(course => ({
+        id: course.id,
+        title: course.title,
+        issueDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        credentialId: `GRH-${course.id.toString().substring(0, 8).toUpperCase()}`,
+        grade: 'A', // Default grade
+        status: 'Earned'
+      }));
+
+      setCertificates(earnedCertificates);
+      // ──────────────────────────────────────────
+
       setMyCourses(coursesWithProgress);
       setWorkshops(workshopsData || []);
-      
-      // Mock certificates
-      setCertificates([
-        { id: 1, title: 'Governance Fundamentals', issueDate: 'Oct 2023', credentialId: 'GRH-123456', grade: 'A', status: 'Earned' }
-      ]);
-      setCompletedLessons(12);
 
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -989,7 +1030,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       .subscribe();
 
     const resourcesChannel = supabase
-      .channel('student-dashboard:library_resources')
+      .channel('student-dashboard:library-resources')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'library_resources' }, () => {
         fetchData();
       })
@@ -1002,11 +1043,19 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       })
       .subscribe();
 
+    const progressChannel = supabase
+      .channel('student-dashboard:user_progress')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_progress', filter: `user_id=eq.${user.id}` }, () => {
+        fetchData();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(coursesChannel);
       supabase.removeChannel(workshopsChannel);
       supabase.removeChannel(resourcesChannel);
       supabase.removeChannel(booksChannel);
+      supabase.removeChannel(progressChannel);
     };
   }, [user]);
 
