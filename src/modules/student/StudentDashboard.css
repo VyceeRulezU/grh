@@ -1,4 +1,4 @@
-﻿/* ===== STUDENT DASHBOARD — Full-screen App Shell ===== */
+/* ===== STUDENT DASHBOARD — Full-screen App Shell ===== */
 .student-dashboard-wrapper {
   display: flex;
   height: 100vh;
@@ -448,7 +448,17 @@
   margin-bottom: 1rem;
 }
 
-.enroll-btn { border-radius: 10px !important; width: 100%; }
+.enroll-btn { border-radius: 10px !important; width: 100%; transition: all 0.2s; }
+.enroll-btn.enrolled {
+  background: #fbbf24 !important; /* Yellow-400 */
+  color: #92400e !important; /* Amber-900 */
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+}
+.enroll-btn.enrolled:hover {
+  background: #f59e0b !important; /* Amber-500 */
+}
 
 /* ===== MOBILE RESPONSIVENESS ===== */
 .sidebar-mobile-toggle {

@@ -72,10 +72,12 @@ const NAV_GROUPS = [
    PANEL: HOME
    ═══════════════════════════════════════════════════════════════ */
 
-function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, certificates = [], workshops = [], registeredWorkshops = [] }) {
+function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = [], completedLessons = 0, certificates = [], workshops = [], registeredWorkshops = [] }) {
   const enrolledCount = myCourses.length;
   const certificatesCount = certificates.length;
-  const attendedWorkshopsCount = workshops.filter(w => w.status === 'Completed' && registeredWorkshops.includes(w.id)).length;
+  // Show ALL registered workshops as "Upcoming/Enrolled" instead of ONLY completed/attended ones
+  const registeredCount = registeredWorkshops.length;
+  const attendedWorkshopsCount = workshops.filter(w => (w.status || "").toLowerCase() === 'completed' && registeredWorkshops.includes(w.id)).length;
 
   return (
     <>
@@ -127,7 +129,7 @@ function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, cer
           </div>
           <div className="stat-box">
             <div className="stat-icon red"><i className="ri-team-fill"></i></div>
-            <div><strong>{attendedWorkshopsCount} Workshops</strong><span>Attended</span></div>
+            <div><strong>{registeredCount} Workshops</strong><span>Registered</span></div>
           </div>
         </div>
       </section>
@@ -135,28 +137,37 @@ function HomePanel({ name, onNavigate, myCourses = [], completedLessons = 0, cer
       <section className="recommended-section">
         <div className="section-header">
           <h3>Recommended Courses</h3>
-          <button className="view-all" onClick={() => onNavigate('learn')}>Browse All</button>
+          <button className="view-all" onClick={() => onNavigate('learn-discovery')}>Browse All</button>
         </div>
         <div className="recommended-grid">
-          {[...myCourses].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3).map(course => (
-            <div key={course.id} className="rec-card">
-              <div className="rec-thumb" style={{ backgroundImage: `url(${course.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                <span className="rec-price">Free</span>
-              </div>
-              <div className="rec-body">
-                <h4 className="truncate-1">{course.title}</h4>
-                <p className="truncate-2">{course.description?.[0] === '{' ? 'Course details...' : course.description?.substring(0, 80)}…</p>
-                <div className="rec-meta">
-                  <span className="badge">{course.level}</span>
-                  <span className="badge">{course.duration || 'Self-paced'}</span>
-                  <span className="badge">{course.lessons || 0} Lessons</span>
+          {[...allCourses].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3).map(course => {
+            const isEnrolled = myCourses.some(mc => mc.id === course.id);
+            return (
+              <div key={course.id} className="rec-card">
+                <div className="rec-thumb" style={{ backgroundImage: `url(${course.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                  <span className="rec-price">Free</span>
                 </div>
-                <button className="special-button enroll-btn" onClick={() => onNavigate('learn-player', course)}>
-                  Enroll Now
-                </button>
+                <div className="rec-body">
+                  <h4 className="truncate-1">{course.title}</h4>
+                  <p className="truncate-2">{course.description?.[0] === '{' ? 'Course details...' : course.description?.substring(0, 80)}…</p>
+                  <div className="rec-meta">
+                    <span className="badge">{course.level}</span>
+                    <span className="badge">{course.duration || 'Self-paced'}</span>
+                    <span className="badge">{course.lessons || 0} Lessons</span>
+                  </div>
+                  {isEnrolled ? (
+                    <button className="special-button enroll-btn enrolled" onClick={() => onNavigate('learn-player', course)}>
+                      <i className="ri-checkbox-circle-fill"></i> Enrolled
+                    </button>
+                  ) : (
+                    <button className="special-button enroll-btn" onClick={() => onEnroll(course)}>
+                      Enroll Now
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {myCourses.length === 0 && <div style={{gridColumn: '1/-1', textAlign: 'center', padding: '20px', color: 'var(--text-soft)'}}>Browse all courses to find your next lesson.</div>}
         </div>
       </section>
@@ -420,11 +431,13 @@ function WorkshopPanel({ onRegister, registeredIds = [], workshops = [] }) {
   const [tab, setTab] = useState('upcoming');
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filtered = workshops.filter(w =>
-    (tab === 'upcoming' ? w.status === 'Upcoming' : w.status === 'Completed') &&
-    (w.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     (w.host || "").toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filtered = workshops.filter(p => {
+    const status = (p.status || "").toLowerCase();
+    const matchesTab = tab === 'upcoming' ? status === 'upcoming' : status === 'completed';
+    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (p.host || "").toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
 
   return (
     <section className="std-panel">
@@ -463,12 +476,12 @@ function WorkshopPanel({ onRegister, registeredIds = [], workshops = [] }) {
                   <span><i className="ri-team-line"></i> {w.attendees} attendees</span>
                 </div>
                 <div className="std-ws-tags">
-                  <span className={`badge ${w.status === 'Upcoming' ? 'beginner' : ''}`}>{w.format}</span>
-                  <span className={`badge ${w.status === 'Upcoming' ? 'advance' : 'medium'}`}>{w.status}</span>
+                  <span className={`badge ${(w.status || "").toLowerCase() === 'upcoming' ? 'beginner' : ''}`}>{w.format}</span>
+                  <span className={`badge ${(w.status || "").toLowerCase() === 'upcoming' ? 'advance' : 'medium'}`}>{w.status}</span>
                 </div>
               </div>
               <div className="std-ws-action">
-                {w.status === 'Upcoming' ? (
+                {(w.status || "").toLowerCase() === 'upcoming' ? (
                   isRegistered ? (
                     <span className="badge" style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '0.6rem 1.2rem', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <i className="ri-checkbox-circle-fill"></i> Registered
@@ -844,6 +857,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
   const [regModal, setRegModal] = useState({ isOpen: false, workshop: null });
   const [registeredWorkshops, setRegisteredWorkshops] = useState([]);
   const [myCourses, setMyCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
   const [workshops, setWorkshops] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [completedLessons, setCompletedLessons] = useState(0);
@@ -869,29 +883,49 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     try {
       setLoading(true);
       
-      // Fetch user's profile to sync name/avatar
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
+      // 1. Fetch all raw data first
+      const [
+        { data: profile },
+        { data: coursesData },
+        { data: workshopsData },
+        { data: regsData },
+        { data: userProgress },
+        { data: allModules }
+      ] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        supabase.from('courses').select('*'),
+        supabase.from('workshops').select('*'),
+        supabase.from('workshop_registrations').select('workshop_id').eq('user_id', user.id),
+        supabase.from('user_progress').select('*').eq('user_id', user.id),
+        supabase.from('course_modules').select('id, course_id')
+      ]);
+
+      // 2. Sync profile
       if (profile) {
         setProfileName(profile.name || user.email?.split('@')[0]);
         setProfileAvatar(profile.avatar_url);
       }
 
-      // Fetch all courses
-      const { data: coursesData } = await supabase
-        .from('courses')
-        .select('*');
-      
-      // Mock progress for now - in a real app, join with user_progress
+      // 3. Process mappings
+      const courseModuleCounts = (allModules || []).reduce((acc, m) => {
+        acc[m.course_id] = (acc[m.course_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      const userCompletedModulesPerCourse = (userProgress || []).filter(p => p.completed).reduce((acc, p) => {
+        acc[p.course_id] = (acc[p.course_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      // 4. Calculate progress and completions
       const getSafeImg = (c, i) => {
         const val = c.thumbnail || c.cover_image || c.coverImage || "";
         if (val && val.length > 10) return val;
         return `${COURSE_IMAGE_BANK[i % COURSE_IMAGE_BANK.length]}?auto=format&fit=crop&w=600&q=80`;
       };
+
+      const completedCount = (userProgress || []).filter(p => p.completed).length;
+      setCompletedLessons(completedCount);
 
       const coursesWithProgress = (coursesData || []).map((c, i) => {
         const total = courseModuleCounts[c.id] || 0;
@@ -903,48 +937,6 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         };
       });
 
-      // Fetch workshops
-      const { data: workshopsData } = await supabase
-        .from('workshops')
-        .select('*');
-
-      // Fetch user's registered workshops
-      const { data: regsData } = await supabase
-        .from('workshop_registrations')
-        .select('workshop_id')
-        .eq('user_id', user.id);
-
-      if (regsData) {
-        setRegisteredWorkshops(regsData.map(r => r.workshop_id));
-      }
-
-      // ─── NEW: REAL PROGRESS & CERTIFICATES ───
-      // Fetch all user progress
-      const { data: userProgress } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', user.id);
-
-      // Fetch all course modules to check completion
-      const { data: allModules } = await supabase
-        .from('course_modules')
-        .select('id, course_id');
-
-      // Calculate total completed lessons
-      const completedCount = (userProgress || []).filter(p => p.completed).length;
-      setCompletedLessons(completedCount);
-
-      // Calculate certificates (courses where all modules are completed)
-      const courseModuleCounts = (allModules || []).reduce((acc, m) => {
-        acc[m.course_id] = (acc[m.course_id] || 0) + 1;
-        return acc;
-      }, {});
-
-      const userCompletedModulesPerCourse = (userProgress || []).filter(p => p.completed).reduce((acc, p) => {
-        acc[p.course_id] = (acc[p.course_id] || 0) + 1;
-        return acc;
-      }, {});
-
       const earnedCertificates = (coursesData || []).filter(course => {
         const total = courseModuleCounts[course.id] || 0;
         const completed = userCompletedModulesPerCourse[course.id] || 0;
@@ -954,14 +946,23 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         title: course.title,
         issueDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         credentialId: `GRH-${course.id.toString().substring(0, 8).toUpperCase()}`,
-        grade: 'A', // Default grade
+        grade: 'A',
         status: 'Earned'
       }));
 
+      // 5. Update states
+      if (regsData) {
+        setRegisteredWorkshops(regsData.map(r => r.workshop_id));
+      }
       setCertificates(earnedCertificates);
-      // ──────────────────────────────────────────
-
-      setMyCourses(coursesWithProgress);
+      setAllCourses(coursesWithProgress);
+      
+      const enrolled = coursesWithProgress.filter(c => {
+        const hasProgress = c.progress > 0;
+        const existsInProgress = (userProgress || []).some(p => p.course_id === c.id);
+        return hasProgress || existsInProgress;
+      });
+      setMyCourses(enrolled);
       setWorkshops(workshopsData || []);
 
     } catch (err) {
@@ -1059,6 +1060,69 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     };
   }, [user]);
 
+  const handleEnroll = async (course) => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      
+      // 1. Fetch first module
+      const { data: modules } = await supabase
+        .from('course_modules')
+        .select('id')
+        .eq('course_id', course.id)
+        .order('sort_order', { ascending: true })
+        .limit(1);
+
+      if (!modules || modules.length === 0) {
+        setStatusModal({
+          isOpen: true,
+          type: 'warning',
+          title: 'Coming Soon',
+          message: 'This course is currently being prepared and has no modules yet. Please check back later!',
+          onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
+        });
+        return;
+      }
+
+      // 2. Insert into user_progress (upsert to be safe)
+      const { error } = await supabase
+        .from('user_progress')
+        .upsert({
+          user_id: user.id,
+          course_id: course.id,
+          module_id: modules[0].id,
+          completed: false,
+          status: 'in-progress'
+        }, { onConflict: 'user_id,module_id' });
+
+      if (error) throw error;
+
+      // 3. Show Success Modal
+      setStatusModal({
+        isOpen: true,
+        type: 'success',
+        title: 'Enrollment Successful!',
+        message: `You have successfully enrolled in "${course.title}". You can now start learning from your dashboard!`,
+        onConfirm: () => {
+          setStatusModal(prev => ({ ...prev, isOpen: false }));
+          fetchData(); 
+        }
+      });
+
+    } catch (err) {
+      console.error("Enrollment error:", err);
+      setStatusModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Enrollment Failed',
+        message: err.message || 'An error occurred during enrollment. Please try again.',
+        onConfirm: () => setStatusModal(prev => ({ ...prev, isOpen: false }))
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const confirmLogout = () => {
     setStatusModal({
       isOpen: true,
@@ -1116,7 +1180,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     if (loading) return <div className="std-panel" style={{display:'flex', alignItems:'center', justifyContent:'center', minHeight:'400px'}}>Loading dashboard...</div>;
 
     switch (activeTab) {
-      case 'Home':           return <HomePanel name={profileName} onNavigate={onNavigate} myCourses={myCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
+      case 'Home':           return <HomePanel name={profileName} onNavigate={onNavigate} onEnroll={handleEnroll} myCourses={myCourses} allCourses={allCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
       case 'Courses':        return <CoursesPanel onNavigate={onNavigate} myCourses={myCourses} />;
       case 'Tutorials':      return <TutorialsPanel onNavigate={onNavigate} />;
       case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} workshops={workshops} />;
