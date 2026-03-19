@@ -6,7 +6,11 @@ import Tab from '../../../shared/ui/Tab';
 import Pagination from '../../../shared/ui/Pagination';
 import CtaSection from '../../../shared/ui/CtaSection';
 import { getRelativeTime } from '../../../shared/utils/dateUtils';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/all';
 import './CourseDiscovery.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const CATEGORY_TABS = [
   { id: 'All', label: 'All' },
@@ -34,6 +38,17 @@ const CourseDiscovery = ({ onNavigate }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
+
+  // Refs for animations
+  const headerRef = React.useRef(null);
+  const cardsRef = React.useRef([]);
+  cardsRef.current = [];
+
+  const addToRefs = (el) => {
+    if (el && !cardsRef.current.includes(el)) {
+      cardsRef.current.push(el);
+    }
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -66,6 +81,22 @@ const CourseDiscovery = ({ onNavigate }) => {
 
     fetchCourses();
 
+    // Header Animation
+    if (headerRef.current) {
+      const q = gsap.utils.selector(headerRef.current);
+      gsap.fromTo(q('.apple-label, .apple-title-sm, .apple-subtitle-sm'), 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.8, 
+          stagger: 0.15, 
+          ease: 'power3.out',
+          delay: 0.2 
+        }
+      );
+    }
+
     // Subscribe to real-time changes
     const channel = supabase
       .channel('discovery:courses')
@@ -91,6 +122,27 @@ const CourseDiscovery = ({ onNavigate }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Scroll Animations for cards
+  useEffect(() => {
+    if (cardsRef.current.length > 0) {
+      gsap.fromTo(cardsRef.current, 
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '.discovery-grid-v2',
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    }
+  }, [pagedItems]);
+
   const handleTabChange = (tab) => {
     setActiveCategory(tab);
     setCurrentPage(1); // Reset to first page on category change
@@ -99,7 +151,7 @@ const CourseDiscovery = ({ onNavigate }) => {
   return (
     <div className="discovery-v2 section-padding">
       <div className="container">
-        <header className="discovery-header-v2">
+        <header className="discovery-header-v2" ref={headerRef}>
           <div className="discovery-header-text">
             <span className="apple-label">Knowledge Hub</span>
             <h1 className="apple-title-sm">Explore Governance <span className="text-gradient">Curriculum</span></h1>
@@ -122,8 +174,8 @@ const CourseDiscovery = ({ onNavigate }) => {
           ) : pagedItems.map((course, i) => (
             <article 
               key={course.id} 
-              className="disc-course-card animate-in" 
-              style={{ animationDelay: `${i * 0.05}s` }}
+              className="disc-course-card" 
+              ref={addToRefs}
               onClick={() => onNavigate('learn-player', course)}
             >
               <figure className="disc-course-img">
@@ -169,7 +221,7 @@ const CourseDiscovery = ({ onNavigate }) => {
           title={<>Ready to start your <br /><span className="green-text">Governance Journey?</span></>}
           description="Start your learning journey today and join a global network of certified governance professionals."
           primaryActionLabel="Continue Learning"
-          primaryActionOnClick={() => onNavigate('learn')}
+          primaryActionOnClick={() => onNavigate('student')}
           secondaryActionLabel="Speak with an Expert"
         />
 

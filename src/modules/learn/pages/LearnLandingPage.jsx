@@ -5,7 +5,11 @@ import CtaSection from '../../../shared/ui/CtaSection';
 import ModernDropdown from '../../../shared/ui/ModernDropdown';
 import Tab from '../../../shared/ui/Tab';
 import { getRelativeTime } from '../../../shared/utils/dateUtils';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/all';
 import './LearnLandingPage.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const COURSE_TABS = [
   { id: 'all', label: 'All Courses' },
@@ -21,6 +25,17 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Refs for animations
+  const heroRef = React.useRef(null);
+  const cardsRef = React.useRef([]);
+  cardsRef.current = [];
+
+  const addToRefs = (el) => {
+    if (el && !cardsRef.current.includes(el)) {
+      cardsRef.current.push(el);
+    }
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -56,6 +71,22 @@ const LearnLandingPage = ({ onNavigate, user }) => {
 
     fetchCourses();
 
+    // Hero Animation
+    if (heroRef.current) {
+      const q = gsap.utils.selector(heroRef.current);
+      gsap.fromTo(q('.hero-chip, .hero-title, .hero-summary, .hero-cta-row'), 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.8, 
+          stagger: 0.15, 
+          ease: 'power3.out',
+          delay: 0.2 
+        }
+      );
+    }
+
     // Subscribe to real-time changes
     const channel = supabase
       .channel('public:courses')
@@ -81,10 +112,31 @@ const LearnLandingPage = ({ onNavigate, user }) => {
     return ms && mc && ml && mt;
   });
 
+  // Scroll Animations for cards
+  useEffect(() => {
+    if (cardsRef.current.length > 0) {
+      gsap.fromTo(cardsRef.current, 
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '.courses-grid',
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+    }
+  }, [filtered]);
+
   return (
     <div className="page-wrapper learn-page">
       {/* ── HERO ────────────────────────────────────────────────────── */}
-      <section className="hero-section" aria-labelledby="hero-heading">
+      <section className="hero-section" aria-labelledby="hero-heading" ref={heroRef}>
         <div className="hero-container">
           <div className="hero-inner">
             <div className="hero-left-container">
@@ -106,7 +158,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
               </p>
 
               <div className="hero-cta-row">
-                <button className="special-button">
+                <button className="special-button" onClick={() => onNavigate('learn-discovery')}>
                   Start Learning
                   <span className="material-symbols-outlined">arrow_outward</span>
                 </button>
@@ -177,8 +229,8 @@ const LearnLandingPage = ({ onNavigate, user }) => {
           ) : filtered.slice(0, 6).map((course, i) => (
             <article 
               key={course.id} 
-              className="course-card animate-up" 
-              style={{ animationDelay: `${i * 0.06}s` }} 
+              className="course-card" 
+              ref={addToRefs}
               onClick={() => onNavigate("learn-player", course)}
             >
               <figure className="course-img">
@@ -313,8 +365,10 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         </section>
 
         {/* CTA Section */}
-        <div className="container learn-content" id="courses-section">
-          <CtaSection onNavigate={onNavigate} />
+        <div className="container learn-content">
+          <CtaSection 
+            primaryActionOnClick={() => onNavigate('learn-discovery')} 
+          />
         </div>
         
     </div>

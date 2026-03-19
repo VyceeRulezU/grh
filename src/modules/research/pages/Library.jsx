@@ -3,7 +3,12 @@ import { supabase } from '../../../services/supabase/supabaseClient';
 import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../../data/legacyData';
 import CtaSection from '../../../shared/ui/CtaSection';
 import Pagination from '../../../shared/ui/Pagination';
+import { gsap } from 'gsap';
+import { Flip } from 'gsap/all';
+import { ScrollTrigger } from 'gsap/all';
 import './Library.css';
+
+gsap.registerPlugin(Flip, ScrollTrigger);
 import '../components/ResourceViewer.css';
 
 const Library = () => {
@@ -16,6 +21,10 @@ const Library = () => {
   const [allResources, setAllResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
+
+  // Refs for animations
+  const statsRef = React.useRef(null);
+  const resultsRef = React.useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,6 +90,36 @@ const Library = () => {
       }
     };
     fetchData();
+
+    // Stat Counting Animation
+    if (statsRef.current) {
+      const stats = statsRef.current.querySelectorAll('.stat-number');
+      stats.forEach(stat => {
+        const rawText = stat.innerText;
+        const target = parseInt(rawText.replace(/[^0-9]/g, '')) || 0;
+        const suffix = rawText.replace(/[0-9]/g, '');
+        
+        gsap.fromTo(stat, 
+          { innerText: 0 },
+          { 
+            innerText: target,
+            duration: 2,
+            snap: { innerText: 1 },
+            scrollTrigger: {
+              trigger: stat,
+              start: 'top 95%'
+            },
+            onUpdate: function() {
+              // Ensure the suffix is appended during the animation if preferred, 
+              // or just at the end. Let's do it at the end for clean numbers.
+            },
+            onComplete: () => {
+              stat.innerText = target + suffix;
+            }
+          }
+        );
+      });
+    }
   }, []);
 
   const toggleType = (t) => {
@@ -106,6 +145,23 @@ const Library = () => {
     setCurrentPage(page);
     window.scrollTo({ top: 300, behavior: 'smooth' });
   };
+
+  // Flip Animation for View Mode
+  React.useLayoutEffect(() => {
+    if (!resultsRef.current) return;
+    
+    const state = Flip.getState('.resource-card, .resource-list-item');
+    
+    // The actual DOM change happens during re-render triggered by setViewMode
+    // We just need to animate from the captured state
+    Flip.from(state, {
+      duration: 0.6,
+      ease: "power2.inOut",
+      stagger: 0.02,
+      onEnter: elements => gsap.fromTo(elements, {opacity: 0, scale: 0.9}, {opacity: 1, scale: 1, duration: 0.4}),
+      onLeave: elements => gsap.to(elements, {opacity: 0, scale: 0.9, duration: 0.4})
+    });
+  }, [viewMode, pagedItems]);
 
   if (readingResource) {
     return (
@@ -216,7 +272,7 @@ const Library = () => {
               </div>
             </div>
             {/* Optional hero stats for research if needed, or just leave as is for now */}
-            <div className="hero-stats">
+            <div className="hero-stats" ref={statsRef}>
               <div className="hero-stat">
                 <span className="stat-number">20+</span>
                 <span className="stat-label">Years of Data</span>
@@ -273,10 +329,10 @@ const Library = () => {
               </div>
             </div>
 
-            <div className={viewMode === 'grid' ? 'resources-grid' : 'resources-list'}>
+            <div className={viewMode === 'grid' ? 'resources-grid' : 'resources-list'} ref={resultsRef}>
               {pagedItems.map((res, i) => (
                 viewMode === 'grid' ? (
-                  <div key={res.id} className="resource-card animate-up" style={{animationDelay: `${i*0.05}s`}} onClick={() => setReadingResource(res)}>
+                  <div key={res.id} className="resource-card" onClick={() => setReadingResource(res)}>
                     <div className="resource-cover">
                       <img src={res.coverImage} alt={res.title} className="resource-cover-img" />
                       {res.featured && <span className="featured-badge">FEATURED</span>}
@@ -298,7 +354,7 @@ const Library = () => {
                     </div>
                   </div>
                 ) : (
-                  <div key={res.id} className="resource-list-item animate-up" style={{animationDelay: `${i*0.05}s`}} onClick={() => setReadingResource(res)}>
+                  <div key={res.id} className="resource-list-item" onClick={() => setReadingResource(res)}>
                     <div className="list-icon">
                       <img src={res.coverImage} alt={res.title} className="list-thumb" />
                     </div>
@@ -314,7 +370,7 @@ const Library = () => {
                     <div className="list-meta">
                       <span className="resource-author">{res.author}</span>
                       <div className="list-actions">
-                        <button className="btn-primary btn-sm">Read</button>
+                        <button className="special-button" style={{flex: 1}}>Read Now</button>
                       </div>
                     </div>
                   </div>

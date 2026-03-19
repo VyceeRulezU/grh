@@ -459,6 +459,12 @@
   min-width: 150px;
 }
 
+.list-actions{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
 /* Search input polish */
 .learn-hero-search {
   max-width: 600px;
