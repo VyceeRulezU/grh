@@ -82,7 +82,7 @@ const COURSE_IMAGE_BANK = [
 /* =====================================================================
    MODALS
 ===================================================================== */
-function UserModal({ onClose, onSave, initial }) {
+function UserModal({ onClose, onSave, initial, loading }) {
   const [form, setForm] = useState(initial || { name: '', email: '', role: 'Learner', status: 'Active' });
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   return (
@@ -121,13 +121,9 @@ function UserModal({ onClose, onSave, initial }) {
           </div>
         </div>
         <footer className="adm-modal-footer">
-          <button className="btn-outline" onClick={onClose}>Cancel</button>
-          <button className="special-button" onClick={() => {
-            if (!form.name || !form.email) return;
-            onSave(form);
-            onClose();
-          }}>
-            {initial ? 'Save Changes' : 'Send Invitation'}
+          <button className="btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
+          <button className="special-button" onClick={() => onSave(form)} disabled={loading || !form.name || !form.email}>
+            {loading ? <><i className="ri-loader-4-line ri-spin"></i> Processing...</> : (initial ? 'Save Changes' : 'Send Invitation')}
           </button>
         </footer>
       </div>
@@ -1076,61 +1072,88 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
     URL.revokeObjectURL(url);
   };
 
-  const handleSave = async (nu) => {
+  const handleUserSave = async (nu) => {
+    console.log("[GRH] handleUserSave called with:", nu);
     setLoading(true);
     try {
-      if (typeof modal === 'object' && modal.id) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (nu.id) {
         // Real update for existing user
-        const { error } = await supabase
+        const { data: updatedData, error } = await supabase
           .from('profiles')
           .update({
             name: nu.name,
+            email: nu.email,
             role: nu.role,
             status: nu.status
           })
-          .eq('id', modal.id);
+          .eq('id', nu.id)
+          .select();
         
         if (error) throw error;
         
+        if (!updatedData || updatedData.length === 0) {
+          throw new Error("Update failed: No records were affected. You may not have permission to update other user profiles (Check Supabase RLS).");
+        }
+        
         showSuccess('User Updated', 'User profile updated successfully.');
-        setUsers(us => us.map(x => x.id === modal.id ? { ...x, ...nu } : x));
+        const finalizedUser = { ...nu, ...updatedData[0] };
+        setUsers(us => us.map(x => x.id === nu.id ? finalizedUser : x));
         setModal(null);
       } else {
-        // Invite new user via Edge Function
-        // Using built-in invoke() is safer as it handles headers/auth automatically
-        const { data: result, error: invError } = await supabase.functions.invoke('invite-user', {
-          body: {
+        // Manual fetch to see the EXACT error body from the Edge Function
+        // Using session retrieved at start of handler
+        const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-user`;
+        console.log(`[GRH] Calling Edge Function at: ${functionUrl}`);
+        
+        const fetchPromise = fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({
             email: nu.email,
             name: nu.name,
             role: nu.role
-          },
-          headers: {
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+          })
+        }).then(async res => {
+          const data = await res.json();
+          if (!res.ok) {
+            console.error("[GRH] Edge Function Error Body:", data);
+            throw new Error(data.error || data.message || `HTTP ${res.status}`);
           }
+          return data;
         });
+
+        // 15s timeout for the manual fetch
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Invitation request timed out (15s).')), 15000)
+        );
+
+        const result = await Promise.race([fetchPromise, timeoutPromise]);
         
-        if (invError) {
-          console.error("Invitation error details:", invError);
-          // Provide a more helpful message based on common errors
-          let errMsg = invError.message || 'Failed to invite user';
-          if (errMsg.includes('already') || errMsg.includes('exists')) {
-            errMsg = `A user with email "${nu.email}" already exists.`;
-          } else if (errMsg.includes('non-2xx') || errMsg.includes('401') || errMsg.includes('403')) {
-            errMsg = 'Permission denied. Only admins can invite users. Check your role in the database.';
-          }
-          throw new Error(errMsg);
+        // Handle result (success case)
+        if (result?.inviteLink) {
+          showSuccess('User Invited (Email Slow)', `User created. If they don't get the email, send them this link: ${result.inviteLink}`);
+        } else {
+          showSuccess('Magic Link Sent', 'A login link has been sent to the user.');
         }
 
-        showSuccess('Invitation Sent', 'User invited successfully!');
+        setModal(null);
+        setLoading(false);
+        
         if (typeof fetchData === 'function') {
           await fetchData();
         } else {
           setUsers(us => [{ ...nu, courses: 0, joined: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }, ...us]);
         }
-        setModal(null);
       }
     } catch (err) {
-      showError('Error', err.message);
+      console.error("Save User Error:", err);
+      showError('Save Error', 'Error saving user: ' + err.message);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -1144,7 +1167,6 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
           <button className="btn-outline" title="Export CSV" onClick={handleExportCSV}>
             <i className="ri-download-2-line"></i> Export CSV
           </button>
-          <button className="special-button" onClick={() => setModal('add')} disabled={loading}><i className="ri-user-add-line"></i> {loading ? 'Inviting...' : 'Invite User'}</button>
         </div>
       </div>
       <div className="adm-table-wrap">
@@ -1153,7 +1175,7 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
           <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Courses</th><th>Joined</th><th>Status</th><th></th></tr></thead>
           <tbody>
             {users.map(u => (
-              <tr key={u.email}>
+              <tr key={u.id || u.email}>
                 <td><strong>{u.name}</strong></td>
                 <td>{u.email}</td>
                 <td>{u.role}</td>
@@ -1175,7 +1197,7 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
         <UserModal 
           initial={typeof modal === 'object' ? modal : null}
           onClose={() => setModal(null)} 
-          onSave={handleSave} 
+          onSave={handleUserSave} 
         />
       )}
       <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
@@ -1679,16 +1701,21 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
 
       if (allProgErr) console.error("All Progress Fetch Error:", allProgErr);
 
+      const learnerCounts = {};
+      const userCourseCounts = {};
+      (allProgress || []).forEach(p => {
+        const cid = String(p.course_id);
+        const uid = String(p.user_id);
+        
+        if (!learnerCounts[cid]) learnerCounts[cid] = new Set();
+        learnerCounts[cid].add(uid);
+
+        if (!userCourseCounts[uid]) userCourseCounts[uid] = new Set();
+        userCourseCounts[uid].add(cid);
+      });
+
       // 3. Map Course Data with Dynamic Learner Counts
       if (crs.data) {
-        // Calculate unique learners per course (Force string keys to prevent type mismatch)
-        const learnerCounts = {};
-        (allProgress || []).forEach(p => {
-          const cid = String(p.course_id);
-          const uid = String(p.user_id);
-          if (!learnerCounts[cid]) learnerCounts[cid] = new Set();
-          learnerCounts[cid].add(uid);
-        });
 
         const mappedCourses = crs.data.map(c => ({
           ...c,
@@ -1709,8 +1736,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (bks.data) setBooks(bks.data.map(b => ({ ...b, fileUrl: b.file_url, imageUrl: b.image_url })));
       if (usr.data) setUsers(usr.data.map(u => ({ 
         ...u, 
-        email: u.email || 'No email', 
-        courses: 0, 
+        email: u.email || 'No email record', 
+        courses: userCourseCounts[String(u.id)]?.size || 0, 
         joined: u.joined_at ? new Date(u.joined_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Jan 2025', 
         status: u.status || 'Active' 
       })));
@@ -1838,7 +1865,27 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           if (type === 'workshop') table = 'workshops';
           if (type === 'user') table = 'profiles';
 
-          if (table) {
+          if (type === 'user') {
+            const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`;
+            
+            // We need the current session to authenticate the Edge Function call
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const res = await fetch(functionUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token}`,
+                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+              },
+              body: JSON.stringify({ userId: item.id })
+            });
+            
+            const data = await res.json();
+            if (!res.ok) {
+              throw new Error(data.error || 'Failed to delete user');
+            }
+          } else if (table) {
             const { error } = await supabase.from(table).delete().eq('id', item.id);
             if (error) throw error;
           }
