@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 import './WelcomeGateway.css';
 
 const SECTIONS_DATA = [
@@ -45,8 +46,51 @@ const SECTIONS_DATA = [
 ];
 
 const WelcomeGateway = ({ onNavigate }) => {
+  const containerRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      // Hero entrance
+      gsap.to('.hero-chip', {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power3.out',
+        delay: 0
+      });
+
+      gsap.to('.header-text', {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        delay: 0.2,
+        ease: 'power4.out'
+      });
+
+      gsap.to('.welcome-hero-summary', {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        delay: 0.4,
+        ease: 'power3.out'
+      });
+
+      // Cards stagger
+      gsap.to('.platform-card', {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        delay: 0.6,
+        ease: 'back.out(1.7)'
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="welcome-container">
+    <div className="welcome-container" ref={containerRef}>
       <div className="welcome-hero-section">
         <div className="pattern">
           <img src={`${import.meta.env.BASE_URL}assets/hero-vector.svg`} alt="hero background" />
@@ -84,7 +128,7 @@ const WelcomeGateway = ({ onNavigate }) => {
               >
                 <div className="card-title">
                   <div className="card-img">
-                    <img src={section.img} alt={section.title} />
+                    <img src={`${import.meta.env.BASE_URL}${section.img}`} alt={section.title} />
                   </div>
                   <p className="card-summary">{section.summary}</p>
                 </div>

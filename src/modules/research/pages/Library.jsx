@@ -90,37 +90,35 @@ const Library = () => {
       }
     };
     fetchData();
-
-    // Stat Counting Animation
-    if (statsRef.current) {
-      const stats = statsRef.current.querySelectorAll('.stat-number');
-      stats.forEach(stat => {
-        const rawText = stat.innerText;
-        const target = parseInt(rawText.replace(/[^0-9]/g, '')) || 0;
-        const suffix = rawText.replace(/[0-9]/g, '');
-        
-        gsap.fromTo(stat, 
-          { innerText: 0 },
-          { 
-            innerText: target,
-            duration: 2,
-            snap: { innerText: 1 },
-            scrollTrigger: {
-              trigger: stat,
-              start: 'top 95%'
-            },
-            onUpdate: function() {
-              // Ensure the suffix is appended during the animation if preferred, 
-              // or just at the end. Let's do it at the end for clean numbers.
-            },
-            onComplete: () => {
-              stat.innerText = target + suffix;
-            }
-          }
-        );
-      });
-    }
   }, []);
+
+  // Stat Counting Animation - Trigger after data is loaded
+  useEffect(() => {
+    if (loading || !statsRef.current) return;
+    
+    const stats = statsRef.current.querySelectorAll('.stat-number');
+    stats.forEach(stat => {
+      const rawText = stat.innerText;
+      const target = parseInt(rawText.replace(/[^0-9]/g, '')) || 0;
+      const suffix = rawText.replace(/[0-9]/g, '');
+      
+      gsap.fromTo(stat, 
+        { innerText: 0 },
+        { 
+          innerText: target,
+          duration: 2,
+          snap: { innerText: 1 },
+          scrollTrigger: {
+            trigger: stat,
+            start: 'top 95%'
+          },
+          onComplete: () => {
+            stat.innerText = target + suffix;
+          }
+        }
+      );
+    });
+  }, [loading]);
 
   const toggleType = (t) => {
     setSelectedTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
@@ -278,7 +276,7 @@ const Library = () => {
                 <span className="stat-label">Years of Data</span>
               </div>
               <div className="hero-stat">
-                <span className="stat-number">10K+</span>
+                <span className="stat-number">{allResources.length}+</span>
                 <span className="stat-label">Resources</span>
               </div>
             </div>
