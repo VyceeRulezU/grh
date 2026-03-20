@@ -363,7 +363,7 @@ function App() {
         )}
       </main>
 
-      {['learn','research','assess','analyse','learn-discovery','help-center','contact'].includes(currentPage) && <Footer onNavigate={navigate} />}
+      {['learn','research','assess','analyse','learn-discovery','help-center','contact', 'privacy-policy', 'terms-of-service'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 
