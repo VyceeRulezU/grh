@@ -13,14 +13,7 @@ import './AdminDashboard.css';
 /* =====================================================================
    MOCK DATA — GRH specific
 ===================================================================== */
-const STATS_DATA = [
-  { name: 'Jan', learners: 420, resources: 14, certs: 38 },
-  { name: 'Feb', learners: 560, resources: 18, certs: 52 },
-  { name: 'Mar', learners: 490, resources: 22, certs: 44 },
-  { name: 'Apr', learners: 720, resources: 30, certs: 71 },
-  { name: 'May', learners: 850, resources: 36, certs: 95 },
-  { name: 'Jun', learners: 1040, resources: 41, certs: 118 },
-];
+
 
 const COURSES = [
   { id: 1, title: 'Foundations of Public Governance', category: 'Governance', learners: 340, status: 'Published', level: 'Beginner' },
@@ -679,7 +672,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
         <div className="adm-chart-card">
           <h4>Learner Growth</h4>
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={STATS_DATA}>
+            <LineChart data={stats?.chartData || []}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} />
@@ -691,7 +684,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
         <div className="adm-chart-card">
           <h4>Resources Added per Month</h4>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={STATS_DATA}>
+            <BarChart data={stats?.chartData || []}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} />
@@ -1212,7 +1205,7 @@ function AnalyticsPanel({ stats }) {
       <div className="adm-chart-card" style={{marginBottom: '1.5rem'}}>
         <h4>Certifications Issued</h4>
         <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={STATS_DATA}>
+          <BarChart data={stats?.chartData || []}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} />
             <YAxis axisLine={false} tickLine={false} />
@@ -1765,12 +1758,59 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         courses: p.courses || coursesMap[String(p.course_id)] || { title: 'Governance Course' }
       }));
 
+      // Generate Chart Data
+      const generateChartData = (usersList, resList, bksList, progList) => {
+        const months = [];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const now = new Date();
+        
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          months.push({
+            name: monthNames[d.getMonth()],
+            monthId: `${d.getFullYear()}-${d.getMonth()}`,
+            year: d.getFullYear(),
+            month: d.getMonth(),
+            learners: 0,
+            resources: 0,
+            certs: 0
+          });
+        }
+
+        const addToBin = (dateStr, key) => {
+          if (!dateStr) return;
+          const d = new Date(dateStr);
+          const bin = months.find(m => m.year === d.getFullYear() && m.month === d.getMonth());
+          if (bin) bin[key]++;
+        };
+
+        (usersList || []).forEach(u => addToBin(u.joined_at || u.created_at, 'learners'));
+        (resList || []).forEach(r => addToBin(r.created_at, 'resources'));
+        (bksList || []).forEach(b => addToBin(b.created_at, 'resources'));
+        (progList || []).forEach(p => addToBin(p.updated_at || p.created_at, 'certs'));
+
+        // Make learners formally cumulative
+        const oldestChartMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+        let cumulativeLearners = (usersList || []).filter(u => {
+           const d = new Date(u.joined_at || u.created_at);
+           return d < oldestChartMonth;
+        }).length;
+
+        months.forEach(m => {
+           cumulativeLearners += m.learners;
+           m.learners = cumulativeLearners;
+        });
+
+        return months;
+      };
+
       setStats({
         learners: usr.data?.length || 0,
         courses: crs.data?.length || 0,
         resources: (res.data?.length || 0) + (bks.data?.length || 0),
         certs: completedProgress.length,
-        recentActivities: mappedRecent
+        recentActivities: mappedRecent,
+        chartData: generateChartData(usr.data, res.data, bks.data, completedProgress)
       });
     } catch (err) {
       console.error("Error fetching admin data:", err);
