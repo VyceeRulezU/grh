@@ -422,7 +422,9 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         <div className="player-actions">
            <Button className="btn-outline" size="sm"><i className="ri-question-line"></i> Help</Button>
            <Button className="special-button" size="sm" onClick={() => saveProgress(true)} disabled={activeLesson.completed}>
-             {activeLesson.completed ? 'Completed' : 'Mark as Complete'}
+             {activeLesson.completed 
+               ? 'Completed' 
+               : (lessons.indexOf(activeLesson) === lessons.length - 1 ? 'Mark Course as Complete' : 'Mark as Complete')}
            </Button>
         </div>
       </header>

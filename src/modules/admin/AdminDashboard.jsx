@@ -714,8 +714,8 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
             </tr>
           </thead>
           <tbody>
-            {stats.recentActivities.length > 0 ? stats.recentActivities.map(act => (
-              <tr key={act.id}>
+            {stats.recentActivities.length > 0 ? stats.recentActivities.slice((recentActivitiesPage - 1) * itemsPerRecentPage, recentActivitiesPage * itemsPerRecentPage).map((act, index) => (
+              <tr key={index}>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
@@ -732,7 +732,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
                     <span>{act.profiles?.name || 'Anonymous'}</span>
                   </div>
                 </td>
-                <td>{new Date(act.updated_at || act.created_at || act.last_accessed).toLocaleDateString()}</td>
+                <td>{new Date(act.updated_at).toLocaleDateString()}</td>
                 <td><span className="adm-status-badge published">Completed</span></td>
               </tr>
             )) : (
@@ -745,6 +745,28 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
           </tbody>
         </table>
       </div>
+
+      {stats.recentActivities.length > itemsPerRecentPage && (
+        <div className="adm-pagination" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+          <button 
+            className="btn-outline btn-sm" 
+            disabled={recentActivitiesPage === 1}
+            onClick={() => setRecentActivitiesPage(p => p - 1)}
+          >
+            Previous
+          </button>
+          <span style={{ alignSelf: 'center', fontSize: '0.9rem' }}>
+            Page {recentActivitiesPage} of {Math.ceil(stats.recentActivities.length / itemsPerRecentPage)}
+          </span>
+          <button 
+            className="btn-outline btn-sm" 
+            disabled={recentActivitiesPage >= Math.ceil(stats.recentActivities.length / itemsPerRecentPage)}
+            onClick={() => setRecentActivitiesPage(p => p + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -1631,8 +1653,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     courses: 0,
     resources: 0,
     certs: 0,
-    recentActivities: []
+    recentActivities: [],
+    chartData: []
   });
+  const [recentActivitiesPage, setRecentActivitiesPage] = useState(1);
+  const itemsPerRecentPage = 5;
 
   // Diagnostic: Check if current user is actually an admin in the profiles table
   useEffect(() => {
@@ -1739,27 +1764,46 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       // 5. Calculate Stats and Recent Activities
       const profilesMap = (usr.data || []).reduce((acc, p) => ({ ...acc, [String(p.id)]: p }), {});
       const coursesMap = (crs.data || []).reduce((acc, c) => ({ ...acc, [String(c.id)]: c }), {});
-
-      const completedProgress = (allProgress || []).filter(p => {
-        // Handle various boolean representations just in case
-        return p.completed === true || p.completed === 'true' || p.completed === 't';
-      });
       
-      if (allProgress && allProgress.length > 0) {
-        console.log(`DIAGNOSTIC: Found ${allProgress.length} progress records.`);
-      } else {
-        console.warn("DIAGNOSTIC: No records found in user_progress for Admin. This may be an RLS policy issue.");
-      }
+      // Calculate module counts per course
+      const courseModuleCounts = (allModules || []).reduce((acc, m) => {
+        acc[String(m.course_id)] = (acc[String(m.course_id)] || 0) + 1;
+        return acc;
+      }, {});
 
-      // Manual mapping for recent activities to ensure they show even if Supabase join fails
-      const mappedRecent = (progress.data && progress.data.length > 0 ? progress.data : completedProgress.slice(0, 10)).map(p => ({
-        ...p,
-        profiles: p.profiles || profilesMap[String(p.user_id)] || { name: 'Learner' },
-        courses: p.courses || coursesMap[String(p.course_id)] || { title: 'Governance Course' }
-      }));
+      // Group completed modules by user and course
+      const userCourseCompletions = (allProgress || [])
+        .filter(p => p.completed === true || p.completed === 'true' || p.completed === 't')
+        .reduce((acc, p) => {
+          const key = `${p.user_id}_${p.course_id}`;
+          if (!acc[key]) acc[key] = { count: 0, updatedAt: p.updated_at || p.created_at };
+          acc[key].count += 1;
+          if (new Date(p.updated_at || p.created_at) > new Date(acc[key].updatedAt)) {
+            acc[key].updatedAt = p.updated_at || p.created_at;
+          }
+          return acc;
+        }, {});
+
+      // Identify courses fully completed by users
+      const trueCourseCompletions = Object.entries(userCourseCompletions)
+        .filter(([key, data]) => {
+          const [userId, courseId] = key.split('_');
+          return data.count >= (courseModuleCounts[courseId] || 0) && (courseModuleCounts[courseId] || 0) > 0;
+        })
+        .map(([key, data]) => {
+          const [userId, courseId] = key.split('_');
+          return {
+            user_id: userId,
+            course_id: courseId,
+            updated_at: data.updatedAt,
+            profiles: profilesMap[userId] || { name: 'Learner' },
+            courses: coursesMap[courseId] || { title: 'Governance Course' }
+          };
+        })
+        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
       // Generate Chart Data
-      const generateChartData = (usersList, resList, bksList, progList) => {
+      const generateChartData = (usersList, resList, bksList, compList) => {
         const months = [];
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const now = new Date();
@@ -1787,7 +1831,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         (usersList || []).forEach(u => addToBin(u.joined_at || u.created_at, 'learners'));
         (resList || []).forEach(r => addToBin(r.created_at, 'resources'));
         (bksList || []).forEach(b => addToBin(b.created_at, 'resources'));
-        (progList || []).forEach(p => addToBin(p.updated_at || p.created_at, 'certs'));
+        (compList || []).forEach(p => addToBin(p.updated_at, 'certs'));
 
         // Make learners formally cumulative
         const oldestChartMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
@@ -1808,9 +1852,9 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         learners: usr.data?.length || 0,
         courses: crs.data?.length || 0,
         resources: (res.data?.length || 0) + (bks.data?.length || 0),
-        certs: completedProgress.length,
-        recentActivities: mappedRecent,
-        chartData: generateChartData(usr.data, res.data, bks.data, completedProgress)
+        certs: trueCourseCompletions.length,
+        recentActivities: trueCourseCompletions,
+        chartData: generateChartData(usr.data, res.data, bks.data, trueCourseCompletions)
       });
     } catch (err) {
       console.error("Error fetching admin data:", err);
