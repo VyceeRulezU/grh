@@ -88,11 +88,11 @@ function UserModal({ onClose, onSave, initial, loading }) {
         <div className="adm-modal-body">
           <div className="adm-form-group">
             <label>Full Name*</label>
-            <input placeholder="e.g. John Doe" value={form.name} onChange={e => set('name', e.target.value)} />
+            <input placeholder="e.g. John Doe" value={form.name} onChange={e => set('name', e.target.value)} autoComplete="name" />
           </div>
           <div className="adm-form-group">
             <label>Email Address*</label>
-            <input type="email" placeholder="john@example.com" value={form.email} onChange={e => set('email', e.target.value)} />
+            <input type="email" placeholder="john@example.com" value={form.email} onChange={e => set('email', e.target.value)} autoComplete="email" />
           </div>
           <div className="adm-form-row">
             <div className="adm-form-group">
@@ -1382,7 +1382,7 @@ function AdminSettingsPanel({ user }) {
           <div className="adm-form-row">
             <div className="adm-form-group">
               <label>Full Name</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} disabled={loading} />
+              <input type="text" value={name} onChange={e => setName(e.target.value)} disabled={loading} autoComplete="name" />
             </div>
             <div className="adm-form-group">
               <label>Email Address</label>

@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
-import { Analytics } from "@vercel/analytics/react"
+import { useState, useEffect, useRef } from 'react';
+import { Analytics } from "@vercel/analytics/react";
+import { motion, AnimatePresence } from 'framer-motion';
 import WelcomeGateway from './modules/home/WelcomeGateway'
 import LearnLandingPage from './modules/learn/pages/LearnLandingPage'
 import Library from './modules/research/pages/Library'
@@ -26,6 +27,27 @@ import StatusModal from './shared/ui/StatusModal'
 import './App.css'
 
 const PROTECTED_PAGES = ['learn-player', 'learn-discovery', 'explore', 'student', 'course-player'];
+
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 8,
+  },
+  in: {
+    opacity: 1,
+    y: 0,
+  },
+  out: {
+    opacity: 0,
+    y: -8,
+  },
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "circOut",
+  duration: 0.3,
+};
 
 function App() {
   const getPageFromUrl = () => {
@@ -329,37 +351,48 @@ function App() {
             <p style={{ color: 'var(--text-soft, #64748b)' }}>Verifying session...</p>
           </div>
         ) : (
-        <>
-        {currentPage === 'welcome' && (
-          <WelcomeGateway 
-            onNavigate={navigate} 
-            onAuthClick={openAuth} 
-            user={user}
-          />
-        )}
-        {currentPage === 'learn' && <LearnLandingPage onNavigate={navigate} />}
-        {currentPage === 'research' && <Library onNavigate={navigate} />}
-        {currentPage === 'explore' && <ExplorePage onNavigate={navigate} />}
-        {currentPage === 'assess' && <NotFoundPage onNavigate={navigate} />}
-        {currentPage === 'analyse' && <NotFoundPage onNavigate={navigate} />}
-        {currentPage === 'help-center' && <NotFoundPage onNavigate={navigate} />}
-        {currentPage === 'contact' && <NotFoundPage onNavigate={navigate} />}
-        {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} onLogout={handleLogout} onRefreshUser={refreshUser} />}
-        {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
-        {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} onRefreshUser={refreshUser} />}
-        {currentPage === 'admin' && !user?.isAdmin && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
-        {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} user={user} course={navData} />}
-        {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
-        {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
-        {currentPage === 'oauth-consent' && <OAuthConsentPage onNavigate={navigate} />}
-        {currentPage === 'privacy-policy' && <PrivacyPolicy />}
-        {currentPage === 'terms-of-service' && <TermsOfService />}
-        {currentPage === 'forgot-password' && <ForgotPasswordPage onNavigate={navigate} />}
-        {currentPage === 'reset-password' && <ResetPasswordPage onNavigate={navigate} />}
-        {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
-          <NotFoundPage onNavigate={navigate} />
-        )}
-        </>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPage}
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className="page-wrapper"
+              style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+            >
+              {currentPage === 'welcome' && (
+                <WelcomeGateway 
+                  onNavigate={navigate} 
+                  onAuthClick={openAuth} 
+                  user={user}
+                />
+              )}
+              {currentPage === 'learn' && <LearnLandingPage onNavigate={navigate} />}
+              {currentPage === 'research' && <Library onNavigate={navigate} />}
+              {currentPage === 'explore' && <ExplorePage onNavigate={navigate} />}
+              {currentPage === 'assess' && <NotFoundPage onNavigate={navigate} />}
+              {currentPage === 'analyse' && <NotFoundPage onNavigate={navigate} />}
+              {currentPage === 'help-center' && <NotFoundPage onNavigate={navigate} />}
+              {currentPage === 'contact' && <NotFoundPage onNavigate={navigate} />}
+              {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} onLogout={handleLogout} onRefreshUser={refreshUser} />}
+              {currentPage === 'learn-discovery' && <CourseDiscovery onNavigate={navigate} />}
+              {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} onRefreshUser={refreshUser} />}
+              {currentPage === 'admin' && !user?.isAdmin && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
+              {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} user={user} course={navData} />}
+              {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
+              {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
+              {currentPage === 'oauth-consent' && <OAuthConsentPage onNavigate={navigate} />}
+              {currentPage === 'privacy-policy' && <PrivacyPolicy />}
+              {currentPage === 'terms-of-service' && <TermsOfService />}
+              {currentPage === 'forgot-password' && <ForgotPasswordPage onNavigate={navigate} />}
+              {currentPage === 'reset-password' && <ResetPasswordPage onNavigate={navigate} />}
+              {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
+                <NotFoundPage onNavigate={navigate} />
+              )}
+            </motion.div>
+          </AnimatePresence>
         )}
       </main>
 

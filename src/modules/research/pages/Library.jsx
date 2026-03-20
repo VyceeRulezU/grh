@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { z } from 'zod';
+import { ResourceSchema } from '../../../services/api/schemas';
 import { supabase } from '../../../services/supabase/supabaseClient';
 import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../../data/legacyData';
 import CtaSection from '../../../shared/ui/CtaSection';
@@ -18,83 +21,71 @@ const Library = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [readingResource, setReadingResource] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [allResources, setAllResources] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const itemsPerPage = 6;
+  const { data: allResources = [], isLoading: loading, isSuccess } = useQuery({
+    queryKey: ['library-resources'],
+    queryFn: async () => {
+      const [res, bks] = await Promise.all([
+        supabase.from('library_resources').select('*').eq('status', 'Published'),
+        supabase.from('books').select('*').eq('status', 'Published')
+      ]);
 
-  // Refs for animations
+      const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
+      const TYPE_IMAGES = {
+        'PERL': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80',
+        'SPARC': 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=400&q=80',
+        'SLGP': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=400&q=80',
+      };
+
+      const mappedRes = (res.data || []).map(r => {
+        const normalizedType = (r.type || 'PERL').toUpperCase();
+        return {
+          ...r,
+          type: normalizedType,
+          coverImage: TYPE_IMAGES[normalizedType] || DEFAULT_IMG,
+          author: 'GRH',
+          year: new Date(r.created_at || Date.now()).getFullYear(),
+          file_url: r.file_url || '',
+          description: r.description || ''
+        };
+      });
+
+      const mappedBooks = (bks.data || []).map(b => ({
+        ...b,
+        type: "BOOK",
+        author: "GRH Lib",
+        year: new Date(b.created_at || Date.now()).getFullYear(),
+        coverImage: b.image_url || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+        category: b.category || "Governance",
+        description: b.summary,
+        file_url: b.file_url || ''
+      }));
+
+      const merged = [...mappedRes, ...mappedBooks];
+      if (merged.length === 0) {
+        return [
+          ...LEGACY_RESOURCES,
+          ...LEGACY_BOOKS.map(b => ({
+            ...b,
+            type: "BOOK",
+            author: "GRH Lib",
+            year: 2024,
+            coverImage: b.imageUrl,
+            category: "Governance",
+            description: b.summary
+          }))
+        ];
+      }
+      
+      return z.array(ResourceSchema).parse(merged);
+    }
+  });
+  const itemsPerPage = 6;
   const statsRef = React.useRef(null);
   const resultsRef = React.useRef(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [res, bks] = await Promise.all([
-          supabase.from('library_resources').select('*').eq('status', 'Published'),
-          supabase.from('books').select('*').eq('status', 'Published')
-        ]);
-
-        const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
-        const TYPE_IMAGES = {
-          'PERL': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80',
-          'SPARC': 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=400&q=80',
-          'SLGP': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=400&q=80',
-        };
-        const mappedRes = (res.data || []).map(r => {
-          const normalizedType = (r.type || 'PERL').toUpperCase();
-          return {
-            ...r,
-            type: normalizedType,
-            coverImage: TYPE_IMAGES[normalizedType] || DEFAULT_IMG,
-            author: 'GRH',
-            year: new Date(r.created_at || Date.now()).getFullYear(),
-            file_url: r.file_url || ''
-          };
-        });
-        const mappedBooks = (bks.data || []).map(b => ({
-          ...b,
-          type: "BOOK",
-          author: "GRH Lib",
-          year: new Date(b.created_at || Date.now()).getFullYear(),
-          coverImage: b.image_url || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
-          category: b.category || "Governance",
-          description: b.summary,
-          file_url: b.file_url || ''
-        }));
-
-        // Merge with legacy if Supabase is empty or for baseline
-        const final = [...mappedRes, ...mappedBooks];
-        if (final.length === 0) {
-           // Fallback to legacy
-           const legacyMerged = [
-            ...LEGACY_RESOURCES,
-            ...LEGACY_BOOKS.map(b => ({
-              ...b,
-              type: "BOOK",
-              author: "GRH Lib",
-              year: 2024,
-              coverImage: b.imageUrl,
-              category: "Governance",
-              description: b.summary
-            }))
-           ];
-           setAllResources(legacyMerged);
-        } else {
-           setAllResources(final);
-        }
-      } catch (err) {
-        console.error("Library fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
   // Stat Counting Animation - Trigger after data is loaded
   useEffect(() => {
-    if (loading || !statsRef.current) return;
+    if (!isSuccess || !statsRef.current) return;
     
     const stats = statsRef.current.querySelectorAll('.stat-number');
     stats.forEach(stat => {
@@ -118,7 +109,7 @@ const Library = () => {
         }
       );
     });
-  }, [loading]);
+  }, [isSuccess]);
 
   const toggleType = (t) => {
     setSelectedTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);

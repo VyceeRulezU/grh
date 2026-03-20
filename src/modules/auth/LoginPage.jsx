@@ -145,6 +145,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
                 placeholder="johndoe@email.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 required
               />
             </div>
@@ -159,6 +160,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
                   placeholder="********" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   required
                 />
                 <span 

@@ -126,6 +126,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                 placeholder="John Doe" 
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                autoComplete="name"
                 required
               />
             </div>
@@ -139,6 +140,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                 placeholder="johndoe@email.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 required
               />
             </div>
@@ -153,6 +155,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                   placeholder="********" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
                   required
                 />
                 <span 
@@ -193,6 +196,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                   placeholder="********" 
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
                   required
                 />
               </div>
