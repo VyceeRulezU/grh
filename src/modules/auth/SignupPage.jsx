@@ -15,26 +15,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   const [loading, setLoading] = useState(false);
   const { modal, closeModal, showSuccess, showError, showWarning } = useModal();
 
-  useEffect(() => {
-    const renderTurnstile = () => {
-      if (window.turnstile?.render) {
-        try {
-          const container = document.getElementById('signup-turnstile');
-          if (container && container.innerHTML === '') {
-            window.turnstile.render('#signup-turnstile', {
-              sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
-            });
-          }
-        } catch (e) {
-          console.warn('Turnstile render failed:', e);
-        }
-      }
-    };
 
-    renderTurnstile();
-    const timer = setTimeout(renderTurnstile, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const validations = {
     length: password.length >= 8,
@@ -53,12 +34,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Check Turnstile
-    const captchaToken = window.turnstile?.getResponse();
-    if (!captchaToken) {
-      showWarning('Security Check', 'Please complete the security verification.');
-      return;
-    }
+
 
     if (!isPasswordValid) {
       showWarning('Weak Password', 'Please ensure your password meets all requirements.');
@@ -74,8 +50,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
       email,
       password,
       options: {
-        data: { full_name: fullName, role: 'learner' },
-        captchaToken: captchaToken
+        data: { full_name: fullName, role: 'learner' }
       }
     });
     setLoading(false);
@@ -223,13 +198,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
               </div>
             </div>
 
-            <div className="auth-input-group recaptcha-wrapper">
-              <div 
-                id="signup-turnstile"
-                className="cf-turnstile" 
-                data-sitekey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-              ></div>
-            </div>
+
 
             <div className="auth-button-stack">
               <button type="submit" className="auth-primary-btn" disabled={loading}>

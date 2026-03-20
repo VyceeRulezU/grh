@@ -14,45 +14,18 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const renderTurnstile = () => {
-      if (window.turnstile?.render) {
-        try {
-          const container = document.getElementById('login-turnstile');
-          if (container && container.innerHTML === '') {
-            window.turnstile.render('#login-turnstile', {
-              sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
-            });
-          }
-        } catch (e) {
-          console.warn('Turnstile render failed:', e);
-        }
-      }
-    };
 
-    renderTurnstile();
-    const timer = setTimeout(renderTurnstile, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Check Turnstile
-    const captchaToken = window.turnstile?.getResponse();
-    if (!captchaToken) {
-      showError('Security Check', 'Please complete the security verification.');
-      return;
-    }
+
 
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          captchaToken: captchaToken
-        }
       });
 
       if (error) throw error;
@@ -91,20 +64,14 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
       return;
     }
 
-    // 1. Check Turnstile
-    const captchaToken = window.turnstile?.getResponse();
-    if (!captchaToken) {
-      showError('Security Check', 'Please complete the security verification.');
-      return;
-    }
+
 
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: window.location.origin,
-          captchaToken: captchaToken
+          emailRedirectTo: window.location.origin
         }
       });
 
@@ -211,13 +178,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
               </div>
             </div>
 
-            <div className="auth-input-group recaptcha-wrapper">
-              <div 
-                id="login-turnstile"
-                className="cf-turnstile" 
-                data-sitekey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-              ></div>
-            </div>
+
 
             <div className="auth-button-stack">
               <button type="submit" className="auth-primary-btn" disabled={loading}>

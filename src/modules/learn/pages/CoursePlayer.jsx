@@ -246,8 +246,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           course_id: course.id,
           completed: completed,
           watched_seconds: 0, 
-          status: completed ? 'completed' : 'in-progress',
-          last_accessed: new Date().toISOString()
+          status: completed ? 'completed' : 'in-progress'
         }, { onConflict: 'user_id,module_id' });
 
       if (error) {
@@ -403,10 +402,9 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const totalCompleted = lessons.filter(l => l.completed).length;
   const progressPercent = lessons.length > 0 ? Math.round((totalCompleted / lessons.length) * 100) : 0;
 
-  // Simple lock logic: next lesson is locked if previous is not complete
+  // All lessons open constraint-free
   const isLessonLocked = (index) => {
-    if (index === 0) return false;
-    return !lessons[index - 1]?.completed;
+    return false;
   };
 
   return (

@@ -10,42 +10,17 @@ const ForgotPasswordPage = ({ onNavigate }) => {
   const [loading, setLoading] = useState(false);
   const { modal, closeModal, showSuccess, showError, showWarning } = useModal();
 
-  useEffect(() => {
-    const renderTurnstile = () => {
-      if (window.turnstile?.render) {
-        try {
-          const container = document.getElementById('forgot-turnstile');
-          if (container && container.innerHTML === '') {
-            window.turnstile.render('#forgot-turnstile', {
-              sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
-            });
-          }
-        } catch (e) {
-          console.warn('Turnstile render failed:', e);
-        }
-      }
-    };
 
-    renderTurnstile();
-    const timer = setTimeout(renderTurnstile, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Check Turnstile
-    const captchaToken = window.turnstile?.getResponse();
-    if (!captchaToken) {
-      showWarning('Security Check', 'Please complete the security verification.');
-      return;
-    }
+
 
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL || '/'}reset-password`,
-        captchaToken: captchaToken
+        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL || '/'}reset-password`
       });
 
       if (error) throw error;
@@ -59,7 +34,7 @@ const ForgotPasswordPage = ({ onNavigate }) => {
       showError('Reset Failed', err.message);
     } finally {
       setLoading(false);
-      window.turnstile?.reset();
+
     }
   };
 
@@ -119,13 +94,7 @@ const ForgotPasswordPage = ({ onNavigate }) => {
                 />
               </div>
 
-              <div className="auth-input-group recaptcha-wrapper">
-                <div 
-                  id="forgot-turnstile" 
-                  className="cf-turnstile" 
-                  data-sitekey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                ></div>
-              </div>
+
 
               <div className="auth-button-stack">
                 <button type="submit" className="auth-primary-btn" disabled={loading}>
