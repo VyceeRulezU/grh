@@ -604,7 +604,7 @@ function WorkshopAttendeesModal({ workshop, onClose }) {
   );
 }
 
-function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats }) {
+function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats, recentActivitiesPage, setRecentActivitiesPage, itemsPerRecentPage }) {
   const handleExportActivityCSV = () => {
     const headers = ['Activity', 'User', 'Time', 'Status'];
     const rows = stats.recentActivities.map(act => [
@@ -718,10 +718,16 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
               <tr key={index}>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                      <i className="ri-book-open-line"></i>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: act.type === 'course' ? 'var(--primary)' : 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                      <i className={act.type === 'course' ? "ri-award-line" : "ri-book-open-line"}></i>
                     </div>
-                    <span>Finished "{act.courses?.title || 'Course'}"</span>
+                    <div>
+                      {act.type === 'course' ? (
+                        <strong>Finished {act.courses?.title || 'Course'}</strong>
+                      ) : (
+                        <span>Completed "{act.modules?.title}" in <strong>{act.courses?.title}</strong></span>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td>
@@ -747,24 +753,13 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
       </div>
 
       {stats.recentActivities.length > itemsPerRecentPage && (
-        <div className="adm-pagination" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
-          <button 
-            className="btn-outline btn-sm" 
-            disabled={recentActivitiesPage === 1}
-            onClick={() => setRecentActivitiesPage(p => p - 1)}
-          >
-            Previous
-          </button>
-          <span style={{ alignSelf: 'center', fontSize: '0.9rem' }}>
-            Page {recentActivitiesPage} of {Math.ceil(stats.recentActivities.length / itemsPerRecentPage)}
-          </span>
-          <button 
-            className="btn-outline btn-sm" 
-            disabled={recentActivitiesPage >= Math.ceil(stats.recentActivities.length / itemsPerRecentPage)}
-            onClick={() => setRecentActivitiesPage(p => p + 1)}
-          >
-            Next
-          </button>
+        <div style={{ marginTop: '1.5rem' }}>
+          <Pagination 
+            currentPage={recentActivitiesPage}
+            totalPages={Math.ceil(stats.recentActivities.length / itemsPerRecentPage)}
+            onPageChange={setRecentActivitiesPage}
+            itemsPerPage={itemsPerRecentPage}
+          />
         </div>
       )}
     </div>
@@ -1682,7 +1677,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     try {
       setLoading(true);
       // Fetch data with individual error handling to prevent total crash if one schema is missing
-      let [crs, res, bks, usr, wks, progress] = await Promise.all([
+      let [crs, res, bks, usr, wks, progress, mods] = await Promise.all([
         supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
@@ -1692,7 +1687,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           .select('*, profiles(name), courses(title)')
           .eq('completed', true)
           .order('updated_at', { ascending: false })
-          .limit(10).then(r => r, e => ({ error: e }))
+          .limit(10).then(r => r, e => ({ error: e })),
+        supabase.from('course_modules').select('*').then(r => r, e => ({ error: e }))
       ]);
 
       // ULTRA-RESILIENT FALLBACK: If join query failed (likely due to missing chapters table), try simple select
@@ -1766,14 +1762,18 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       const coursesMap = (crs.data || []).reduce((acc, c) => ({ ...acc, [String(c.id)]: c }), {});
       
       // Calculate module counts per course
-      const courseModuleCounts = (allModules || []).reduce((acc, m) => {
+      const allModules = mods.data || crs.data?.flatMap(c => c.chapters?.flatMap(ch => ch.modules || []) || []) || [];
+      const modulesMap = allModules.reduce((acc, m) => ({ ...acc, [String(m.id)]: m }), {});
+      const courseModuleCounts = allModules.reduce((acc, m) => {
         acc[String(m.course_id)] = (acc[String(m.course_id)] || 0) + 1;
         return acc;
       }, {});
 
       // Group completed modules by user and course
-      const userCourseCompletions = (allProgress || [])
-        .filter(p => p.completed === true || p.completed === 'true' || p.completed === 't')
+      const completedProgressRecords = (allProgress || [])
+        .filter(p => p.completed === true || p.completed === 'true' || p.completed === 't');
+
+      const userCourseCompletions = completedProgressRecords
         .reduce((acc, p) => {
           const key = `${p.user_id}_${p.course_id}`;
           if (!acc[key]) acc[key] = { count: 0, updatedAt: p.updated_at || p.created_at };
@@ -1793,13 +1793,30 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         .map(([key, data]) => {
           const [userId, courseId] = key.split('_');
           return {
+            id: `course_${userId}_${courseId}`,
+            type: 'course',
             user_id: userId,
             course_id: courseId,
             updated_at: data.updatedAt,
             profiles: profilesMap[userId] || { name: 'Learner' },
             courses: coursesMap[courseId] || { title: 'Governance Course' }
           };
-        })
+        });
+
+      // Map recent module completions
+      const recentModuleActivities = completedProgressRecords
+        .map(p => ({
+          ...p,
+          id: `module_${p.id}`,
+          type: 'module',
+          profiles: profilesMap[p.user_id] || { name: 'Learner' },
+          courses: coursesMap[p.course_id] || { title: 'Governance Course' },
+          modules: modulesMap[p.module_id] || { title: 'Lesson' },
+          updated_at: p.updated_at || p.created_at
+        }));
+
+      // Merge and sort
+      const allRecentActivities = [...trueCourseCompletions, ...recentModuleActivities]
         .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
       // Generate Chart Data
@@ -1853,7 +1870,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         courses: crs.data?.length || 0,
         resources: (res.data?.length || 0) + (bks.data?.length || 0),
         certs: trueCourseCompletions.length,
-        recentActivities: trueCourseCompletions,
+        recentActivities: allRecentActivities,
         chartData: generateChartData(usr.data, res.data, bks.data, trueCourseCompletions)
       });
     } catch (err) {
@@ -2099,6 +2116,9 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
                 onAddQuiz={() => setActiveSection('quizzes')} 
                 onAddResource={() => setActiveSection('resources')}
                 stats={stats}
+                recentActivitiesPage={recentActivitiesPage}
+                setRecentActivitiesPage={setRecentActivitiesPage}
+                itemsPerRecentPage={itemsPerRecentPage}
               />}
             {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} onDelete={confirmDelete} fetchData={fetchData} />}
             {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} onDelete={confirmDelete} fetchData={fetchData} />}
