@@ -1,5 +1,8 @@
 # Governance Resource Hub (GRH) V2
 
+> [!IMPORTANT]
+> **Status**: Production Ready. Integrated with TanStack Query, Framer Motion, and Zod. OpenAI API proxy implemented via Supabase Edge Functions for secure client-side interactions.
+
 A premium, unified platform for governance excellence, featuring interactive e-learning, a digital research library, AI-powered insights, and advanced institutional diagnostics.
 
 ## 🚀 Key Features

@@ -49,33 +49,17 @@ const HISTORY_CONVERSATIONS = {
 // OpenAI API call (or fallback to dummy)
 // ---------------------------------------------------------------------------
 const getAIResponse = async (userText) => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  try {
+    const { data, error } = await supabase.functions.invoke('openai-assistant', {
+      body: { userText }
+    });
 
-  if (apiKey && apiKey !== 'sk-your-key-here') {
-    try {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: 'You are the Governance AI Assistant for the Governance Resource Hub (GRH). You are trained on governance, public financial management, anti-corruption, electoral systems, and open government resources. Be concise, evidence-based, and cite frameworks or documents where relevant.' },
-            { role: 'user', content: userText },
-          ],
-          max_tokens: 400,
-        }),
-      });
-      const data = await res.json();
-      return data.choices?.[0]?.message?.content || getDummyResponse();
-    } catch {
-      return getDummyResponse();
-    }
+    if (error) throw error;
+    return data?.content || getDummyResponse();
+  } catch (err) {
+    console.error("AI Assistant Error:", err);
+    return getDummyResponse();
   }
-
-  return getDummyResponse();
 };
 
 // ---------------------------------------------------------------------------
