@@ -114,3 +114,22 @@
   direction: ltr;
   -webkit-font-smoothing: antialiased;
 }
+@media (max-width: 1024px) {
+    .cta-inner {
+        padding: 4rem 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .cta-inner {
+        padding: 3rem 1.5rem;
+    }
+    .cta-btn-row {
+        flex-direction: column;
+        width: 100%;
+    }
+    .cta-btn-row button, 
+    .cta-btn-row a {
+        width: 100%;
+    }
+}

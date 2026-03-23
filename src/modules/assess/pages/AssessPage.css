@@ -213,6 +213,10 @@
     min-width: 90%;
     max-width: 90%;
   }
+
+  .cta-section {
+    width: 100%;
+  }
 }
 
 @media (max-width: 1024px) {

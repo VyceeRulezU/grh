@@ -39,7 +39,7 @@
   }
   
   .analyse-hero-inner {
-    min-width: var(--max-width);
+    width: 100%;
     max-width: var(--max-width);
     height: auto;
     position: relative;
@@ -522,6 +522,12 @@
   @media (max-width: 1100px) {
     .slider-btn.prev { left: -1rem; }
     .slider-btn.next { right: -1rem; }
+    .white-pill-btn{
+      width: 100%;
+    }
+    .analyse-hero-inner{
+      padding-top: 4rem;
+    }
   }
 
   @media (max-width: 768px) {
@@ -567,6 +573,21 @@
   
   
   /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .analyse-hero-inner {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .hero-inner-left {
+      align-items: center;
+      text-align: center;
+    }
+    .values-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
   @media (max-width: 992px) {
     .mission-grid {
       grid-template-columns: 1fr;
@@ -589,5 +610,16 @@
     }
     .about-mission, .about-services, .about-values, .about-team {
       padding: 4rem 0;
+    }
+    .values-grid {
+      grid-template-columns: 1fr;
+    }
+    .value-card:nth-child(1), .value-card:nth-child(4) {
+      grid-column: span 1;
+    }
+    .analyse-hero {
+      height: auto;
+      min-height: 400px;
+      padding: 4rem 1.5rem;
     }
   }

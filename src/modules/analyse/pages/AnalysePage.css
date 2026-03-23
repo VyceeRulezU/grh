@@ -33,7 +33,7 @@
 }
 
 .analyse-hero-inner {
-  min-width: var(--max-width);
+  width: 100%;
   max-width: var(--max-width);
   height: auto;
   position: relative;
@@ -60,7 +60,8 @@
 
 /* ── HERO V2 ────────────────────────────────────────────────── */
 .analyse-hero-v2 {
-  width: var(--max-width);
+  max-width: var(--max-width);
+  width: 100%;
   background: var(--bg-white);
   padding: 2rem;
   color: var(--secondary);
@@ -421,7 +422,26 @@
 
 /* ── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .hero-layout { grid-template-columns: 1fr; }
+  .analyse-hero-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .white-pill-btn{
+    width: 100%;
+  }
+  .hero-inner-left {
+    align-items: center;
+    text-align: center;
+  }
+  .analyse-hero {
+    height: auto;
+    min-height: 400px;
+    padding: 6rem 1.5rem;
+  }
+  .hero-layout { grid-template-columns: 1fr; text-align: center; }
+  .hero-text { margin: 0 auto; }
+  .hero-disclaimer { border-left: none; border-top: 4px solid var(--primary); border-radius: 0 0 12px 12px; }
   .charts-main-row { grid-template-columns: 1fr; }
   .zones-grid { grid-template-columns: repeat(2, 1fr); }
   .bottom-charts-row { grid-template-columns: 1fr; }
@@ -430,8 +450,10 @@
 }
 
 @media (max-width: 640px) {
-  .section-title { font-size: 2.5rem; }
+  .section-title { font-size: 2rem; }
   .zones-grid { grid-template-columns: 1fr; }
   .signup-form { flex-direction: column; width: 100%; }
   .signup-form input { width: 100%; }
+  .chart-card { padding: 1.5rem; }
+  .cta-card { padding: 2rem; }
 }
