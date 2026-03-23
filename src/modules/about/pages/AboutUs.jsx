@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/all';
 import CtaSection from '../../../shared/ui/CtaSection';
 import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import FaqSection from '../../../shared/ui/FaqSection';
+import grhIcon from '../../../assets/images/Logo/Icon.png';
 import './AboutUs.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -228,7 +229,7 @@ const AboutUs = ({ onNavigate }) => {
                 <p>{v.desc}</p>
 
                 <div className="value-image">
-                  <img src="./src/assets/images/Logo/Icon.png" alt="GRH Logo" />
+                  <img src={grhIcon} alt="GRH Logo" />
                 </div>
               </div>
             ))}
