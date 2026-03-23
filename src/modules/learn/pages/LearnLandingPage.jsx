@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../services/supabase/supabaseClient';
 import { COURSES, MENTORS, TESTIMONIALS } from '../../../data/legacyData';
 import CtaSection from '../../../shared/ui/CtaSection';
+import FaqSection from '../../../shared/ui/FaqSection';
 import ModernDropdown from '../../../shared/ui/ModernDropdown';
 import Tab from '../../../shared/ui/Tab';
 import { getRelativeTime } from '../../../shared/utils/dateUtils';
@@ -47,9 +48,9 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         
         if (error) throw error;
 
-        // If no courses in DB, fallback to legacy
+        // If no courses in DB, only show placeholders
         if (!data || data.length === 0) {
-          setCourses(COURSES);
+          setCourses([]);
         } else {
           // Map DB fields to match component expectations
           const formattedCourses = data.map(c => ({
@@ -59,11 +60,11 @@ const LearnLandingPage = ({ onNavigate, user }) => {
              duration: '2h 30m',
              progress: 0
           }));
-          setCourses([...formattedCourses, ...COURSES].slice(0, 6)); // Top 6 most recently added
+          setCourses(formattedCourses.slice(0, 6)); 
         }
       } catch (err) {
         console.error("Error fetching courses:", err);
-        setCourses(COURSES); // fallback
+        setCourses([]); // fallback to empty to show placeholders
       } finally {
         setLoading(false);
       }
@@ -226,43 +227,63 @@ const LearnLandingPage = ({ onNavigate, user }) => {
               <span className="empty-icon">⏳</span>
               <h3>Loading Courses...</h3>
              </div>
-          ) : filtered.slice(0, 6).map((course, i) => (
-            <article 
-              key={course.id} 
-              className="course-card" 
-              ref={addToRefs}
-              onClick={() => onNavigate("learn-player", course)}
-            >
-              <figure className="course-img">
-                <img 
-                   src={(course.thumbnail && course.thumbnail.length > 10) ? course.thumbnail : `https://images.unsplash.com/photo-${i === 0 ? '1529539795054-3c162aab037a' : i === 1 ? '1454165804606-c3d57bc86b40' : i === 2 ? '1554224155-6726b3ff858f' : i === 3 ? '1589829545856-d10d557cf95f' : i === 4 ? '1540910419892-4a36d2c3266c' : '1450101499163-c8848c66ca85'}?auto=format&fit=crop&w=600&q=80`}
-                   alt={course.title} 
-                   loading="lazy" 
-                   onError={(e) => {
-                     e.target.onerror = null;
-                     e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800';
-                   }}
-                />
-                {course.trending && <figcaption className="course-badge">Bestseller</figcaption>}
-                {course.featured && !course.trending && <figcaption className="course-badge course-badge--new">Featured</figcaption>}
-              </figure>
-              <div className="course-body">
-                <span className="course-cat">{course.category}</span>
-                <h3 className="course-title">{course.title}</h3>
-                <p className="course-desc">{course.description}</p>
-                <footer className="course-footer">
-                  <div className="course-meta">
-                     <span className="course-upload-time">⏱ {getRelativeTime(course.created_at)}</span>
-                    <span>👤 {course.students.toLocaleString()} enrolled</span>
-                   
+          ) : (
+            <>
+              {filtered.map((course, i) => (
+                <article 
+                  key={course.id} 
+                  className="course-card" 
+                  ref={addToRefs}
+                  onClick={() => onNavigate("learn-player", course)}
+                >
+                  <figure className="course-img">
+                    <img 
+                       src={(course.thumbnail && course.thumbnail.length > 10) ? course.thumbnail : `https://images.unsplash.com/photo-${i === 0 ? '1529539795054-3c162aab037a' : i === 1 ? '1454165804606-c3d57bc86b40' : i === 2 ? '1554224155-6726b3ff858f' : i === 3 ? '1589829545856-d10d557cf95f' : i === 4 ? '1540910419892-4a36d2c3266c' : '1450101499163-c8848c66ca85'}?auto=format&fit=crop&w=600&q=80`}
+                       alt={course.title} 
+                       loading="lazy" 
+                       onError={(e) => {
+                         e.target.onerror = null;
+                         e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&get=80&w=800';
+                       }}
+                    />
+                    {course.trending && <figcaption className="course-badge">Bestseller</figcaption>}
+                    {course.featured && !course.trending && <figcaption className="course-badge course-badge--new">Featured</figcaption>}
+                  </figure>
+                  <div className="course-body">
+                    <span className="course-cat">{course.category}</span>
+                    <h3 className="course-title">{course.title}</h3>
+                    <p className="course-desc">{course.description}</p>
+                    <footer className="course-footer">
+                      <div className="course-meta">
+                         <span className="course-upload-time">⏱ {getRelativeTime(course.created_at)}</span>
+                        <span>👤 {course.students.toLocaleString()} enrolled</span>
+                      </div>
+                      <div className="course-price">
+                        <span className="price">Free</span>
+                      </div>
+                    </footer>
                   </div>
-                  <div className="course-price">
-                    <span className="price">Free</span>
+                </article>
+              ))}
+              
+              {/* Card Placeholder Empty States */}
+              {[...Array(Math.max(0, 6 - filtered.length))].map((_, idx) => (
+                <div key={`empty-${idx}`} className="course-card empty-placeholder">
+                  <div className="placeholder-img">
+                    <span className="material-symbols-outlined">school</span>
                   </div>
-                </footer>
-              </div>
-            </article>
-          ))}
+                  <div className="course-body">
+                    <div className="shimmer-line title"></div>
+                    <div className="shimmer-line desc"></div>
+                    <div className="shimmer-line desc short"></div>
+                    <div className="placeholder-footer">
+                      <span>Coming Soon</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         {!loading && filtered.length === 0 && (
@@ -363,6 +384,11 @@ const LearnLandingPage = ({ onNavigate, user }) => {
           </div>
 
         </section>
+
+        {/* FAQ Section */}
+        <div className="container learn-content" style={{ marginTop: '2rem' }}>
+          <FaqSection />
+        </div>
 
         {/* CTA Section */}
         <div className="container learn-content">

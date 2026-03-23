@@ -395,7 +395,7 @@
 
 .section-header h3 {
   font-size: 1.1rem;
-  font-weight: 800;
+  font-weight: 400;
   color: var(--secondary);
   margin-bottom: 0px;
   white-space: nowrap;
@@ -414,6 +414,7 @@
   border: 1px solid var(--sc-border);
   transition: all 0.2s;
   box-shadow: var(--shadow-sm);
+  border-radius: 1rem;
 }
 
 .rec-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }

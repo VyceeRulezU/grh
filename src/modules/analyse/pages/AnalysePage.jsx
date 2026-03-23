@@ -1,126 +1,316 @@
 import React, { useState } from 'react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { COUNTRIES, DIMENSIONS } from '../../../data/legacyData';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+  LineChart, Line, Legend, PieChart, Pie, Cell, Sector, Label
+} from 'recharts';
+import { 
+  NIGERIA_POPULATION_DATA, 
+  NIGERIA_REVENUE_EXPENDITURE_DATA, 
+  GEOPOLITICAL_ZONES, 
+  SECTOR_EXPENDITURE,
+  NIGERIA_STATES_DATA
+} from '../../../data/nigeriaData';
+import NigeriaMap from '../components/NigeriaMap';
 import CtaSection from '../../../shared/ui/CtaSection';
 import './AnalysePage.css';
 
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/all';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+
 const AnalysePage = () => {
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
+  const [activeZone, setActiveZone] = useState(0);
+  const heroRef = React.useRef(null);
 
-  // Format data for radar chart
-  const radarData = DIMENSIONS.map(d => ({
-    subject: d.title.split(' ')[0],
-    A: selectedCountry.scores[d.id] || 0,
-    fullMark: 100
-  }));
+  const totalExpenditure = SECTOR_EXPENDITURE.reduce((acc, curr) => acc + curr.value, 0);
 
-  const overallScore = Math.round(
-    Object.values(selectedCountry.scores).reduce((a, b) => a + b, 0) / DIMENSIONS.length
-  );
+  React.useEffect(() => {
+    if (heroRef.current) {
+      const q = gsap.utils.selector(heroRef.current);
+      gsap.fromTo(q('.hero-chip, .analyse-hero-title, .analyse-hero-subline'), 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 1, 
+          stagger: 0.2, 
+          ease: 'power3.out',
+          delay: 0.2 
+        }
+      );
+    }
+
+    // Generic cards reveal
+    gsap.fromTo('.chart-card, .cta-card, .budget-card, .signup-bar',
+      { y: 40, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.analyse-main-content',
+          start: 'top 85%'
+        }
+      }
+    );
+  }, []);
 
   return (
     <div className="page-wrapper analyse-page">
-      <div className="analyse-hero">
+    
+      <div className="analyse-hero" ref={heroRef}>
         <div className="container">
-          <div className="hero-inner">
+          <div className="analyse-hero-inner">
             <div className="hero-inner-left">
-              <div className="hero-chip">
+              <div className="hero-chip" style={{ opacity: 1, visibility: 'visible' }}>
                 <div className="dot">
                   <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
                 </div>
-                <p className="chip-text">Institutional Analysis</p>
+                <p className="chip-text">Governance Data Analytics</p>
               </div>
-              <h1 className="section-title text-white">Governance Analytics & <br /> <span className="green-text">Insights</span></h1>
-              <p className="hero-subline">
-                Comparative analysis of public institution performance across 6 governance dimensions.
+              <h1 className="analyse-hero-title">Empowering Governance Through <br/> <span className="green-text">Data-Driven Insights</span></h1>
+              <p className="analyse-hero-subline">
+                Explore Nigeria's fiscal landscape with precision. Our interactive database provides comprehensive state-level data, comparative analysis, and performance metrics to support evidence-based governance.
               </p>
             </div>
-            
           </div>
         </div>
       </div>
 
-      <div className="container analyse-content">
-        <div className="analyse-top">
-          <div className="country-selector-box animate-up">
-            <span className="box-label">Select Country to Analyze</span>
-            <div className="country-pills">
-              {COUNTRIES.map(c => (
-                <button 
-                  key={c.id} 
-                  className={`country-pill ${selectedCountry.id === c.id ? 'active' : ''}`}
-                  onClick={() => setSelectedCountry(c)}
-                >
-                  <span className="flag">{c.flag}</span>
-                  <span className="name">{c.name}</span>
-                </button>
-              ))}
+      {/* ── MAP HERO SECTION ────────────────────────────────────────── */}
+      <div className="analyse-hero-v2">
+        <div className="container">
+          <div className="hero-layout">
+            <div className="hero-text animate-up">
+              <div className="hero-chip">
+                <div className="dot">
+                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
+                </div>
+                <p className="chip-text">State Fiscal Analysis</p>
+              </div>
+              <h1 className="section-title">Nigerian State <br /><span className="green-text">Fiscal Database</span></h1>
+              <p className="hero-desc">
+                This is an open source database of the fiscal data of the 36 state governments of Nigeria.
+              </p>
+              <p className="hero-subtext">
+                The data here is compiled from various official sources, including the National Bureau of Statistics (NBS) and state governments' budget documents.
+              </p>
+              <div className="hero-disclaimer">
+                <span className="material-symbols-outlined">info</span>
+                <p>All data reported here is subject to change as government budget data is often revised.</p>
+              </div>
+            </div>
+            <div className="hero-map animate-up" style={{animationDelay: '0.1s'}}>
+              <NigeriaMap data={NIGERIA_STATES_DATA} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container analyse-main-content">
+        {/* ── POPULATION & REVENUE CHARTS ────────────────────────────── */}
+        <div className="charts-main-row">
+          <div className="chart-card animate-up" style={{animationDelay: '0.2s'}}>
+            <div className="chart-header">
+              <h3>Total Population for the 36 States</h3>
+              <p>Values in Millions (2011 - 2018)</p>
+            </div>
+            <div className="chart-body">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={NIGERIA_POPULATION_DATA}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <RechartsTooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}} />
+                  <Bar dataKey="population" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+              <p className="chart-source">Source: National Bureau of Statistics</p>
             </div>
           </div>
 
-          <div className="overall-score-card animate-up" style={{animationDelay: '0.1s'}}>
-            <span className="box-label">Institutional Health Score</span>
-            <div className="score-display">
-              <div className="score-value">{overallScore}</div>
-              <div className="score-meta">
-                <span className="status">EXCELLENT</span>
-                <span className="percentile">Top 15% globally</span>
-              </div>
+          <div className="chart-card animate-up" style={{animationDelay: '0.3s'}}>
+            <div className="chart-header">
+              <h3>Total Revenue and Expenditure</h3>
+              <p>Values in Trillion Naira (2008 - 2018)</p>
+            </div>
+            <div className="chart-body">
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={NIGERIA_REVENUE_EXPENDITURE_DATA}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <RechartsTooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}} />
+                  <Legend verticalAlign="top" height={36}/>
+                  <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} name="Total Revenue" />
+                  <Line type="monotone" dataKey="expenditure" stroke="#ef4444" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} name="Total Expenditure" />
+                </LineChart>
+              </ResponsiveContainer>
+              <p className="chart-source">Source: Central Bank of Nigeria / NBS</p>
             </div>
           </div>
         </div>
 
-        <div className="analyse-main">
-          <div className="chart-box animate-up" style={{animationDelay: '0.15s'}}>
-            <div className="box-header">
-              <h3>Governance Dimension Profile</h3>
-              <p>Performance overview for {selectedCountry.name}</p>
-            </div>
-            <div className="radar-container">
-              <ResponsiveContainer width="100%" height={360}>
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                  <PolarGrid stroke="#eee" />
-                  <PolarAngleAxis dataKey="subject" tick={{fontSize: 12, fill: '#666', fontWeight: 700}} />
-                  <Radar
-                    name={selectedCountry.name}
-                    dataKey="A"
-                    stroke="var(--primary)"
-                    fill="var(--primary)"
-                    fillOpacity={0.5}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
+        {/* ── GEOPOLITICAL ZONES ─────────────────────────────────────── */}
+        <div className="zones-section animate-up" style={{animationDelay: '0.4s'}}>
+          <div className="section-header">
+            <h3>Share of Total Expenditure by Geopolitical Zones</h3>
+            <p>Original Budget, 2024 Breakdown</p>
           </div>
-
-          <div className="dimensions-grid">
-            {DIMENSIONS.map((dim, i) => (
-              <div key={dim.id} className="dimension-card animate-up" style={{animationDelay: `${0.2 + i*0.05}s`}}>
-                <div className="dim-icon" style={{background: dim.color + '15', color: dim.color}}>{dim.icon}</div>
-                <div className="dim-info">
-                  <h4>{dim.title}</h4>
-                  <div className="dim-score-row">
-                    <div className="dim-bar-bg">
-                      <div className="dim-bar-fill" style={{width: `${selectedCountry.scores[dim.id]}%`, background: dim.color}} />
-                    </div>
-                    <span className="dim-score-val">{selectedCountry.scores[dim.id]}</span>
-                  </div>
-                  <p>{dim.description}</p>
-                </div>
+          <div className="zones-grid">
+            {GEOPOLITICAL_ZONES.map((zone, idx) => (
+              <div key={idx} className="zone-chart-box">
+                <h4>{zone.name}</h4>
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={zone.states}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={70}
+                      fill="#8884d8"
+                      paddingAngle={5}
+                      dataKey="value"
+                      label={({name}) => name}
+                    >
+                      {zone.states.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             ))}
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* ── SECTOR & COMPARATIVE ───────────────────────────────────── */}
+        <div className="bottom-charts-row">
+          <div className="chart-card animate-up" style={{animationDelay: '0.5s'}}>
+            <div className="chart-header">
+              <h3>Expenditure by Sector</h3>
+              <p>National Average Allocation</p>
+            </div>
+            <div className="chart-body">
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={SECTOR_EXPENDITURE}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {SECTOR_EXPENDITURE.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
+                  <Legend 
+                    layout="vertical" 
+                    align="right" 
+                    verticalAlign="middle" 
+                    wrapperStyle={{ paddingLeft: '20px' }}
+                    content={({ payload }) => (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {payload.map((entry, index) => (
+                          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                            <span style={{ width: 10, height: 10, borderRadius: '50%', background: entry.color, flexShrink: 0 }} />
+                            <span style={{ color: '#1e293b' }}>{entry.value}</span>
+                            <span style={{ color: '#64748b', marginLeft: 'auto' }}>{entry.payload.value}%</span>
+                          </div>
+                        ))}
+                        <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                          <span style={{ fontWeight: 700, color: '#1e293b' }}>TOTAL</span>
+                          <span style={{ fontWeight: 800, color: '#1e293b' }}>{totalExpenditure}%</span>
+                        </div>
+                      </div>
+                    )}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="cta-card animate-up" style={{animationDelay: '0.6s'}}>
+            <h3>Explore comparative data of states</h3>
+            <p>Select multiple states to compare their fiscal health and performance metrics over time.</p>
+            <button className="special-button">Open Comparator</button>
+            <div className="cta-card-image">
+              <img src="./src/assets/images/Logo/Icon.png" alt="GRH Icon" />
+            </div>
+          </div>
+        </div>
+
+        {/* ── BUDGETS SECTION ────────────────────────────────────────── */}
+        <div className="budgets-section">
+          <div className="budget-card green animate-up" style={{animationDelay: '0.7s'}}>
+            <div className="card-top">
+              <h4>Original Budget</h4>
+              <p>Government estimated revenue and economic projections over a period of local year.</p>
+              <div className="budget-card-image">
+              <img src="./src/assets/images/Logo/GRH-icon.png" alt="GRH Icon" />
+            </div>
+            </div>
+            <button className="white-pill-btn">View More</button>
+          </div>
+          <div className="budget-card orange animate-up" style={{animationDelay: '0.8s'}}>
+            <div className="card-top">
+              <h4>Actual</h4>
+              <p>Government financial actuals and receipts over the latest period.</p>
+              <div className="budget-card-image">
+              <img src="./src/assets/images/Logo/GRH-icon.png" alt="GRH Icon" />
+            </div>
+            </div>
+            <button className="white-pill-btn">View PDF</button>
+          </div>
+          <div className="budget-card dark animate-up" style={{animationDelay: '0.9s'}}>
+            <div className="card-top">
+              <h4>Budget Performance Indicators</h4>
+              <p>An evaluation tool for the performance of the government's budget.</p>
+              <div className="budget-card-image">
+              <img src="./src/assets/images/Logo/Icon.png" alt="GRH Icon" />
+            </div>
+            </div>
+            <button className="white-pill-btn">Details</button>
+          </div>
+        </div>
+
+        {/* ── SIGNUP SECTION ─────────────────────────────────────────── */}
+        <div className="signup-bar animate-up">
+          <div className="signup-text">
+            <h3>Sign up for updates</h3>
+            <p>Receive updates on the government performance database.</p>
+          </div>
+          <div className="signup-form">
+            <input type="email" placeholder="Email Address" />
+            <button className="special-button">Subscribe</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="container" style={{ paddingBottom: '4rem' }}>
         <CtaSection 
-          eyebrow="Advanced Reports"
-          title={<>Want a deeper <br /><span className="green-text">Institutional Diagnostic?</span></>}
-          description="Generate a 40-page technical report with granular metric breakdowns and strategic roadmaps for institutional reform."
-          primaryActionLabel="Download Full Report (PDF)"
-          secondaryActionLabel="Consult Analyst"
+          eyebrow="Take Action"
+          title={<>Ready to explore more<br /><span className="green-text">Governance Data?</span></>}
+          description="Access detailed reports, comparative analytics, and state-level benchmarking to drive informed decision making."
+          primaryActionLabel="View Research Library"
+          primaryActionOnClick={() => onNavigate && onNavigate('research')}
+          secondaryActionLabel="Take a Course"
+          secondaryActionHref="#"
+          note="Free access · No credit card required"
         />
       </div>
+
     </div>
   );
 };

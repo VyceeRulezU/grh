@@ -18,9 +18,14 @@ const Library = () => {
   const [search, setSearch] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedCats, setSelectedCats] = useState([]);
+  const [selectedProgrammes, setSelectedProgrammes] = useState([]);
+  const [selectedLocations, setSelectedLocations] = useState([]);
+  const [selectedThematicAreas, setSelectedThematicAreas] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
   const [readingResource, setReadingResource] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const heroRef = React.useRef(null);
   const { data: allResources = [], isLoading: loading, isSuccess } = useQuery({
     queryKey: ['library-resources'],
     queryFn: async () => {
@@ -36,11 +41,14 @@ const Library = () => {
         'SLGP': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=400&q=80',
       };
 
+      const PROGRAMME_TYPES = ['PERL', 'SPARC', 'SLGP'];
       const mappedRes = (res.data || []).map(r => {
         const normalizedType = (r.type || 'PERL').toUpperCase();
+        const programme = PROGRAMME_TYPES.includes(normalizedType) ? normalizedType : (r.programme || null);
         return {
           ...r,
           type: normalizedType,
+          programme: programme,
           coverImage: TYPE_IMAGES[normalizedType] || DEFAULT_IMG,
           author: 'GRH',
           year: new Date(r.created_at || Date.now()).getFullYear(),
@@ -61,12 +69,17 @@ const Library = () => {
       }));
 
       const merged = [...mappedRes, ...mappedBooks];
+      const PROG_TYPES = ['PERL', 'SPARC', 'SLGP'];
       if (merged.length === 0) {
         return [
-          ...LEGACY_RESOURCES,
+          ...LEGACY_RESOURCES.map(r => ({
+            ...r,
+            programme: PROG_TYPES.includes((r.type || '').toUpperCase()) ? r.type.toUpperCase() : null
+          })),
           ...LEGACY_BOOKS.map(b => ({
             ...b,
             type: "BOOK",
+            programme: null,
             author: "GRH Lib",
             year: 2024,
             coverImage: b.imageUrl,
@@ -83,7 +96,24 @@ const Library = () => {
   const statsRef = React.useRef(null);
   const resultsRef = React.useRef(null);
 
-  // Stat Counting Animation - Trigger after data is loaded
+  // Hero Animation
+  useEffect(() => {
+    if (heroRef.current) {
+      const q = gsap.utils.selector(heroRef.current);
+      gsap.fromTo(q('.hero-chip, .section-title, .hero-subline'), 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 1, 
+          stagger: 0.2, 
+          ease: 'power3.out',
+          delay: 0.2 
+        }
+      );
+    }
+  }, []);
+
   useEffect(() => {
     if (!isSuccess || !statsRef.current) return;
     
@@ -119,12 +149,35 @@ const Library = () => {
     setSelectedCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
   };
 
+  const toggleProgramme = (p) => {
+    setSelectedProgrammes(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+  };
+
+  const toggleLocation = (l) => {
+    setSelectedLocations(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
+  };
+
+  const toggleThematic = (t) => {
+    setSelectedThematicAreas(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  };
+
+  const clearFilters = () => {
+    setSelectedTypes([]);
+    setSelectedCats([]);
+    setSelectedProgrammes([]);
+    setSelectedLocations([]);
+    setSelectedThematicAreas([]);
+  };
+
   const filtered = allResources.filter(r => {
     const ms = (r.title || "").toLowerCase().includes(search.toLowerCase()) || 
                (r.description || "").toLowerCase().includes(search.toLowerCase());
     const mt = selectedTypes.length === 0 || selectedTypes.includes(r.type);
     const mc = selectedCats.length === 0 || selectedCats.includes(r.category);
-    return ms && mt && mc;
+    const mp = selectedProgrammes.length === 0 || selectedProgrammes.includes(r.programme);
+    const ml = selectedLocations.length === 0 || selectedLocations.includes(r.location);
+    const mta = selectedThematicAreas.length === 0 || selectedThematicAreas.includes(r.thematic_area);
+    return ms && mt && mc && mp && ml && mta;
   });
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
@@ -237,11 +290,11 @@ const Library = () => {
   return (
     <div className="page-wrapper research-page">
 
-      <div className="research-hero">
+      <div className="research-hero" ref={heroRef}>
         <div className="section-container">
           <div className="hero-inner">
             <div className="hero-inner-left">
-              <div className="hero-chip">
+              <div className="hero-chip" style={{ opacity: 1, visibility: 'visible' }}>
                 <div className="dot">
                   <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
                 </div>
@@ -249,18 +302,10 @@ const Library = () => {
               </div>
               <h1 className="section-title text-white">Curated <br /> <span className="green-text">Governance Knowledge</span></h1>
               <p className="hero-subline">
-                Explore {allResources.length}+ professional resources, journals and policy frameworks.
+                Explore our comprehensive library of professional resources, policy frameworks, and governance research curated for institutional excellence.
               </p>
-              <div className="learn-hero-search">
-                <span className="material-symbols-outlined search-icon">search</span>
-                <input 
-                  placeholder="Search by title, author, or keyword..." 
-                  value={search} 
-                  onChange={e => setSearch(e.target.value)} 
-                />
-              </div>
             </div>
-            {/* Optional hero stats for research if needed, or just leave as is for now */}
+            </div>
             <div className="hero-stats" ref={statsRef}>
               <div className="hero-stat">
                 <span className="stat-number">20+</span>
@@ -271,47 +316,82 @@ const Library = () => {
                 <span className="stat-label">Resources</span>
               </div>
             </div>
-          </div>
         </div>
       </div>
 
       <div className="container research-content">
 
         <div className="research-layout">
-          <aside className="filter-sidebar">
+          <aside className={`filter-sidebar ${isSidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-title">
               <h3>Filters</h3>
-              {(selectedTypes.length > 0 || selectedCats.length > 0) && (
-                <button className="clear-btn" onClick={() => {setSelectedTypes([]); setSelectedCats([]);}}>Clear All</button>
+              {(selectedTypes.length > 0 || selectedCats.length > 0 || selectedProgrammes.length > 0 || selectedLocations.length > 0 || selectedThematicAreas.length > 0) && (
+                <button className="clear-btn" onClick={clearFilters}>Clear All</button>
               )}
             </div>
 
             <div className="filter-group">
-              <div className="filter-group-title">RESOURCE TYPE</div>
-              {["PERL", "SPARC", "SLGP", "BOOK"].map(t => (
-                <label key={t} className="filter-check">
-                  <input type="checkbox" checked={selectedTypes.includes(t)} onChange={() => toggleType(t)} />
-                  <span>{t}</span>
-                  <span className="filter-count">{allResources.filter(r => r.type === t).length}</span>
+              <div className="filter-group-title">PROGRAMME</div>
+              {["SLGP", "SPARC", "PERL"].map(p => (
+                <label key={p} className="filter-check">
+                  <input type="checkbox" checked={selectedProgrammes.includes(p)} onChange={() => toggleProgramme(p)} />
+                  <span>{p}</span>
+                  <span className="filter-count">{allResources.filter(r => r.programme === p).length}</span>
                 </label>
               ))}
             </div>
 
             <div className="filter-group">
-              <div className="filter-group-title">CATEGORIES</div>
-              {["Finance", "Integrity", "Governance", "Democracy", "Transparency", "Digital"].map(c => (
-                <label key={c} className="filter-check">
-                  <input type="checkbox" checked={selectedCats.includes(c)} onChange={() => toggleCat(c)} />
-                  <span>{c}</span>
-                  <span className="filter-count">{allResources.filter(r => r.category === c).length}</span>
+              <div className="filter-group-title">LOCATION</div>
+              {["Kano", "Kaduna", "Jigawa", "Federal", "General"].map(l => (
+                <label key={l} className="filter-check">
+                  <input type="checkbox" checked={selectedLocations.includes(l)} onChange={() => toggleLocation(l)} />
+                  <span>{l}</span>
+                  <span className="filter-count">{allResources.filter(r => r.location === l).length}</span>
                 </label>
               ))}
             </div>
+
+            <div className="filter-group">
+              <div className="filter-group-title">THEMATIC AREAS</div>
+              {[
+                "Public Financial Management", 
+                "Public Service Management", 
+                "Policy & Strategy", 
+                "Monitoring, Evaluation & Learning", 
+                "Knowledge Management"
+              ].map(t => (
+                <label key={t} className="filter-check">
+                  <input type="checkbox" checked={selectedThematicAreas.includes(t)} onChange={() => toggleThematic(t)} />
+                  <span>{t}</span>
+                  <span className="filter-count">{allResources.filter(r => r.thematic_area === t).length}</span>
+                </label>
+              ))}
+            </div>
+            
+            <button className="mobile-close-sidebar" onClick={() => setIsSidebarOpen(false)}>Apply Filters</button>
           </aside>
 
           <div className="research-results">
             <div className="results-header">
-              <span className="results-count-text">Found {filtered.length} resources</span>
+              <div className="mobile-filter-bar">
+                <button className="mobile-filter-toggle" onClick={() => setIsSidebarOpen(true)}>
+                  <span className="material-symbols-outlined">filter_list</span>
+                  <span>Filters</span>
+                </button>
+                <span className="results-count-text">{filtered.length} found</span>
+              </div>
+              <div className="desktop-results-meta">
+                <span className="results-count-text">Found {filtered.length} resources</span>
+              </div>
+              <div className="learn-hero-search">
+                <span className="material-symbols-outlined search-icon">search</span>
+                <input 
+                  placeholder="Search by title, author, or keyword..." 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                />
+              </div>
               <div className="view-toggle">
                 <button className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')}>⊞</button>
                 <button className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>≡</button>
@@ -364,6 +444,21 @@ const Library = () => {
                     </div>
                   </div>
                 )
+              ))}
+
+              {/* Empty Placeholders */}
+              {viewMode === 'grid' && [...Array(Math.max(0, 6 - pagedItems.length))].map((_, idx) => (
+                <div key={`empty-${idx}`} className="resource-card empty-placeholder">
+                  <div className="placeholder-cover">
+                    <span className="material-symbols-outlined">description</span>
+                  </div>
+                  <div className="resource-body">
+                    <div className="shimmer-line title"></div>
+                    <div className="shimmer-line desc"></div>
+                    <div className="shimmer-line desc short"></div>
+                    <div className="placeholder-footer-text">Archived Resource</div>
+                  </div>
+                </div>
               ))}
             </div>
 

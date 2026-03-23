@@ -1,0 +1,83 @@
+.nigeria-map-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.nigeria-map-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.state-path {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  stroke: var(--primary);
+  stroke-width: 1;
+}
+
+.state-path:hover {
+  filter: brightness(0.9);
+  stroke-width: 2;
+  stroke: var(--primary);
+}
+
+.map-tooltip {
+  position: absolute;
+  z-index: 1000;
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  pointer-events: none;
+  min-width: 160px;
+  border-left: 4px solid var(--primary);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tooltip-header {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--secondary);
+  border-bottom: 1px solid #eee;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+}
+
+.tooltip-row .label {
+  color: #666;
+}
+
+.tooltip-row .value {
+  font-weight: 700;
+  color: #333;
+}
+
+.tooltip-row .value.highlight {
+  color: var(--primary);
+  font-size: 0.95rem;
+}
+
+.tooltip-note {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 8px;
+  font-style: italic;
+}

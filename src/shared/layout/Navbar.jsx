@@ -11,6 +11,7 @@ const Navbar = ({ onNavigate, currentPage, user, onAuthClick, onLogout }) => {
     { name: 'Explore', id: 'explore' },
     { name: 'Assess', id: 'assess' },
     { name: 'Analyse', id: 'analyse' },
+    { name: 'About', id: 'about' },
   ];
 
   const handleNavigate = (id) => {

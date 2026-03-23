@@ -112,9 +112,15 @@ const WelcomeGateway = ({ onNavigate }) => {
               </h1>
             </div>
 
-            <p className="welcome-hero-summary">
-              One unified platform for Learning, Research, AI Powered Insights and Governance Analytics
-            </p>
+            <div className="lp-hero-summary">
+              <p className="lp-hero-summary-text">
+                One unified platform for Learning, Research, AI Powered Insights and Governance Analytics
+              </p>
+
+              <button className="special-button" onClick={() => onNavigate('about')}>
+                About the Resource Hub
+              </button>
+            </div>
           </div>
         </div>
 

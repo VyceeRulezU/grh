@@ -2,16 +2,54 @@ import React, { useState } from 'react';
 import CtaSection from '../../../shared/ui/CtaSection';
 import './AssessPage.css';
 
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/all';
+
+gsap.registerPlugin(ScrollTrigger);
+
 const AssessPage = ({ onNavigate }) => {
   const [step, setStep] = useState("start");
+  const heroRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (heroRef.current) {
+      const q = gsap.utils.selector(heroRef.current);
+      gsap.fromTo(q('.hero-chip, .assess-hero-title, .assess-hero-subline'), 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 1, 
+          stagger: 0.2, 
+          ease: 'power3.out',
+          delay: 0.2 
+        }
+      );
+    }
+
+    gsap.fromTo('.assess-card, .pathway-step',
+      { y: 40, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.assess-content',
+          start: 'top 85%'
+        }
+      }
+    );
+  }, []);
 
   return (
     <div className="page-wrapper assess-page">
-      <div className="assess-hero">
+      <div className="assess-hero" ref={heroRef}>
         <div className="container">
           <div className="assess-hero-inner">
             <div className="hero-inner-left">
-              <div className="hero-chip">
+              <div className="hero-chip" style={{ opacity: 1, visibility: 'visible' }}>
                 <div className="dot">
                   <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
                 </div>
@@ -22,7 +60,6 @@ const AssessPage = ({ onNavigate }) => {
                 Benchmark your institutional knowledge against international standards and earn verifiable certificates.
               </p>
             </div>
-            
           </div>
         </div>
       </div>

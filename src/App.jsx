@@ -8,6 +8,7 @@ import ExplorePage from './modules/explore/pages/ExplorePage'
 import AssessPage from './modules/assess/pages/AssessPage'
 import AnalysePage from './modules/analyse/pages/AnalysePage'
 import CourseDiscovery from './modules/learn/pages/CourseDiscovery'
+import AboutUs from './modules/about/pages/AboutUs'
 import StudentDashboard from './modules/student/StudentDashboard'
 import Navbar from './shared/layout/Navbar'
 import Footer from './shared/layout/Footer'
@@ -372,8 +373,9 @@ function App() {
               {currentPage === 'learn' && <LearnLandingPage onNavigate={navigate} />}
               {currentPage === 'research' && <Library onNavigate={navigate} />}
               {currentPage === 'explore' && <ExplorePage onNavigate={navigate} />}
-              {currentPage === 'assess' && <NotFoundPage onNavigate={navigate} />}
-              {currentPage === 'analyse' && <NotFoundPage onNavigate={navigate} />}
+              {currentPage === 'assess' && <AssessPage onNavigate={navigate} />}
+              {currentPage === 'analyse' && <AnalysePage onNavigate={navigate} />}
+              {currentPage === 'about' && <AboutUs />}
               {currentPage === 'help-center' && <NotFoundPage onNavigate={navigate} />}
               {currentPage === 'contact' && <NotFoundPage onNavigate={navigate} />}
               {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} onLogout={handleLogout} onRefreshUser={refreshUser} />}
@@ -386,9 +388,8 @@ function App() {
               {currentPage === 'oauth-consent' && <OAuthConsentPage onNavigate={navigate} />}
               {currentPage === 'privacy-policy' && <PrivacyPolicy />}
               {currentPage === 'terms-of-service' && <TermsOfService />}
-              {currentPage === 'forgot-password' && <ForgotPasswordPage onNavigate={navigate} />}
               {currentPage === 'reset-password' && <ResetPasswordPage onNavigate={navigate} />}
-              {!['welcome','learn','research','explore','assess','analyse','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
+              {!['welcome','learn','research','explore','assess','analyse','about','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
                 <NotFoundPage onNavigate={navigate} />
               )}
             </motion.div>
@@ -396,7 +397,7 @@ function App() {
         )}
       </main>
 
-      {['learn','research','assess','analyse','learn-discovery','help-center','contact', 'privacy-policy', 'terms-of-service'].includes(currentPage) && <Footer onNavigate={navigate} />}
+      {['learn','research','assess','analyse','about','learn-discovery','help-center','contact', 'privacy-policy', 'terms-of-service'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 
