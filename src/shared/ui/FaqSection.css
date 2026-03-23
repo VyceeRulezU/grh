@@ -1,16 +1,18 @@
 .faq-section {
-  width: 100%;
+  width: var(--max-width);
 }
 
 /* ── HERO ───────────────────────────────── */
 .faq-hero {
   position: relative;
-  width: 100%;
+  width: var(--max-width);
   height: 300px;
   background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1600&q=80');
   background-size: cover;
   background-position: center;
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
   align-items: center;
   justify-content: center;
   overflow: hidden;
@@ -33,7 +35,7 @@
 
 .faq-hero-content h2 {
   font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 0 0.75rem;
   color: white;
 }

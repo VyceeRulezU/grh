@@ -66,7 +66,7 @@ img {
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 1rem; /* Padding as requested */
+  /* padding: 0 1rem;  */
 }
 
 @media (max-width: 768px) {

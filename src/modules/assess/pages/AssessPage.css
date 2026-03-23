@@ -203,6 +203,7 @@
 
 /* CTA integration */
 .cta-section {
+  width: var(--max-width);
   margin-top: 4rem;
 }
 

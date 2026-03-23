@@ -61,9 +61,15 @@ const AboutUs = ({ onNavigate }) => {
       });
 
       // Cards reveal
-      gsap.from('.service-card, .vision-text, .value-card, .team-card, .partner-pill', {
-        y: 60, opacity: 0, duration: 1, stagger: 0.12, ease: 'power2.out',
-        scrollTrigger: { trigger: '.about-services', start: 'top 80%' }
+      const revealElems = document.querySelectorAll('.service-card, .value-card, .team-card, .partner-pill');
+      revealElems.forEach((el) => {
+        gsap.fromTo(el,
+          { y: 40, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 0.8, ease: 'power2.out',
+            scrollTrigger: { trigger: el, start: 'top 92%', toggleActions: 'play none none none' }
+          }
+        );
       });
     });
 
@@ -101,39 +107,41 @@ const AboutUs = ({ onNavigate }) => {
                 </button>
               </div>
             </div>
+
+            
           </div>
         </div>
       </div>
 
-      {/* ── STATS BAR ── */}
-      <section className="about-stats-bar" ref={statsRef}>
-        <div className="container stats-flex">
-          <div className="about-stat">
-            <h2 className="about-stat-number" data-target="3" data-suffix="k+">0k+</h2>
-            <p>Successful Projects</p>
-          </div>
-          <div className="about-stat">
-            <h2 className="about-stat-number" data-target="150" data-suffix="+">0+</h2>
-            <p>Verified Experts</p>
-          </div>
-          <div className="about-stat">
-            <h2 className="about-stat-number" data-target="36" data-suffix="">0</h2>
-            <p>States Covered</p>
-          </div>
-          <div className="about-stat">
-            <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
-            <p>Years of Data</p>
-          </div>
-        </div>
-      </section>
+          {/* ── STATS BAR ── */}
+            <section className="about-stats-bar" ref={statsRef}>
+              <div className="container stats-flex">
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="3" data-suffix="k+">0k+</h2>
+                  <p>Successful Projects</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="150" data-suffix="+">0+</h2>
+                  <p>Verified Experts</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="36" data-suffix="">0</h2>
+                  <p>States Covered</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
+                  <p>Years of Data</p>
+                </div>
+              </div>
+            </section>
 
       {/* ── MISSION SPLIT ── */}
       <section className="about-mission">
         <div className="container mission-grid">
           <div className="mission-image">
             <img
-              src="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=800"
-              alt="Mission"
+              src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800"
+              alt="Government Intelligence Team"
             />
             <div className="mission-badge">
               <strong>99.9%</strong>
@@ -205,18 +213,23 @@ const AboutUs = ({ onNavigate }) => {
           <div className="values-header">
             <span className="tag">What Guides Us</span>
             <h2>Our Core <span className="green-text">Values</span></h2>
+            <p>We are driven by a set of core values that guide our work <br /> and shape our approach to governance and development.</p>
           </div>
           <div className="values-grid">
             {[
-              { icon: 'search', title: 'Transparency', desc: 'We make government data accessible, readable, and verifiable for every citizen.' },
+              { icon: 'search', title: 'Transparency', desc: 'We make government data accessible, readable, and easy to understand for every citizen. By simplifying complex information, we ensure people can clearly see how decisions are made and resources are used.' },
               { icon: 'balance', title: 'Accountability', desc: 'Every dataset we publish is cross-referenced and auditable against primary sources.' },
               { icon: 'handshake', title: 'Partnerships', desc: 'We work with state governments, NGOs, and global institutions to deliver trusted insights.' },
-              { icon: 'lightbulb', title: 'Innovation', desc: 'We leverage modern technology to democratise access to governance intelligence.' },
+              { icon: 'lightbulb', title: 'Innovation', desc: 'We leverage modern technology to democratise access to governance intelligence. We believe that technology should serve the public good, and we are committed to using the latest tools and techniques to empower citizens and strengthen democracy.' },
             ].map((v, i) => (
               <div key={i} className="value-card">
                 <span className="material-symbols-outlined value-emoji">{v.icon}</span>
                 <h3>{v.title}</h3>
                 <p>{v.desc}</p>
+
+                <div className="value-image">
+                  <img src="./src/assets/images/Logo/Icon.png" alt="GRH Logo" />
+                </div>
               </div>
             ))}
           </div>
