@@ -456,4 +456,18 @@
   .signup-form input { width: 100%; }
   .chart-card { padding: 1.5rem; }
   .cta-card { padding: 2rem; }
+  .chart-body{
+    flex-direction: column;
+  }
+  .section-header{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .section-header h3{
+    text-align: center;
+    width: 100%;
+  }
 }
