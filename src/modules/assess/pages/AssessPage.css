@@ -10,6 +10,9 @@
 
 .assess-main-content {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 4rem;
 }
 
 /* ─── SECTIONS ────────────────────────────────────────────── */
@@ -49,7 +52,7 @@
 
 /* ─── ABOUT PERFORM ──────────────────────────────────────── */
 .ap-about {
-  background: #fff;
+  border-radius: var(--radius-xl);
 }
 
 .ap-about-grid {
@@ -568,7 +571,9 @@
 
 /* ─── PROCESS ─────────────────────────────────────────────── */
 .ap-process {
-  background: #f8f9fa;
+    margin-top: 4rem;
+    border-radius: var(--radius-xl);
+    /* background: #f8f9fa; */
 }
 
 .ap-process-header {
