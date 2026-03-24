@@ -6,6 +6,7 @@ import { supabase } from '../../../services/supabase/supabaseClient';
 import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../../data/legacyData';
 import CtaSection from '../../../shared/ui/CtaSection';
 import Pagination from '../../../shared/ui/Pagination';
+import PageHero from '../../../shared/ui/PageHero';
 import { gsap } from 'gsap';
 import { Flip } from 'gsap/all';
 import { ScrollTrigger } from 'gsap/all';
@@ -290,34 +291,15 @@ const Library = () => {
   return (
     <div className="page-wrapper research-page">
 
-      <div className="research-hero" ref={heroRef}>
-        <div className="section-container">
-          <div className="hero-inner">
-            <div className="hero-inner-left">
-              <div className="hero-chip" style={{ opacity: 1, visibility: 'visible' }}>
-                <div className="dot">
-                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
-                </div>
-                <p className="chip-text">Digital e-Library</p>
-              </div>
-              <h1 className="section-title text-white">Curated <br /> <span className="green-text">Governance Knowledge</span></h1>
-              <p className="hero-subline">
-                Explore our comprehensive library of professional resources, policy frameworks, and governance research curated for institutional excellence.
-              </p>
-            </div>
-            </div>
-            <div className="hero-stats" ref={statsRef}>
-              <div className="hero-stat">
-                <span className="stat-number">20+</span>
-                <span className="stat-label">Years of Data</span>
-              </div>
-              <div className="hero-stat">
-                <span className="stat-number">{allResources.length}+</span>
-                <span className="stat-label">Resources</span>
-              </div>
-            </div>
-        </div>
-      </div>
+      <PageHero
+        chip="Digital e-Library"
+        title={<>Curated <br /><span className="green-text">Governance Knowledge</span></>}
+        subtitle="Explore our comprehensive library of professional resources, policy frameworks, and governance research curated for institutional excellence."
+        counters={[
+          { value: '20+', label: 'Years of Data' },
+          { value: `${allResources.length}+`, label: 'Resources' },
+        ]}
+      />
 
       <div className="container research-content">
 

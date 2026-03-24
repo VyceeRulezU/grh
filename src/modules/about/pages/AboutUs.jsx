@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/all';
 import CtaSection from '../../../shared/ui/CtaSection';
 import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import FaqSection from '../../../shared/ui/FaqSection';
+import PageHero from '../../../shared/ui/PageHero';
 import grhIcon from '../../../assets/images/Logo/Icon.png';
 import './AboutUs.css';
 
@@ -80,39 +81,17 @@ const AboutUs = ({ onNavigate }) => {
   return (
     <div className="page-wrapper about-page">
 
-      {/* ── HERO BANNER ── */}
-      <div className="analyse-hero" ref={heroRef}>
-        <div className="container">
-          <div className="analyse-hero-inner">
-            <div className="hero-inner-left">
-              <div className="hero-chip" style={{ opacity: 1, visibility: 'visible' }}>
-                <div className="dot">
-                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
-                </div>
-                <p className="chip-text">Digital Governance Hub</p>
-              </div>
-              <h1 className="analyse-hero-title">
-                Building Transparent &amp; <br />
-                <span className="green-text">Accountable Governance</span>
-              </h1>
-              <p className="analyse-hero-subline">
-                We provide the tools, data, and expertise to transform how government institutions manage and
-                report performance — ensuring every public resource is accounted for.
-              </p>
-              <div className="hero-actions" style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <button className="special-button" onClick={() => onNavigate && onNavigate('analyse')}>
-                  Explore Analytics
-                </button>
-                <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('research')}>
-                  Research Library
-                </button>
-              </div>
-            </div>
-
-            
-          </div>
-        </div>
-      </div>
+      <PageHero
+        chip="Digital Governance Hub"
+        title={<>Building Transparent &amp;<br /><span className="green-text">Accountable Governance</span></>}
+        subtitle="We provide the tools, data, and expertise to transform how government institutions manage and report performance — ensuring every public resource is accounted for."
+        actions={
+          <>
+            <button className="special-button" onClick={() => onNavigate && onNavigate('analyse')}>Explore Analytics</button>
+            <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('research')}>Research Library</button>
+          </>
+        }
+      />
 
        {/* ── TRUSTED BY ──────────────────────────────────────────────── */}
       <div className="about-trusted-by">

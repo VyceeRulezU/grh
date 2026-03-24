@@ -12,7 +12,12 @@ import {
 } from '../../../data/nigeriaData';
 import NigeriaMap from '../components/NigeriaMap';
 import CtaSection from '../../../shared/ui/CtaSection';
+import PageHero from '../../../shared/ui/PageHero';
 import './AnalysePage.css';
+
+// Import assets to fix broken paths
+import grhIcon from '../../../assets/images/Logo/GRH-icon.png';
+import iconMain from '../../../assets/images/Logo/Icon.png';
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
@@ -21,28 +26,12 @@ gsap.registerPlugin(ScrollTrigger);
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
-const AnalysePage = () => {
+const AnalysePage = ({ onNavigate }) => {
   const [activeZone, setActiveZone] = useState(0);
-  const heroRef = React.useRef(null);
 
   const totalExpenditure = SECTOR_EXPENDITURE.reduce((acc, curr) => acc + curr.value, 0);
 
   React.useEffect(() => {
-    if (heroRef.current) {
-      const q = gsap.utils.selector(heroRef.current);
-      gsap.fromTo(q('.hero-chip, .analyse-hero-title, .analyse-hero-subline'), 
-        { y: 30, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 1, 
-          stagger: 0.2, 
-          ease: 'power3.out',
-          delay: 0.2 
-        }
-      );
-    }
-
     // Generic cards reveal
     gsap.fromTo('.chart-card, .cta-card, .budget-card, .signup-bar',
       { y: 40, opacity: 0 },
@@ -62,25 +51,17 @@ const AnalysePage = () => {
 
   return (
     <div className="page-wrapper analyse-page">
-    
-      <div className="analyse-hero" ref={heroRef}>
-        <div className="container">
-          <div className="analyse-hero-inner">
-            <div className="hero-inner-left">
-              <div className="hero-chip" style={{ opacity: 1, visibility: 'visible' }}>
-                <div className="dot">
-                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
-                </div>
-                <p className="chip-text">Governance Data Analytics</p>
-              </div>
-              <h1 className="analyse-hero-title">Empowering Governance Through <br/> <span className="green-text">Data-Driven Insights</span></h1>
-              <p className="analyse-hero-subline">
-                Explore Nigeria's fiscal landscape with precision. Our interactive database provides comprehensive state-level data, comparative analysis, and performance metrics to support evidence-based governance.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+
+      <PageHero
+        chip="Governance Data Analytics"
+        title={<>Empowering Governance Through<br /><span className="green-text">Data-Driven Insights</span></>}
+        subtitle="Explore Nigeria's fiscal landscape with precision. Our interactive database provides comprehensive state-level data, comparative analysis, and performance metrics."
+        counters={[
+          { value: '36', label: 'States Covered' },
+          { value: '20+', label: 'Years of Data' },
+          { value: '₦84T', label: 'Expenditure Tracked' },
+        ]}
+      />
 
       {/* ── MAP HERO SECTION ────────────────────────────────────────── */}
       <div className="analyse-hero-v2">
@@ -246,7 +227,7 @@ const AnalysePage = () => {
             <p>Select multiple states to compare their fiscal health and performance metrics over time.</p>
             <button className="special-button">Open Comparator</button>
             <div className="cta-card-image">
-              <img src="./src/assets/images/Logo/Icon.png" alt="GRH Icon" />
+              <img src={iconMain} alt="GRH Icon" />
             </div>
           </div>
         </div>
@@ -258,7 +239,7 @@ const AnalysePage = () => {
               <h4>Original Budget</h4>
               <p>Government estimated revenue and economic projections over a period of local year.</p>
               <div className="budget-card-image">
-              <img src="./src/assets/images/Logo/GRH-icon.png" alt="GRH Icon" />
+              <img src={grhIcon} alt="GRH Icon" />
             </div>
             </div>
             <button className="white-pill-btn">View More</button>
@@ -268,7 +249,7 @@ const AnalysePage = () => {
               <h4>Actual</h4>
               <p>Government financial actuals and receipts over the latest period.</p>
               <div className="budget-card-image">
-              <img src="./src/assets/images/Logo/GRH-icon.png" alt="GRH Icon" />
+              <img src={grhIcon} alt="GRH Icon" />
             </div>
             </div>
             <button className="white-pill-btn">View PDF</button>
@@ -278,7 +259,7 @@ const AnalysePage = () => {
               <h4>Budget Performance Indicators</h4>
               <p>An evaluation tool for the performance of the government's budget.</p>
               <div className="budget-card-image">
-              <img src="./src/assets/images/Logo/Icon.png" alt="GRH Icon" />
+              <img src={iconMain} alt="GRH Icon" />
             </div>
             </div>
             <button className="white-pill-btn">Details</button>
