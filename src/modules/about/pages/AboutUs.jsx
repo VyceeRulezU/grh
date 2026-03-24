@@ -108,9 +108,33 @@ const AboutUs = ({ onNavigate }) => {
             ))}
           </div>
         </div>
+
+            {/* ── STATS BAR ──
+      <section className="about-stats-bar" ref={statsRef}>
+        
+        <div className="container stats-flex">
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="3" data-suffix="k+">0k+</h2>
+                  <p>Successful Projects</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="150" data-suffix="+">0+</h2>
+                  <p>Verified Experts</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="36" data-suffix="">0</h2>
+                  <p>States Covered</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
+                  <p>Years of Data</p>
+                </div>
+        </div>
+
+      </section> */}
       </div>
 
-      {/* ── PARTNERS ──
+      {/* ── PARTNERS ── 
       <section className="about-partners">
         <div className="container">
           <p className="partners-label">Trusted by leading institutions worldwide</p>
@@ -167,9 +191,14 @@ const AboutUs = ({ onNavigate }) => {
 
       {/* ── SERVICES / WHAT WE DO ── */}
       <section className="about-services">
-        <div className="container">
+        <div className="about-services-bg">
+          <img src="https://images.unsplash.com/photo-1542868727-deaf54c25916?auto=format&fit=crop&q=80&w=1400" alt="African governance professionals" />
+        </div>
+        <div className="about-services-overlay"></div>
+
+        <div className="container about-services-inner">
           <div className="services-header">
-            <span className="tag">Our Expertise</span>
+            <span className="tag light">Our Expertise</span>
             <h2>Advancing Governance through <span className="green-text">Tech-Driven Strategy</span></h2>
             <p>Comprehensive tools for benchmarking, monitoring, and evaluation — ensuring institutional goals are met with the highest standards of accountability.</p>
           </div>
@@ -265,29 +294,7 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* ── STATS BAR ── */}
-      <section className="about-stats-bar" ref={statsRef}>
-        
-        <div className="container stats-flex">
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="3" data-suffix="k+">0k+</h2>
-                  <p>Successful Projects</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="150" data-suffix="+">0+</h2>
-                  <p>Verified Experts</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="36" data-suffix="">0</h2>
-                  <p>States Covered</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
-                  <p>Years of Data</p>
-                </div>
-        </div>
-
-      </section>
+      
 
       {/* ── TESTIMONIALS ── */}
       <TestimonialSection

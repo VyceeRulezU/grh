@@ -178,13 +178,12 @@
   /* ── Stats Bar ── */
   .about-stats-bar {
     padding: 2rem 0;
-    background: white;
-    margin: -4rem auto -4rem;
+    /* background: white; */
     width: 100%;
     border-radius: 20px;
     position: relative;
     z-index: 10;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    /* box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); */
   }
   
   .stats-flex {
@@ -318,9 +317,36 @@
   
   /* ── Services ── */
   .about-services {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+    background: var(--secondary);
     width: 100%;
-    padding: 6rem 0;
-    background: var(--bg-weak);
+    margin: 4rem 0;
+    border-radius: var(--radius-xl);
+  }
+  
+  .about-services-bg {
+    position: absolute;
+    inset: 0;
+  }
+  
+  .about-services-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .about-services-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(10,30,20,0.92) 0%, rgba(10,30,20,0.7) 100%);
+  }
+  
+  .about-services-inner {
+    position: relative;
+    z-index: 1;
+    padding: 6rem 2rem;
   }
   
   .services-header {
@@ -333,55 +359,67 @@
     font-size: clamp(2rem, 3vw, 2.8rem);
     margin-bottom: 1rem;
     font-weight: 400;
+    color: #fff;
+  }
+
+  .services-header p {
+    color: rgba(255,255,255,0.7);
   }
   
   .services-grid-4 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 2rem;
-    margin-bottom: 6rem;
+    margin-bottom: 2rem;
   }
   
   .service-card {
-    background: white;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.15);
     padding: 2.5rem 2rem;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
   }
   
   .service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-6px);
     border-color: var(--primary);
   }
   
   .service-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
-    background: #ecfdf5;
+    width: 48px;
+    height: 48px;
+    background: rgba(77,167,113,0.15);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.5rem;
+    color: var(--primary);
   }
   
   .service-icon .material-symbols-outlined {
-    color: var(--primary);
-    font-size: 32px;
+    font-size: 24px;
   }
   
   .service-card h3 {
     font-size: 1.25rem;
-    margin-bottom: 0.75rem;
-    color: var(--secondary);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
   }
   
   .service-card p {
-    color: var(--text-soft);
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
     line-height: 1.6;
-    font-size: 1rem;
+    flex: 1;
   }
   
   /* ── Values ── */
@@ -475,7 +513,7 @@
   .about-team {
     width: 100%;
     padding: 6rem 0;
-    background: var(--bg-weak);
+    /* background: var(--bg-weak); */
   }
   
   .team-header {
