@@ -114,27 +114,36 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </div>
 
-          {/* ── STATS BAR ── */}
-            <section className="about-stats-bar" ref={statsRef}>
-              <div className="container stats-flex">
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="3" data-suffix="k+">0k+</h2>
-                  <p>Successful Projects</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="150" data-suffix="+">0+</h2>
-                  <p>Verified Experts</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="36" data-suffix="">0</h2>
-                  <p>States Covered</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
-                  <p>Years of Data</p>
-                </div>
+       {/* ── TRUSTED BY ──────────────────────────────────────────────── */}
+      <div className="about-trusted-by">
+        <p>Trusted by leading institutions worldwide</p>
+        <div className="about-trusted-by-carousel">
+          <div className="about-logo-track">
+            {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((id, i) => (
+              <img 
+                key={i} 
+                src={`${import.meta.env.BASE_URL}assets/grh-logo-v2.svg`} 
+                alt={`Institution partner ${id}`} 
+                className="about-trusted-by-logo" 
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── PARTNERS ──
+      <section className="about-partners">
+        <div className="container">
+          <p className="partners-label">Trusted by leading institutions worldwide</p>
+          <div className="partners-row">
+            {PARTNERS.map((p, i) => (
+              <div key={i} className="partner-pill">
+                <span>{p.name}</span>
               </div>
-            </section>
+            ))}
+          </div>
+        </div>
+      </section> */}
 
       {/* ── MISSION SPLIT ── */}
       <section className="about-mission">
@@ -277,18 +286,28 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* ── PARTNERS ── */}
-      <section className="about-partners">
-        <div className="container">
-          <p className="partners-label">Trusted by leading institutions worldwide</p>
-          <div className="partners-row">
-            {PARTNERS.map((p, i) => (
-              <div key={i} className="partner-pill">
-                <span>{p.name}</span>
-              </div>
-            ))}
-          </div>
+      {/* ── STATS BAR ── */}
+      <section className="about-stats-bar" ref={statsRef}>
+        
+        <div className="container stats-flex">
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="3" data-suffix="k+">0k+</h2>
+                  <p>Successful Projects</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="150" data-suffix="+">0+</h2>
+                  <p>Verified Experts</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="36" data-suffix="">0</h2>
+                  <p>States Covered</p>
+                </div>
+                <div className="about-stat">
+                  <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
+                  <p>Years of Data</p>
+                </div>
         </div>
+
       </section>
 
       {/* ── TESTIMONIALS ── */}
