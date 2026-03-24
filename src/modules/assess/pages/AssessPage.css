@@ -739,12 +739,13 @@
 }
 
 .ap-form-card {
+    width: var(--max-width);
   background: #fff;
   border-radius: var(--radius-xl);
   padding: 3rem;
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--stroke-soft);
-  max-width: 900px;
+  /* max-width: 900px; */
 }
 
 .ap-form-header {
@@ -791,7 +792,7 @@
 
 .ap-form-row {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 1rem;
 }
 
@@ -804,6 +805,10 @@
   outline: none;
   transition: border-color 0.2s ease;
   background: #f8fafc;
+}
+
+.ap-select {
+  height: fit-content;
 }
 
 .ap-select:focus, .ap-textarea:focus {

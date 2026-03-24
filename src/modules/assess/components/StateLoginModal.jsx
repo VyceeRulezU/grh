@@ -36,6 +36,9 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
   const [signupLoading, setSignupLoading] = useState(false);
   const [signupError, setSignupError] = useState('');
 
+  // Complete Profile State (for existing users upgrading)
+  const [userId, setUserId] = useState(null);
+
   if (!isOpen) return null;
 
   // ── Login ────────────────────────────────────────────
@@ -58,12 +61,50 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
         .eq('id', data.user.id)
         .single();
 
-      const stateName = profile?.state || 'Your State';
-      onSuccess(stateName);
+      if (!profile?.state) {
+        // User exists but has no state attached (e.g. a student)
+        setUserId(data.user.id);
+        setSignupName(profile?.name || '');
+        setActiveTab('complete_profile');
+      } else {
+        const stateName = profile.state;
+        onSuccess(stateName);
+      }
     } catch (err) {
-      setLoginError(err.message);
+      if (err.message.includes('Invalid login credentials')) {
+        setLoginError('Invalid login credentials. Please check your password.');
+      } else {
+        setLoginError(err.message);
+      }
     } finally {
       setLoginLoading(false);
+    }
+  };
+
+  // ── Complete Profile (Upgrade existing account) ──
+  const handleCompleteProfile = async (e) => {
+    e.preventDefault();
+    setSignupError('');
+
+    if (!signupState) {
+      setSignupError('Please select your state.');
+      return;
+    }
+
+    setSignupLoading(true);
+    try {
+      await supabase.from('profiles').upsert({
+        id: userId,
+        name: signupName,
+        state: signupState,
+        role: 'state_official', // upgrade their role
+      }, { onConflict: 'id' });
+
+      onSuccess(signupState);
+    } catch (err) {
+      setSignupError(err.message);
+    } finally {
+      setSignupLoading(false);
     }
   };
 
@@ -95,7 +136,7 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
       if (error) throw error;
 
       if (data?.user?.identities?.length === 0) {
-        setSignupError('An account with this email already exists. Please log in.');
+        setSignupError('This email is already registered. Please click Login instead. After logging in, you will be prompted to select your state.');
         setSignupLoading(false);
         return;
       }
@@ -136,20 +177,64 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Tabs */}
-        <div className="slm-tabs">
-          <button
-            className={`slm-tab ${activeTab === 'login' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('login'); setLoginError(''); }}
-          >
-            Login
-          </button>
-          <button
-            className={`slm-tab ${activeTab === 'signup' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('signup'); setSignupError(''); }}
-          >
-            Register State
-          </button>
-        </div>
+        {activeTab !== 'complete_profile' && (
+          <div className="slm-tabs">
+            <button
+              className={`slm-tab ${activeTab === 'login' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('login'); setLoginError(''); }}
+            >
+              Login
+            </button>
+            <button
+              className={`slm-tab ${activeTab === 'signup' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('signup'); setSignupError(''); }}
+            >
+              Register State
+            </button>
+          </div>
+        )}
+
+        {/* ── COMPLETE PROFILE FORM (For Existing Users) ── */}
+        {activeTab === 'complete_profile' && (
+          <form className="slm-form" onSubmit={handleCompleteProfile}>
+            <div className="slm-error" style={{ background: '#eff6ff', borderColor: '#bfdbfe', color: '#1d4ed8', marginBottom: '1rem' }}>
+              <span className="material-symbols-outlined">info</span>
+              It looks like you already have an account! Please select your state to upgrade your profile to a State Official.
+            </div>
+
+            <div className="slm-field">
+              <label>Full Name / Department</label>
+              <input
+                type="text"
+                placeholder="e.g. Kano State Ministry of Finance"
+                value={signupName}
+                onChange={(e) => setSignupName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="slm-field">
+              <label>State</label>
+              <select
+                value={signupState}
+                onChange={(e) => setSignupState(e.target.value)}
+                required
+              >
+                <option value="">— Select your state —</option>
+                {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+
+            {signupError && <p className="slm-error"><span className="material-symbols-outlined">error</span>{signupError}</p>}
+
+            <button type="submit" className="slm-submit" disabled={signupLoading}>
+              {signupLoading ? 'Upgrading Account…' : 'Complete Registration'}
+            </button>
+            
+            <p className="slm-switch">
+              <span onClick={() => setActiveTab('login')}>Cancel</span>
+            </p>
+          </form>
+        )}
 
         {/* ── LOGIN FORM ── */}
         {activeTab === 'login' && (
