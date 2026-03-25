@@ -220,7 +220,7 @@ function App() {
         // but we need it here too. 
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, name, avatar_url')
           .eq('id', session.user.id)
           .single();
         
@@ -372,7 +372,7 @@ function App() {
               )}
               {currentPage === 'learn' && <LearnLandingPage onNavigate={navigate} />}
               {currentPage === 'research' && <Library onNavigate={navigate} />}
-              {currentPage === 'explore' && <ExplorePage onNavigate={navigate} />}
+              {currentPage === 'explore' && <ExplorePage user={user} onNavigate={navigate} />}
               {currentPage === 'assess' && <AssessPage onNavigate={navigate} />}
               {currentPage === 'analyse' && <AnalysePage onNavigate={navigate} />}
               {currentPage === 'about' && <AboutUs />}
