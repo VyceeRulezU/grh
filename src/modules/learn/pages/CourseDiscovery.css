@@ -5,6 +5,7 @@
 }
 
 .discovery-v2-container{
+  width: var(--max-width);
   display: flex;
   flex-direction: column;
   row-gap: 4rem;
