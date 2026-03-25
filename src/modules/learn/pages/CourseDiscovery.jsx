@@ -210,7 +210,7 @@ const CourseDiscovery = ({ onNavigate }) => {
                     <span className="course-upload-time">📅 {getRelativeTime(course.created_at)}</span>
                   </div>
                   <div className="disc-course-price">
-                    <span className="price">{course.price}</span>
+                    <span className="price">{(!course.price || course.price === '0' || course.price === 0) ? 'Free' : course.price}</span>
                   </div>
                 </footer>
               </div>

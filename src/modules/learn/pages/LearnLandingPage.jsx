@@ -268,7 +268,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
                         <span>👤 {course.students.toLocaleString()} enrolled</span>
                       </div>
                       <div className="course-price">
-                        <span className="price">Free</span>
+                        <span className="price">{(!course.price || course.price === '0' || course.price === 0) ? 'Free' : course.price}</span>
                       </div>
                     </footer>
                   </div>
