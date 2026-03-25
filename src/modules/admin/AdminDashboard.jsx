@@ -131,6 +131,7 @@ function CourseModal({ onClose, onSave, initial }) {
     chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: '', description: '' }] }],
   });
 
+  const [coverFile, setCoverFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -245,9 +246,33 @@ function CourseModal({ onClose, onSave, initial }) {
               <textarea rows="2" placeholder="What learners will gain from this course..." value={form.description} onChange={e => set('description', e.target.value)} />
             </div>
             <div className="adm-form-group adm-flex-2">
-              <label>Thumbnail / Cover Image URL (Optional)</label>
-              <input placeholder="https://images.unsplash.com/..." value={form.thumbnail} onChange={e => set('thumbnail', e.target.value)} />
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-soft)' }}>If empty, a random high-quality image will be chosen.</span>
+              <label>Course Cover Image</label>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <input 
+                  placeholder="URL: https://images.unsplash.com/..." 
+                  value={form.thumbnail} 
+                  onChange={e => set('thumbnail', e.target.value)} 
+                  style={{ flex: 1 }}
+                />
+                <label className="btn-outline btn-sm" style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  <i className="ri-upload-2-line"></i> Upload Image
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    hidden 
+                    onChange={e => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setCoverFile(file);
+                        set('thumbnail', URL.createObjectURL(file));
+                      }
+                    }} 
+                  />
+                </label>
+              </div>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-soft)' }}>
+                {coverFile ? `New file selected: ${coverFile.name}` : "Upload a file or paste a URL. If empty, a random image is chosen."}
+              </span>
             </div>
           </div>
 
@@ -311,7 +336,7 @@ function CourseModal({ onClose, onSave, initial }) {
         </div>
         <footer className="adm-modal-footer">
           <button className="btn-outline" onClick={onClose}>Cancel</button>
-          <button className="special-button" onClick={() => { onSave(form); onClose(); }}>
+          <button className="special-button" onClick={() => { onSave({ ...form, coverFile }); onClose(); }}>
             {initial ? 'Save Changes' : 'Publish Course'}
           </button>
         </footer>
@@ -899,13 +924,29 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
       setLoading(true);
       const { chapters } = form;
       
-      // Defensively handle price to satisfy both numeric and text column types
-      // If it's an empty string or null, we use '0' which works for both.
+      // Defensive handle price to satisfy both numeric and text column types
       let finalPrice = form.price;
       if (finalPrice === '' || finalPrice === null || finalPrice === undefined) {
         finalPrice = '0';
       } else {
         finalPrice = String(finalPrice);
+      }
+
+      let finalThumbnail = form.thumbnail;
+
+      // Upload cover if present
+      if (form.coverFile) {
+        const ext = form.coverFile.name.split('.').pop();
+        const fileName = `course-covers/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, form.coverFile, { cacheControl: '3600', upsert: true });
+        
+        if (uploadError) {
+          console.error("Cover Upload Error:", uploadError);
+          throw new Error("Failed to upload course cover image.");
+        }
+
+        const { data: pubUrl } = supabase.storage.from('avatars').getPublicUrl(fileName);
+        finalThumbnail = pubUrl.publicUrl;
       }
 
       const coursePayload = {
@@ -916,8 +957,8 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
         instructor: form.instructor,
         price: finalPrice,
         status: 'Published',
-        thumbnail: form.thumbnail || `${COURSE_IMAGE_BANK[Math.floor(Math.random() * COURSE_IMAGE_BANK.length)]}?auto=format&fit=crop&w=600&q=80`,
-        cover_image: form.thumbnail || null
+        thumbnail: finalThumbnail || `${COURSE_IMAGE_BANK[Math.floor(Math.random() * COURSE_IMAGE_BANK.length)]}?auto=format&fit=crop&w=600&q=80`,
+        cover_image: finalThumbnail || null
       };
 
       console.log("Defensive Payload to Supabase:", coursePayload);
