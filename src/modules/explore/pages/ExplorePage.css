@@ -347,7 +347,7 @@
 }
 
 .user-avatar {
-  background: var(--primary);
+  background: var(--bg-white);
   color: white;
 }
 
