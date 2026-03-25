@@ -52,11 +52,19 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         if (!data || data.length === 0) {
           setCourses([]);
         } else {
+          // Fetch enrollment counts
+          const { data: progressData } = await supabase.from('user_progress').select('course_id, user_id');
+          const enrollmentMap = {};
+          (progressData || []).forEach(p => {
+            if (!enrollmentMap[p.course_id]) enrollmentMap[p.course_id] = new Set();
+            enrollmentMap[p.course_id].add(p.user_id);
+          });
+
           // Map DB fields to match component expectations
           const formattedCourses = data.map(c => ({
              ...c,
              description: c.description || 'A comprehensive guide to this topic.',
-             students: 0,
+             students: enrollmentMap[c.id]?.size || 0,
              duration: '2h 30m',
              progress: 0
           }));

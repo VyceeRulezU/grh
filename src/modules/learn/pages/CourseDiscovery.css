@@ -4,6 +4,12 @@
   min-height: 100vh;
 }
 
+.discovery-v2-container{
+  display: flex;
+  flex-direction: column;
+  row-gap: 4rem;
+}
+
 .discovery-header-v2 {
   margin-bottom: 64px;
   text-align: center;
