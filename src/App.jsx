@@ -408,7 +408,7 @@ function App() {
               {currentPage === 'privacy-policy' && <PrivacyPolicy />}
               {currentPage === 'terms-of-service' && <TermsOfService />}
               {currentPage === 'reset-password' && <ResetPasswordPage onNavigate={navigate} />}
-              {!['welcome','learn','research','explore','assess','analyse','about','help-center','contact','student','learn-discovery','admin','learn-player','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
+              {!['welcome','learn','research','explore','assess','analyse','about','help-center','contact','student','learn-discovery','admin','learn-player','learn-details','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
                 <NotFoundPage onNavigate={navigate} />
               )}
             </motion.div>
