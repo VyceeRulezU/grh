@@ -23,3 +23,6 @@ pnpm-debug.log*
 file_list.txt
 legacy/
 .DS_Store
+
+# AI Assistant Blueprints
+.ai-docs/

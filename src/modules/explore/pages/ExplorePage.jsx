@@ -220,7 +220,17 @@ const ExplorePage = ({ user, onNavigate }) => {
           {messages.map(msg => (
             <div key={msg.id} className={`message-row ${msg.role}`}>
               <div className={`avatar ${msg.role === 'assistant' ? 'assistant-avatar' : 'user-avatar'}`}>
-                {msg.role === 'assistant' ? '◆' : (user ? user.name?.[0]?.toUpperCase() : 'U')}
+                {msg.role === 'assistant' ? '◆' : (
+                  user?.avatar_url ? (
+                    <img 
+                      src={user.avatar_url} 
+                      alt={user.name} 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                  ) : (
+                    user ? user.name?.[0]?.toUpperCase() : 'U'
+                  )
+                )}
               </div>
               <div className={`message-bubble ${msg.role}`}>
                 <div className="message-content">{msg.text}</div>

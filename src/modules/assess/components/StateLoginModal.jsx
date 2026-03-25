@@ -39,6 +39,9 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
   // Complete Profile State (for existing users upgrading)
   const [userId, setUserId] = useState(null);
 
+  // Admin select state
+  const [adminSelectedState, setAdminSelectedState] = useState('');
+
   if (!isOpen) return null;
 
   // ── Login ────────────────────────────────────────────
@@ -54,14 +57,16 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
       });
       if (error) throw error;
 
-      // Fetch profile to get state
+      // Fetch profile to get state and role
       const { data: profile } = await supabase
         .from('profiles')
-        .select('state, name')
+        .select('state, name, role')
         .eq('id', data.user.id)
         .single();
 
-      if (!profile?.state) {
+      if (profile?.role === 'admin') {
+        setActiveTab('admin_select_state');
+      } else if (!profile?.state) {
         // User exists but has no state attached (e.g. a student)
         setUserId(data.user.id);
         setSignupName(profile?.name || '');
@@ -177,7 +182,7 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Tabs */}
-        {activeTab !== 'complete_profile' && (
+        {(activeTab !== 'complete_profile' && activeTab !== 'admin_select_state') && (
           <div className="slm-tabs">
             <button
               className={`slm-tab ${activeTab === 'login' ? 'active' : ''}`}
@@ -232,6 +237,40 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
             
             <p className="slm-switch">
               <span onClick={() => setActiveTab('login')}>Cancel</span>
+            </p>
+          </form>
+        )}
+
+        {/* ── ADMIN STATE SELECT ── */}
+        {activeTab === 'admin_select_state' && (
+          <form className="slm-form" onSubmit={(e) => {
+            e.preventDefault();
+            if (!adminSelectedState) return;
+            onSuccess(adminSelectedState);
+          }}>
+            <div className="slm-error" style={{ background: '#f5f3ff', borderColor: '#ddd6fe', color: '#6d28d9', marginBottom: '1rem' }}>
+              <span className="material-symbols-outlined">admin_panel_settings</span>
+              Admin Account Detected: Please select which state portal you want to access.
+            </div>
+
+            <div className="slm-field">
+              <label>Select State to View</label>
+              <select
+                value={adminSelectedState}
+                onChange={(e) => setAdminSelectedState(e.target.value)}
+                required
+              >
+                <option value="">— Select a state —</option>
+                {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+
+            <button type="submit" className="slm-submit" disabled={!adminSelectedState}>
+              Proceed to Portal
+            </button>
+            
+            <p className="slm-switch">
+              <span onClick={() => { setActiveTab('login'); supabase.auth.signOut(); }}>Cancel</span>
             </p>
           </form>
         )}
