@@ -513,7 +513,6 @@ function BookModal({ onClose, onSave, initial }) {
                     <label>Summary</label>
                     <textarea rows="2" placeholder="A short description of this book..." value={book.summary} onChange={e => updateBook(i, 'summary', e.target.value)} />
                   </div>
-                  </div>
                 </div>
               </div>
 
