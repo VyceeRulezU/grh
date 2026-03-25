@@ -162,28 +162,16 @@ const AboutUs = ({ onNavigate }) => {
             </div>
           </div>
           <div className="mission-content">
-            <span className="tag">Our Mission</span>
-            <h2>We believe in <span className="green-text">Open Governance</span> and the power of shared knowledge.</h2>
+            <span className="tag">About the Governance Resource Hub</span>
+            <h2>Advancing <span className="green-text">Governance Reform</span> in Nigeria.</h2>
             <p>
-              Founded over a decade ago, our mission has been to simplify the complexity of government data.
-              We began as a small research group and have grown into Nigeria's foremost governance intelligence
-              platform, trusted by thousands of policy experts across 36 states.
+              Welcome to the Governance Resource Hub—a central digital platform created to preserve, share, and build upon the extensive legacy of the Partnership to Engage, Reform, and Learn (PERL) programme and other FCDO-funded predecessor governance programmes.
             </p>
-            <div className="feature-list">
-              {[
-                'Comprehensive state-level fiscal data repositories',
-                'Verifiable performance metrics and interactive dashboards',
-                'Training and capacity building for public institutions',
-                'Research partnerships with global governance bodies',
-              ].map((point, i) => (
-                <div key={i} className="feature-item">
-                  <span className="material-symbols-outlined">check_circle</span>
-                  <span>{point}</span>
-                </div>
-              ))}
-            </div>
-            <button className="special-button" style={{ marginTop: '1.5rem' }} onClick={() => onNavigate && onNavigate('signup')}>
-              Join Our Mission
+            <p style={{ marginTop: '1rem', color: 'var(--text-sub)', fontSize: '1.05rem', lineHeight: '1.7' }}>
+              This innovative hub is dedicated to advancing governance reform in Nigeria by making critical and practical tools accessible to reform champions, policymakers, academics, and practitioners alike. At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.
+            </p>
+            <button className="special-button" style={{ marginTop: '2.5rem' }} onClick={() => onNavigate && onNavigate('signup')}>
+              Join Our Platform
             </button>
           </div>
         </div>
@@ -198,20 +186,17 @@ const AboutUs = ({ onNavigate }) => {
 
         <div className="container about-services-inner">
           <div className="services-header">
-            <span className="tag light">Our Expertise</span>
-            <h2>Advancing Governance through <span className="green-text">Tech-Driven Strategy</span></h2>
-            <p>Comprehensive tools for benchmarking, monitoring, and evaluation — ensuring institutional goals are met with the highest standards of accountability.</p>
+            <span className="tag light">Hub Components</span>
+            <h2>Our <span className="green-text">5 Integrated Systems</span></h2>
+            <p>At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.</p>
           </div>
           <div className="services-grid-4">
             {[
-              { icon: 'analytics', title: 'Data Intelligence', desc: 'Harnessing fiscal data to provide clear, actionable insights for policy makers and researchers.' },
-              { icon: 'payments', title: 'Fiscal Management', desc: 'Specialised tools for budget analysis, revenue tracking, and expenditure monitoring.' },
-              { icon: 'verified_user', title: 'Certifications', desc: 'Professional accreditation for governance expertise validated by global institutional standards.' },
-              { icon: 'groups', title: 'Collaborations', desc: 'Building strong partnerships across federal and state levels to ensure unified governance growth.' },
-              { icon: 'school', title: 'Learning Paths', desc: 'Expert-led courses on PFM, anti-corruption, electoral systems, and digital governance.' },
-              { icon: 'search_insights', title: 'Research Library', desc: 'Curated repository of policy papers, handbooks, and case studies from leading global institutions.' },
-              { icon: 'map', title: 'Geospatial Analysis', desc: 'State-level mapping and geopolitical zone comparisons for granular fiscal performance insights.' },
-              { icon: 'assessment', title: 'Benchmarking', desc: 'Measure state performance against national and international governance indicators.' },
+              { icon: 'school', title: 'E-Learning Management System', desc: 'A core platform for structured learning, offering AI-driven personalized paths and progress tracking for policymakers and practitioners.' },
+              { icon: 'local_library', title: 'E-Library System', desc: 'A comprehensive repository archiving over two decades of governance resources, featuring advanced AI search and offline access.' },
+              { icon: 'assessment', title: 'ASSESS Suite', desc: 'Self-assessment manuals and tools enabling state governments to evaluate performance, set targets, and own their reform learning cycles.' },
+              { icon: 'account_balance', title: 'PFM Database', desc: 'A centralized digital repository for fiscal data and KPIs, providing real-time dashboards to support evidence-based financial management.' },
+              { icon: 'psychology', title: 'Advanced AI Module', desc: 'Leveraging natural language processing and intelligent recommendations to enhance research efficiency and tailor content.' },
             ].map((s, i) => (
               <div key={i} className="service-card">
                 <div className="service-icon">
@@ -225,20 +210,20 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* ── CORE VALUES ── */}
-      <section className="about-values">
+      {/* ── CORE VALUES -> FEATURED COURSE ── */}
+      <section className="about-values" id="featured-course">
         <div className="container">
           <div className="values-header">
-            <span className="tag">What Guides Us</span>
-            <h2>Our Core <span className="green-text">Values</span></h2>
-            <p>We are driven by a set of core values that guide our work <br /> and shape our approach to governance and development.</p>
+            <span className="tag">Featured Learning</span>
+            <h2>E-Learning: <span className="green-text">Citizens Engagement</span></h2>
+            <p style={{ maxWidth: '800px', margin: '1rem auto 0' }}>Guide to Enhance Citizen’s Understanding of Fiscal Issues and Publications by State Governments</p>
           </div>
           <div className="values-grid">
             {[
-              { icon: 'search', title: 'Transparency', desc: 'We make government data accessible, readable, and easy to understand for every citizen. By simplifying complex information, we ensure people can clearly see how decisions are made and resources are used.' },
-              { icon: 'balance', title: 'Accountability', desc: 'Every dataset we publish is cross-referenced and auditable against primary sources.' },
-              { icon: 'handshake', title: 'Partnerships', desc: 'We work with state governments, NGOs, and global institutions to deliver trusted insights.' },
-              { icon: 'lightbulb', title: 'Innovation', desc: 'We leverage modern technology to democratise access to governance intelligence. We believe that technology should serve the public good, and we are committed to using the latest tools and techniques to empower citizens and strengthen democracy.' },
+              { icon: 'menu_book', title: 'Course Overview', desc: 'PERL has supported PFM and broader governance reforms since 2016 across partner States and the Federal Government. This course equips supply and demand-side actors with tools to engage effectively throughout the PFM cycle.' },
+              { icon: 'build', title: 'Engagement Guide', desc: 'Step-by-step guidance helping MDAs understand exactly where and how to engage with non-state actors within the Public Financial Management cycle.' },
+              { icon: 'publish', title: 'Publication Tools', desc: 'Practical models and templates to support the preparation of the Citizens Budget (CB) and Citizens Accountability Report (CAR).' },
+              { icon: 'verified', title: 'Course Requirements', desc: 'Ideal for those with a degree in Economics, Finance, or Public Admin. Requires basic numeracy, computer literacy, and an understanding of financial reports.' },
             ].map((v, i) => (
               <div key={i} className="value-card">
                 <span className="material-symbols-outlined value-emoji">{v.icon}</span>
