@@ -6,6 +6,7 @@ import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import FaqSection from '../../../shared/ui/FaqSection';
 import PageHero from '../../../shared/ui/PageHero';
 import grhIcon from '../../../assets/images/Logo/Icon.png';
+import servicesBg from '../../../assets/images/Pictures/37815616495_24f17295f5_b.jpg';
 import './AboutUs.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -180,7 +181,7 @@ const AboutUs = ({ onNavigate }) => {
       {/* ── SERVICES / WHAT WE DO ── */}
       <section className="about-services">
         <div className="about-services-bg">
-          <img src="https://images.unsplash.com/photo-1542868727-deaf54c25916?auto=format&fit=crop&q=80&w=1400" alt="African governance professionals" />
+          <img src={servicesBg} alt="Governance professionals" />
         </div>
         <div className="about-services-overlay"></div>
 
@@ -238,6 +239,130 @@ const AboutUs = ({ onNavigate }) => {
           </div>
         </div>
       </section>
+
+      {/* ── DETAILED HUB COMPONENTS (SPLIT SECTIONS) ── */}
+      <div className="about-split-wrapper">
+        
+        {/* PFM Database (Image Left, Text Right, Navy) */}
+        <section className="about-split bg-navy">
+          <div className="split-image">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" alt="Data Analytics" />
+          </div>
+          <div className="split-content">
+            <span className="split-overline">CORE COMPONENT</span>
+            <h2>Public Financial Management (PFM) Database</h2>
+            <p className="split-intro">The PFM database is a comprehensive digital repository to collect, store, and manage financial data, KPIs, and analytical insights. It provides governments and policymakers with accurate, up-to-date data supporting evidence-based decision-making. By tracking government revenues, expenditures, and budget allocations, it facilitates in-depth functional and fiscal policy analyses.</p>
+            
+            <h4 className="split-subheading">Core Features of the PFM Database</h4>
+            <ul className="split-list">
+              <li>
+                <strong>1. Data Integration and Standardisation</strong>
+                <p>Aggregates financial data from national and subnational sources.</p>
+              </li>
+              <li>
+                <strong>2. Real-Time Data Access and Visualisation</strong>
+                <p>Interactive dashboards and data visualisation tools for financial performance monitoring. Provides real-time updates on budget execution and revenue collection.</p>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* E-Library System (Text Left, Image Right, Teal) */}
+        <section className="about-split bg-teal image-right">
+          <div className="split-image">
+            <img src="https://images.unsplash.com/photo-1456953180671-730de08edaa7?auto=format&fit=crop&q=80&w=1000" alt="Digital Library" />
+          </div>
+          <div className="split-content">
+            <span className="split-overline">CORE COMPONENT</span>
+            <h2>E-Library System</h2>
+            <p className="split-intro">Designed to preserve and provide seamless access to governance-related tools and resources. The platform systematically archives the knowledge base of over 20 decades of governance programming, making it a reliable source for continuous learning.</p>
+            
+            <h4 className="split-subheading">Core Features of the E-Library System</h4>
+            <ul className="split-list">
+              <li>
+                <strong>1. Comprehensive Document Repository</strong>
+                <p>
+                  <span>A well-structured collection of reports, case studies, policy briefs, and toolkits.</span>
+                  <span>Archiving of legacy materials from PERL and other initiatives.</span>
+                </p>
+              </li>
+              <li>
+                <strong>2. Advanced Search & Metadata Tagging</strong>
+                <p>
+                  <span>AI-powered search to find documents using keywords, thematic areas, and locations.</span>
+                  <span>Detailed classification of documents using tags for intuitive navigation.</span>
+                </p>
+              </li>
+              <li>
+                <strong>3. AI-Powered Recommendations & User Interface</strong>
+                <p>
+                  <span>Personalised recommendations based on users' search history and interests.</span>
+                  <span>Download and offline access logic for on-the-go reading.</span>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* ASSESS Suite (Image Left, Text Right, Navy) */}
+        <section className="about-split bg-navy">
+          <div className="split-image">
+            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1000" alt="Assessment tools" />
+          </div>
+          <div className="split-content">
+            <span className="split-overline">CORE COMPONENT</span>
+            <h2>ASSESS Suite (PERFORM Suite)</h2>
+            <p className="split-intro">The ASSESS Suite contains self-assessment manuals and tools that help state governments to prepare and undergo the self-assessment process on an annual basis. It is designed to help governments at all levels to determine their achievements and to set targets for improvements.</p>
+            
+            <h4 className="split-subheading">Core Components of the PERFORM Suite</h4>
+            <ul className="split-list">
+              <li>
+                <strong>1. Governance Performance Assessment Framework</strong>
+                <p>Provides benchmarks for assessing transparency, accountability, service delivery, and citizen engagement.</p>
+              </li>
+              <li>
+                <strong>2. Data Collection and Analysis Tools</strong>
+                <p>Employs qualitative and quantitative methods to ensure a comprehensive evaluation of reform effectiveness across government partners.</p>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* E-Learning System (Text Left, Image Right, Teal) */}
+        <section className="about-split bg-teal image-right">
+          <div className="split-image">
+            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1000" alt="E-Learning Analytics" />
+          </div>
+          <div className="split-content">
+            <span className="split-overline">CORE COMPONENT</span>
+            <h2>E-Learning Management System (eLMS)</h2>
+            <p className="split-intro">The eLMS facilitates structured learning, knowledge transfer, and capacity building for reform champions, policymakers, institutions, and governance practitioners accessible anytime, anywhere.</p>
+            
+            <h4 className="split-subheading">Core Features of the eLMS</h4>
+            <ul className="split-list">
+              <li>
+                <strong>1. Structured Learning Modules</strong>
+                <p>Comprehensive courses covering governance reforms, policy development, public financial management, and service delivery.</p>
+              </li>
+              <li>
+                <strong>2. AI-Driven Personalised Learning Paths</strong>
+                <p>
+                  <span>AI-powered recommendations tailored to users’ learning history, interests, and professional needs.</span>
+                  <span>Custom learning paths mapped for different stakeholder types.</span>
+                </p>
+              </li>
+              <li>
+                <strong>3. User Registration & Progress Tracking</strong>
+                <p>
+                  <span>Secure login system for users to track their progress continuously.</span>
+                  <span>Dashboards displaying course completions and recommended reading.</span>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+      </div>
 
       {/* ── TEAM ── */}
       <section className="about-team">
