@@ -45,15 +45,15 @@ const Library = () => {
       const PROGRAMME_TYPES = ['PERL', 'SPARC', 'SLGP'];
       const mappedRes = (res.data || []).map(r => {
         const normalizedType = (r.type || 'PERL').toUpperCase();
-        const programme = PROGRAMME_TYPES.includes(normalizedType) ? normalizedType : (r.programme || null);
+        const programme = r.programme || (PROGRAMME_TYPES.includes(normalizedType) ? normalizedType : null);
         return {
           ...r,
           type: normalizedType,
           programme: programme,
           coverImage: TYPE_IMAGES[normalizedType] || DEFAULT_IMG,
-          author: 'GRH',
-          year: new Date(r.created_at || Date.now()).getFullYear(),
-          file_url: r.file_url || '',
+          author: r.author || 'GRH',
+          year: r.published_year || new Date(r.created_at || Date.now()).getFullYear(),
+          file_url: r.file_url || r.file_url || '',
           description: r.description || ''
         };
       });
@@ -61,10 +61,13 @@ const Library = () => {
       const mappedBooks = (bks.data || []).map(b => ({
         ...b,
         type: "BOOK",
-        author: "GRH Lib",
-        year: new Date(b.created_at || Date.now()).getFullYear(),
+        author: b.author || "GRH Lib",
+        year: b.published_year || new Date(b.created_at || Date.now()).getFullYear(),
         coverImage: b.image_url || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
         category: b.category || "Governance",
+        programme: b.programme || null,
+        location: b.location || 'Federal',
+        thematic_area: b.thematic_area || 'Policy & Strategy',
         description: b.summary,
         file_url: b.file_url || ''
       }));

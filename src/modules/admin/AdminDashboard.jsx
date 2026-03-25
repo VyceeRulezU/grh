@@ -329,9 +329,9 @@ function ResourceModal({ onClose, onSave, initial }) {
     fileUrl: '',
     author: '',
     published_year: new Date().getFullYear(),
-    topic: 'PFM',
-    theme: 'Reform',
-    region: 'National'
+    programme: 'PERL',
+    thematic_area: 'Public Financial Management',
+    location: 'Federal'
   });
   const [file, setFile] = useState(null);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -386,27 +386,27 @@ function ResourceModal({ onClose, onSave, initial }) {
 
           <div className="adm-form-row">
             <div className="adm-form-group">
-              <label>Topic</label>
+              <label>Programme</label>
               <ModernDropdown 
-                options={['PFM','Anti-Corruption','M&E','Service Delivery','Accountability','Policy']} 
-                value={form.topic} 
-                onChange={v => set('topic', v)} 
+                options={['PERL','SPARC','SLGP','General']} 
+                value={form.programme} 
+                onChange={v => set('programme', v)} 
               />
             </div>
             <div className="adm-form-group">
-              <label>Theme</label>
+              <label>Thematic Area</label>
               <ModernDropdown 
-                options={['Reform','Citizens Engagement','Gender & Social Inclusion','Sustainability','Knowledge Management']} 
-                value={form.theme} 
-                onChange={v => set('theme', v)} 
+                options={['Public Financial Management','Public Service Management','Policy & Strategy','Monitoring, Evaluation & Learning','Knowledge Management']} 
+                value={form.thematic_area} 
+                onChange={v => set('thematic_area', v)} 
               />
             </div>
             <div className="adm-form-group">
-              <label>Region</label>
+              <label>Location</label>
               <ModernDropdown 
-                options={['National','North-West','North-East','North-Central','South-West','South-East','South-South']} 
-                value={form.region} 
-                onChange={v => set('region', v)} 
+                options={['Federal','Kano','Kaduna','Jigawa','General']} 
+                value={form.location} 
+                onChange={v => set('location', v)} 
               />
             </div>
           </div>
@@ -438,9 +438,9 @@ function BookModal({ onClose, onSave, initial }) {
     bookFile: null,
     author: '',
     published_year: new Date().getFullYear(),
-    topic: 'PFM',
-    theme: 'Reform',
-    region: 'National'
+    programme: 'PERL',
+    thematic_area: 'Public Financial Management',
+    location: 'Federal'
   }]);
 
   const updateBook = (i, key, value) => {
@@ -470,9 +470,9 @@ function BookModal({ onClose, onSave, initial }) {
     bookFile: null,
     author: '',
     published_year: new Date().getFullYear(),
-    topic: 'PFM',
-    theme: 'Reform',
-    region: 'National'
+    programme: 'PERL',
+    thematic_area: 'Public Financial Management',
+    location: 'Federal'
   }]);
   const removeBook = (i) => setBooks(b => b.filter((_, idx) => idx !== i));
 
@@ -529,27 +529,27 @@ function BookModal({ onClose, onSave, initial }) {
 
               <div className="adm-form-row" style={{ marginTop: '0.5rem' }}>
                 <div className="adm-form-group">
-                  <label>Topic</label>
+                  <label>Programme</label>
                   <ModernDropdown 
-                    options={['PFM','Anti-Corruption','M&E','Service Delivery','Accountability']} 
-                    value={book.topic} 
-                    onChange={v => updateBook(i, 'topic', v)} 
+                    options={['PERL','SPARC','SLGP','General']} 
+                    value={book.programme} 
+                    onChange={v => updateBook(i, 'programme', v)} 
                   />
                 </div>
                 <div className="adm-form-group">
-                  <label>Theme</label>
+                  <label>Thematic Area</label>
                   <ModernDropdown 
-                    options={['Reform','Citizens Engagement','Sustainability']} 
-                    value={book.theme} 
-                    onChange={v => updateBook(i, 'theme', v)} 
+                    options={['Public Financial Management','Public Service Management','Policy & Strategy','M&E','Knowledge Management']} 
+                    value={book.thematic_area} 
+                    onChange={v => updateBook(i, 'thematic_area', v)} 
                   />
                 </div>
                 <div className="adm-form-group">
-                  <label>Region</label>
+                  <label>Location</label>
                   <ModernDropdown 
-                    options={['National','SW','SE','SS','NW','NE','NC']} 
-                    value={book.region} 
-                    onChange={v => updateBook(i, 'region', v)} 
+                    options={['Federal','Kano','Kaduna','Jigawa','General']} 
+                    value={book.location} 
+                    onChange={v => updateBook(i, 'location', v)} 
                   />
                 </div>
               </div>
@@ -582,9 +582,9 @@ function BookModal({ onClose, onSave, initial }) {
               status: b.status || 'Draft',
               author: b.author,
               published_year: b.published_year,
-              topic: b.topic,
-              theme: b.theme,
-              region: b.region
+              programme: b.programme,
+              thematic_area: b.thematic_area,
+              location: b.location
             }));
             if (initial) onSave(resultBooks[0]);
             else onSave(resultBooks);
@@ -1110,20 +1110,23 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
         status: form.status || 'Published',
         author: form.author,
         published_year: parseInt(form.published_year) || null,
-        topic: form.topic,
-        theme: form.theme,
-        region: form.region
+        programme: form.programme,
+        thematic_area: form.thematic_area,
+        location: form.location
       };
 
-      if (modal && modal !== 'add') {
-        const { error } = await supabase.from('library_resources').update(payload).eq('id', modal);
+      const isEdit = modal && modal !== 'add';
+      const resourceId = isEdit ? modal : null;
+
+      if (isEdit) {
+        const { error } = await supabase.from('library_resources').update(payload).eq('id', resourceId);
         if (error) throw error;
       } else {
         const { error } = await supabase.from('library_resources').insert([payload]);
         if (error) throw error;
       }
-      showSuccess('Resource Saved', 'Resource saved successfully!');
       setModal(null);
+      showSuccess('Resource Saved', 'Resource saved successfully!');
       if (typeof fetchData === 'function') {
         await fetchData();
       }
@@ -1580,15 +1583,18 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
           status: b.status || 'Published',
           author: b.author,
           published_year: parseInt(b.published_year) || null,
-          topic: b.topic,
-          theme: b.theme,
-          region: b.region
+          programme: b.programme,
+          thematic_area: b.thematic_area,
+          location: b.location
         };
       };
 
-      if (modal && modal !== 'add') {
+      const isEdit = modal && modal !== 'add';
+      const bookId = isEdit ? modal : null;
+
+      if (isEdit) {
         const payload = await processBook(data);
-        const { error } = await supabase.from('books').update(payload).eq('id', modal);
+        const { error } = await supabase.from('books').update(payload).eq('id', bookId);
         if (error) throw error;
       } else {
         const payloadArr = Array.isArray(data) ? data : [data];
@@ -1596,8 +1602,8 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
         const { error } = await supabase.from('books').insert(payload);
         if (error) throw error;
       }
-      showSuccess('Books Saved', 'Books saved successfully!');
       setModal(null);
+      showSuccess('Books Saved', 'Books saved successfully!');
       if (typeof fetchData === 'function') {
         await fetchData();
       }
