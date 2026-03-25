@@ -1127,8 +1127,19 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
       }
       setModal(null);
       showSuccess('Resource Saved', 'Resource saved successfully!');
+      
+      if (setResources) {
+        setResources(prev => {
+          if (isEdit) {
+            return prev.map(item => item.id === resourceId ? { ...item, ...payload, id: resourceId } : item);
+          } else {
+            return [{ ...payload, id: Date.now() }, ...prev];
+          }
+        });
+      }
+
       if (typeof fetchData === 'function') {
-        await fetchData();
+        fetchData();
       }
     } catch (err) {
       console.error("Save Resource Error:", err);
@@ -1604,8 +1615,23 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
       }
       setModal(null);
       showSuccess('Books Saved', 'Books saved successfully!');
+
+      // Update local state instantly for better UX
+      if (setBooks) {
+        setBooks(prev => {
+          if (isEdit) {
+             // We need to fetch the full payload from processBook if possible, but data contains most of it
+             const updatedItem = { ...data, id: bookId };
+             return prev.map(b => b.id === bookId ? { ...b, ...updatedItem } : b);
+          } else {
+             const newItems = Array.isArray(data) ? data : [data];
+             return [...newItems, ...prev];
+          }
+        });
+      }
+
       if (typeof fetchData === 'function') {
-        await fetchData();
+        fetchData();
       }
     } catch (err) {
       console.error("Save Books Error:", err);
