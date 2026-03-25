@@ -178,9 +178,26 @@ function App() {
     };
 
     initAuth();
+    
+    // Listen for browser Back/Forward buttons
+    const handlePopState = (event) => {
+      const page = getPageFromUrl();
+      setCurrentPage(page);
+      currentPageRef.current = page;
+      
+      // Try to restore navData from history state
+      if (event.state && event.state.usr) {
+        setNavData(event.state.usr);
+      } else {
+        setNavData(getNavDataFromSession());
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
 
     return () => {
       if (subscription) subscription.unsubscribe();
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
