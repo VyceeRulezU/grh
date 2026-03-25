@@ -175,25 +175,71 @@ const CourseDetails = ({ course, onNavigate, user }) => {
 
             {activeTab === 'reviews' && (
               <div className="reviews-tab animate-fade">
-                <div className="review-stat">
-                  <span className="rating-num">4.8</span>
-                  <div className="rating-stars">
-                    <i className="ri-star-fill"></i>
-                    <i className="ri-star-fill"></i>
-                    <i className="ri-star-fill"></i>
-                    <i className="ri-star-fill"></i>
-                    <i className="ri-star-half-fill"></i>
-                  </div>
-                  <span className="review-count">Based on 120 reviews</span>
-                </div>
-                <div className="review-list">
-                  <div className="review-item">
-                    <div className="rev-header">
-                      <strong>Sarah C.</strong>
-                      <span className="rev-date">2 days ago</span>
+                <div className="reviews-overview">
+                  <div className="rating-summary-card">
+                    <div className="big-rating">
+                      <span className="num">4.8</span>
+                      <div className="stars-row">
+                        <i className="ri-star-fill"></i>
+                        <i className="ri-star-fill"></i>
+                        <i className="ri-star-fill"></i>
+                        <i className="ri-star-fill"></i>
+                        <i className="ri-star-half-fill"></i>
+                      </div>
+                      <span className="count">120 Course Ratings</span>
                     </div>
-                    <p>"Excellent resource. The practical tools provided are exactly what we needed for our reform initiative."</p>
+                    
+                    <div className="rating-bars">
+                      {[
+                        { star: 5, pc: 85 },
+                        { star: 4, pc: 10 },
+                        { star: 3, pc: 3 },
+                        { star: 2, pc: 1 },
+                        { star: 1, pc: 1 }
+                      ].map(row => (
+                        <div className="rating-bar-row" key={row.star}>
+                          <span className="star-num">{row.star} ★</span>
+                          <div className="bar-bg">
+                            <div className="bar-fill" style={{ width: `${row.pc}%` }}></div>
+                          </div>
+                          <span className="pc-num">{row.pc}%</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                  
+                  <button className="write-review-btn">
+                    <i className="ri-edit-line"></i> Write a Review
+                  </button>
+                </div>
+
+                <div className="review-list">
+                  {[
+                    { name: 'Sarah Okon', date: '2 days ago', rating: 5, text: 'This course provided practical insights that I could immediately apply to our PFM reform project. Highly recommended!', helpful: 12 },
+                    { name: 'Dr. John Doe', date: '1 week ago', rating: 4, text: 'Very comprehensive overview. I especially liked the case studies on transparency.', helpful: 5 }
+                  ].map((rev, i) => (
+                    <div className="review-card" key={i}>
+                      <div className="rev-user">
+                        <div className="rev-avatar">{rev.name[0]}</div>
+                        <div className="rev-name-date">
+                          <strong>{rev.name}</strong>
+                          <span>{rev.date}</span>
+                        </div>
+                        <div className="rev-rating">
+                          {[...Array(5)].map((_, j) => (
+                            <i key={j} className={j < rev.rating ? 'ri-star-fill active' : 'ri-star-line text-soft'}></i>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="rev-text">{rev.text}</p>
+                      <div className="rev-actions">
+                        <button className="helpful-btn">
+                          <i className="ri-thumb-up-line"></i> Helpful ({rev.helpful})
+                        </button>
+                        <button className="report-btn">Report</button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
