@@ -1218,7 +1218,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
 
         {/* ===== SIDEBAR ===== */}
         <aside className={`student-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-          <div className="sidebar-logo">
+          <div className="sidebar-logo" onClick={() => onNavigate('welcome')} style={{ cursor: 'pointer' }}>
             <img src={mainLogo} alt="Governance Resource Hub" />
           </div>
 

@@ -14,6 +14,7 @@ import Navbar from './shared/layout/Navbar'
 import Footer from './shared/layout/Footer'
 import AdminDashboard from './modules/admin/AdminDashboard'
 import CoursePlayer from './modules/learn/pages/CoursePlayer'
+import CourseDetails from './modules/learn/pages/CourseDetails'
 import AuthModal from './shared/ui/AuthModal'
 import LoginPage from './modules/auth/LoginPage'
 import SignupPage from './modules/auth/SignupPage'
@@ -375,7 +376,7 @@ function App() {
               {currentPage === 'explore' && <ExplorePage user={user} onNavigate={navigate} />}
               {currentPage === 'assess' && <AssessPage onNavigate={navigate} />}
               {currentPage === 'analyse' && <AnalysePage onNavigate={navigate} />}
-              {currentPage === 'about' && <AboutUs />}
+              {currentPage === 'about' && <AboutUs onNavigate={navigate} />}
               {currentPage === 'help-center' && <NotFoundPage onNavigate={navigate} />}
               {currentPage === 'contact' && <NotFoundPage onNavigate={navigate} />}
               {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} onLogout={handleLogout} onRefreshUser={refreshUser} />}
@@ -383,6 +384,7 @@ function App() {
               {currentPage === 'admin' && user?.isAdmin && <AdminDashboard onNavigate={navigate} onLogout={handleLogout} user={user} onRefreshUser={refreshUser} />}
               {currentPage === 'admin' && !user?.isAdmin && <AdminLoginPage onNavigate={navigate} onLogin={handleLogin} />}
               {currentPage === 'learn-player' && <CoursePlayer onNavigate={navigate} user={user} course={navData} />}
+              {currentPage === 'learn-details' && <CourseDetails onNavigate={navigate} user={user} course={navData} />}
               {currentPage === 'login' && <LoginPage onNavigate={navigate} onLogin={handleLogin} />}
               {currentPage === 'signup' && <SignupPage onNavigate={navigate} onLogin={handleLogin} />}
               {currentPage === 'oauth-consent' && <OAuthConsentPage onNavigate={navigate} />}

@@ -185,7 +185,7 @@ const CourseDiscovery = ({ onNavigate }) => {
               key={course.id} 
               className="disc-course-card" 
               ref={addToRefs}
-              onClick={() => onNavigate('learn-player', course)}
+              onClick={() => onNavigate('learn-details', course)}
             >
               <figure className="disc-course-img">
                 <img 

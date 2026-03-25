@@ -88,7 +88,7 @@ const AboutUs = ({ onNavigate }) => {
         subtitle="We provide the tools, data, and expertise to transform how government institutions manage and report performance — ensuring every public resource is accounted for."
         actions={
           <>
-            <button className="special-button" onClick={() => onNavigate && onNavigate('analyse')}>Explore Analytics</button>
+            <button className="special-button" onClick={() => onNavigate('analyse')}>Explore Analytics</button>
             <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('research')}>Research Library</button>
           </>
         }
@@ -96,8 +96,8 @@ const AboutUs = ({ onNavigate }) => {
 
        {/* ── TRUSTED BY ──────────────────────────────────────────────── */}
       <div className="about-trusted-by">
-        <p>Trusted by leading institutions worldwide</p>
-        <div className="about-trusted-by-carousel">
+         <p>Our Impact</p>
+        {/*<div className="about-trusted-by-carousel">
           <div className="about-logo-track">
             {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((id, i) => (
               <img 
@@ -108,9 +108,9 @@ const AboutUs = ({ onNavigate }) => {
               />
             ))}
           </div>
-        </div>
+        </div> */}
 
-            {/* ── STATS BAR ──
+      {/* ── STATS BAR ── */}
       <section className="about-stats-bar" ref={statsRef}>
         
         <div className="container stats-flex">
@@ -130,9 +130,9 @@ const AboutUs = ({ onNavigate }) => {
                   <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
                   <p>Years of Data</p>
                 </div>
-        </div>
+        </div> 
 
-      </section> */}
+      </section> 
       </div>
 
       {/* ── PARTNERS ── 
@@ -171,9 +171,14 @@ const AboutUs = ({ onNavigate }) => {
             <p style={{ marginTop: '1rem', color: 'var(--text-sub)', fontSize: '1.05rem', lineHeight: '1.7' }}>
               This innovative hub is dedicated to advancing governance reform in Nigeria by making critical and practical tools accessible to reform champions, policymakers, academics, and practitioners alike. At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.
             </p>
-            <button className="special-button" style={{ marginTop: '2.5rem' }} onClick={() => onNavigate && onNavigate('signup')}>
-              Join Our Platform
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
+              <button className="special-button" onClick={() => onNavigate && onNavigate('signup')}>
+                Join Our Platform
+              </button>
+              <button className="white-pill-btn" onClick={() => { /* Handle partner inquiry */ }}>
+                Partner with Us
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -427,7 +432,7 @@ const AboutUs = ({ onNavigate }) => {
           primaryActionLabel="Explore Analytics"
           primaryActionOnClick={() => onNavigate && onNavigate('analyse')}
           secondaryActionLabel="View Research Library"
-          secondaryActionHref="#"
+          secondaryActionOnClick={() => onNavigate && onNavigate('research')}
           note="Free access · No credit card required · All 36 states covered"
         />
       </div>

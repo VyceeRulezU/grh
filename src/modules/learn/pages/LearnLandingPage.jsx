@@ -243,7 +243,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
                   key={course.id} 
                   className="course-card" 
                   ref={addToRefs}
-                  onClick={() => onNavigate("learn-player", course)}
+                  onClick={() => onNavigate("learn-details", course)}
                 >
                   <figure className="course-img">
                     <img 

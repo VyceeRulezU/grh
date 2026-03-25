@@ -2215,7 +2215,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
 
         {/* SIDEBAR */}
         <aside className={`adm-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-          <div className="adm-sidebar-logo">
+          <div className="adm-sidebar-logo" onClick={() => onNavigate('welcome')} style={{ cursor: 'pointer' }}>
             <img src={mainLogo} alt="Governance Resource Hub" />
             {/* <span className="adm-portal-label">Admin Portal</span> */}
           </div>
