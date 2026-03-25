@@ -321,7 +321,18 @@ function CourseModal({ onClose, onSave, initial }) {
 }
 
 function ResourceModal({ onClose, onSave, initial }) {
-  const [form, setForm] = useState(initial || { title: '', type: 'PERL', category: 'Governance', description: '', fileUrl: '' });
+  const [form, setForm] = useState(initial || { 
+    title: '', 
+    type: 'PERL', 
+    category: 'Governance', 
+    description: '', 
+    fileUrl: '',
+    author: '',
+    published_year: new Date().getFullYear(),
+    topic: 'PFM',
+    theme: 'Reform',
+    region: 'National'
+  });
   const [file, setFile] = useState(null);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -361,6 +372,44 @@ function ResourceModal({ onClose, onSave, initial }) {
             </div>
           </div>
           <div className="adm-form-group"><label>Description</label><textarea rows="2" value={form.description} onChange={e => set('description', e.target.value)} /></div>
+          
+          <div className="adm-form-row">
+            <div className="adm-form-group">
+              <label>Author / Organization</label>
+              <input placeholder="e.g. FCDO, PERL" value={form.author} onChange={e => set('author', e.target.value)} />
+            </div>
+            <div className="adm-form-group">
+              <label>Publication Year</label>
+              <input type="number" value={form.published_year} onChange={e => set('published_year', e.target.value)} />
+            </div>
+          </div>
+
+          <div className="adm-form-row">
+            <div className="adm-form-group">
+              <label>Topic</label>
+              <ModernDropdown 
+                options={['PFM','Anti-Corruption','M&E','Service Delivery','Accountability','Policy']} 
+                value={form.topic} 
+                onChange={v => set('topic', v)} 
+              />
+            </div>
+            <div className="adm-form-group">
+              <label>Theme</label>
+              <ModernDropdown 
+                options={['Reform','Citizens Engagement','Gender & Social Inclusion','Sustainability','Knowledge Management']} 
+                value={form.theme} 
+                onChange={v => set('theme', v)} 
+              />
+            </div>
+            <div className="adm-form-group">
+              <label>Region</label>
+              <ModernDropdown 
+                options={['National','North-West','North-East','North-Central','South-West','South-East','South-South']} 
+                value={form.region} 
+                onChange={v => set('region', v)} 
+              />
+            </div>
+          </div>
           <div className="adm-form-group">
             <label>Upload Document (PDF/Doc)</label>
             <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileChange} />
@@ -381,7 +430,18 @@ function ResourceModal({ onClose, onSave, initial }) {
 const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
 
 function BookModal({ onClose, onSave, initial }) {
-  const [books, setBooks] = useState(initial ? [initial] : [{ title: '', summary: '', imagePreview: '', imageFile: null, bookFile: null }]);
+  const [books, setBooks] = useState(initial ? [initial] : [{ 
+    title: '', 
+    summary: '', 
+    imagePreview: '', 
+    imageFile: null, 
+    bookFile: null,
+    author: '',
+    published_year: new Date().getFullYear(),
+    topic: 'PFM',
+    theme: 'Reform',
+    region: 'National'
+  }]);
 
   const updateBook = (i, key, value) => {
     const updated = [...books];
@@ -402,7 +462,18 @@ function BookModal({ onClose, onSave, initial }) {
     if (file) updateBook(i, 'bookFile', file);
   };
 
-  const addAnother = () => setBooks(b => [...b, { title: '', summary: '', imagePreview: '', imageFile: null, bookFile: null }]);
+  const addAnother = () => setBooks(b => [...b, { 
+    title: '', 
+    summary: '', 
+    imagePreview: '', 
+    imageFile: null, 
+    bookFile: null,
+    author: '',
+    published_year: new Date().getFullYear(),
+    topic: 'PFM',
+    theme: 'Reform',
+    region: 'National'
+  }]);
   const removeBook = (i) => setBooks(b => b.filter((_, idx) => idx !== i));
 
   return (
@@ -442,9 +513,49 @@ function BookModal({ onClose, onSave, initial }) {
                     <label>Summary</label>
                     <textarea rows="2" placeholder="A short description of this book..." value={book.summary} onChange={e => updateBook(i, 'summary', e.target.value)} />
                   </div>
+                  </div>
                 </div>
               </div>
-              <div className="adm-form-group">
+
+              <div className="adm-form-row">
+                <div className="adm-form-group">
+                  <label>Author</label>
+                  <input placeholder="Author name" value={book.author} onChange={e => updateBook(i, 'author', e.target.value)} />
+                </div>
+                <div className="adm-form-group">
+                  <label>Year</label>
+                  <input type="number" value={book.published_year} onChange={e => updateBook(i, 'published_year', e.target.value)} />
+                </div>
+              </div>
+
+              <div className="adm-form-row" style={{ marginTop: '0.5rem' }}>
+                <div className="adm-form-group">
+                  <label>Topic</label>
+                  <ModernDropdown 
+                    options={['PFM','Anti-Corruption','M&E','Service Delivery','Accountability']} 
+                    value={book.topic} 
+                    onChange={v => updateBook(i, 'topic', v)} 
+                  />
+                </div>
+                <div className="adm-form-group">
+                  <label>Theme</label>
+                  <ModernDropdown 
+                    options={['Reform','Citizens Engagement','Sustainability']} 
+                    value={book.theme} 
+                    onChange={v => updateBook(i, 'theme', v)} 
+                  />
+                </div>
+                <div className="adm-form-group">
+                  <label>Region</label>
+                  <ModernDropdown 
+                    options={['National','SW','SE','SS','NW','NE','NC']} 
+                    value={book.region} 
+                    onChange={v => updateBook(i, 'region', v)} 
+                  />
+                </div>
+              </div>
+
+              <div className="adm-form-group" style={{ marginTop: '0.5rem' }}>
                 <label>Upload Book File (PDF, EPUB, etc.)</label>
                 <input type="file" accept=".pdf,.epub,.doc,.docx" onChange={(e) => handleFileChange(i, e)} />
                 {book.bookFile && <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: 4 }}>📄 {book.bookFile.name}</span>}
@@ -470,6 +581,11 @@ function BookModal({ onClose, onSave, initial }) {
               bookFile: b.bookFile,
               imageFile: b.imageFile,
               status: b.status || 'Draft',
+              author: b.author,
+              published_year: b.published_year,
+              topic: b.topic,
+              theme: b.theme,
+              region: b.region
             }));
             if (initial) onSave(resultBooks[0]);
             else onSave(resultBooks);
@@ -992,7 +1108,12 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
         category: form.category,
         description: form.description,
         file_url: finalFileUrl,
-        status: form.status || 'Published'
+        status: form.status || 'Published',
+        author: form.author,
+        published_year: parseInt(form.published_year) || null,
+        topic: form.topic,
+        theme: form.theme,
+        region: form.region
       };
 
       if (modal && modal !== 'add') {
@@ -1457,7 +1578,12 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
           summary: b.summary,
           image_url: finalImageUrl,
           file_url: finalFileUrl,
-          status: b.status || 'Published'
+          status: b.status || 'Published',
+          author: b.author,
+          published_year: parseInt(b.published_year) || null,
+          topic: b.topic,
+          theme: b.theme,
+          region: b.region
         };
       };
 

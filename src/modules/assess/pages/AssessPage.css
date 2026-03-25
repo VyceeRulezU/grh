@@ -854,6 +854,11 @@
 @media (max-width: 768px) {
   .ap-section { padding: 4rem 0; }
 
+  .ap-carousel {
+    justify-content: flex-start;
+    padding: 0.5rem 1rem 2rem;
+  }
+
   .ap-carousel-card { flex: 0 0 280px; flex-direction: column; row-gap: 1rem; }
 
   .ap-state-login { padding: 2rem 1.5rem; }
