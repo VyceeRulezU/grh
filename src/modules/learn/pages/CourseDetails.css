@@ -71,7 +71,7 @@
 }
 
 .category-tag {
-  background: var(--primary-color);
+  background: var(--primary);
   color: #fff;
   padding: 6px 14px;
   border-radius: 50px;
