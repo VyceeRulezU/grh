@@ -444,57 +444,47 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         <div className="player-content-area">
           <div className="video-wrapper">
             <div className="video-viewport">
-              {(videoId || driveId) && isPlaying ? (
-                isDrive ? (
-                  <iframe
-                    className="yt-iframe"
-                    src={`https://drive.google.com/file/d/${driveId}/preview`}
-                    title={activeLesson.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    frameBorder="0"
-                  />
-                ) : (
-                  <iframe
-                    className="yt-iframe"
-                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-                    title={activeLesson.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    frameBorder="0"
-                  />
-                )
-              ) : (videoId || driveId) ? (
-                <div className="yt-placeholder" onClick={() => setIsPlaying(true)}>
-                  {isDrive ? (
-                    <div className="yt-placeholder-drive-bg" style={{ width: '100%', height: '100%', background: 'var(--secondary)', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {/* <i className="ri-google-fill" style={{ fontSize: '4rem', color: '#4285f4', opacity: 0.5 }}></i> */}
-                      <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
-                    </div>
-                  ) : (
-                    <img
-                      src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                      alt="Video thumbnail"
-                      className="yt-thumbnail"
-                      onError={(e) => {
-                        if (e.target.src.includes('maxresdefault.jpg')) {
-                          e.target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                        } else {
-                          e.target.onerror = null; 
-                          e.target.src = 'https://images.unsplash.com/photo-1517245366810-54070744a417?auto=format&fit=crop&q=80&w=800'; 
-                        }
-                      }}
-                    />
-                  )}
-                  <div className="yt-overlay">
-                    <div className="yt-play-btn"><span className="material-symbols-outlined">play_arrow</span></div>
-                    <div className="yt-meta">
-                      <p className="yt-lesson-label">Lesson {activeLesson.sequence_order || lessons.indexOf(activeLesson) + 1} — {isDrive ? 'GOOGLE DRIVE' : 'VIDEO'}</p>
-                      <p className="yt-lesson-title">{activeLesson.title}</p>
-                    </div>
+              {/* 1. The Video Content (Iframe) */}
+              {(isDrive || (videoId && isPlaying)) ? (
+                <iframe
+                  className="yt-iframe"
+                  src={isDrive 
+                    ? `https://drive.google.com/file/d/${driveId}/preview` 
+                    : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+                  title={activeLesson.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  frameBorder="0"
+                />
+              ) : videoId ? (
+                <img
+                  src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                  alt="YouTube thumbnail"
+                  className="yt-thumbnail"
+                  style={{ opacity: 0.8, filter: 'none' }}
+                />
+              ) : null}
+
+              {/* 2. The Interactive Overlay (Shown only if NOT playing) */}
+              {!isPlaying && (
+                <div 
+                  className="yt-overlay" 
+                  onClick={() => setIsPlaying(true)}
+                  style={{ 
+                    background: isDrive ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.8)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div className="yt-play-btn"><span className="material-symbols-outlined">play_arrow</span></div>
+                  <div className="yt-meta">
+                    <p className="yt-lesson-label">Lesson {activeLesson.sequence_order || lessons.indexOf(activeLesson) + 1} — {isDrive ? 'GOOGLE DRIVE' : 'VIDEO'}</p>
+                    <p className="yt-lesson-title">{activeLesson.title}</p>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {/* 3. Empty State Fallback */}
+              {(!videoId && !driveId) && (
                 <div className="yt-placeholder">
                   <div className="yt-overlay">
                     <div className="yt-meta"><h3>No video available</h3></div>
