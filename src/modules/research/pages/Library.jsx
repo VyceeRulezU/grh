@@ -416,10 +416,7 @@ const Library = () => {
             <div className={viewMode === 'grid' ? 'resources-grid' : 'resources-list'} ref={resultsRef}>
               {pagedItems.map((res, i) => (
                 viewMode === 'grid' ? (
-                  <div key={res.id} className="resource-card" onClick={() => {
-                    if (res.file_url) window.open(res.file_url, '_blank');
-                    setReadingResource(res);
-                  }}>
+                  <div key={res.id} className="resource-card" onClick={() => { if (res.file_url || res.fileUrl) window.open(res.file_url || res.fileUrl, '_blank'); }}>
                     <div className="resource-cover">
                       <img src={res.coverImage} alt={res.title} className="resource-cover-img" />
                       {res.featured && <span className="featured-badge">FEATURED</span>}
@@ -436,15 +433,20 @@ const Library = () => {
                       </div>
                       <div className="resource-actions">
                         <button className="special-button" style={{flex: 1}}>Read Now</button>
-                        <button className="action-btn"><span className="material-symbols-outlined">download</span></button>
+                        <button 
+                          className="action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (res.file_url) window.open(res.file_url, '_blank');
+                          }}
+                        >
+                          <span className="material-symbols-outlined">download</span>
+                        </button>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div key={res.id} className="resource-list-item" onClick={() => {
-                    if (res.file_url) window.open(res.file_url, '_blank');
-                    setReadingResource(res);
-                  }}>
+                  <div key={res.id} className="resource-list-item" onClick={() => { if (res.file_url || res.fileUrl) window.open(res.file_url || res.fileUrl, '_blank'); }}>
                     <div className="list-icon">
                       <img src={res.coverImage} alt={res.title} className="list-thumb" />
                     </div>
@@ -460,7 +462,10 @@ const Library = () => {
                     <div className="list-meta">
                       <span className="resource-author">{res.author}</span>
                       <div className="list-actions">
-                        <button className="special-button" style={{flex: 1}}>Read Now</button>
+                        <button className="special-button" style={{flex: 1}} onClick={(e) => { e.stopPropagation(); if (res.file_url || res.fileUrl) window.open(res.file_url || res.fileUrl, '_blank'); }}>Read Now</button>
+                        <button className="action-btn" onClick={(e) => { e.stopPropagation(); if (res.file_url) window.open(res.file_url, '_blank'); }} title="Download">
+                          <span className="material-symbols-outlined">download</span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -510,7 +515,7 @@ const Library = () => {
           secondaryActionLabel="View Categories"
         />
 
-        {/* 
+        {/* ResourceViewer disabled — using open-in-new-tab workaround
         <ResourceViewer 
           isOpen={!!readingResource} 
           onClose={() => setReadingResource(null)} 

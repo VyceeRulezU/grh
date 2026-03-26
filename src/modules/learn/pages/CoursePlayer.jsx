@@ -402,9 +402,10 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const totalCompleted = lessons.filter(l => l.completed).length;
   const progressPercent = lessons.length > 0 ? Math.round((totalCompleted / lessons.length) * 100) : 0;
 
-  // All lessons open constraint-free
+  // Lock a lesson if the previous one hasn't been completed yet
   const isLessonLocked = (index) => {
-    return false;
+    if (index === 0) return false; // first lesson always unlocked
+    return !lessons[index - 1]?.completed;
   };
 
   return (
@@ -436,9 +437,9 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
               {videoId && isPlaying ? (
                 <iframe
                   className="yt-iframe"
-                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
                   title={activeLesson.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   frameBorder="0"
                 />
