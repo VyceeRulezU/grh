@@ -84,6 +84,24 @@
   text-align: left;
 }
 
+.sidebar-link.student-exit-portal {
+  color: var(--primary);
+}
+
+.sidebar-link.student-exit-portal:hover {
+  background: var(--sc-accent);
+  color: var(--primary);
+}
+
+.sidebar-link.student-logout {
+  color: red;
+}
+
+.sidebar-link.student-logout:hover {
+  background: var(--sc-accent);
+  color: red;
+}
+
 .sidebar-link:hover {
   background: var(--sc-accent);
   color: var(--sc-accent-foreground);

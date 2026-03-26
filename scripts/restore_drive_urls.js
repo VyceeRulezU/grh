@@ -8,7 +8,7 @@ async function restore() {
   console.log('--- Restoring Google Drive URLs ---');
 
   const { data: resources, error } = await supabase
-    .from('perl_resources')
+    .from('sparc_resources')
     .select('id, file_id, title');
 
   if (error) { console.error(error); return; }
@@ -25,7 +25,7 @@ async function restore() {
     const downloadUrl = `https://drive.google.com/uc?export=download&id=${res.file_id}`;
 
     const { error: updateErr } = await supabase
-      .from('perl_resources')
+      .from('sparc_resources')
       .update({ preview_url: previewUrl, download_url: downloadUrl })
       .eq('id', res.id);
 

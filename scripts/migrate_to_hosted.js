@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const CONFIG = {
-  baseUrl: 'https://governanceresourcehub.com/public_html/perl_resource/',
+  baseUrl: 'https://governanceresourcehub.com/public_html/sparc_resource/',
   supabase: {
     url: process.env.VITE_SUPABASE_URL,
     key: process.env.VITE_SUPABASE_ANON_KEY
@@ -19,7 +19,7 @@ async function migrate() {
   try {
     // 1. Fetch all resources
     const { data: resources, error: fetchError } = await supabase
-      .from('perl_resources')
+      .from('sparc_resources')
       .select('*');
 
     if (fetchError) throw fetchError;
@@ -49,7 +49,7 @@ async function migrate() {
       console.log(`Updating [${fileName}] -> ${newUrl}`);
 
       const { error: updateError } = await supabase
-        .from('perl_resources')
+        .from('sparc_resources')
         .update({
           preview_url: newUrl,
           download_url: newUrl

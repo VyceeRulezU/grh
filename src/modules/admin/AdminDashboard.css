@@ -165,6 +165,24 @@
   text-align: left;
 }
 
+.adm-nav-link.adm-exit-portal {
+  color: var(--primary);
+}
+
+.adm-nav-link.adm-exit-portal:hover {
+  background: var(--sc-accent);
+  color: var(--sc-foreground);
+}
+
+.adm-nav-link.adm-logout-admin {
+  color: red;
+}
+
+.adm-nav-link.adm-logout-admin:hover {
+  background: var(--sc-accent);
+  color: red;
+}
+
 .adm-nav-link:hover {
   background: var(--sc-accent);
   color: var(--sc-foreground);

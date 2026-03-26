@@ -1,16 +1,14 @@
-
 /**
  * Governance Resource Hub - Google Drive Sync Script
  * 
  * This script connects to a Google Drive folder, reads file metadata,
- * and syncs it to the Supabase 'library_resources' table.
+ * and syncs it to the Supabase 'perl_resource' table.
  * 
  * Prerequisites:
  * 1. Google Cloud Project with Drive API enabled.
  * 2. gcloud CLI installed and authenticated (gcloud auth application-default login).
  * 3. Folder ID accessible by your Google account.
  */
-
 
 import { google } from 'googleapis';
 import { createClient } from '@supabase/supabase-js';
@@ -20,7 +18,7 @@ import readline from 'readline';
 dotenv.config();
 
 const CONFIG = {
-  folderId: process.env.GOOGLE_DRIVE_FOLDER_ID,
+  folderId: process.env.GOOGLE_DRIVE_PERL_FOLDER_ID,
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   supabase: {
@@ -116,7 +114,6 @@ async function syncDocuments() {
     for (const file of files) {
       const metadata = {
         title: file.name,
-        file_id: file.id,
         preview_url: file.webViewLink,
         download_url: `https://drive.google.com/uc?export=download&id=${file.id}`,
         created_at: file.createdTime
@@ -125,8 +122,8 @@ async function syncDocuments() {
       console.log(`Syncing: ${file.name}...`);
       
       const { data, error } = await supabase
-        .from('sparc_resources')
-        .upsert(metadata, { onConflict: 'file_id' });
+        .from('perl_resource')
+        .insert([metadata]);
 
       if (error) {
         console.error(`Error syncing ${file.name}:`, error.message);
@@ -140,4 +137,3 @@ async function syncDocuments() {
 }
 
 syncDocuments();
-

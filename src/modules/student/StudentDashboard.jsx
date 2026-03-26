@@ -1247,10 +1247,10 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
               <i className="ri-settings-fill"></i> Settings
             </button>
             <button className="sidebar-link"><i className="ri-question-fill"></i> Help Center</button>
-            <button className="sidebar-link" onClick={() => onNavigate('welcome')}>
+            <button className="sidebar-link student-exit-portal" onClick={() => onNavigate('welcome')}>
               <i className="ri-arrow-left-line"></i> Back to Site
             </button>
-            <button className="sidebar-link" onClick={confirmLogout}>
+            <button className="sidebar-link student-logout" onClick={confirmLogout}>
               <i className="ri-logout-box-line"></i> Sign Out
             </button>
           </div>

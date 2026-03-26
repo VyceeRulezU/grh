@@ -31,10 +31,11 @@ const Library = () => {
   const { data: allResources = [], isLoading: loading, isSuccess } = useQuery({
     queryKey: ['library-resources'],
     queryFn: async () => {
-      const [res, bks, prl] = await Promise.all([
+      const [res, bks, sparc, perl] = await Promise.all([
         supabase.from('library_resources').select('*').eq('status', 'Published'),
         supabase.from('books').select('*').eq('status', 'Published'),
-        supabase.from('perl_resources').select('*')
+        supabase.from('sparc_resources').select('*'),
+        supabase.from('perl_resource').select('*')
       ]);
 
       const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
@@ -74,20 +75,32 @@ const Library = () => {
         file_url: b.file_url || ''
       }));
 
-      const mappedPerl = (prl.data || []).map(p => ({
+      const mappedSparc = (sparc.data || []).map(p => ({
+        ...p,
+        type: "SPARC",
+        programme: "SPARC",
+        category: "Governance",
+        author: p.author || "GRH",
+        year: new Date(p.created_at).getFullYear(),
+        coverImage: TYPE_IMAGES['SPARC'] || DEFAULT_IMG,
+        file_url: p.preview_url || p.download_url || p.file_url || '',
+        description: p.description || `Synced document: ${p.title}`
+      }));
+
+      const mappedPerl = (perl.data || []).map(p => ({
         ...p,
         type: "PERL",
         programme: "PERL",
         category: "Governance",
-        author: "Google Drive Sync",
+        author: p.author || "GRH",
         year: new Date(p.created_at).getFullYear(),
         coverImage: TYPE_IMAGES['PERL'] || DEFAULT_IMG,
-        file_url: p.preview_url || p.download_url || '',
+        file_url: p.preview_url || p.download_url || p.file_url || '',
         description: p.description || `Synced document: ${p.title}`
       }));
 
       try {
-        const merged = [...mappedRes, ...mappedBooks, ...mappedPerl];
+        const merged = [...mappedRes, ...mappedBooks, ...mappedSparc, ...mappedPerl];
         const PROG_TYPES = ['PERL', 'SPARC', 'SLGP'];
         
         if (merged.length === 0) {

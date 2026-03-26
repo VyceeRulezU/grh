@@ -1706,9 +1706,6 @@ function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
       <div className="adm-panel-header">
         <h3>Books <span className="adm-count">{books.length}</span></h3>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn-outline" onClick={onSync} title="Google Drive Sync">
-            <i className="ri-refresh-line"></i> Sync from Drive
-          </button>
           <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Book</button>
         </div>
       </div>
@@ -1900,11 +1897,12 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     try {
       setLoading(true);
       // Fetch data with individual error handling to prevent total crash if one schema is missing
-      let [crs, res, bks, prl, usr, wks, progress, mods] = await Promise.all([
+      let [crs, res, bks, sparc, prl, usr, wks, progress, mods] = await Promise.all([
         supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
-        supabase.from('perl_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('sparc_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('perl_resource').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('profiles').select('*').then(r => r, e => ({ error: e })),
         supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('user_progress')
@@ -1972,9 +1970,15 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       // 4. Map Users, Resources, Workshops
       const allResources = [
         ...(res.data || []).map(r => ({ ...r, fileUrl: r.file_url })),
+        ...(sparc.data || []).map(p => ({ 
+          ...p, 
+          fileUrl: p.preview_url || p.download_url || p.file_url,
+          programme: 'SPARC',
+          category: 'Governance' 
+        })),
         ...(prl.data || []).map(p => ({ 
           ...p, 
-          fileUrl: p.preview_url || p.download_url,
+          fileUrl: p.preview_url || p.download_url || p.file_url,
           programme: 'PERL',
           category: 'Governance' 
         }))
@@ -2317,8 +2321,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
 
           <div className="adm-sidebar-footer">
             <span className="adm-nav-label">Session</span>
-            <button className="adm-nav-link" onClick={() => onNavigate('welcome')}><i className="ri-arrow-left-line"></i> Exit Portal</button>
-            <button className="adm-nav-link" onClick={confirmLogout}><i className="ri-logout-box-line"></i> Logout Admin</button>
+            <button className="adm-nav-link adm-exit-portal" onClick={() => onNavigate('welcome')}><i className="ri-arrow-left-line"></i> Exit Portal</button>
+            <button className="adm-nav-link adm-logout-admin" onClick={confirmLogout}><i className="ri-logout-box-line"></i> Logout Admin</button>
           </div>
         </aside>
 
