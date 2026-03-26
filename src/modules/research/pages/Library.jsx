@@ -8,11 +8,13 @@ import CtaSection from '../../../shared/ui/CtaSection';
 import Pagination from '../../../shared/ui/Pagination';
 import PageHero from '../../../shared/ui/PageHero';
 import { gsap } from 'gsap';
-import { Flip } from 'gsap/all';
-import { ScrollTrigger } from 'gsap/all';
+import { Flip } from 'gsap/Flip';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Library.css';
 import ResourceViewer from '../components/ResourceViewer';
 import '../components/ResourceViewer.css';
+
+gsap.registerPlugin(Flip, ScrollTrigger);
 
 const Library = () => {
   const [search, setSearch] = useState("");
