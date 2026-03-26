@@ -1312,6 +1312,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
           onConfirm={submitRegistration}
         />
       )}
+      
       {/* Certificate Preview Modal */}
       <CertificatePreview 
         isOpen={certPreview.isOpen}

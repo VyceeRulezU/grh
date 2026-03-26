@@ -1121,7 +1121,7 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
   );
 }
 
-function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
+function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }) {
   const [modal, setModal] = useState(null);
   const editItem = resources.find(r => r.id === modal);
   const [loading, setLoading] = useState(false);
@@ -1194,7 +1194,12 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData }) {
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Library Resources <span className="adm-count">{resources.length}</span></h3>
-        <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Resource</button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn-outline" onClick={onSync} title="Google Drive Sync">
+            <i className="ri-refresh-line"></i> Sync from Drive
+          </button>
+          <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Resource</button>
+        </div>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
@@ -1592,7 +1597,7 @@ function AdminSettingsPanel({ user }) {
 }
 
 /* --- BOOKS PANEL --- */
-function BooksPanel({ books, setBooks, onDelete, fetchData }) {
+function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
   const [modal, setModal] = useState(null);
   const [loading, setLoading] = useState(false);
   const editItem = books.find(b => b.id === modal);
@@ -1686,7 +1691,12 @@ function BooksPanel({ books, setBooks, onDelete, fetchData }) {
     <div className="adm-panel">
       <div className="adm-panel-header">
         <h3>Books <span className="adm-count">{books.length}</span></h3>
-        <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Book</button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn-outline" onClick={onSync} title="Google Drive Sync">
+            <i className="ri-refresh-line"></i> Sync from Drive
+          </button>
+          <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Book</button>
+        </div>
       </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
@@ -1829,6 +1839,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
   const [activeSection, setActiveSection] = useState(() => {
     return localStorage.getItem('adminActiveSection') || 'overview';
   });
+  const [showSyncDocs, setShowSyncDocs] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('adminActiveSection', activeSection);
@@ -1875,10 +1886,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     try {
       setLoading(true);
       // Fetch data with individual error handling to prevent total crash if one schema is missing
-      let [crs, res, bks, usr, wks, progress, mods] = await Promise.all([
+      let [crs, res, bks, prl, usr, wks, progress, mods] = await Promise.all([
         supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('perl_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('profiles').select('*').then(r => r, e => ({ error: e })),
         supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('user_progress')
@@ -1944,7 +1956,16 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       }
 
       // 4. Map Users, Resources, Workshops
-      if (res.data) setResources(res.data.map(r => ({ ...r, fileUrl: r.file_url })));
+      const allResources = [
+        ...(res.data || []).map(r => ({ ...r, fileUrl: r.file_url })),
+        ...(prl.data || []).map(p => ({ 
+          ...p, 
+          fileUrl: p.preview_url || p.download_url,
+          programme: 'PERL',
+          category: 'Governance' 
+        }))
+      ];
+      setResources(allResources);
       if (bks.data) setBooks(bks.data.map(b => ({ ...b, fileUrl: b.file_url, imageUrl: b.image_url })));
       if (usr.data) setUsers(usr.data.map(u => ({ 
         ...u, 
@@ -2319,8 +2340,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
                 itemsPerRecentPage={itemsPerRecentPage}
               />}
             {activeSection === 'courses'    && <CoursesPanel courses={courses} setCourses={setCourses} onDelete={confirmDelete} fetchData={fetchData} />}
-            {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} onDelete={confirmDelete} fetchData={fetchData} />}
-            {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} onDelete={confirmDelete} fetchData={fetchData} />}
+            {activeSection === 'books'      && <BooksPanel books={books} setBooks={setBooks} onDelete={confirmDelete} fetchData={fetchData} onSync={() => setShowSyncDocs(true)} />}
+            {activeSection === 'resources'  && <ResourcesPanel resources={resources} setResources={setResources} onDelete={confirmDelete} fetchData={fetchData} onSync={() => setShowSyncDocs(true)} />}
             {activeSection === 'workshops'  && <WorkshopsPanel workshops={workshops} setWorkshops={setWorkshops} onDelete={confirmDelete} fetchData={fetchData} />}
             {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} onDelete={confirmDelete} loggedInUser={user} fetchData={fetchData} />}
             {activeSection === 'analytics'  && <AnalyticsPanel stats={stats} />}
@@ -2346,8 +2367,63 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           onConfirm={statusModal.onConfirm}
         />
       )}
+
+      {/* Sync Instructions Tooltip/Modal */}
+      <SyncDocsModal 
+        isOpen={showSyncDocs} 
+        onClose={() => setShowSyncDocs(false)}
+      />
     </>
   );
 };
+
+function SyncDocsModal({ isOpen, onClose }) {
+  if (!isOpen) return null;
+  return (
+    <div className="adm-modal-overlay">
+      <div className="adm-modal animate-up" style={{ maxWidth: 600 }}>
+        <header className="adm-modal-header">
+          <h3>Google Drive Sync Setup</h3>
+          <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
+        </header>
+        <div className="adm-modal-body">
+          <div className="sync-setup-steps">
+            <div className="setup-step">
+              <div className="step-num">1</div>
+              <div className="step-content">
+                <strong>Enable Drive API</strong>
+                <p>Go to Google Cloud Console and enable the Google Drive API for your project.</p>
+              </div>
+            </div>
+            <div className="setup-step">
+              <div className="step-num">2</div>
+              <div className="step-content">
+                <strong>Create Service Account</strong>
+                <p>Create a Service Account, download the JSON key, and rename it to <code>service-account.json</code> in the <code>scripts/</code> folder.</p>
+              </div>
+            </div>
+            <div className="setup-step">
+              <div className="step-num">3</div>
+              <div className="step-content">
+                <strong>Share Folder</strong>
+                <p>Share your Google Drive folder with the Service Account email address.</p>
+              </div>
+            </div>
+            <div className="setup-step">
+              <div className="step-num">4</div>
+              <div className="step-content">
+                <strong>Run Script</strong>
+                <p>Run <code>node scripts/sync_drive.js</code> to sync all documents to Supabase.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer className="adm-modal-footer">
+          <button className="special-button" onClick={onClose}>Got it!</button>
+        </footer>
+      </div>
+    </div>
+  );
+}
 
 export default AdminDashboard;

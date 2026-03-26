@@ -11,8 +11,7 @@ import { gsap } from 'gsap';
 import { Flip } from 'gsap/all';
 import { ScrollTrigger } from 'gsap/all';
 import './Library.css';
-
-gsap.registerPlugin(Flip, ScrollTrigger);
+import ResourceViewer from '../components/ResourceViewer';
 import '../components/ResourceViewer.css';
 
 const Library = () => {
@@ -30,9 +29,10 @@ const Library = () => {
   const { data: allResources = [], isLoading: loading, isSuccess } = useQuery({
     queryKey: ['library-resources'],
     queryFn: async () => {
-      const [res, bks] = await Promise.all([
+      const [res, bks, prl] = await Promise.all([
         supabase.from('library_resources').select('*').eq('status', 'Published'),
-        supabase.from('books').select('*').eq('status', 'Published')
+        supabase.from('books').select('*').eq('status', 'Published'),
+        supabase.from('perl_resources').select('*')
       ]);
 
       const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
@@ -72,7 +72,19 @@ const Library = () => {
         file_url: b.file_url || ''
       }));
 
-      const merged = [...mappedRes, ...mappedBooks];
+      const mappedPerl = (prl.data || []).map(p => ({
+        ...p,
+        type: "PERL",
+        programme: "PERL",
+        category: "Governance",
+        author: "Google Drive Sync",
+        year: new Date(p.created_at).getFullYear(),
+        coverImage: TYPE_IMAGES['PERL'] || DEFAULT_IMG,
+        file_url: p.preview_url || p.download_url || '',
+        description: p.description || `Synced document: ${p.title}`
+      }));
+
+      const merged = [...mappedRes, ...mappedBooks, ...mappedPerl];
       const PROG_TYPES = ['PERL', 'SPARC', 'SLGP'];
       if (merged.length === 0) {
         return [
@@ -472,7 +484,12 @@ const Library = () => {
           description="Gain access to thousands of documents, research papers, and case studies from across the globe."
           primaryActionLabel="Start Researching"
           secondaryActionLabel="View Categories"
-          secondaryActionHref="#filters"
+        />
+
+        <ResourceViewer 
+          isOpen={!!readingResource} 
+          onClose={() => setReadingResource(null)} 
+          resource={readingResource} 
         />
     </div>
   );

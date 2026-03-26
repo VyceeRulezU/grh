@@ -24,21 +24,35 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
         </header>
         
         <div className="viewer-content">
-          <div className="viewer-page-mock">
-            <div className="mock-text-line headline"></div>
-            <div className="mock-text-line"></div>
-            <div className="mock-text-line"></div>
-            <div className="mock-text-line short"></div>
-            <div className="mock-image-box"></div>
-            <div className="mock-text-line"></div>
-            <div className="mock-text-line"></div>
-            <div className="mock-text-line short"></div>
-            
-            <div className="mock-text-line headline" style={{ marginTop: '40px' }}></div>
-            <div className="mock-text-line"></div>
-            <div className="mock-text-line"></div>
-            <div className="mock-text-line short"></div>
-          </div>
+          {resource.file_url || resource.fileUrl ? (
+            <iframe 
+              src={(() => {
+                const url = resource.file_url || resource.fileUrl;
+                if (url.includes('drive.google.com')) {
+                  // Convert to preview link if needed
+                  if (url.includes('/view')) return url.replace('/view', '/preview');
+                  if (url.includes('id=')) {
+                    const id = new URLSearchParams(new URL(url).search).get('id');
+                    return `https://drive.google.com/file/d/${id}/preview`;
+                  }
+                }
+                return url;
+              })()} 
+              title={resource.title}
+              className="viewer-iframe"
+              frameBorder="0"
+              allow="autoplay"
+            ></iframe>
+          ) : (
+            <div className="viewer-page-mock">
+              <div className="mock-text-line headline"></div>
+              <div className="mock-text-line"></div>
+              <div className="mock-text-line"></div>
+              <div className="mock-text-line short"></div>
+              <div className="mock-image-box"></div>
+              <div className="placeholder-text">No preview available for this document.</div>
+            </div>
+          )}
         </div>
 
         <footer className="viewer-footer">
