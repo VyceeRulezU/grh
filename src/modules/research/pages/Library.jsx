@@ -415,7 +415,10 @@ const Library = () => {
             <div className={viewMode === 'grid' ? 'resources-grid' : 'resources-list'} ref={resultsRef}>
               {pagedItems.map((res, i) => (
                 viewMode === 'grid' ? (
-                  <div key={res.id} className="resource-card" onClick={() => setReadingResource(res)}>
+                  <div key={res.id} className="resource-card" onClick={() => {
+                    if (res.file_url) window.open(res.file_url, '_blank');
+                    setReadingResource(res);
+                  }}>
                     <div className="resource-cover">
                       <img src={res.coverImage} alt={res.title} className="resource-cover-img" />
                       {res.featured && <span className="featured-badge">FEATURED</span>}
@@ -437,7 +440,10 @@ const Library = () => {
                     </div>
                   </div>
                 ) : (
-                  <div key={res.id} className="resource-list-item" onClick={() => setReadingResource(res)}>
+                  <div key={res.id} className="resource-list-item" onClick={() => {
+                    if (res.file_url) window.open(res.file_url, '_blank');
+                    setReadingResource(res);
+                  }}>
                     <div className="list-icon">
                       <img src={res.coverImage} alt={res.title} className="list-thumb" />
                     </div>

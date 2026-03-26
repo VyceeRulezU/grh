@@ -16,9 +16,22 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             </div>
           </div>
           <div className="viewer-controls">
-            <button className="control-btn"><i className="ri-zoom-in-line"></i></button>
-            <button className="control-btn"><i className="ri-zoom-out-line"></i></button>
-            <button className="control-btn"><i className="ri-download-line"></i></button>
+            <button className="control-btn" title="Zoom In"><i className="ri-zoom-in-line"></i></button>
+            <button className="control-btn" title="Zoom Out"><i className="ri-zoom-out-line"></i></button>
+            <button 
+              className="control-btn" 
+              title="Download"
+              onClick={() => window.open(resource.download_url || resource.file_url || resource.fileUrl, '_blank')}
+            >
+              <i className="ri-download-line"></i>
+            </button>
+            <button 
+              className="control-btn" 
+              title="Open Original"
+              onClick={() => window.open(resource.file_url || resource.fileUrl, '_blank')}
+            >
+              <i className="ri-external-link-line"></i>
+            </button>
             <button className="viewer-close" onClick={onClose}><i className="ri-close-line"></i></button>
           </div>
         </header>
@@ -29,11 +42,16 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               src={(() => {
                 const url = resource.file_url || resource.fileUrl;
                 if (url.includes('drive.google.com')) {
-                  // Convert to preview link if needed
-                  if (url.includes('/view')) return url.replace('/view', '/preview');
-                  if (url.includes('id=')) {
-                    const id = new URLSearchParams(new URL(url).search).get('id');
-                    return `https://drive.google.com/file/d/${id}/preview`;
+                  let fileId = '';
+                  if (url.includes('/file/d/')) {
+                    fileId = url.split('/file/d/')[1].split('/')[0];
+                  } else if (url.includes('id=')) {
+                    fileId = new URLSearchParams(new URL(url).search).get('id');
+                  }
+                  
+                  if (fileId) {
+                    // This is the most reliable URL for embedding Google Drive files
+                    return `https://docs.google.com/viewer?srcid=${fileId}&pid=explorer&efh=false&a=v&chrome=false&embedded=true`;
                   }
                 }
                 return url;
