@@ -97,6 +97,12 @@ const getYouTubeVideoId = (url) => {
   return (match && match[2].length === 11) ? match[2] : null;
 };
 
+const getDriveVideoId = (url) => {
+  if (!url) return null;
+  const match = url.match(/\/file\/d\/(.+?)\//) || url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
+  return match ? (match[1] || match[2]) : null;
+};
+
 const CoursePlayer = ({ onNavigate, user, course }) => {
   const [lessons, setLessons] = useState([]);
   const [activeLesson, setActiveLesson] = useState(null);
@@ -396,7 +402,10 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
     );
   }
 
-  const videoId = getYouTubeVideoId(activeLesson?.videoLink || activeLesson?.video_url);
+  const videoUrl = activeLesson?.videoLink || activeLesson?.video_url;
+  const videoId = getYouTubeVideoId(videoUrl);
+  const driveId = getDriveVideoId(videoUrl);
+  const isDrive = !!driveId;
   
   // Flat lessons list stats
   const totalCompleted = lessons.filter(l => l.completed).length;
@@ -434,34 +443,51 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         <div className="player-content-area">
           <div className="video-wrapper">
             <div className="video-viewport">
-              {videoId && isPlaying ? (
-                <iframe
-                  className="yt-iframe"
-                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-                  title={activeLesson.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  frameBorder="0"
-                />
-              ) : videoId ? (
-                <div className="yt-placeholder" onClick={() => setIsPlaying(true)}>
-                  <img
-                    src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                    alt="Video thumbnail"
-                    className="yt-thumbnail"
-                    onError={(e) => {
-                      if (e.target.src.includes('maxresdefault.jpg')) {
-                        e.target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                      } else {
-                        e.target.onerror = null; 
-                        e.target.src = 'https://images.unsplash.com/photo-1517245366810-54070744a417?auto=format&fit=crop&q=80&w=800'; 
-                      }
-                    }}
+              {(videoId || driveId) && isPlaying ? (
+                isDrive ? (
+                  <iframe
+                    className="yt-iframe"
+                    src={`https://drive.google.com/file/d/${driveId}/preview`}
+                    title={activeLesson.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    frameBorder="0"
                   />
+                ) : (
+                  <iframe
+                    className="yt-iframe"
+                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+                    title={activeLesson.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    frameBorder="0"
+                  />
+                )
+              ) : (videoId || driveId) ? (
+                <div className="yt-placeholder" onClick={() => setIsPlaying(true)}>
+                  {isDrive ? (
+                    <div className="yt-placeholder-drive-bg" style={{ width: '100%', height: '100%', background: '#1a1a1b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <i className="ri-google-fill" style={{ fontSize: '4rem', color: '#4285f4', opacity: 0.5 }}></i>
+                    </div>
+                  ) : (
+                    <img
+                      src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                      alt="Video thumbnail"
+                      className="yt-thumbnail"
+                      onError={(e) => {
+                        if (e.target.src.includes('maxresdefault.jpg')) {
+                          e.target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        } else {
+                          e.target.onerror = null; 
+                          e.target.src = 'https://images.unsplash.com/photo-1517245366810-54070744a417?auto=format&fit=crop&q=80&w=800'; 
+                        }
+                      }}
+                    />
+                  )}
                   <div className="yt-overlay">
                     <div className="yt-play-btn"><span className="material-symbols-outlined">play_arrow</span></div>
                     <div className="yt-meta">
-                      <p className="yt-lesson-label">Lesson {activeLesson.sequence_order} — VIDEO</p>
+                      <p className="yt-lesson-label">Lesson {activeLesson.sequence_order || lessons.indexOf(activeLesson) + 1} — {isDrive ? 'GOOGLE DRIVE' : 'VIDEO'}</p>
                       <p className="yt-lesson-title">{activeLesson.title}</p>
                     </div>
                   </div>

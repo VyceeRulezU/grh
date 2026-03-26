@@ -1125,13 +1125,23 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
   const [modal, setModal] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState("");
   
-  const editItem = (resources || []).find(r => r.id === modal);
   const [loading, setLoading] = useState(false);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
-  const totalPages = Math.ceil((resources || []).length / itemsPerPage);
-  const pagedItems = (resources || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // Filter items based on search
+  const filteredItems = (resources || []).filter(r => 
+    (r.title?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.programme?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.category?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.author?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.thematic_area?.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const editItem = filteredItems.find(r => r.id === modal);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const pagedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const save = async (form) => {
     try {
@@ -1164,9 +1174,10 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
 
       const isEdit = modal && modal !== 'add';
       const resourceId = isEdit ? modal : null;
+      const targetTable = editItem?.table_name || 'library_resources';
 
       if (isEdit) {
-        const { error } = await supabase.from('library_resources').update(payload).eq('id', resourceId);
+        const { error } = await supabase.from(targetTable).update(payload).eq('id', resourceId);
         if (error) throw error;
       } else {
         const { error } = await supabase.from('library_resources').insert([payload]);
@@ -1175,16 +1186,6 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
       setModal(null);
       showSuccess('Resource Saved', 'Resource saved successfully!');
       
-      if (setResources) {
-        setResources(prev => {
-          if (isEdit) {
-            return prev.map(item => item.id === resourceId ? { ...item, ...payload, id: resourceId } : item);
-          } else {
-            return [{ ...payload, id: Date.now() }, ...prev];
-          }
-        });
-      }
-
       if (typeof fetchData === 'function') {
         fetchData();
       }
@@ -1199,38 +1200,62 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
-        <h3>Library Resources <span className="adm-count">{resources.length}</span></h3>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn-outline" onClick={onSync} title="Google Drive Sync">
-            <i className="ri-refresh-line"></i> Sync from Drive
+        <div className="adm-header-title">
+          <h3>Library Resources <span className="adm-count">{filteredItems.length}</span></h3>
+          <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: '2px'}}>View and manage resources from SPARC, PERL, and Library.</p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="adm-search-wrap">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              className="adm-search-input" 
+              placeholder="Search title, programme, author..." 
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            />
+          </div>
+          <button className="btn-outline" onClick={onSync} title="Sync from Google Drive">
+            <i className="ri-refresh-line"></i> Sync
           </button>
-          <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Resource</button>
+          <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Asset</button>
         </div>
       </div>
+
       <div className="adm-table-wrap">
         <table className="adm-table">
-          <thead><tr><th>Title</th><th>Type</th><th>Category</th><th>Status</th><th></th></tr></thead>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Programme</th>
+              <th>Thematic Area</th>
+              <th>Author</th>
+              <th>Year</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
           <tbody>
-            {pagedItems.map(r => (
+            {pagedItems.length === 0 ? (
+              <tr><td colSpan="7" style={{textAlign:'center', padding:'3rem', color:'var(--text-soft)'}}>No resources found matching your search.</td></tr>
+            ) : pagedItems.map(r => (
               <tr key={r.id}>
-                <td>{r.title}</td>
-                <td><span className="adm-type-badge">{r.type}</span></td>
-                <td>{r.category}</td>
-                <td><span className={`adm-status-badge ${r.status === 'Published' ? 'published' : 'draft'}`}>{r.status}</span></td>
+                <td>
+                  <div style={{display:'flex', flexDirection:'column'}}>
+                    <strong style={{color:'var(--text-main)'}}>{r.title}</strong>
+                    <span style={{fontSize:'0.7rem', color:'var(--text-soft)'}}>{r.category || 'Resource'}</span>
+                  </div>
+                </td>
+                <td><span className={`badge ${r.programme === 'SPARC' ? 'badge-purple' : 'badge-blue'}`} style={{fontSize:'0.7rem', padding:'2px 8px', borderRadius:'12px', background: r.programme === 'SPARC' ? '#f3e8ff' : '#dbeafe', color: r.programme === 'SPARC' ? '#7e22ce' : '#1d4ed8' }}>{r.programme || 'General'}</span></td>
+                <td><span style={{fontSize:'0.85rem'}}>{r.thematic_area || 'N/A'}</span></td>
+                <td><span style={{fontSize:'0.85rem'}}>{r.author || 'GRH'}</span></td>
+                <td><span style={{fontSize:'0.85rem'}}>{r.published_year || r.year || 'N/A'}</span></td>
+                <td><span className={`adm-status-badge ${r.status === 'Published' ? 'published' : 'draft'}`}>{r.status || 'Published'}</span></td>
                 <td>
                   <div className="adm-row-actions">
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(r.id)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn" title="Toggle status" onClick={async () => {
-                      try {
-                        const newStatus = r.status === 'Published' ? 'Draft' : 'Published';
-                        const { error } = await supabase.from('library_resources').update({ status: newStatus }).eq('id', r.id);
-                        if (error) throw error;
-                        window.location.reload();
-                      } catch (err) { showError('Error', err.message); }
-                    }}>
-                      <i className={r.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
-                    </button>
-                    <button className="adm-icon-btn danger" onClick={() => onDelete(r, 'resource')}><i className="ri-delete-bin-line"></i></button>
+                    <a href={r.fileUrl || r.file_url} target="_blank" rel="noreferrer" className="adm-icon-btn" title="View Document"><i className="ri-external-link-line"></i></a>
+                    <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(r, 'resource')}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -1239,13 +1264,15 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
         </table>
       </div>
       
-      <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-        <Pagination 
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </div>
+      {totalPages > 1 && (
+        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
       {modal && <ResourceModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
       <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
@@ -1969,18 +1996,20 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
 
       // 4. Map Users, Resources, Workshops
       const allResources = [
-        ...(res.data || []).map(r => ({ ...r, fileUrl: r.file_url })),
+        ...(res.data || []).map(r => ({ ...r, fileUrl: r.file_url, table_name: 'library_resources' })),
         ...(sparc.data || []).map(p => ({ 
           ...p, 
           fileUrl: p.preview_url || p.download_url || p.file_url,
           programme: 'SPARC',
-          category: 'Governance' 
+          category: 'Governance',
+          table_name: 'sparc_resources'
         })),
         ...(prl.data || []).map(p => ({ 
           ...p, 
           fileUrl: p.preview_url || p.download_url || p.file_url,
           programme: 'PERL',
-          category: 'Governance' 
+          category: 'Governance',
+          table_name: 'perl_resource'
         }))
       ];
       setResources(allResources);
@@ -2196,12 +2225,14 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the file permanently and this action cannot be undone.`,
       onConfirm: async () => {
         try {
-          let table = '';
-          if (type === 'course') table = 'courses';
-          if (type === 'resource') table = 'library_resources';
-          if (type === 'book') table = 'books';
-          if (type === 'workshop') table = 'workshops';
-          if (type === 'user') table = 'profiles';
+          let table = item.table_name || '';
+          if (!table) {
+            if (type === 'course') table = 'courses';
+            if (type === 'resource') table = 'library_resources';
+            if (type === 'book') table = 'books';
+            if (type === 'workshop') table = 'workshops';
+            if (type === 'user') table = 'profiles';
+          }
 
           if (type === 'user') {
             const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`;
