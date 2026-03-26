@@ -84,28 +84,43 @@ const Library = () => {
         description: p.description || `Synced document: ${p.title}`
       }));
 
-      const merged = [...mappedRes, ...mappedBooks, ...mappedPerl];
-      const PROG_TYPES = ['PERL', 'SPARC', 'SLGP'];
-      if (merged.length === 0) {
-        return [
-          ...LEGACY_RESOURCES.map(r => ({
-            ...r,
-            programme: PROG_TYPES.includes((r.type || '').toUpperCase()) ? r.type.toUpperCase() : null
-          })),
-          ...LEGACY_BOOKS.map(b => ({
-            ...b,
-            type: "BOOK",
-            programme: null,
-            author: "GRH Lib",
-            year: 2024,
-            coverImage: b.imageUrl,
-            category: "Governance",
-            description: b.summary
-          }))
-        ];
+      try {
+        const merged = [...mappedRes, ...mappedBooks, ...mappedPerl];
+        const PROG_TYPES = ['PERL', 'SPARC', 'SLGP'];
+        
+        if (merged.length === 0) {
+          return [
+            ...LEGACY_RESOURCES.map(r => ({
+              ...r,
+              programme: PROG_TYPES.includes((r.type || '').toUpperCase()) ? r.type.toUpperCase() : null
+            })),
+            ...LEGACY_BOOKS.map(b => ({
+              ...b,
+              type: "BOOK",
+              programme: null,
+              author: "GRH Lib",
+              year: 2024,
+              coverImage: b.imageUrl,
+              category: "Governance",
+              description: b.summary
+            }))
+          ];
+        }
+        
+        // Use safeParse or log individual rows to find the culprit
+        return merged.map(item => {
+          const result = ResourceSchema.safeParse(item);
+          if (!result.success) {
+            console.error("Resource Validation Failed for item:", item, result.error);
+            // Return raw item if schema parsing fails to prevent blank page
+            return item; 
+          }
+          return result.data;
+        });
+      } catch (err) {
+        console.error("Critical Library Fetch Error:", err);
+        return [];
       }
-      
-      return z.array(ResourceSchema).parse(merged);
     }
   });
   const itemsPerPage = 6;
