@@ -1215,9 +1215,6 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
           </div>
-          <button className="btn-outline" onClick={onSync} title="Sync from Google Drive">
-            <i className="ri-refresh-line"></i> Sync
-          </button>
           <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Asset</button>
         </div>
       </div>

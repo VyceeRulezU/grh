@@ -6,6 +6,7 @@ import StatusModal from '../../../shared/ui/StatusModal';
 import { useModal } from '../../../shared/hooks/useModal';
 import CertificatePreview from '../../../shared/ui/CertificatePreview';
 import './CoursePlayer.css';
+import logo from '../../../assets/images/Logo/Icon.png';
 
 const TAB_CONTENT = {
   Overview: (lesson, course) => (
@@ -466,8 +467,9 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
               ) : (videoId || driveId) ? (
                 <div className="yt-placeholder" onClick={() => setIsPlaying(true)}>
                   {isDrive ? (
-                    <div className="yt-placeholder-drive-bg" style={{ width: '100%', height: '100%', background: '#1a1a1b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <i className="ri-google-fill" style={{ fontSize: '4rem', color: '#4285f4', opacity: 0.5 }}></i>
+                    <div className="yt-placeholder-drive-bg" style={{ width: '100%', height: '100%', background: 'var(--secondary)', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {/* <i className="ri-google-fill" style={{ fontSize: '4rem', color: '#4285f4', opacity: 0.5 }}></i> */}
+                      <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
                     </div>
                   ) : (
                     <img
