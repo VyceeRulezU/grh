@@ -184,6 +184,7 @@
 }
 
 .adm-nav-badge {
+  display: none;
   margin-left: auto;
   background: var(--primary);
   color: white;

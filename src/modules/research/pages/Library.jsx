@@ -238,6 +238,7 @@ const Library = () => {
     });
   }, [viewMode, pagedItems]);
 
+  /*
   if (readingResource) {
     return (
       <div className="viewer-overlay">
@@ -319,7 +320,7 @@ const Library = () => {
       </div>
     );
   }
-
+  */
   return (
     <div className="page-wrapper research-page">
 
@@ -509,11 +510,13 @@ const Library = () => {
           secondaryActionLabel="View Categories"
         />
 
+        {/* 
         <ResourceViewer 
           isOpen={!!readingResource} 
           onClose={() => setReadingResource(null)} 
           resource={readingResource} 
         />
+        */}
     </div>
   );
 };

@@ -1123,9 +1123,15 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
 
 function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }) {
   const [modal, setModal] = useState(null);
-  const editItem = resources.find(r => r.id === modal);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
+  const editItem = (resources || []).find(r => r.id === modal);
   const [loading, setLoading] = useState(false);
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
+
+  const totalPages = Math.ceil((resources || []).length / itemsPerPage);
+  const pagedItems = (resources || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const save = async (form) => {
     try {
@@ -1205,7 +1211,7 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
         <table className="adm-table">
           <thead><tr><th>Title</th><th>Type</th><th>Category</th><th>Status</th><th></th></tr></thead>
           <tbody>
-            {resources.map(r => (
+            {pagedItems.map(r => (
               <tr key={r.id}>
                 <td>{r.title}</td>
                 <td><span className="adm-type-badge">{r.type}</span></td>
@@ -1231,6 +1237,14 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
             ))}
           </tbody>
         </table>
+      </div>
+      
+      <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       {modal && <ResourceModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
       <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
