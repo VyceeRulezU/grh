@@ -705,6 +705,11 @@ function SettingsPanel({ user, profileName, setProfileName, profileAvatar, setPr
     const file = e.target.files[0];
     if (!file || !user) return;
     
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Avatar image size must be less than 2MB.");
+      return;
+    }
+
     try {
       setSaving(true);
       const fileExt = file.name.split('.').pop();

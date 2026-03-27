@@ -263,6 +263,10 @@ function CourseModal({ onClose, onSave, initial }) {
                     onChange={e => {
                       const file = e.target.files[0];
                       if (file) {
+                        if (file.size > 2 * 1024 * 1024) {
+                          alert("Image file size must be less than 2MB.");
+                          return;
+                        }
                         setCoverFile(file);
                         set('thumbnail', URL.createObjectURL(file));
                       }
@@ -436,10 +440,8 @@ function ResourceModal({ onClose, onSave, initial }) {
             </div>
           </div>
           <div className="adm-form-group">
-            <label>Upload Document (PDF/Doc)</label>
-            <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileChange} />
-            {initial && !file && <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: 4}}>Current: {form.fileUrl}</p>}
-            {file && <p style={{fontSize: '0.8rem', color: 'var(--primary)', marginTop: 4}}>New: {file.name}</p>}
+            <label>Document URL</label>
+            <input type="url" placeholder="e.g. https://pub-r2.dev/resource.pdf" value={form.fileUrl || ''} onChange={e => set('fileUrl', e.target.value)} />
           </div>
         </div>
         <footer className="adm-modal-footer">
@@ -460,7 +462,7 @@ function BookModal({ onClose, onSave, initial }) {
     summary: '', 
     imagePreview: '', 
     imageFile: null, 
-    bookFile: null,
+    fileUrl: '',
     author: '',
     published_year: new Date().getFullYear(),
     programme: 'PERL',
@@ -477,14 +479,13 @@ function BookModal({ onClose, onSave, initial }) {
   const handleImageChange = (i, e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Image file size must be less than 2MB.");
+        return;
+      }
       updateBook(i, 'imageFile', file);
       updateBook(i, 'imagePreview', URL.createObjectURL(file));
     }
-  };
-
-  const handleFileChange = (i, e) => {
-    const file = e.target.files[0];
-    if (file) updateBook(i, 'bookFile', file);
   };
 
   const addAnother = () => setBooks(b => [...b, { 
@@ -492,7 +493,7 @@ function BookModal({ onClose, onSave, initial }) {
     summary: '', 
     imagePreview: '', 
     imageFile: null, 
-    bookFile: null,
+    fileUrl: '',
     author: '',
     published_year: new Date().getFullYear(),
     programme: 'PERL',
@@ -580,10 +581,8 @@ function BookModal({ onClose, onSave, initial }) {
               </div>
 
               <div className="adm-form-group" style={{ marginTop: '0.5rem' }}>
-                <label>Upload Book File (PDF, EPUB, etc.)</label>
-                <input type="file" accept=".pdf,.epub,.doc,.docx" onChange={(e) => handleFileChange(i, e)} />
-                {book.bookFile && <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: 4 }}>📄 {book.bookFile.name}</span>}
-                {initial && !book.bookFile && <span style={{ fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: 4 }}>Current: {book.fileUrl}</span>}
+                <label>Document URL</label>
+                <input type="url" placeholder="e.g. https://pub-r2.dev/book.pdf" value={book.fileUrl || ''} onChange={(e) => updateBook(i, 'fileUrl', e.target.value)} />
               </div>
             </div>
           ))}
@@ -601,8 +600,7 @@ function BookModal({ onClose, onSave, initial }) {
               title: b.title,
               summary: b.summary,
               imageUrl: b.imagePreview || b.imageUrl || '',
-              fileUrl: b.bookFile ? URL.createObjectURL(b.bookFile) : (b.fileUrl || '#'),
-              bookFile: b.bookFile,
+              fileUrl: b.fileUrl || '#',
               imageFile: b.imageFile,
               status: b.status || 'Draft',
               author: b.author,
@@ -1510,6 +1508,11 @@ function AdminSettingsPanel({ user }) {
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showError('Upload Failed', 'Avatar image size must be less than 2MB.');
+      return;
+    }
     
     if (!user?.id || user.id === 'undefined') {
       showError('Upload Failed', 'A valid administrator ID is required to update the avatar.');
