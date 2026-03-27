@@ -94,46 +94,40 @@ const AboutUs = ({ onNavigate }) => {
         }
       />
 
-       {/* ── TRUSTED BY ──────────────────────────────────────────────── */}
-      <div className="about-trusted-by">
-         <p>Our Impact</p>
-        {/*<div className="about-trusted-by-carousel">
-          <div className="about-logo-track">
-            {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((id, i) => (
-              <img 
-                key={i} 
-                src={`${import.meta.env.BASE_URL}assets/grh-logo-v2.svg`} 
-                alt={`Institution partner ${id}`} 
-                className="about-trusted-by-logo" 
-              />
-            ))}
+      {/* ── IMPACT HERO SECTION ────────────────────────────────────────────── */}
+      <section className="impact-hero-section" ref={statsRef}>
+        <div className="container impact-container">
+          <div className="impact-tag">
+            <span className="dot"></span> OUR IMPACT
           </div>
-        </div> */}
+          
+          <h2 className="impact-headline">
+            The Governance Resource Hub is a <i className="italic-highlight">purpose-driven</i> digital platform <i className="italic-highlight">helping</i> practitioners <i className="italic-highlight">navigate</i> reforms, <i className="italic-highlight">refine</i> policy, and <i className="italic-highlight">achieve</i> sustainable development.
+          </h2>
 
-      {/* ── STATS BAR ── */}
-      <section className="about-stats-bar" ref={statsRef}>
-        
-        <div className="container stats-flex">
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="3" data-suffix="k+">0k+</h2>
-                  <p>Successful Projects</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="150" data-suffix="+">0+</h2>
-                  <p>Verified Experts</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="36" data-suffix="">0</h2>
-                  <p>States Covered</p>
-                </div>
-                <div className="about-stat">
-                  <h2 className="about-stat-number" data-target="16" data-suffix="+">0+</h2>
-                  <p>Years of Data</p>
-                </div>
-        </div> 
-
-      </section> 
-      </div>
+          <div className="impact-stats-grid">
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.1s' }}>
+              <h3 className="about-stat-number" data-target="10" data-suffix="K+">0</h3>
+              <p>Public officials trained in evidence-based policymaking across Nigeria.</p>
+            </div>
+            
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.2s' }}>
+              <h3 className="about-stat-number" data-target="50" data-suffix="B+">0</h3>
+              <p>In public funds monitored and optimized through our PFM frameworks.</p>
+            </div>
+            
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.3s' }}>
+              <h3 className="about-stat-number" data-target="100" data-suffix="+">0</h3>
+              <p>Policy frameworks and resources accessed by state institutions.</p>
+            </div>
+            
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.4s' }}>
+              <h3 className="about-stat-number" data-target="15" data-suffix="+">0</h3>
+              <p>Years of combined expertise guiding public sector reforms and execution.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── PARTNERS ── 
       <section className="about-partners">

@@ -112,104 +112,116 @@
     transform: translateY(-2px);
   }
 
-  /* ===== TRUSTED BY (Carousel) ===== */
-.about-trusted-by {
+  /* ===== IMPACT HERO SECTION ===== */
+  .impact-hero-section {
+    width: 100%;
+    background-color: transparent;
+    padding: 2rem 0 6rem 0;
+  }
+  
+  .impact-container {
+    max-width: var(--max-width, 1200px);
+    margin: 0 auto;
+    padding: 0 1rem;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .impact-tag {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    row-gap: 3rem;
-    padding: 6rem 0;
-    width: 100%;
-    overflow: hidden;
-    /* background: white; */
-    border-radius: var(--radius-lg);
-    margin-top: -2rem;
-}
-
-.about-trusted-by p {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-soft);
-    text-align: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--stroke-sub);
+    background: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.about-trusted-by-carousel {
-    width: var(--max-width);
-    overflow: hidden;
-    position: relative;
-    padding: 1rem 0;
-    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-}
-
-.about-logo-track {
-    display: flex;
-    align-items: center;
-    gap: 6rem;
-    width: fit-content;
-    animation: scroll 40s linear infinite;
-}
-
-.about-logo-track:hover {
-    animation-play-state: paused;
-}
-
-.about-trusted-by-logo {
-    height: 2.5rem;
-    width: auto;
-    opacity: 0.4;
-    filter: grayscale(1);
-    transition: var(--transition);
-}
-
-.about-trusted-by-logo:hover {
-    opacity: 0.8;
-    filter: grayscale(0);
-}
-
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(calc(-50% - 3rem)); }
-}
+    color: var(--text-soft);
+    margin-bottom: 3rem;
+  }
   
-  /* ── Stats Bar ── */
-  .about-stats-bar {
-    padding: 2rem 0;
-    /* background: white; */
+  .impact-tag .dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary); /* Green dot */
+    border-radius: 50%;
+  }
+  
+  .impact-headline {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.25;
+    color: var(--text-strong);
+    font-weight: 400; /* Thin font representing Stratwell image */
+    max-width: var(--max-width);
+    margin: 0;
+    letter-spacing: -0.02em;
+    margin-bottom: 4rem;
+  }
+  
+  .impact-headline i.italic-highlight {
+    font-style: italic;
+    color: var(--primary); /* Keep theme relevant to GRH instead of blue */
+    font-weight: 400;
+  }
+  
+  .impact-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
     width: 100%;
+  }
+  
+  .impact-stat-card {
+    background: white;
+    padding: 2rem;
     border-radius: 20px;
-    position: relative;
-    z-index: 10;
-    /* box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); */
-  }
-  
-  .stats-flex {
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   
-  .about-stat {
-    text-align: center;
-    padding: 1rem;
+  .impact-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   }
   
   .about-stat-number {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 400;
-    color: var(--primary, #16a34a);
-    margin-bottom: 0.5rem;
+    color: var(--text-strong);
     line-height: 1;
+    margin: 0;
+    font-family: serif; /* Gives the elegant numeric look */
   }
   
-  .about-stat p {
+  .impact-stat-card p {
     font-size: 0.95rem;
-    color: var(--text-soft, #64748b);
-    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text-sub);
+    margin: 0;
+    font-weight: 200;
+  }
+
+  @media (max-width: 1024px) {
+    .impact-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .impact-stats-grid {
+      grid-template-columns: 1fr;
+    }
+    .impact-headline {
+      margin-bottom: 2rem;
+    }
   }
   
   /* ── Mission Split ── */
