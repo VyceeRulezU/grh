@@ -225,6 +225,7 @@
   }
   
   .mission-image {
+    height: 100%;
     position: relative;
     border-radius: 24px;
     overflow: hidden;
@@ -232,9 +233,10 @@
   
   .mission-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
     border-radius: 24px;
     display: block;
+    object-fit: cover;
   }
   
   .mission-badge {

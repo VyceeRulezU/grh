@@ -118,7 +118,7 @@
 /* Visual (stacked images) */
 .ap-about-visual {
   position: relative;
-  height: 520px;
+  height: 100%;
 }
 
 .ap-visual-main {

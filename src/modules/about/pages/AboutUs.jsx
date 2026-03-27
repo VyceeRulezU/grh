@@ -179,6 +179,7 @@ const AboutUs = ({ onNavigate }) => {
                 Partner with Us
               </button>
             </div>
+
           </div>
         </div>
       </section>

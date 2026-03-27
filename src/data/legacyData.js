@@ -10,7 +10,7 @@ export const COURSES = [
     rating:4.8, 
     instructor:"Dr. Amaka Okonkwo", 
     thumbnail:"🏛️", 
-    coverImage: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800",
+    coverImage: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
     description:"A comprehensive introduction to public governance principles, accountability frameworks, and institutional design.", 
     trending:true, 
     featured:true, 
@@ -42,7 +42,7 @@ export const COURSES = [
     rating:4.7, 
     instructor:"Prof. Chidi Nwachukwu", 
     thumbnail:"📊", 
-    coverImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800",
+    coverImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=800",
     description:"Master corporate governance including board structures, shareholder rights, and compliance frameworks.", 
     trending:true, 
     featured:false, 
@@ -76,7 +76,7 @@ export const COURSES = [
     rating:4.9, 
     instructor:"Dr. Fatima Al-Hassan", 
     thumbnail:"💰", 
-    coverImage: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800",
+    coverImage: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800",
     description:"Deep-dive into government budgeting, public expenditure, revenue management and fiscal accountability.", 
     trending:false, 
     featured:true, 
@@ -285,7 +285,7 @@ export const MENTORS = [
     name: "Dr. Amaka Okonkwo",
     role: "Governance Specialist, World Bank",
     category: "Governance",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 2,
@@ -306,14 +306,14 @@ export const MENTORS = [
     name: "Ms. Ngozi Adebayo",
     role: "Anti-Corruption Specialist, AU",
     category: "Integrity",
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 5,
     name: "Dr. Emeka Chibuike",
     role: "Electoral Systems Expert, IDEA",
     category: "Democracy",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 6,
@@ -330,7 +330,7 @@ export const TESTIMONIALS = [
     name: "Emeka Okafor",
     role: "Budget Director, Federal Ministry of Finance",
     text: "The PFM course completely changed how I approach budget execution in my ministry. The PEFA framework module alone was worth the entire programme. Highly practical and evidence-based.",
-    avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5,
     featured: true
   },
@@ -339,7 +339,7 @@ export const TESTIMONIALS = [
     name: "Amina Bello",
     role: "Compliance Officer, EFCC",
     text: "The anti-corruption modules gave our compliance team a shared framework. We implemented UNCAC-aligned internal controls within a month of completion.",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5
   },
   {
@@ -347,7 +347,7 @@ export const TESTIMONIALS = [
     name: "Taiwo Adeyemi",
     role: "Policy Researcher, CLEEN Foundation",
     text: "Excellent content and well-paced. The electoral systems course gave me the comparative context I needed for our reform advocacy work.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1530268729831-4b0b9e170218?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 4
   },
   {
@@ -355,7 +355,7 @@ export const TESTIMONIALS = [
     name: "Chinwe Eze",
     role: "LGA Finance Officer, Anambra State",
     text: "As a local government official, I found the decentralisation and fiscal federalism sections incredibly relevant. Now I can articulate our fiscal gaps with data.",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5
   },
   {
@@ -363,7 +363,7 @@ export const TESTIMONIALS = [
     name: "Babatunde Lawal",
     role: "Policy Advisor, Ogun State Government",
     text: "The open government course gave me the tools to draft our state's first transparency policy. Real frameworks, not theory.",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5
   }
 ];

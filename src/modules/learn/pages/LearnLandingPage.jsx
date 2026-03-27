@@ -9,6 +9,7 @@ import { getRelativeTime } from '../../../shared/utils/dateUtils';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
 import './LearnLandingPage.css';
+import { usePixabayPortraits, usePixabayImages } from '../../../shared/hooks/usePixabayImages';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,6 +27,11 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Localized African portrait images for social proof, testimonials, and mentors (20 to cover all sections)
+  const { images: portraitImgs } = usePixabayPortraits(20);
+  // Localized governance images for course card fallbacks
+  const { getImage: getCourseImg } = usePixabayImages('governance', 12);
 
   // Refs for animations
   const heroRef = React.useRef(null);
@@ -179,11 +185,15 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             <div className="hero-right-container">
               <div className="social-proof" aria-label="Social proof: 1500+ enthusiasts">
                 <div className="avatar-stack" aria-hidden="true">
-                  <img src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80" alt="" width="44" height="44" loading="lazy" />
-                  <img src="https://images.unsplash.com/photo-1550525811-e5869dd03032?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80" alt="" width="44" height="44" loading="lazy" />
-                  <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2.25&w=64&h=64&q=80" alt="" width="44" height="44" loading="lazy" />
-                  <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80" alt="" width="44" height="44" loading="lazy" />
-                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80" alt="" width="44" height="44" loading="lazy" />
+                  {(portraitImgs.length > 0 ? portraitImgs : [
+                    'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                    'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                    'https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                    'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                  ]).slice(0, 5).map((src, idx) => (
+                    <img key={idx} src={src} alt="" width="44" height="44" loading="lazy" />
+                  ))}
                 </div>
                 <div className="social-proof-text">
                   <span className="rating-score">Join 1500+ enthusiasts</span>
@@ -247,7 +257,9 @@ const LearnLandingPage = ({ onNavigate, user }) => {
                 >
                   <figure className="course-img">
                     <img 
-                       src={(course.thumbnail && course.thumbnail.length > 10) ? course.thumbnail : `https://images.unsplash.com/photo-${i === 0 ? '1529539795054-3c162aab037a' : i === 1 ? '1454165804606-c3d57bc86b40' : i === 2 ? '1554224155-6726b3ff858f' : i === 3 ? '1589829545856-d10d557cf95f' : i === 4 ? '1540910419892-4a36d2c3266c' : '1450101499163-c8848c66ca85'}?auto=format&fit=crop&w=600&q=80`}
+                       src={(course.thumbnail && course.thumbnail.length > 10) 
+                       ? course.thumbnail 
+                       : getCourseImg(i) || `https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80`}
                        alt={course.title} 
                        loading="lazy" 
                        onError={(e) => {
@@ -328,7 +340,12 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             <div className="mentors-grid" id="mentors-slider">
               {MENTORS.map((mentor, i) => (
                 <div key={mentor.id} className="mentor-card animate-up" style={{ animationDelay: `${i * 0.05}s` }}>
-                  <img src={mentor.image} alt={mentor.name} loading="lazy" />
+                  <img 
+                    src={portraitImgs.length > i + 10 ? portraitImgs[i + 10] : (portraitImgs[i] || mentor.image)} 
+                    alt={mentor.name} 
+                    loading="lazy"
+                    onError={(e) => { e.target.onerror = null; e.target.src = mentor.image; }}
+                  />
                   <h3>{mentor.name}</h3>
                   <p>{mentor.role}</p>
                   <span className="mentor-tag">{mentor.category}</span>
@@ -374,7 +391,12 @@ const LearnLandingPage = ({ onNavigate, user }) => {
                   <div className="testimonial-stars">{"★".repeat(t.rating)}{"☆".repeat(5-t.rating)}</div>
                   <p>"{t.text}"</p>
                   <footer>
-                    <img src={t.avatar} alt="" loading="lazy" />
+                    <img 
+                      src={portraitImgs.length > i + 5 ? portraitImgs[i + 5] : (portraitImgs[i] || t.avatar)} 
+                      alt="" 
+                      loading="lazy" 
+                      onError={(e) => { e.target.onerror = null; e.target.src = t.avatar; }}
+                    />
                     <div className="testimonial-info">
                       <cite className="testimonial-name">{t.name}</cite>
                       <span className="testimonial-role">{t.role}</span>

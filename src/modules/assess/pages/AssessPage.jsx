@@ -5,6 +5,7 @@ import Tab from '../../../shared/ui/Tab';
 import StatusModal from '../../../shared/ui/StatusModal';
 import StateLoginModal from '../components/StateLoginModal';
 import './AssessPage.css';
+import assessMainImg from '../../../assets/images/Pictures/assess_main.png';
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
@@ -119,15 +120,15 @@ const AssessPage = ({ onNavigate }) => {
             <div className="ap-about-visual">
               <div className="ap-visual-main">
                 <img
-                  src="https://images.unsplash.com/photo-1573497019236-17f8177b81e8?auto=format&fit=crop&q=80&w=800"
+                  src={assessMainImg}
                   alt="Nigerian governance professionals in a meeting"
                 />
               </div>
               <div className="ap-visual-accent">
-                <img
+                {/* <img
                   src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=400"
                   alt="Government team reviewing assessments"
-                />
+                /> */}
                 <div className="ap-visual-stat">
                   <strong>36</strong>
                   <span>States</span>

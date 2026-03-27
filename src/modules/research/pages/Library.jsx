@@ -7,6 +7,7 @@ import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../../d
 import CtaSection from '../../../shared/ui/CtaSection';
 import Pagination from '../../../shared/ui/Pagination';
 import PageHero from '../../../shared/ui/PageHero';
+import { usePixabayImages } from '../../../shared/hooks/usePixabayImages';
 import { gsap } from 'gsap';
 import { Flip } from 'gsap/Flip';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -17,6 +18,11 @@ import '../components/ResourceViewer.css';
 gsap.registerPlugin(Flip, ScrollTrigger);
 
 const Library = ({ onNavigate }) => {
+  // Fetch localized imagery for each resource type
+  const { getImage: getPerlImg } = usePixabayImages('finance', 10);
+  const { getImage: getSparcImg } = usePixabayImages('sparc', 10);
+  const { getImage: getGovImg } = usePixabayImages('governance', 10);
+  const { getImage: getLibImg } = usePixabayImages('library', 6);
   const [search, setSearch] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedCats, setSelectedCats] = useState([]);
@@ -39,10 +45,11 @@ const Library = ({ onNavigate }) => {
       ]);
 
       const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
+      // Note: Pixabay images are loaded via hooks; these serve as SSR/initial fallbacks
       const TYPE_IMAGES = {
-        'PERL': 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80',
-        'SPARC': 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=400&q=80',
-        'SLGP': 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=400&q=80',
+        'PERL': getPerlImg(0) || 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80',
+        'SPARC': getSparcImg(0) || 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=400&q=80',
+        'SLGP': getGovImg(0) || 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=400&q=80',
       };
 
       const PROGRAMME_TYPES = ['PERL', 'SPARC', 'SLGP'];
@@ -66,7 +73,7 @@ const Library = ({ onNavigate }) => {
         type: "BOOK",
         author: b.author || "GRH Lib",
         year: b.published_year || new Date(b.created_at || Date.now()).getFullYear(),
-        coverImage: b.image_url || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+        coverImage: b.image_url || getLibImg(0) || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
         category: b.category || "Governance",
         programme: b.programme || null,
         location: b.location || 'Federal',
@@ -75,26 +82,26 @@ const Library = ({ onNavigate }) => {
         file_url: b.file_url || ''
       }));
 
-      const mappedSparc = (sparc.data || []).map(p => ({
+      const mappedSparc = (sparc.data || []).map((p, idx) => ({
         ...p,
         type: "SPARC",
         programme: "SPARC",
         category: "Governance",
         author: p.author || "GRH",
         year: new Date(p.created_at).getFullYear(),
-        coverImage: TYPE_IMAGES['SPARC'] || DEFAULT_IMG,
+        coverImage: getSparcImg(idx) || TYPE_IMAGES['SPARC'] || DEFAULT_IMG,
         file_url: p.preview_url || p.download_url || p.file_url || '',
         description: p.description || `Synced document: ${p.title}`
       }));
 
-      const mappedPerl = (perl.data || []).map(p => ({
+      const mappedPerl = (perl.data || []).map((p, idx) => ({
         ...p,
         type: "PERL",
         programme: "PERL",
         category: "Governance",
         author: p.author || "GRH",
         year: new Date(p.created_at).getFullYear(),
-        coverImage: TYPE_IMAGES['PERL'] || DEFAULT_IMG,
+        coverImage: getPerlImg(idx) || TYPE_IMAGES['PERL'] || DEFAULT_IMG,
         file_url: p.preview_url || p.download_url || p.file_url || '',
         description: p.description || `Synced document: ${p.title}`
       }));
