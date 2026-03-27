@@ -16,21 +16,50 @@
 .btn-primary {
   background: var(--primary);
   color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 14px;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(77, 161, 110, 0.3);
 }
 
 .btn-primary:hover {
   background: var(--primary-dark);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+  box-shadow: 0 2px 4px rgba(77, 161, 110, 0.3);
 }
 
 .btn-secondary {
   background: var(--secondary);
   color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 14px;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(77, 161, 110, 0.3);
 }
 
 .btn-secondary:hover {
   background: var(--secondary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-outline {

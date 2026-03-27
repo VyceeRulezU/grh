@@ -243,7 +243,7 @@ const AnalysePage = ({ onNavigate }) => {
           <div className="cta-card animate-up" style={{animationDelay: '0.6s'}}>
             <h3>Explore comparative data of states</h3>
             <p>Select multiple states to compare their fiscal health and performance metrics over time.</p>
-            <button className="special-button" onClick={() => setIsComparatorOpen(true)}>Open Comparator</button>
+            <button className="btn-secondary" onClick={() => setIsComparatorOpen(true)}>Open Comparator</button>
             <div className="cta-card-image">
               <img src={iconMain} alt="GRH Icon" />
             </div>
