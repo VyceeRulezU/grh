@@ -859,6 +859,10 @@
     padding: 0.5rem 1rem 2rem;
   }
 
+  .ap-about-text{
+    padding: 0.5rem;
+  }
+
   .ap-carousel-card { flex: 0 0 280px; flex-direction: column; row-gap: 1rem; }
 
   .ap-state-login { padding: 2rem 1.5rem; }
