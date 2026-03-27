@@ -166,6 +166,7 @@
     font-style: italic;
     color: var(--primary); /* Keep theme relevant to GRH instead of blue */
     font-weight: 400;
+    font-family: serif;
   }
   
   .impact-stats-grid {
