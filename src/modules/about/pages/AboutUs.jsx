@@ -8,6 +8,10 @@ import PageHero from '../../../shared/ui/PageHero';
 import grhIcon from '../../../assets/images/Logo/Icon.png';
 import servicesBg from '../../../assets/images/Pictures/37815616495_24f17295f5_b.jpg';
 import './AboutUs.css';
+import PFM_Mock from '../../../assets/PFM_Mock.png';
+import Library from '../../../assets/Library.png';
+import Assess from '../../../assets/Assess.png';
+import E_learning from '../../../assets/e-Learning.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -246,7 +250,8 @@ const AboutUs = ({ onNavigate }) => {
         {/* PFM Database (Image Left, Text Right, Navy) */}
         <section className="about-split bg-navy">
           <div className="split-image">
-            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" alt="Data Analytics" />
+            {/* <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" alt="Data Analytics" /> */}
+             <img src={PFM_Mock} alt="Data Analytics" />
           </div>
           <div className="split-content">
             <span className="split-overline">CORE COMPONENT</span>
@@ -270,7 +275,8 @@ const AboutUs = ({ onNavigate }) => {
         {/* E-Library System (Text Left, Image Right, Teal) */}
         <section className="about-split bg-teal image-right">
           <div className="split-image">
-            <img src="https://images.unsplash.com/photo-1456953180671-730de08edaa7?auto=format&fit=crop&q=80&w=1000" alt="Digital Library" />
+            {/* <img src="https://images.unsplash.com/photo-1456953180671-730de08edaa7?auto=format&fit=crop&q=80&w=1000" alt="Digital Library" /> */}
+            <img src={Library} alt="Digital Library" />
           </div>
           <div className="split-content">
             <span className="split-overline">CORE COMPONENT</span>
@@ -307,7 +313,8 @@ const AboutUs = ({ onNavigate }) => {
         {/* ASSESS Suite (Image Left, Text Right, Navy) */}
         <section className="about-split bg-navy">
           <div className="split-image">
-            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1000" alt="Assessment tools" />
+            {/* <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1000" alt="Assessment tools" /> */}
+            <img src={Assess} alt="Assessment tools" />
           </div>
           <div className="split-content">
             <span className="split-overline">CORE COMPONENT</span>
@@ -331,7 +338,8 @@ const AboutUs = ({ onNavigate }) => {
         {/* E-Learning System (Text Left, Image Right, Teal) */}
         <section className="about-split bg-teal image-right">
           <div className="split-image">
-            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1000" alt="E-Learning Analytics" />
+            {/* <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1000" alt="E-Learning Analytics" /> */}
+            <img src={E_learning} alt="E-Learning Analytics" />
           </div>
           <div className="split-content">
             <span className="split-overline">CORE COMPONENT</span>
