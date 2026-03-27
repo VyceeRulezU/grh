@@ -10,9 +10,13 @@ import {
   SECTOR_EXPENDITURE,
   NIGERIA_STATES_DATA
 } from '../../../data/nigeriaData';
+import EgyptMap from '../components/NigeriaMap'; // Keep original import name if used that way, but actually it was NigeriaMap
 import NigeriaMap from '../components/NigeriaMap';
 import CtaSection from '../../../shared/ui/CtaSection';
 import PageHero from '../../../shared/ui/PageHero';
+import BudgetTableModal from '../components/BudgetTableModal';
+import ComparativeTableModal from '../components/ComparativeTableModal';
+import { BUDGET_DATA } from '../../../data/budgetData';
 import './AnalysePage.css';
 
 // Import assets to fix broken paths
@@ -28,6 +32,20 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 const AnalysePage = ({ onNavigate }) => {
   const [activeZone, setActiveZone] = useState(0);
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, type: '', data: [] });
+  const [isComparatorOpen, setIsComparatorOpen] = useState(false);
+
+  const openModal = (type) => {
+    setModalConfig({
+      isOpen: true,
+      type,
+      data: BUDGET_DATA[type] || []
+    });
+  };
+
+  const closeModal = () => {
+    setModalConfig({ ...modalConfig, isOpen: false });
+  };
 
   const totalExpenditure = SECTOR_EXPENDITURE.reduce((acc, curr) => acc + curr.value, 0);
 
@@ -225,7 +243,7 @@ const AnalysePage = ({ onNavigate }) => {
           <div className="cta-card animate-up" style={{animationDelay: '0.6s'}}>
             <h3>Explore comparative data of states</h3>
             <p>Select multiple states to compare their fiscal health and performance metrics over time.</p>
-            <button className="special-button">Open Comparator</button>
+            <button className="special-button" onClick={() => setIsComparatorOpen(true)}>Open Comparator</button>
             <div className="cta-card-image">
               <img src={iconMain} alt="GRH Icon" />
             </div>
@@ -242,7 +260,7 @@ const AnalysePage = ({ onNavigate }) => {
               <img src={grhIcon} alt="GRH Icon" />
             </div>
             </div>
-            <button className="white-pill-btn">View More</button>
+            <button className="white-pill-btn" onClick={() => openModal('original')}>View More</button>
           </div>
           <div className="budget-card orange animate-up" style={{animationDelay: '0.8s'}}>
             <div className="card-top">
@@ -252,7 +270,7 @@ const AnalysePage = ({ onNavigate }) => {
               <img src={grhIcon} alt="GRH Icon" />
             </div>
             </div>
-            <button className="white-pill-btn">View PDF</button>
+            <button className="white-pill-btn" onClick={() => openModal('actual')}>View Details</button>
           </div>
           <div className="budget-card dark animate-up" style={{animationDelay: '0.9s'}}>
             <div className="card-top">
@@ -262,9 +280,21 @@ const AnalysePage = ({ onNavigate }) => {
               <img src={iconMain} alt="GRH Icon" />
             </div>
             </div>
-            <button className="white-pill-btn">Details</button>
+            <button className="white-pill-btn" onClick={() => openModal('indicators')}>Details</button>
           </div>
         </div>
+
+        <BudgetTableModal 
+          isOpen={modalConfig.isOpen}
+          onClose={closeModal}
+          type={modalConfig.type}
+          data={modalConfig.data}
+        />
+
+        <ComparativeTableModal 
+          isOpen={isComparatorOpen}
+          onClose={() => setIsComparatorOpen(false)}
+        />
 
         {/* ── SIGNUP SECTION ─────────────────────────────────────────── */}
         <div className="signup-bar animate-up">
