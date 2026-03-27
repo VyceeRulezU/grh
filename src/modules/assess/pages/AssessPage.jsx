@@ -428,7 +428,8 @@ const AssessPage = ({ onNavigate }) => {
               const el = document.querySelector('.ap-state-login');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            secondaryActionLabel="Speak with an Expert"
+            secondaryActionLabel="Take a Course"
+            secondaryActionOnClick={() => onNavigate && onNavigate('learn-discovery')}
           />
         </div>
       )}

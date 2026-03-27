@@ -1925,10 +1925,10 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
-        supabase.from('sparc_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
-        supabase.from('perl_resource').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('sparc_resources').select('*').then(r => r, e => ({ error: e })),
+        supabase.from('perl_resource').select('*').then(r => r, e => ({ error: e })),
         supabase.from('profiles').select('*').then(r => r, e => ({ error: e })),
-        supabase.from('workshops').select('*, workshop_registrations(*)').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
+        supabase.from('workshops').select('*, workshop_registrations(*)').then(r => r, e => ({ error: e })),
         supabase.from('user_progress')
           .select('*, profiles(name), courses(title)')
           .eq('completed', true)
@@ -1949,6 +1949,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (crs.error) console.error("Courses Fetch Error:", crs.error);
       if (res.error) console.error("Resources Fetch Error:", res.error);
       if (bks.error) console.error("Books Fetch Error:", bks.error);
+      if (sparc.error) console.error("SPARC Fetch Error:", sparc.error);
+      if (prl.error) console.error("PERL Fetch Error:", prl.error);
       if (usr.error) console.error("Users Fetch Error:", usr.error);
       if (wks.error) console.error("Workshops Fetch Error:", wks.error);
       if (progress.error) console.error("Progress Fetch Error:", progress.error);
@@ -1992,6 +1994,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       }
 
       // 4. Map Users, Resources, Workshops
+      console.log("[GRH DEBUG] Raw Counts - Library:", res.data?.length, "SPARC:", sparc.data?.length, "PERL:", prl.data?.length, "Books:", bks.data?.length);
       const allResources = [
         ...(res.data || []).map(r => ({ ...r, fileUrl: r.file_url, table_name: 'library_resources' })),
         ...(sparc.data || []).map(p => ({ 
@@ -2009,6 +2012,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           table_name: 'perl_resource'
         }))
       ];
+      console.log("[GRH DEBUG] allResources combined length:", allResources.length);
       setResources(allResources);
       if (bks.data) setBooks(bks.data.map(b => ({ ...b, fileUrl: b.file_url, imageUrl: b.image_url })));
       if (usr.data) setUsers(usr.data.map(u => ({ 
@@ -2129,13 +2133,14 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       };
 
       setStats({
-        learners: usr.data?.length || 0,
-        courses: crs.data?.length || 0,
-        resources: (res.data?.length || 0) + (bks.data?.length || 0),
+        learners: (usr.data || []).length,
+        courses: (crs.data || []).length,
+        resources: (allResources || []).length + (bks.data || []).length,
         certs: trueCourseCompletions.length,
         recentActivities: allRecentActivities,
-        chartData: generateChartData(usr.data, res.data, bks.data, trueCourseCompletions)
+        chartData: generateChartData(usr.data, allResources, bks.data, trueCourseCompletions)
       });
+      console.log("[GRH DEBUG] Updated Stats - Resources:", (allResources || []).length + (bks.data || []).length);
     } catch (err) {
       console.error("Error fetching admin data:", err);
     } finally {

@@ -431,8 +431,8 @@ const AboutUs = ({ onNavigate }) => {
           description="Join thousands of government officials, civil society practitioners, and researchers already using GRH to drive data-informed governance reform."
           primaryActionLabel="Explore Analytics"
           primaryActionOnClick={() => onNavigate && onNavigate('analyse')}
-          secondaryActionLabel="View Research Library"
-          secondaryActionOnClick={() => onNavigate && onNavigate('research')}
+          secondaryActionLabel="Take a Course"
+          secondaryActionOnClick={() => onNavigate && onNavigate('learn-discovery')}
           note="Free access · No credit card required · All 36 states covered"
         />
       </div>

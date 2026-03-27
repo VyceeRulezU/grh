@@ -9,6 +9,7 @@ const CtaSection = ({
   primaryActionOnClick = () => {},
   secondaryActionLabel = "Browse Courses",
   secondaryActionHref = "#courses-section",
+  secondaryActionOnClick = null,
   note = "Free access · No credit card required · Self-paced"
 }) => {
   return (
@@ -22,9 +23,15 @@ const CtaSection = ({
             {primaryActionLabel}
             <span className="material-symbols-outlined">arrow_outward</span>
           </button>
-          <a href={secondaryActionHref} className="btn-outline">
-            {secondaryActionLabel}
-          </a>
+          {secondaryActionOnClick ? (
+            <button className="btn-outline" onClick={secondaryActionOnClick}>
+              {secondaryActionLabel}
+            </button>
+          ) : (
+            <a href={secondaryActionHref} className="btn-outline">
+              {secondaryActionLabel}
+            </a>
+          )}
         </div>
         <p className="cta-note">{note}</p>
       </div>

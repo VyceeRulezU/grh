@@ -317,7 +317,7 @@ const AnalysePage = ({ onNavigate }) => {
           primaryActionLabel="View Research Library"
           primaryActionOnClick={() => onNavigate && onNavigate('research')}
           secondaryActionLabel="Take a Course"
-          secondaryActionHref="#"
+          secondaryActionOnClick={() => onNavigate && onNavigate('learn-discovery')} 
           note="Free access · No credit card required"
         />
       </div>

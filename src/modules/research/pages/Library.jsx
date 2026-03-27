@@ -16,7 +16,7 @@ import '../components/ResourceViewer.css';
 
 gsap.registerPlugin(Flip, ScrollTrigger);
 
-const Library = () => {
+const Library = ({ onNavigate }) => {
   const [search, setSearch] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedCats, setSelectedCats] = useState([]);
@@ -524,8 +524,10 @@ const Library = () => {
           eyebrow="Expand Your Knowledge"
           title={<>Explore our full <br /><span className="green-text">Governance Library</span></>}
           description="Gain access to thousands of documents, research papers, and case studies from across the globe."
-          primaryActionLabel="Start Researching"
-          secondaryActionLabel="View Categories"
+          primaryActionLabel="Start Learning"
+          primaryActionOnClick={() => onNavigate && onNavigate('learn-discovery')}
+          secondaryActionLabel="Visit About Us"
+          secondaryActionOnClick={() => onNavigate && onNavigate('about')}
         />
 
         {/* ResourceViewer disabled — using open-in-new-tab workaround
