@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../../../services/supabase/supabaseClient';
-import { HISTORY_DATA, SUGGESTED } from '../../../data/legacyData';
+import { SUGGESTED } from '../../../data/legacyData';
 import grhIcon from '../../../assets/images/Logo/GRH-alone.png';
 import './ExplorePage.css';
 
@@ -67,31 +67,46 @@ const getAIResponse = async (userText) => {
 // ---------------------------------------------------------------------------
 const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "Hello! I'm the Governance AI Assistant, trained on all the resources in this hub. How can I help with your research today?" };
 
+const PROMPT_LIMIT = 10;
+
 const ExplorePage = ({ user, onNavigate }) => {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
-  const [history] = useState(HISTORY_DATA);
+  const [chatSessions, setChatSessions] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
   const [typing, setTyping] = useState(false);
   const [suggestions, setSuggestions] = useState(SUGGESTED);
+  const [promptsUsed, setPromptsUsed] = useState(0);
 
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
+    if (!user) return;
+    const fetchHistoryAndUsage = async () => {
       try {
-        const { data } = await supabase.from('library_resources').select('title').limit(4);
-        if (data && data.length > 0) {
-          const titles = data.map(r => r.title);
-          setSuggestions(prev => Array.from(new Set([...titles, ...prev])).slice(0, 6));
-        }
+        const { data: sessions } = await supabase.from('chat_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false });
+        if (sessions) setChatSessions(sessions);
+
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0,0,0,0);
+        
+        const { count } = await supabase.from('chat_messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('role', 'user')
+          .gte('created_at', startOfMonth.toISOString());
+        
+        if (count !== null) setPromptsUsed(count);
       } catch (err) {
-        console.error("Error fetching suggestions:", err);
+        console.error("Fetch err:", err);
       }
     };
-    fetchSuggestions();
-  }, []);
+    fetchHistoryAndUsage();
+  }, [user]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -101,7 +116,6 @@ const ExplorePage = ({ user, onNavigate }) => {
     scrollToBottom();
   }, [messages, typing]);
 
-  // Close sidebar overlay on mobile when clicking outside
   const handleOverlayClick = () => {
     setIsSidebarOpen(false);
   };
@@ -110,20 +124,40 @@ const ExplorePage = ({ user, onNavigate }) => {
     setMessages([INITIAL_MESSAGE]);
     setActiveHistoryId(null);
     setInput('');
-    // Close sidebar on mobile after action
     if (window.innerWidth <= 900) setIsSidebarOpen(false);
   };
 
-  const loadHistory = (item) => {
-    const conversation = HISTORY_CONVERSATIONS[item.id];
-    if (conversation) {
-      setMessages([INITIAL_MESSAGE, ...conversation]);
-    }
-    setActiveHistoryId(item.id);
+  const loadHistory = async (session) => {
+    setActiveHistoryId(session.id);
     if (window.innerWidth <= 900) setIsSidebarOpen(false);
+    
+    try {
+      const { data } = await supabase.from('chat_messages')
+        .select('*')
+        .eq('session_id', session.id)
+        .order('created_at', { ascending: true });
+        
+      if (data && data.length > 0) {
+        setMessages([INITIAL_MESSAGE, ...data.map(d => ({...d, text: d.content}))]);
+      } else {
+        setMessages([INITIAL_MESSAGE]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSend = async (text = null) => {
+    if (!user) {
+      alert("Please login to use the Research Assistant.");
+      return;
+    }
+    
+    if (promptsUsed >= PROMPT_LIMIT) {
+      alert("You have reached your free monthly limit of 10 chats. Please try again next month.");
+      return;
+    }
+
     const msgText = text || input;
     if (!msgText.trim()) return;
 
@@ -132,33 +166,68 @@ const ExplorePage = ({ user, onNavigate }) => {
     if (!text) setInput('');
     setTyping(true);
 
-    const responseText = await getAIResponse(msgText);
-    setTyping(false);
-    setMessages(prev => [...prev, { id: Date.now() + 1, role: 'assistant', text: responseText }]);
+    let currentSessionId = activeHistoryId;
+    try {
+      if (!currentSessionId) {
+        const title = msgText.length > 30 ? msgText.substring(0, 30) + '...' : msgText;
+        const { data: sessionData, error: sessionErr } = await supabase.from('chat_sessions')
+          .insert({ user_id: user.id, title })
+          .select()
+          .single();
+          
+        if (sessionErr) throw sessionErr;
+        currentSessionId = sessionData.id;
+        setActiveHistoryId(currentSessionId);
+        setChatSessions(prev => [sessionData, ...prev]);
+      }
+
+      await supabase.from('chat_messages').insert({
+        session_id: currentSessionId,
+        role: 'user',
+        content: msgText
+      });
+      setPromptsUsed(prev => prev + 1);
+
+      const responseText = await getAIResponse(msgText);
+      const { data: aiMsgData } = await supabase.from('chat_messages').insert({
+        session_id: currentSessionId,
+        role: 'assistant',
+        content: responseText
+      }).select().single();
+
+      setTyping(false);
+      setMessages(prev => [...prev, { id: aiMsgData?.id || Date.now()+1, role: 'assistant', text: responseText }]);
+      
+      await supabase.from('chat_sessions')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', currentSessionId);
+        
+    } catch (err) {
+      console.error(err);
+      setTyping(false);
+      alert("Error handling message. Please try again.");
+    }
   };
 
   return (
     <div className="explore-layout">
-      {/* Mobile overlay backdrop */}
       {isSidebarOpen && <div className="sidebar-backdrop" onClick={handleOverlayClick} />}
 
       <aside className={`chat-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="chat-sidebar-header">
           <div className="sidebar-logo-wrap">
             <img src={grhIcon} alt="GRH" className="sidebar-icon-logo" />
-            {/* <span className="sidebar-logo">GovHub AI</span> */}
           </div>
         </div>
 
-        
-
         <div className="chat-history">
-
           <button className="new-chat-btn" onClick={startNewChat}>+ New Chat</button>
 
-
-          <div className="history-group-label">RECENT RESEARCH</div>
-          {history.map(item => (
+          <div className="history-group-label" style={{display: 'flex', justifyContent: 'space-between'}}>
+            <span>RECENT RESEARCH</span>
+            <span style={{color: 'var(--primary)', fontWeight: 'bold'}}>{promptsUsed}/{PROMPT_LIMIT} used</span>
+          </div>
+          {chatSessions.map(item => (
             <button
               key={item.id}
               className={`history-item ${activeHistoryId === item.id ? 'active' : ''}`}
@@ -167,10 +236,11 @@ const ExplorePage = ({ user, onNavigate }) => {
               <span className="history-icon">💬</span>
               <div className="history-info">
                 <span className="history-title">{item.title}</span>
-                <span className="history-date">{item.date}</span>
+                <span className="history-date">{new Date(item.updated_at).toLocaleDateString()}</span>
               </div>
             </button>
           ))}
+          {chatSessions.length === 0 && <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', padding: '0 1rem'}}>No chat history yet.</p>}
         </div>
 
         <div className="sidebar-footer">
@@ -181,6 +251,9 @@ const ExplorePage = ({ user, onNavigate }) => {
           <p className="sidebar-note">
             Analysis based on {user ? user.name : 'Guest'}'s research library access level.
           </p>
+          <div style={{marginTop: '0.5rem', width: '100%', height: '4px', background: 'var(--bg-weak)', borderRadius: '2px', overflow: 'hidden'}}>
+             <div style={{width: `${(promptsUsed/PROMPT_LIMIT)*100}%`, height: '100%', background: promptsUsed >= PROMPT_LIMIT ? 'var(--danger)' : 'var(--primary)'}}></div>
+          </div>
         </div>
       </aside>
 
@@ -196,7 +269,6 @@ const ExplorePage = ({ user, onNavigate }) => {
             <span>AI Online</span>
           </div>
 
-          {/* Back to website — subtle, right-aligned */}
           <button className="special-button" onClick={() => onNavigate('welcome')}>
             <span className="material-symbols-outlined">arrow_back</span>
             <span className="back-home-text">Back to Website</span>
@@ -209,7 +281,7 @@ const ExplorePage = ({ user, onNavigate }) => {
               <div className="suggestions-label">Explore common research topics:</div>
               <div className="suggestions-grid">
                 {suggestions.map(s => (
-                  <button key={s} className="suggestion-chip" onClick={() => handleSend(s)}>
+                  <button key={s} className="suggestion-chip" onClick={() => handleSend(s)} disabled={promptsUsed >= PROMPT_LIMIT}>
                     {s}
                   </button>
                 ))}
@@ -217,8 +289,8 @@ const ExplorePage = ({ user, onNavigate }) => {
             </div>
           )}
 
-          {messages.map(msg => (
-            <div key={msg.id} className={`message-row ${msg.role}`}>
+          {messages.map((msg, i) => (
+            <div key={msg.id || i} className={`message-row ${msg.role}`}>
               <div className={`avatar ${msg.role === 'assistant' ? 'assistant-avatar' : 'user-avatar'}`}>
                 {msg.role === 'assistant' ? '◆' : (
                   user?.avatar_url ? (
@@ -233,7 +305,7 @@ const ExplorePage = ({ user, onNavigate }) => {
                 )}
               </div>
               <div className={`message-bubble ${msg.role}`}>
-                <div className="message-content">{msg.text}</div>
+                <div className="message-content">{msg.text || msg.content}</div>
               </div>
             </div>
           ))}
@@ -256,16 +328,17 @@ const ExplorePage = ({ user, onNavigate }) => {
             <textarea
               className="chat-input"
               rows="1"
-              placeholder="Ask anything about governance, PFM, or integrity..."
+              placeholder={promptsUsed >= PROMPT_LIMIT ? "Monthly limit reached (10/10)." : "Ask anything about governance, PFM, or integrity..."}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
+              disabled={promptsUsed >= PROMPT_LIMIT}
             />
-            <button className="send-btn" onClick={() => handleSend()} disabled={!input.trim()}>
+            <button className="send-btn" onClick={() => handleSend()} disabled={!input.trim() || promptsUsed >= PROMPT_LIMIT}>
               ↑
             </button>
           </div>
-          <p className="input-hint">AI may generate inaccurate information. Cross-reference with hub source documents.</p>
+          <p className="input-hint">{promptsUsed >= PROMPT_LIMIT ? "You have exhausted your free monthly chats." : "AI may generate inaccurate information. Cross-reference with hub source documents."}</p>
         </div>
       </div>
     </div>
