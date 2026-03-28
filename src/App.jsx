@@ -70,6 +70,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState(getPageFromUrl);
   const [navData, setNavData] = useState(getNavDataFromSession);
   const [user, setUser] = useState(null);
+  // Keep a ref in sync so closures (e.g. setTimeout) always read the latest user
+  const setUserAndRef = (u) => { userRef.current = u; setUser(u); };
   const [authLoading, setAuthLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [authType, setAuthType] = useState('login');
@@ -77,6 +79,7 @@ function App() {
   const lastLoginHandled = useRef(0);
   const loginNavigated = useRef(false);
   const currentPageRef = useRef(currentPage);
+  const userRef = useRef(null);
 
   // Update document title dynamically
   useEffect(() => {
@@ -139,7 +142,7 @@ function App() {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         if (initialSession) {
           const userData = await fetchProfile(initialSession);
-          setUser(userData);
+          setUserAndRef(userData);
           
           // Restore navData if it exists
           try {
@@ -162,13 +165,13 @@ function App() {
           console.log("[GRH DEBUG] Auth Event:", event);
           if (session) {
             const userData = await fetchProfile(session);
-            setUser(userData);
+            setUserAndRef(userData);
             if (['login', 'signup', 'admin', 'admin-login', 'forgot-password', 'reset-password'].includes(currentPageRef.current) && event === 'SIGNED_IN') {
               console.log("[GRH DEBUG] onAuthStateChange SIGNED_IN detected - calling handleLogin");
               handleLogin(userData);
             }
           } else {
-            setUser(null);
+            setUserAndRef(null);
           }
           setAuthLoading(false);
         });
@@ -256,7 +259,7 @@ function App() {
           role: profile?.role || session.user.user_metadata?.role || (isAdminVal ? 'Admin' : 'Learner'),
           avatar_url: profile?.avatar_url || session.user.user_metadata?.avatar_url
         };
-        setUser(userData);
+        setUserAndRef(userData);
         console.log("[GRH DEBUG] User refreshed:", userData);
       }
     } catch (err) {
@@ -267,11 +270,12 @@ function App() {
   const navigate = (page, data = null) => {
     const targetPage = typeof page === 'string' ? page : page.page;
     const targetData = data || (typeof page === 'object' ? page : null);
-    // Auth gate for protected pages
-    if (PROTECTED_PAGES.includes(targetPage) && !user) {
+    // Auth gate for protected pages — use ref so stale closures always see current user
+    if (PROTECTED_PAGES.includes(targetPage) && !userRef.current) {
       localStorage.setItem('returnPage', targetPage);
       setCurrentPage('login');
       currentPageRef.current = 'login';
+      loginNavigated.current = false;
       const base = import.meta.env.BASE_URL || '/';
       window.history.pushState({}, '', `${base}login`);
       window.scrollTo(0, 0);
@@ -317,7 +321,7 @@ function App() {
       return false;
     }
 
-    setUser(userData);
+    setUserAndRef(userData);
     setShowAuth(false);
 
     // Show welcome modal only once per login event
@@ -360,7 +364,7 @@ function App() {
   const handleLogout = async () => {
     const { supabase } = await import('./services/supabase/supabaseClient');
     await supabase.auth.signOut();
-    setUser(null);
+    setUserAndRef(null);
     navigate('welcome');
   };
 
