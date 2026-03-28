@@ -659,8 +659,9 @@
   .about-split-wrapper {
     display: flex;
     flex-direction: column;
-    row-gap: 2rem;
+    row-gap: 4rem; /* Increased spacing on mobile for clarity */
     width: 100%;
+    padding: 2rem 0;
   }
 
   .about-split {
@@ -671,6 +672,7 @@
     position: sticky;
     top: 120px;
     box-shadow: 0 -15px 40px rgba(0,0,0,0.15);
+    overflow: hidden; /* Ensure content respect radius */
   }
 
   .image-right {
@@ -901,11 +903,25 @@
     
     .about-split {
       flex-direction: column !important;
+      position: relative !important; /* Disable sticky on mobile to prevent cutoffs */
+      top: auto !important;
+      min-height: auto;
+      height: auto;
+      border-radius: 1.5rem;
+      margin-bottom: 2rem;
     }
     .split-content {
-      padding: 4rem 2rem;
+      padding: 3rem 1.5rem;
     }
     .split-image {
-      min-height: 350px;
+      min-height: 250px;
+      height: 300px;
+      border-radius: 1.5rem 1.5rem 0 0 !important;
+    }
+    .image-right .split-image {
+      border-radius: 1.5rem 1.5rem 0 0 !important;
+    }
+    .split-content h2 {
+      font-size: 1.75rem;
     }
   }
