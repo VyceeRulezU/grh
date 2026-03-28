@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
@@ -6,26 +9,29 @@ import { supabase } from '../../services/supabase/supabaseClient';
 import StatusModal from '../../shared/ui/StatusModal';
 import { useModal } from '../../shared/hooks/useModal';
 
+const loginSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+  password: z.string().min(1, 'Password is required')
+});
+
 const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const { modal, closeModal, showError, showSuccess } = useModal();
+  
+  const { register, handleSubmit, getValues, formState: { errors } } = useForm({
+    resolver: zodResolver(loginSchema)
+  });
 
   const [loading, setLoading] = useState(false);
 
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-
-
+  const onSubmit = async (formData) => {
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
       });
 
       if (error) throw error;
@@ -57,19 +63,17 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
     }
   };
 
-  const handleMagicLink = async (e) => {
-    e.preventDefault();
-    if (!email) {
+  const handleMagicLink = async () => {
+    const emailValue = getValues('email');
+    if (!emailValue) {
       showError('Email Required', 'Please enter your email to receive a magic link.');
       return;
     }
 
-
-
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: emailValue,
         options: {
           emailRedirectTo: window.location.origin
         }
@@ -135,7 +139,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
             </p>
           </div>
 
-          <form className="auth-form-box" onSubmit={handleSubmit}>
+          <form className="auth-form-box" onSubmit={handleSubmit(onSubmit)}>
             <div className="auth-input-group">
               <label htmlFor="email">Email</label>
               <input 
@@ -143,11 +147,10 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
                 id="email" 
                 className="auth-input-field" 
                 placeholder="johndoe@email.com" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                required
+                {...register('email')}
               />
+              {errors.email && <span className="auth-error-msg">{errors.email.message}</span>}
             </div>
 
             <div className="auth-input-group">
@@ -158,10 +161,8 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
                   id="password" 
                   className="auth-input-field" 
                   placeholder="********" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
-                  required
+                  {...register('password')}
                 />
                 <span 
                   className="material-symbols-outlined auth-eye-icon"
@@ -170,6 +171,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </span>
               </div>
+              {errors.password && <span className="auth-error-msg">{errors.password.message}</span>}
 
               <div className="auth-extras-row">
                 <div className="auth-checkbox-group">

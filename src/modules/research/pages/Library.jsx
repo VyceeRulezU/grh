@@ -436,9 +436,9 @@ const Library = ({ onNavigate }) => {
             <div className={viewMode === 'grid' ? 'resources-grid' : 'resources-list'} ref={resultsRef}>
               {pagedItems.map((res, i) => (
                 viewMode === 'grid' ? (
-                  <div key={res.id} className="resource-card" onClick={() => { if (res.file_url || res.fileUrl) window.open(res.file_url || res.fileUrl, '_blank'); }}>
+                  <div key={res.id} className="resource-card" onClick={() => setReadingResource(res)}>
                     <div className="resource-cover">
-                      <img src={res.coverImage} alt={res.title} className="resource-cover-img" />
+                      <img src={res.coverImage} alt={res.title} className="resource-cover-img" loading="lazy" />
                       {res.featured && <span className="featured-badge">FEATURED</span>}
                     </div>
                     <div className="resource-body">
@@ -452,7 +452,7 @@ const Library = ({ onNavigate }) => {
                         <span className="resource-author">{res.author}</span>
                       </div>
                       <div className="resource-actions">
-                        <button className="special-button" style={{flex: 1}}>Read Now</button>
+                        <button className="special-button" style={{flex: 1}} onClick={(e) => { e.stopPropagation(); setReadingResource(res); }}>Read Now</button>
                         <button 
                           className="action-btn"
                           onClick={(e) => {
@@ -466,9 +466,9 @@ const Library = ({ onNavigate }) => {
                     </div>
                   </div>
                 ) : (
-                  <div key={res.id} className="resource-list-item" onClick={() => { if (res.file_url || res.fileUrl) window.open(res.file_url || res.fileUrl, '_blank'); }}>
+                  <div key={res.id} className="resource-list-item" onClick={() => setReadingResource(res)}>
                     <div className="list-icon">
-                      <img src={res.coverImage} alt={res.title} className="list-thumb" />
+                      <img src={res.coverImage} alt={res.title} className="list-thumb" loading="lazy" />
                     </div>
                     <div className="list-info">
                       <h3>{res.title}</h3>
@@ -482,7 +482,7 @@ const Library = ({ onNavigate }) => {
                     <div className="list-meta">
                       <span className="resource-author">{res.author}</span>
                       <div className="list-actions">
-                        <button className="special-button" style={{flex: 1}} onClick={(e) => { e.stopPropagation(); if (res.file_url || res.fileUrl) window.open(res.file_url || res.fileUrl, '_blank'); }}>Read Now</button>
+                        <button className="special-button" style={{flex: 1}} onClick={(e) => { e.stopPropagation(); setReadingResource(res); }}>Read Now</button>
                         <button className="action-btn" onClick={(e) => { e.stopPropagation(); if (res.file_url) window.open(res.file_url, '_blank'); }} title="Download">
                           <span className="material-symbols-outlined">download</span>
                         </button>
@@ -537,13 +537,12 @@ const Library = ({ onNavigate }) => {
           secondaryActionOnClick={() => onNavigate && onNavigate('about')}
         />
 
-        {/* ResourceViewer disabled — using open-in-new-tab workaround
+        {/* ResourceViewer implementation */}
         <ResourceViewer 
           isOpen={!!readingResource} 
           onClose={() => setReadingResource(null)} 
           resource={readingResource} 
         />
-        */}
     </div>
   );
 };

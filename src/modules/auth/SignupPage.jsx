@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import googleIcon from '../../assets/auth/google-logo.svg';
@@ -6,23 +9,36 @@ import { supabase } from '../../services/supabase/supabaseClient';
 import StatusModal from '../../shared/ui/StatusModal';
 import { useModal } from '../../shared/hooks/useModal';
 
+const signupSchema = z.object({
+  fullName: z.string().min(2, 'Full name is required'),
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+});
+
 const SignupPage = ({ onNavigate, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { modal, closeModal, showSuccess, showError, showWarning } = useModal();
+  
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' }
+  });
+  
+  const currentPassword = watch('password');
 
 
 
   const validations = {
-    length: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    lowercase: /[a-z]/.test(password),
-    number: /[0-9]/.test(password),
-    special: /[^A-Za-z0-9]/.test(password),
+    length: currentPassword?.length >= 8,
+    uppercase: /[A-Z]/.test(currentPassword || ''),
+    lowercase: /[a-z]/.test(currentPassword || ''),
+    number: /[0-9]/.test(currentPassword || ''),
+    special: /[^A-Za-z0-9]/.test(currentPassword || ''),
   };
   
   const strengthScore = Object.values(validations).filter(Boolean).length;
@@ -31,26 +47,18 @@ const SignupPage = ({ onNavigate, onLogin }) => {
   
   const isPasswordValid = strengthScore === 5;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-
-
+  const onSubmit = async (formData) => {
     if (!isPasswordValid) {
       showWarning('Weak Password', 'Please ensure your password meets all requirements.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      showError('Password Mismatch', "Passwords don't match. Please re-enter them.");
       return;
     }
 
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+      email: formData.email,
+      password: formData.password,
       options: {
-        data: { full_name: fullName, role: 'learner' }
+        data: { full_name: formData.fullName, role: 'learner' }
       }
     });
     setLoading(false);
@@ -116,7 +124,7 @@ const SignupPage = ({ onNavigate, onLogin }) => {
             </p>
           </div>
 
-          <form className="auth-form-box" onSubmit={handleSubmit}>
+          <form className="auth-form-box" onSubmit={handleSubmit(onSubmit)}>
             <div className="auth-input-group">
               <label htmlFor="fullName">Full Name</label>
               <input 
@@ -124,11 +132,10 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                 id="fullName" 
                 className="auth-input-field" 
                 placeholder="John Doe" 
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
                 autoComplete="name"
-                required
+                {...register('fullName')}
               />
+              {errors.fullName && <span className="auth-error-msg">{errors.fullName.message}</span>}
             </div>
 
             <div className="auth-input-group">
@@ -138,11 +145,10 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                 id="email" 
                 className="auth-input-field" 
                 placeholder="johndoe@email.com" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                required
+                {...register('email')}
               />
+              {errors.email && <span className="auth-error-msg">{errors.email.message}</span>}
             </div>
 
             <div className="auth-input-group">
@@ -153,10 +159,8 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                   id="password" 
                   className="auth-input-field" 
                   placeholder="********" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"
-                  required
+                  {...register('password')}
                 />
                 <span 
                   className="material-symbols-outlined auth-eye-icon"
@@ -165,8 +169,9 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </span>
               </div>
+              {errors.password && <span className="auth-error-msg">{errors.password.message}</span>}
               
-              {password && (
+              {currentPassword && (
                 <div className="auth-password-complexity">
                   <div className="strength-meter-container">
                     <div className="strength-labels">
@@ -194,12 +199,11 @@ const SignupPage = ({ onNavigate, onLogin }) => {
                   id="confirmPassword" 
                   className="auth-input-field" 
                   placeholder="********" 
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
-                  required
+                  {...register('confirmPassword')}
                 />
               </div>
+              {errors.confirmPassword && <span className="auth-error-msg">{errors.confirmPassword.message}</span>}
             </div>
 
 

@@ -1,25 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import './LoginPage.css';
 import logoMain from '../../assets/auth/logo-main.svg';
 import { supabase } from '../../services/supabase/supabaseClient';
 import StatusModal from '../../shared/ui/StatusModal';
 import { useModal } from '../../shared/hooks/useModal';
 
+const forgotPasswordSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Invalid email address')
+});
+
 const ForgotPasswordPage = ({ onNavigate }) => {
-  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const { modal, closeModal, showSuccess, showError, showWarning } = useModal();
+  const { modal, closeModal, showSuccess, showError } = useModal();
+  
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(forgotPasswordSchema)
+  });
 
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-
-
+  const onSubmit = async (formData) => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
         redirectTo: `${window.location.origin}${import.meta.env.BASE_URL || '/'}reset-password`
       });
 
@@ -80,7 +86,7 @@ const ForgotPasswordPage = ({ onNavigate }) => {
               </p>
             </div>
 
-            <form className="auth-form-box" onSubmit={handleSubmit}>
+            <form className="auth-form-box" onSubmit={handleSubmit(onSubmit)}>
               <div className="auth-input-group">
                 <label htmlFor="email">Email</label>
                 <input 
@@ -88,11 +94,10 @@ const ForgotPasswordPage = ({ onNavigate }) => {
                   id="email" 
                   className="auth-input-field" 
                   placeholder="johndoe@email.com" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
-                  required
+                  {...register('email')}
                 />
+                {errors.email && <span className="auth-error-msg">{errors.email.message}</span>}
               </div>
 
 

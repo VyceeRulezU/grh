@@ -216,7 +216,7 @@ const ExplorePage = ({ user, onNavigate }) => {
       <aside className={`chat-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="chat-sidebar-header">
           <div className="sidebar-logo-wrap">
-            <img src={grhIcon} alt="GRH" className="sidebar-icon-logo" />
+            <img src={grhIcon} alt="GRH" className="sidebar-icon-logo" loading="lazy" />
           </div>
         </div>
 
@@ -298,6 +298,7 @@ const ExplorePage = ({ user, onNavigate }) => {
                       src={user.avatar_url} 
                       alt={user.name} 
                       style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', backgroundColor: 'var(--bg-weak)' }} 
+                      loading="lazy"
                     />
                   ) : (
                     user ? user.name?.[0]?.toUpperCase() : 'U'

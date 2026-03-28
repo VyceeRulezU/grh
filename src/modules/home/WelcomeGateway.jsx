@@ -93,7 +93,7 @@ const WelcomeGateway = ({ onNavigate }) => {
     <div className="welcome-container" ref={containerRef}>
       <div className="welcome-hero-section">
         <div className="pattern">
-          <img src={`${import.meta.env.BASE_URL}assets/hero-vector.svg`} alt="hero background" />
+          <img src={`${import.meta.env.BASE_URL}assets/hero-vector.svg`} alt="hero background" loading="lazy" />
         </div>
 
         <div className="title-container">
@@ -134,7 +134,7 @@ const WelcomeGateway = ({ onNavigate }) => {
               >
                 <div className="card-title">
                   <div className="card-img">
-                    <img src={`${import.meta.env.BASE_URL}${section.img}`} alt={section.title} />
+                    <img src={`${import.meta.env.BASE_URL}${section.img}`} alt={section.title} loading="lazy" />
                   </div>
                   <p className="card-summary">{section.summary}</p>
                 </div>
