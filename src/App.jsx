@@ -75,6 +75,7 @@ function App() {
   const [authType, setAuthType] = useState('login');
   const [statusModal, setStatusModal] = useState({ isOpen: false, title: '', message: '', type: 'success' });
   const lastLoginHandled = useRef(0);
+  const loginNavigated = useRef(false);
   const currentPageRef = useRef(currentPage);
 
   // Update document title dynamically
@@ -210,6 +211,7 @@ function App() {
       console.log("[GRH DEBUG] Auth Gate triggered for:", currentPage, "User:", user);
       localStorage.setItem('returnPage', currentPage);
       setCurrentPage('login');
+      currentPageRef.current = 'login';
       const base = import.meta.env.BASE_URL || '/';
       window.history.pushState({}, '', `${base}login`);
     }
@@ -220,6 +222,7 @@ function App() {
     if (!['login', 'signup', 'admin-login', 'forgot-password', 'reset-password'].includes(currentPage)) {
       localStorage.setItem('returnPage', currentPage);
     }
+    loginNavigated.current = false; // reset so next login attempt can navigate
     
     if (type === 'admin') {
       navigate('admin');
@@ -275,6 +278,11 @@ function App() {
       return;
     }
 
+    // Reset login navigation flag when navigating to an auth page
+    if (['login', 'signup', 'admin-login', 'forgot-password'].includes(targetPage)) {
+      loginNavigated.current = false;
+    }
+
     setCurrentPage(targetPage);
     currentPageRef.current = targetPage;
     setNavData(targetData);
@@ -296,13 +304,6 @@ function App() {
   };
 
   const handleLogin = (userData) => {
-    // Debounce to prevent double-alerts 
-    const now = Date.now();
-    if (now - lastLoginHandled.current < 2000) return false;
-    lastLoginHandled.current = now;
-
-    const isUserAdmin = userData.isAdmin || userData.fromAdminWall;
-    
     // If they came from the admin wall but aren't an admin, BLOCK THEM immediately
     if (userData.fromAdminWall && !userData.isAdmin) {
       setUser(null);
@@ -318,27 +319,39 @@ function App() {
 
     setUser(userData);
     setShowAuth(false);
-    const returnPage = localStorage.getItem('returnPage');
-    localStorage.removeItem('returnPage'); 
 
-    setStatusModal({
-      isOpen: true,
-      type: 'success',
-      title: 'Login Successful',
-      message: `Welcome back, ${userData.name}! ${isUserAdmin ? 'Entering Admin Portal...' : 'Redirecting to your dashboard...'}`,
-      onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false }))
-    });
+    // Show welcome modal only once per login event
+    const now = Date.now();
+    const alreadyShownModal = now - lastLoginHandled.current < 2000;
+    if (!alreadyShownModal) {
+      lastLoginHandled.current = now;
+      setStatusModal({
+        isOpen: true,
+        type: 'success',
+        title: 'Login Successful',
+        message: `Welcome back, ${userData.name}!`,
+        onConfirm: () => setStatusModal(p => ({ ...p, isOpen: false }))
+      });
+    }
+
+    // Navigate only once — whichever call arrives first wins
+    if (loginNavigated.current) return true;
+    loginNavigated.current = true;
+
+    const returnPage = localStorage.getItem('returnPage');
+    localStorage.removeItem('returnPage');
+
+    const isUserAdmin = userData.isAdmin || userData.fromAdminWall;
+    const destination = isUserAdmin
+      ? 'admin'
+      : (returnPage && !['login', 'signup', 'welcome', 'admin', 'admin-login', 'forgot-password', 'reset-password'].includes(returnPage))
+        ? returnPage
+        : 'welcome';
 
     setTimeout(() => {
       setStatusModal(p => ({ ...p, isOpen: false }));
-      
-      if (isUserAdmin) {
-        navigate('admin');
-      } else if (returnPage && !['login', 'signup', 'welcome', 'admin'].includes(returnPage)) {
-        navigate(returnPage);
-      } else {
-        navigate('student');
-      }
+      loginNavigated.current = false; // reset for next login
+      navigate(destination);
     }, 1500);
 
     return true;
