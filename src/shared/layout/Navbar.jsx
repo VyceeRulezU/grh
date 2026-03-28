@@ -33,11 +33,12 @@ const Navbar = ({ onNavigate, currentPage, user, onAuthClick, onLogout }) => {
               <i className="ri-close-line"></i>
             </button>
           </div>
-          {navLinks.map((link) => (
+          {navLinks.map((link, index) => (
             <button
               key={link.id}
               className={`nav-link ${currentPage === link.id ? 'active' : ''}`}
               onClick={() => handleNavigate(link.id)}
+              style={{ '--i': index }}
             >
               {link.name}
             </button>
