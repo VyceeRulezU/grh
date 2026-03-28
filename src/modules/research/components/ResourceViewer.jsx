@@ -29,19 +29,41 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
           </div>
         </header>
         
-        <div className="viewer-content" style={{ height: 'calc(100% - 60px)', width: '100%', overflow: 'hidden' }}>
-          {resource.file_url || resource.fileUrl ? (
-            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-              <Viewer
-                fileUrl={resource.file_url || resource.fileUrl}
-                plugins={[defaultLayoutPluginInstance]}
-              />
-            </Worker>
-          ) : (
-             <div className="viewer-page-mock" style={{ padding: '2rem' }}>
-              <div className="placeholder-text">No PDF available for this document.</div>
-            </div>
-          )}
+        <div className="viewer-content" style={{ height: 'calc(100% - 60px)', width: '100%', overflow: 'hidden', padding: 0, background: '#525659' }}>
+          {(() => {
+            const url = resource.file_url || resource.fileUrl || resource.preview_url || resource.download_url;
+            if (!url) return <div className="viewer-page-mock" style={{ padding: '2rem' }}><div className="placeholder-text">No document link available.</div></div>;
+
+            // Handle Google Drive Links - Use iframe because react-pdf-viewer blocks on CORS
+            if (url.includes('drive.google.com')) {
+              let embedUrl = url;
+              if (url.includes('/view')) embedUrl = url.replace('/view', '/preview');
+              else if (url.includes('id=')) {
+                const id = new URL(url).searchParams.get('id');
+                embedUrl = `https://drive.google.com/file/d/${id}/preview`;
+              }
+              return (
+                <iframe 
+                  src={embedUrl} 
+                  width="100%" 
+                  height="100%" 
+                  allow="autoplay" 
+                  style={{ border: 'none' }}
+                  title={resource.title}
+                ></iframe>
+              );
+            }
+
+            // Standard PDF Viewer for direct links
+            return (
+              <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                <Viewer
+                  fileUrl={url}
+                  plugins={[defaultLayoutPluginInstance]}
+                />
+              </Worker>
+            );
+          })()}
         </div>
       </div>
     </div>

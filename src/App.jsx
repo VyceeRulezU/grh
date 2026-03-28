@@ -363,11 +363,14 @@ function App() {
         ? returnPage
         : 'welcome';
 
+    // Navigate quickly
+    const delay = 600; 
+
     setTimeout(() => {
       setStatusModal(p => ({ ...p, isOpen: false }));
       loginNavigated.current = false; // reset for next login
       navigate(destination);
-    }, 1500);
+    }, delay);
 
     return true;
   };

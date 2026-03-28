@@ -315,7 +315,7 @@
 }
 
 .resource-body {
-  padding: 1.5rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;

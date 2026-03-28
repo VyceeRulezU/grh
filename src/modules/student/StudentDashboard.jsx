@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase/supabaseClient';
 import { generateCertificatePDF } from '../../shared/utils/certificateGenerator';
-import { COURSES as LEGACY_COURSES, RESOURCES as LEGACY_RESOURCES } from '../../data/legacyData';
 import Pagination from '../../shared/ui/Pagination';
 import StatusModal from '../../shared/ui/StatusModal';
 import CertificatePreview from '../../shared/ui/CertificatePreview';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
+import ResourceViewer from '../research/components/ResourceViewer';
 
 /* ───────────────────────── MOCK DATA ───────────────────────── */
 // (Keep for fallback if needed, but we'll try to use Supabase first)
@@ -42,8 +42,6 @@ const COURSE_IMAGE_BANK = [
   'https://images.unsplash.com/photo-1517245366810-54070744a417'
 ];
 
-const MY_RESOURCES = LEGACY_RESOURCES;
-
 const NAV_GROUPS = [
   {
     label: "Learning",
@@ -74,10 +72,10 @@ const NAV_GROUPS = [
 
 function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = [], completedLessons = 0, certificates = [], workshops = [], registeredWorkshops = [] }) {
   const enrolledCount = myCourses.length;
-  const certificatesCount = certificates.length;
+  const certificatesCount = certificates?.length || 0;
   // Show ALL registered workshops as "Upcoming/Enrolled" instead of ONLY completed/attended ones
-  const registeredCount = registeredWorkshops.length;
-  const attendedWorkshopsCount = workshops.filter(w => (w.status || "").toLowerCase() === 'completed' && registeredWorkshops.includes(w.id)).length;
+  const registeredCount = registeredWorkshops?.length || 0;
+  const attendedWorkshopsCount = (workshops || []).filter(w => (w?.status || "").toLowerCase() === 'completed' && (registeredWorkshops || []).includes(w?.id)).length;
 
   return (
     <>
@@ -101,12 +99,12 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
                   <i className={course.icon}></i>
                   {course.title}
                 </span>
-                <span>{course.instructor}</span>
+                <span>{course.instructor || 'GRH Staff'}</span>
                 <div className="progress-cell">
-                  <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress}%` }}></div></div>
-                  <span>{course.progress}%</span>
+                  <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
+                  <span>{course.progress || 0}%</span>
                 </div>
-                <span><span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span></span>
+                <span><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></span>
                 <button className="row-action" onClick={() => onNavigate('learn-player', course)}><i className="ri-play-circle-fill"></i></button>
               </div>
             ))}
@@ -140,7 +138,11 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
           <button className="view-all" onClick={() => onNavigate('learn-discovery')}>Browse All</button>
         </div>
         <div className="recommended-grid">
-          {[...allCourses].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3).map(course => {
+          {[...allCourses].sort((a, b) => {
+            const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
+            const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+            return dateB - dateA;
+          }).slice(0, 3).map(course => {
             const isEnrolled = myCourses.some(mc => mc.id === course.id);
             return (
               <div key={course.id} className="rec-card">
@@ -148,10 +150,10 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
                   <span className="rec-price">Free</span>
                 </div>
                 <div className="rec-body">
-                  <h4 className="truncate-1">{course.title}</h4>
-                  <p className="truncate-2">{course.description?.[0] === '{' ? 'Course details...' : course.description?.substring(0, 80)}…</p>
+                  <h4 className="truncate-1">{course.title || 'Untitled Course'}</h4>
+                  <p className="truncate-2">{course.description?.[0] === '{' ? 'Course details...' : (course.description?.substring(0, 80) || 'Course details...') }…</p>
                   <div className="rec-meta">
-                    <span className="badge">{course.level}</span>
+                    <span className="badge">{course.level || 'Beginner'}</span>
                     <span className="badge">{course.duration || 'Self-paced'}</span>
                     <span className="badge">{course.lessons || 0} Lessons</span>
                   </div>
@@ -186,16 +188,16 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
   const itemsPerPage = 10;
 
   const filtered = (filter === 'all'
-    ? myCourses
+    ? (myCourses || [])
     : filter === 'completed'
-      ? myCourses.filter(c => c.progress === 100)
+      ? (myCourses || []).filter(c => (c.progress || 0) === 100)
       : filter === 'in-progress'
-        ? myCourses.filter(c => c.progress > 0 && c.progress < 100)
-        : myCourses.filter(c => c.progress === 0)
+        ? (myCourses || []).filter(c => (c.progress || 0) > 0 && (c.progress || 0) < 100)
+        : (myCourses || []).filter(c => (c.progress || 0) === 0)
   ).filter(c => 
-    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.category || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.instructor || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
@@ -243,16 +245,16 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
               <span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span>
             </div>
             <div className="std-course-info">
-              <span className="std-course-cat">{course.category}</span>
-              <h4 className="truncate-1">{course.title}</h4>
-              <p className="std-instructor"><i className="ri-user-line"></i> {course.instructor}</p>
+              <span className="std-course-cat">{course.category || 'General'}</span>
+              <h4 className="truncate-1">{course.title || 'Untitled Course'}</h4>
+              <p className="std-instructor"><i className="ri-user-line"></i> {course.instructor || 'GRH Staff'}</p>
               <div className="std-progress-row">
-                <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress}%` }}></div></div>
-                <span className="std-progress-text">{course.progress}%</span>
+                <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
+                <span className="std-progress-text">{course.progress || 0}%</span>
               </div>
               <div className="std-course-bottom">
-                <span><i className="ri-time-line"></i> {course.duration}</span>
-                <span><i className="ri-book-open-line"></i> {course.lessons} lessons</span>
+                <span><i className="ri-time-line"></i> {course.duration || 'Self-paced'}</span>
+                <span><i className="ri-book-open-line"></i> {course.lessons || 0} lessons</span>
               </div>
             </div>
           </div>
@@ -317,9 +319,9 @@ function TutorialsPanel({ onNavigate }) {
               <span className="std-duration">{t.duration}</span>
             </div>
             <div className="std-tutorial-info">
-              <span className="std-tut-cat">{t.category}</span>
-              <h4>{t.title}</h4>
-              <p><i className="ri-user-line"></i> {t.instructor}</p>
+              <span className="std-tut-cat">{t.category || 'Tutorial'}</span>
+              <h4>{t.title || 'Untitled Video'}</h4>
+              <p><i className="ri-user-line"></i> {t.instructor || 'GRH Hub'}</p>
             </div>
           </div>
         ))}
@@ -511,20 +513,19 @@ function WorkshopPanel({ onRegister, registeredIds = [], workshops = [] }) {
    PANEL: RESOURCES
    ═══════════════════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════════════════════════
-   PANEL: RESOURCES
-   ═══════════════════════════════════════════════════════════════ */
-
-function ResourcesPanel({ onNavigate }) {
+function ResourcesPanel({ resources = [], onNavigate }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewer, setViewer] = useState({ isOpen: false, resource: null });
   const itemsPerPage = 10;
 
-  const filtered = MY_RESOURCES.filter(r => 
-    r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // SAFE FILTERING: Added guards for title and author to prevent "blank page" crashes
+  const filtered = (resources || []).filter(r => {
+    const titleVal = (r.title || "").toLowerCase();
+    const searchVal = (searchTerm || "").toLowerCase();
+    const authorVal = (r.author || "").toLowerCase();
+    return titleVal.includes(searchVal) || authorVal.includes(searchVal);
+  });
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const pagedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -538,42 +539,78 @@ function ResourcesPanel({ onNavigate }) {
     <section className="std-panel">
       <div className="section-header">
         <div className="section-title-group">
-          <h3>My Resources</h3>
+          <h3>Library Resources</h3>
           <div className="panel-search">
             <i className="ri-search-line"></i>
             <input 
               type="text" 
-              placeholder="Search resources..." 
+              placeholder="Search title, author, category..." 
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
           </div>
         </div>
-        <button className="view-all" onClick={() => onNavigate('research')}>Browse Library</button>
+        <button className="view-all" onClick={() => onNavigate('research')}>Full Library</button>
       </div>
-      <div className="std-resource-grid">
+
+      {/* RESOURCE GRID: Using .resource-card for Library Parity */}
+      <div className="std-resource-grid" style={{ gap: '2rem' }}>
         {pagedItems.map(r => (
-          <div key={r.id} className="std-resource-card" onClick={() => onNavigate('research')}>
-            <div className="std-res-cover">
-              <img src={r.coverImage} alt={r.title} loading="lazy" />
-              <span className={`std-res-type type-${r.type.toLowerCase()}`}>{r.type}</span>
+          <div key={r.id} className="resource-card std-card-parity" onClick={() => setViewer({ isOpen: true, resource: r })}>
+            <div className="resource-cover" style={{ height: '100%' }}>
+              <img src={r.coverImage} alt={r.title} className="resource-cover-img" loading="lazy" />
+              {r.featured && <span className="featured-badge">FEATURED</span>}
             </div>
-            <div className="std-res-info">
-              <h4>{r.title}</h4>
-              <p>{r.author} · {r.year}</p>
-              <div className="std-res-tags">
-                {r.tags.slice(0, 2).map(tag => (
-                  <span key={tag} className="badge">{tag}</span>
-                ))}
+            
+            <div className="resource-body" style={{ padding: '1rem 1rem' }}>
+              <div className="resource-meta-top" style={{ marginBottom: '0.2rem' }}>
+                <span className="tag" style={{ fontSize: '0.65rem' }}>{r.category || r.type || 'Resource'}</span>
+                <span className="resource-year" style={{ fontSize: '0.75rem' }}>{r.year}</span>
+              </div>
+              
+              <h4 className="resource-title truncate-2" style={{ fontSize: '0.95rem' }}>
+                {r.title || 'Untitled Document'}
+              </h4>
+              
+              <div className="resource-footer" style={{ borderTop: '1px solid var(--bg-weak)', paddingTop: '0.75rem', marginTop: 'auto' }}>
+                <span className="resource-author" style={{ fontSize: '0.75rem', color: 'var(--text-soft)' }}>
+                  {r.author || 'GRH Hub'}
+                </span>
+              </div>
+              
+              <div className="resource-actions" style={{ marginTop: '1rem' }}>
+                <button 
+                  className="special-button btn-sm" 
+                  style={{ width: '100%', padding: '0.5rem' }}
+                  onClick={(e) => { e.stopPropagation(); setViewer({ isOpen: true, resource: r }); }}
+                >
+                  Read Now
+                </button>
               </div>
             </div>
           </div>
         ))}
+
+        {filtered.length === 0 && (
+          <div style={{gridColumn: '1/-1', textAlign: 'center', padding: '60px', opacity: 0.6}}>
+            <i className="ri-folder-open-line" style={{fontSize: '3rem', display: 'block', marginBottom: '1rem'}}></i>
+            <p>No resources found matching your search.</p>
+          </div>
+        )}
       </div>
-      <Pagination 
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
+
+      {totalPages > 1 && (
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
+      
+      <ResourceViewer 
+        isOpen={viewer.isOpen}
+        onClose={() => setViewer({ isOpen: false, resource: null })}
+        resource={viewer.resource}
       />
     </section>
   );
@@ -592,9 +629,9 @@ function CertificationsPanel({
 }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filtered = certificates.filter(c => 
-    c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.credentialId.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = (certificates || []).filter(c => 
+    (c.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.credentialId || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -865,6 +902,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
   const [allCourses, setAllCourses] = useState([]);
   const [workshops, setWorkshops] = useState([]);
   const [certificates, setCertificates] = useState([]);
+  const [allResources, setAllResources] = useState([]);
   const [completedLessons, setCompletedLessons] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -889,21 +927,43 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       setLoading(true);
       
       // 1. Fetch all raw data first
-      const [
-        { data: profile },
-        { data: coursesData },
-        { data: workshopsData },
-        { data: regsData },
-        { data: userProgress },
-        { data: allModules }
-      ] = await Promise.all([
+      // SAFE FETCHING logic: ensure individual table errors don't crash everything
+      const results = await Promise.allSettled([
         supabase.from('profiles').select('*').eq('id', user.id).single(),
         supabase.from('courses').select('*'),
         supabase.from('workshops').select('*'),
         supabase.from('workshop_registrations').select('workshop_id').eq('user_id', user.id),
         supabase.from('user_progress').select('*').eq('user_id', user.id),
-        supabase.from('course_modules').select('id, course_id')
+        supabase.from('course_modules').select('id, course_id'),
+        supabase.from('library_resources').select('*').eq('status', 'Published'),
+        supabase.from('books').select('*').eq('status', 'Published'),
+        supabase.from('sparc_resources').select('*'),
+        supabase.from('perl_resource').select('*')
       ]);
+
+      const [
+        profileRes,
+        coursesRes,
+        workshopsRes,
+        regsRes,
+        progressRes,
+        modulesRes,
+        libRes,
+        booksRes,
+        sparcRes,
+        perlRes
+      ] = results;
+
+      const profile          = profileRes.status === 'fulfilled' ? profileRes.value.data : null;
+      const coursesData      = coursesRes.status === 'fulfilled' ? coursesRes.value.data : [];
+      const workshopsData    = workshopsRes.status === 'fulfilled' ? workshopsRes.value.data : [];
+      const regsData         = regsRes.status    === 'fulfilled' ? regsRes.value.data : [];
+      const userProgress     = progressRes.status === 'fulfilled' ? progressRes.value.data : [];
+      const allModules       = modulesRes.status  === 'fulfilled' ? modulesRes.value.data : [];
+      const library_resources = libRes.status      === 'fulfilled' ? libRes.value : { data: [] };
+      const books            = booksRes.status    === 'fulfilled' ? booksRes.value : { data: [] };
+      const sparc_resources  = sparcRes.status    === 'fulfilled' ? sparcRes.value : { data: [] };
+      const perl_resource    = perlRes.status     === 'fulfilled' ? perlRes.value : { data: [] };
 
       // 2. Sync profile
       if (profile) {
@@ -969,6 +1029,43 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       });
       setMyCourses(enrolled);
       setWorkshops(workshopsData || []);
+
+      // 6. Process Resources (Normalization)
+      const DEFAULT_RES_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
+      const normalizedResources = [
+        ...(library_resources.data || []).map(r => ({
+          ...r,
+          type: r.type || 'PERL',
+          author: r.author || 'GRH',
+          year: r.published_year || (r.created_at ? new Date(r.created_at).getFullYear() : new Date().getFullYear()),
+          coverImage: DEFAULT_RES_IMG
+        })),
+        ...(books.data || []).map(b => ({
+          ...b,
+          type: 'Book',
+          author: b.author || 'GRH Hub',
+          year: b.published_year || (b.created_at ? new Date(b.created_at).getFullYear() : new Date().getFullYear()),
+          coverImage: b.image_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
+          file_url: b.file_url || ''
+        })),
+        ...(sparc_resources.data || []).map(s => ({
+          ...s,
+          type: 'SPARC',
+          author: s.author || 'SPARC',
+          year: s.created_at ? new Date(s.created_at).getFullYear() : new Date().getFullYear(),
+          coverImage: DEFAULT_RES_IMG,
+          file_url: s.preview_url || s.download_url
+        })),
+        ...(perl_resource.data || []).map(p => ({
+          ...p,
+          type: 'PERL',
+          author: p.author || 'PERL',
+          year: p.created_at ? new Date(p.created_at).getFullYear() : new Date().getFullYear(),
+          coverImage: DEFAULT_RES_IMG,
+          file_url: p.preview_url || p.download_url
+        }))
+      ];
+      setAllResources(normalizedResources);
 
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -1189,7 +1286,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       case 'Courses':        return <CoursesPanel onNavigate={onNavigate} myCourses={myCourses} />;
       case 'Tutorials':      return <TutorialsPanel onNavigate={onNavigate} />;
       case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} workshops={workshops} />;
-      case 'Resources':      return <ResourcesPanel onNavigate={onNavigate} />;
+      case 'Resources':      return <ResourcesPanel resources={allResources} onNavigate={onNavigate} />;
       case 'Certifications': return (
         <CertificationsPanel 
           certificates={certificates} 

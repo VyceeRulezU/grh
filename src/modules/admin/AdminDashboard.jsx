@@ -8,6 +8,7 @@ import Pagination from '../../shared/ui/Pagination';
 import ModernDropdown from '../../shared/ui/ModernDropdown';
 import StatusModal from '../../shared/ui/StatusModal';
 import { useModal } from '../../shared/hooks/useModal';
+import ResourceViewer from '../research/components/ResourceViewer';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -1121,6 +1122,7 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
 
 function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }) {
   const [modal, setModal] = useState(null);
+  const [viewer, setViewer] = useState({ isOpen: false, resource: null });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState("");
@@ -1248,6 +1250,7 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
                 <td><span className={`adm-status-badge ${r.status === 'Published' ? 'published' : 'draft'}`}>{r.status || 'Published'}</span></td>
                 <td>
                   <div className="adm-row-actions">
+                    <button className="adm-icon-btn" title="Preview" onClick={() => setViewer({ isOpen: true, resource: r })}><i className="ri-eye-line"></i></button>
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(r.id)}><i className="ri-edit-line"></i></button>
                     <a href={r.fileUrl || r.file_url} target="_blank" rel="noreferrer" className="adm-icon-btn" title="View Document"><i className="ri-external-link-line"></i></a>
                     <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(r, 'resource')}><i className="ri-delete-bin-line"></i></button>
@@ -1269,6 +1272,13 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
         </div>
       )}
       {modal && <ResourceModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
+      
+      <ResourceViewer 
+        isOpen={viewer.isOpen}
+        onClose={() => setViewer({ isOpen: false, resource: null })}
+        resource={viewer.resource}
+      />
+
       <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
@@ -1640,6 +1650,7 @@ function AdminSettingsPanel({ user }) {
 /* --- BOOKS PANEL --- */
 function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
   const [modal, setModal] = useState(null);
+  const [viewer, setViewer] = useState({ isOpen: false, resource: null });
   const [loading, setLoading] = useState(false);
   const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
@@ -1750,6 +1761,7 @@ function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
                 <td><span className={`adm-status-badge ${b.status === 'Published' ? 'published' : 'draft'}`}>{b.status}</span></td>
                 <td>
                   <div className="adm-row-actions">
+                    <button className="adm-icon-btn" title="Preview" onClick={() => setViewer({ isOpen: true, resource: b })}><i className="ri-eye-line"></i></button>
                     <button className="adm-icon-btn" title="Edit" onClick={() => setModal(b.id)}><i className="ri-edit-line"></i></button>
                     <button className="adm-icon-btn" title="Toggle status" onClick={async () => {
                       try {
@@ -1770,6 +1782,13 @@ function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
         </table>
       </div>
       {modal && <BookModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
+
+      <ResourceViewer 
+        isOpen={viewer.isOpen}
+        onClose={() => setViewer({ isOpen: false, resource: null })}
+        resource={viewer.resource}
+      />
+
       <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );

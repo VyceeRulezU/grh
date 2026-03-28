@@ -557,6 +557,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 .std-panel {
+  height: 100%;
   animation: fadeIn 0.3s ease;
 }
 
@@ -1060,9 +1061,26 @@
    ═══════════════════════════════════════════════════════════════ */
 
 .std-resource-grid {
+  height: 85%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 1.25rem;
+}
+
+@media (max-width: 1400px) {
+  .std-resource-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 1100px) {
+  .std-resource-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 800px) {
+  .std-resource-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 500px) {
+  .std-resource-grid { grid-template-columns: 1fr; }
 }
 
 .std-resource-card {
@@ -1419,5 +1437,70 @@
   display: flex;
   justify-content: flex-end;
   padding-top: 1.5rem;
+  border-top: 1px solid var(--bg-weak);
+}
+
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Library Parity Styles */
+.resource-card.std-card-parity {
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--stroke-soft);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.resource-card.std-card-parity:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary);
+}
+
+.resource-card.std-card-parity .resource-cover {
+  position: relative;
+  overflow: hidden;
+}
+
+.resource-card.std-card-parity .resource-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resource-card.std-card-parity .tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: rgba(77, 167, 113, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.resource-card.std-card-parity .resource-year {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.resource-card.std-card-parity .resource-title {
+  color: var(--secondary);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.resource-card.std-card-parity .resource-footer {
   border-top: 1px solid var(--bg-weak);
 }
