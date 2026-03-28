@@ -1,31 +1,41 @@
 # Governance Resource Hub (GRH) V2
 
 > [!IMPORTANT]
-> **Status**: Production Ready. Integrated with TanStack Query, Framer Motion, and Zod. OpenAI API proxy implemented via Supabase Edge Functions for secure client-side interactions.
+> **Status**: Production Stable. Optimized for high performance with React.lazy code-splitting. High-impact animations via GSAP and premium UI via custom HSL design systems. Integrated with TanStack Query, React-Hook-Form, and Zod.
 
 A premium, unified platform for governance excellence, featuring interactive e-learning, a digital research library, AI-powered insights, and advanced institutional diagnostics.
 
 ## 🚀 Key Features
 
+### 🎓 Modern Learning & Student Experience
+- **Student Dashboard**: Personalized learning portal for tracking progress, courses, and certifications.
+- **E-Learning Platform**: Comprehensive expert-led courses with progress tracking and achievement badges.
+- **Professional Course Player**: Immersive learning interface with lesson navigation.
+- **Achievement System**: Real-time badge awarding and institutional certifications.
+
 ### 🏢 Digital Institutional Intelligence
-- **Admin Shield Portal**: Real-time analytics on user growth and course popularity.
 - **Institutional Readiness Index (IRI)**: Data-driven diagnostics for governance health.
 - **WGI Trends**: Deep-dive analytics into Worldwide Governance Indicators.
+- **Admin Shield Portal**: Global analytics for institutional monitoring.
 
-### 🎓 Interactive Learning Experience
-- **E-Learning Platform**: Comprehensive courses with progress tracking and achievement badges.
-- **Interactive Course Player**: Professional learning interface with lesson navigation.
-- **Digital E-Library**: Professional Resource Viewer for books, reports, and white papers.
+### 📚 Digital E-Library
+- **Resource Hub**: Professional PDF viewer for books, reports, and white papers powered by `@react-pdf-viewer`.
+- **Filtered Research**: Advanced topic and category-based resource discovery.
 
 ### 🤖 AI Research Assistant
 - **Explore Module**: AI-powered chat assistant trained on governance resources for instant insights and summaries.
 
 ## 🛠️ Technology Stack
-- **Frontend**: React 18
-- **Bundler**: Vite
-- **Styling**: Vanilla CSS (Apple-style aesthetic)
+- **Frontend**: React 18 (Vite)
+- **State Management**: TanStack Query (React Query)
+- **Animations**: GSAP (GreenSock) for high-impact UI & Framer Motion
+- **Styling**: Vanilla CSS (Apple-style aesthetic with Glassmorphism)
+- **PDF Core**: `@react-pdf-viewer/core`
 - **Charts**: Recharts
 - **Icons**: Remix Icons
+- **Imagery**: Pixabay API (Dynamic Localized Visuals)
+- **Auth & DB**: Supabase (PostgreSQL + Auth)
+- **Validation**: React-Hook-Form + Zod
 
 ## 🏃 Getting Started
 
