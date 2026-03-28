@@ -154,26 +154,26 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       {/* ── HERO ────────────────────────────────────────────────────── */}
       <section className="hero-section" aria-labelledby="hero-heading" ref={heroRef}>
         <div className="hero-container">
-          <div className="hero-inner">
-            <div className="hero-left-container">
-              <div className="hero-chip">
+          <div className="learn-hero-inner">
+            <div className="learn-hero-left-container">
+              <div className="learn-hero-chip">
                 <div className="dot">
                   <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
                 </div>
-                <p className="chip-text">Structured Learning Paths</p>
+                <p className="learn-chip-text">Structured Learning Paths</p>
               </div>
 
-              <h1 className="hero-title" id="hero-heading">
+              <h1 className="learn-hero-title" id="hero-heading">
                 Courses Built for <br />
                 <span className="green-text">Governance Excellence</span>
               </h1>
 
-              <p className="hero-summary">
+              <p className="learn-hero-summary">
                 <span className="hide-on-mobile">Expert-led modules on Public Financial Management, anti-corruption frameworks, electoral systems, and institutional governance — all in one place.</span>
                 <span className="show-on-mobile">Expert-led modules on Governance, Financial Management and Institutional building.</span>
               </p>
 
-              <div className="hero-cta-row">
+              <div className="learn-hero-cta-row">
                 <button className="special-button" onClick={() => onNavigate('learn-discovery')}>
                   Start Learning
                   <span className="material-symbols-outlined">arrow_outward</span>
@@ -182,9 +182,9 @@ const LearnLandingPage = ({ onNavigate, user }) => {
               </div>
             </div>
 
-            <div className="hero-right-container">
-              <div className="social-proof" aria-label="Social proof: 1500+ enthusiasts">
-                <div className="avatar-stack" aria-hidden="true">
+            <div className="learn-hero-right-container">
+              <div className="learn-social-proof" aria-label="Social proof: 1500+ enthusiasts">
+                <div className="learn-avatar-stack" aria-hidden="true">
                   {(portraitImgs.length > 0 ? portraitImgs : [
                     'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
                     'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
@@ -195,8 +195,8 @@ const LearnLandingPage = ({ onNavigate, user }) => {
                     <img key={idx} src={src} alt="" width="44" height="44" loading="lazy" />
                   ))}
                 </div>
-                <div className="social-proof-text">
-                  <span className="rating-score">Join 1500+ enthusiasts</span>
+                <div className="learn-social-proof-text">
+                  <span className="learn-rating-score">Join 1500+ enthusiasts</span>
                 </div>
               </div>
             </div>
