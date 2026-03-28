@@ -149,6 +149,37 @@
   margin-bottom: 2rem;
 }
 
+.sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-filter-close {
+  display: none;
+  background: var(--bg-weak);
+  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--secondary);
+  transition: var(--transition);
+}
+
+.mobile-filter-close:hover {
+  background: var(--stroke-soft);
+  color: var(--primary);
+}
+
+@media (max-width: 1024px) {
+  .mobile-filter-close {
+    display: flex;
+  }
+}
+
 .sidebar-title h3 {
   font-size: 1.1rem;
   font-weight: 700;

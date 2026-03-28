@@ -360,9 +360,14 @@ const Library = ({ onNavigate }) => {
           <aside className={`filter-sidebar ${isSidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-title">
               <h3>Filters</h3>
-              {(selectedTypes.length > 0 || selectedCats.length > 0 || selectedProgrammes.length > 0 || selectedLocations.length > 0 || selectedThematicAreas.length > 0) && (
-                <button className="clear-btn" onClick={clearFilters}>Clear All</button>
-              )}
+              <div className="sidebar-header-actions">
+                {(selectedTypes.length > 0 || selectedCats.length > 0 || selectedProgrammes.length > 0 || selectedLocations.length > 0 || selectedThematicAreas.length > 0) && (
+                  <button className="clear-btn" onClick={clearFilters}>Clear All</button>
+                )}
+                <button className="mobile-filter-close" onClick={() => setIsSidebarOpen(false)}>
+                  <i className="ri-close-line"></i>
+                </button>
+              </div>
             </div>
 
             <div className="filter-group">

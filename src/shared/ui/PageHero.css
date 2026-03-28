@@ -144,7 +144,7 @@
 @media (max-width: 768px) {
   .page-hero {
     min-height: 40vh;
-    padding: 4rem 1.5rem;
+    padding: 10rem 1.5rem 4rem 1.5rem;
   }
 
   .ph-inner {
@@ -152,7 +152,7 @@
     text-align: center;
     align-items: center;
     gap: 2rem;
-    padding-top: 6rem;
+    padding-top: 0rem;
   }
 
   .ph-left {
@@ -160,8 +160,13 @@
     align-items: center;
   }
 
+  .ph-title{
+    text-align: center;
+  }
+
   .ph-subtitle {
     margin: 0 auto;
+    text-align: center;
   }
 
   .ph-right {
