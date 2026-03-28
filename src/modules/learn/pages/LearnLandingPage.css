@@ -723,6 +723,11 @@
         padding: 0.3rem 0.3rem 0.3rem 0.3rem;
     }
 
+    .learn-page .page-hero {
+        padding-top: 12rem;
+        padding-bottom: 4rem;
+    }
+
     .courses-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
