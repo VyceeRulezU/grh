@@ -8,6 +8,7 @@ import Tab from '../../../shared/ui/Tab';
 import { getRelativeTime } from '../../../shared/utils/dateUtils';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
+import PageHero from '../../../shared/ui/PageHero';
 import './LearnLandingPage.css';
 import { usePixabayPortraits, usePixabayImages } from '../../../shared/hooks/usePixabayImages';
 
@@ -34,7 +35,6 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   const { getImage: getCourseImg } = usePixabayImages('governance', 12);
 
   // Refs for animations
-  const heroRef = React.useRef(null);
   const cardsRef = React.useRef([]);
   cardsRef.current = [];
 
@@ -87,22 +87,6 @@ const LearnLandingPage = ({ onNavigate, user }) => {
 
     fetchCourses();
 
-    // Hero Animation
-    if (heroRef.current) {
-      const q = gsap.utils.selector(heroRef.current);
-      gsap.fromTo(q('.hero-chip, .hero-title, .hero-summary, .hero-cta-row'), 
-        { y: 30, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.8, 
-          stagger: 0.15, 
-          ease: 'power3.out',
-          delay: 0.2 
-        }
-      );
-    }
-
     // Subscribe to real-time changes
     const channel = supabase
       .channel('public:courses')
@@ -152,57 +136,43 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   return (
     <div className="page-wrapper learn-page">
       {/* ── HERO ────────────────────────────────────────────────────── */}
-      <section className="hero-section" aria-labelledby="hero-heading" ref={heroRef}>
-        <div className="hero-container">
-          <div className="learn-hero-inner">
-            <div className="learn-hero-left-container">
-              <div className="learn-hero-chip">
-                <div className="dot">
-                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
-                </div>
-                <p className="learn-chip-text">Structured Learning Paths</p>
-              </div>
-
-              <h1 className="learn-hero-title" id="hero-heading">
-                Courses Built for <br />
-                <span className="green-text">Governance Excellence</span>
-              </h1>
-
-              <p className="learn-hero-summary">
-                <span className="hide-on-mobile">Expert-led modules on Public Financial Management, anti-corruption frameworks, electoral systems, and institutional governance — all in one place.</span>
-                <span className="show-on-mobile">Expert-led modules on Governance, Financial Management and Institutional building.</span>
-              </p>
-
-              <div className="learn-hero-cta-row">
-                <button className="special-button" onClick={() => onNavigate('learn-discovery')}>
-                  Start Learning
-                  <span className="material-symbols-outlined">arrow_outward</span>
-                </button>
-                <a href="#courses-section" className="btn-outline">Browse Courses</a>
-              </div>
+      <PageHero 
+        chip="STRUCTURED LEARNING PATHS"
+        title={
+          <>
+            Courses Built for <br />
+            <span className="green-text">Governance Excellence</span>
+          </>
+        }
+        subtitle="Expert-led modules on Governance, Financial Management and Institutional building."
+        actions={
+          <>
+            <button className="special-button" onClick={() => onNavigate('learn-discovery')}>
+              Start Learning
+              <span className="material-symbols-outlined">arrow_outward</span>
+            </button>
+            <a href="#courses-section" className="btn-outline">Browse Courses</a>
+          </>
+        }
+        customRight={
+          <div className="learn-social-proof" aria-label="Social proof: 1500+ enthusiasts">
+            <div className="learn-avatar-stack" aria-hidden="true">
+              {(portraitImgs.length > 0 ? portraitImgs : [
+                'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                'https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+                'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+              ]).slice(0, 5).map((src, idx) => (
+                <img key={idx} src={src} alt="" width="44" height="44" loading="lazy" />
+              ))}
             </div>
-
-            <div className="learn-hero-right-container">
-              <div className="learn-social-proof" aria-label="Social proof: 1500+ enthusiasts">
-                <div className="learn-avatar-stack" aria-hidden="true">
-                  {(portraitImgs.length > 0 ? portraitImgs : [
-                    'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                    'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                    'https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                    'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                  ]).slice(0, 5).map((src, idx) => (
-                    <img key={idx} src={src} alt="" width="44" height="44" loading="lazy" />
-                  ))}
-                </div>
-                <div className="learn-social-proof-text">
-                  <span className="learn-rating-score">Join 1500+ enthusiasts</span>
-                </div>
-              </div>
+            <div className="learn-social-proof-text">
+              <span className="learn-rating-score">Join 1500+ enthusiasts</span>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* ── TRUSTED BY ──────────────────────────────────────────────── */}
       <div className="trusted-by">

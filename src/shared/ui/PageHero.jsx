@@ -11,15 +11,16 @@ import './PageHero.css';
  * - subtitle {string}        – Supporting paragraph
  * - actions {ReactNode}      – Optional JSX for buttons row (primary/secondary)
  * - counters {Array<{value, label}>} – Stat counters shown on the right (or bottom)
+ * - customRight {ReactNode}  – Optional custom JSX for the right column (e.g. social proof)
  */
-const PageHero = ({ chip, title, subtitle, actions, counters }) => {
+const PageHero = ({ chip, title, subtitle, actions, counters, customRight }) => {
   const heroRef = useRef(null);
 
   useEffect(() => {
     if (!heroRef.current) return;
     const q = gsap.utils.selector(heroRef.current);
     gsap.fromTo(
-      q('.ph-chip, .ph-title, .ph-subtitle, .ph-actions, .ph-counter'),
+      q('.ph-chip, .ph-title, .ph-subtitle, .ph-actions, .ph-counter, .ph-right > *'),
       { y: 30, opacity: 0 },
       { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.1 }
     );
@@ -45,15 +46,19 @@ const PageHero = ({ chip, title, subtitle, actions, counters }) => {
           {actions && <div className="ph-actions">{actions}</div>}
         </div>
 
-        {/* ── Right: Counters ── */}
-        {counters && counters.length > 0 && (
+        {/* ── Right: Counters or Custom Content ── */}
+        {(customRight || (counters && counters.length > 0)) && (
           <div className="ph-right">
-            {counters.map((c, i) => (
-              <div key={i} className="ph-counter">
-                <span className="stat-number">{c.value}</span>
-                <span className="stat-label">{c.label}</span>
-              </div>
-            ))}
+            {customRight ? (
+              customRight
+            ) : (
+              counters.map((c, i) => (
+                <div key={i} className="ph-counter">
+                  <span className="stat-number">{c.value}</span>
+                  <span className="stat-label">{c.label}</span>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
