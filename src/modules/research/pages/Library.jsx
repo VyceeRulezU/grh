@@ -45,6 +45,36 @@ const Library = ({ onNavigate }) => {
         supabase.from('perl_resource').select('*')
       ]);
 
+      // ── DYMANIC CATEGORIZATION ENGINE ──────────────────────────────────────
+      const categorize = (item) => {
+        const text = `${item.title} ${item.description || ''}`.toLowerCase();
+        
+        // 1. Location Mapping
+        let location = item.location || 'General';
+        if (text.includes('kano')) location = 'Kano';
+        else if (text.includes('kaduna')) location = 'Kaduna';
+        else if (text.includes('jigawa')) location = 'Jigawa';
+        else if (text.includes('federal')) location = 'Federal';
+
+        // 2. Thematic Area Mapping
+        let thematic = item.thematic_area || 'Policy & Strategy';
+        if (text.includes('financial') || text.includes('pfm') || text.includes('budget') || text.includes('fiscal')) {
+          thematic = 'Public Financial Management';
+        } else if (text.includes('service') || text.includes('psm') || text.includes('reform') || text.includes('civil service')) {
+          thematic = 'Public Service Management';
+        } else if (text.includes('policy') || text.includes('strategy') || text.includes('framework')) {
+          thematic = 'Policy & Strategy';
+        } else if (text.includes('monitoring') || text.includes('evaluation') || text.includes('mel') || text.includes('impact')) {
+          thematic = 'Monitoring, Evaluation & Learning';
+        } else if (text.includes('knowledge') || text.includes('km') || text.includes('repository') || text.includes('database')) {
+          thematic = 'Knowledge Management';
+        }
+
+        return { location, thematic };
+      };
+      // ───────────────────────────────────────────────────────────────────────
+
+
       const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
       // Note: Pixabay images are loaded via hooks; these serve as SSR/initial fallbacks
       const TYPE_IMAGES = {
@@ -57,10 +87,13 @@ const Library = ({ onNavigate }) => {
       const mappedRes = (res.data || []).map(r => {
         const normalizedType = (r.type || 'PERL').toUpperCase();
         const programme = r.programme || (PROGRAMME_TYPES.includes(normalizedType) ? normalizedType : null);
+        const { location, thematic } = categorize(r);
         return {
           ...r,
           type: normalizedType,
           programme: programme,
+          location: location,
+          thematic_area: thematic,
           coverImage: TYPE_IMAGES[normalizedType] || DEFAULT_IMG,
           author: r.author || 'GRH',
           year: r.published_year || new Date(r.created_at || Date.now()).getFullYear(),
@@ -69,43 +102,56 @@ const Library = ({ onNavigate }) => {
         };
       });
 
-      const mappedBooks = (bks.data || []).map(b => ({
-        ...b,
-        type: "BOOK",
-        author: b.author || "GRH Lib",
-        year: b.published_year || new Date(b.created_at || Date.now()).getFullYear(),
-        coverImage: b.image_url || getLibImg(0) || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
-        category: b.category || "Governance",
-        programme: b.programme || null,
-        location: b.location || 'Federal',
-        thematic_area: b.thematic_area || 'Policy & Strategy',
-        description: b.summary,
-        file_url: b.file_url || ''
-      }));
+      const mappedBooks = (bks.data || []).map(b => {
+        const { location, thematic } = categorize(b);
+        return {
+          ...b,
+          type: "BOOK",
+          author: b.author || "GRH Lib",
+          year: b.published_year || new Date(b.created_at || Date.now()).getFullYear(),
+          coverImage: b.image_url || getLibImg(0) || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+          category: b.category || "Governance",
+          programme: b.programme || null,
+          location: location,
+          thematic_area: thematic,
+          description: b.summary,
+          file_url: b.file_url || ''
+        };
+      });
 
-      const mappedSparc = (sparc.data || []).map((p, idx) => ({
-        ...p,
-        type: "SPARC",
-        programme: "SPARC",
-        category: "Governance",
-        author: p.author || "GRH",
-        year: new Date(p.created_at).getFullYear(),
-        coverImage: getSparcImg(idx) || TYPE_IMAGES['SPARC'] || DEFAULT_IMG,
-        file_url: p.preview_url || p.download_url || p.file_url || '',
-        description: p.description || `Synced document: ${p.title}`
-      }));
+      const mappedSparc = (sparc.data || []).map((p, idx) => {
+        const { location, thematic } = categorize(p);
+        return {
+          ...p,
+          type: "SPARC",
+          programme: "SPARC",
+          category: "Governance",
+          location: location,
+          thematic_area: thematic,
+          author: p.author || "GRH",
+          year: new Date(p.created_at).getFullYear(),
+          coverImage: getSparcImg(idx) || TYPE_IMAGES['SPARC'] || DEFAULT_IMG,
+          file_url: p.preview_url || p.download_url || p.file_url || '',
+          description: p.description || `Synced document: ${p.title}`
+        };
+      });
 
-      const mappedPerl = (perl.data || []).map((p, idx) => ({
-        ...p,
-        type: "PERL",
-        programme: "PERL",
-        category: "Governance",
-        author: p.author || "GRH",
-        year: new Date(p.created_at).getFullYear(),
-        coverImage: getPerlImg(idx) || TYPE_IMAGES['PERL'] || DEFAULT_IMG,
-        file_url: p.preview_url || p.download_url || p.file_url || '',
-        description: p.description || `Synced document: ${p.title}`
-      }));
+      const mappedPerl = (perl.data || []).map((p, idx) => {
+        const { location, thematic } = categorize(p);
+        return {
+          ...p,
+          type: "PERL",
+          programme: "PERL",
+          category: "Governance",
+          location: location,
+          thematic_area: thematic,
+          author: p.author || "GRH",
+          year: new Date(p.created_at).getFullYear(),
+          coverImage: getPerlImg(idx) || TYPE_IMAGES['PERL'] || DEFAULT_IMG,
+          file_url: p.preview_url || p.download_url || p.file_url || '',
+          description: p.description || `Synced document: ${p.title}`
+        };
+      });
 
       try {
         const merged = [...mappedRes, ...mappedBooks, ...mappedSparc, ...mappedPerl];
@@ -113,20 +159,30 @@ const Library = ({ onNavigate }) => {
         
         if (merged.length === 0) {
           return [
-            ...LEGACY_RESOURCES.map(r => ({
-              ...r,
-              programme: PROG_TYPES.includes((r.type || '').toUpperCase()) ? r.type.toUpperCase() : null
-            })),
-            ...LEGACY_BOOKS.map(b => ({
-              ...b,
-              type: "BOOK",
-              programme: null,
-              author: "GRH Lib",
-              year: 2024,
-              coverImage: b.imageUrl,
-              category: "Governance",
-              description: b.summary
-            }))
+            ...LEGACY_RESOURCES.map(r => {
+              const { location, thematic } = categorize(r);
+              return {
+                ...r,
+                location: location,
+                thematic_area: thematic,
+                programme: PROG_TYPES.includes((r.type || '').toUpperCase()) ? r.type.toUpperCase() : null
+              };
+            }),
+            ...LEGACY_BOOKS.map(b => {
+              const { location, thematic } = categorize(b);
+              return {
+                ...b,
+                type: "BOOK",
+                programme: null,
+                author: "GRH Lib",
+                year: 2024,
+                location: location,
+                thematic_area: thematic,
+                coverImage: b.imageUrl,
+                category: "Governance",
+                description: b.summary
+              };
+            })
           ];
         }
         
