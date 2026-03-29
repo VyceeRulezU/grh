@@ -65,14 +65,19 @@ const pageTransition = {
 
 function App() {
   const getPageFromUrl = () => {
+    // During build-time (SSR) window is not defined
+    if (typeof window === 'undefined') return 'welcome';
+
     // Dynamically handle base path (e.g., /grh/ or /)
     const base = import.meta.env.BASE_URL || '/';
     const path = window.location.pathname.replace(base, '').replace(/^\//, '');
     const normalizedPath = (path === 'admin-dashboard' || path === 'admin-login') ? 'admin' : path;
-    return normalizedPath || localStorage.getItem('currentPage') || 'welcome';
+    const fromStorage = typeof localStorage !== 'undefined' ? localStorage.getItem('currentPage') : null;
+    return normalizedPath || fromStorage || 'welcome';
   };
 
   const getNavDataFromSession = () => {
+    if (typeof sessionStorage === 'undefined') return null;
     try {
       const saved = sessionStorage.getItem('navData');
       return saved ? JSON.parse(saved) : null;
