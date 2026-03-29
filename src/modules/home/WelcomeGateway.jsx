@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { Helmet } from 'react-helmet-async';
 import './WelcomeGateway.css';
 
 const SECTIONS_DATA = [
@@ -91,6 +92,10 @@ const WelcomeGateway = ({ onNavigate }) => {
 
   return (
     <div className="welcome-container" ref={containerRef}>
+      <Helmet>
+        <title>Governance Resource Hub | Excellence Redefined</title>
+        <meta name="description" content="Explore everything you need for Governance Excellence. A unified platform for Learning, Research, AI Powered Insights and Governance Analytics." />
+      </Helmet>
       <div className="welcome-hero-section">
         <div className="pattern">
           <img src={`${import.meta.env.BASE_URL}assets/hero-vector.svg`} alt="hero background" loading="lazy" />

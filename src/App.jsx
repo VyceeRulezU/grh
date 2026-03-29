@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Analytics } from "@vercel/analytics/react";
 import { motion, AnimatePresence } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import Navbar from './shared/layout/Navbar'
 import Footer from './shared/layout/Footer'
 import AuthModal from './shared/ui/AuthModal'
@@ -91,31 +92,6 @@ function App() {
   const loginNavigated = useRef(false);
   const currentPageRef = useRef(currentPage);
   const userRef = useRef(null);
-
-  // Update document title dynamically
-  useEffect(() => {
-    const pageTitles = {
-      'welcome': 'Governance Resource Hub | Excellence Redefined',
-      'learn': 'Learn | GRH',
-      'research': 'Library | GRH',
-      'explore': 'Explore | GRH',
-      'assess': 'Assess | GRH',
-      'analyse': 'Analyse | GRH',
-      'student': 'Student Dashboard | GRH',
-      'learn-discovery': 'Courses | GRH',
-      'admin': 'Admin Portal | GRH',
-      'learn-player': 'Course Player | GRH',
-      'login': 'Login | GRH',
-      'signup': 'Signup | GRH',
-      'admin-login': 'Admin Login | GRH',
-      'oauth-consent': 'Authorize App | GRH',
-      'privacy-policy': 'Privacy Policy | GRH',
-      'terms-of-service': 'Terms of Service | GRH',
-      'forgot-password': 'Forgot Password | GRH',
-      'reset-password': 'Reset Password | GRH'
-    };
-    document.title = pageTitles[currentPage] || 'Governance Resource Hub';
-  }, [currentPage]);
 
   // Listen for auth state changes (crucial for OAuth redirection)
   useEffect(() => {
@@ -384,6 +360,11 @@ function App() {
 
   return (
     <div className="app-container">
+      <Helmet>
+        <title>Governance Resource Hub | Excellence Redefined</title>
+        <meta name="description" content="GRH is a premium educational platform dedicated to excellence in governance, policy research, and public leadership training." />
+        <link rel="canonical" href={`https://www.governanceresourcehub.com/${currentPage === 'welcome' ? '' : currentPage}`} />
+      </Helmet>
       {(currentPage !== 'welcome' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'forgot-password' && currentPage !== 'reset-password' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
         <Navbar 
           onNavigate={navigate} 

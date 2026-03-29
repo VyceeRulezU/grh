@@ -11,6 +11,7 @@ import { usePixabayImages } from '../../../shared/hooks/usePixabayImages';
 import { gsap } from 'gsap';
 import { Flip } from 'gsap/Flip';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Helmet } from 'react-helmet-async';
 import './Library.css';
 import ResourceViewer from '../components/ResourceViewer';
 import '../components/ResourceViewer.css';
@@ -343,6 +344,10 @@ const Library = ({ onNavigate }) => {
   */
   return (
     <div className="page-wrapper research-page">
+      <Helmet>
+        <title>Digital E-Library | Governance Research & Resources | GRH</title>
+        <meta name="description" content="Access a vast repository of governance research, institutional reports, and white papers. Explore over 20 years of documented governance data." />
+      </Helmet>
 
       <PageHero
         chip="Digital e-Library"

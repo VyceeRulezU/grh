@@ -9,6 +9,7 @@ import { getRelativeTime } from '../../../shared/utils/dateUtils';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
 import PageHero from '../../../shared/ui/PageHero';
+import { Helmet } from 'react-helmet-async';
 import './LearnLandingPage.css';
 import { usePixabayPortraits, usePixabayImages } from '../../../shared/hooks/usePixabayImages';
 
@@ -135,6 +136,10 @@ const LearnLandingPage = ({ onNavigate, user }) => {
 
   return (
     <div className="page-wrapper learn-page">
+      <Helmet>
+        <title>Learn | Governance Excellence Courses | GRH</title>
+        <meta name="description" content="Master Governance, Financial Management, and Institutional building with expert-led courses. High-impact learning for the next generation of leaders." />
+      </Helmet>
       {/* ── HERO ────────────────────────────────────────────────────── */}
       <PageHero 
         chip="STRUCTURED LEARNING PATHS"
