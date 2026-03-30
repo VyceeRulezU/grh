@@ -342,7 +342,7 @@ function App() {
       ? 'admin'
       : (returnPage && !['login', 'signup', 'welcome', 'admin', 'admin-login', 'forgot-password', 'reset-password'].includes(returnPage))
         ? returnPage
-        : 'welcome';
+        : 'student';
 
     // Navigate quickly
     const delay = 600; 
