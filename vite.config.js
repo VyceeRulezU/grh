@@ -13,6 +13,6 @@ export default defineConfig({
     // Dev-only bundle analyzer: run `npm run build` to open stats.html
     visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
   ],
-  // Use '/' for Vercel (root) and '/grh/' for GitHub Pages
-  base: process.env.NODE_ENV === 'production' ? (process.env.VERCEL ? '/' : '/grh/') : '/',
+  // Use '/' for Vercel/Production and '/grh/' only if explicitly building for GitHub Pages
+  base: process.env.GITHUB_PAGES === 'true' ? '/grh/' : '/',
 })

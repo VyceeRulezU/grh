@@ -13,28 +13,17 @@ async function fixBuild() {
     process.exit(1);
   }
 
-  console.log('Finalizing build for Vercel (clean root elevation)...');
+  console.log('Finalizing build for Vercel (clean root elevation v2)...');
 
-  const tempPath = path.join(rootPath, 'dist_temp');
+  const tempPath = path.join(rootPath, 'dist_temp_final');
   
-  // 1. Move dist/client to a temporary location
-  if (fs.existsSync(tempPath)) fs.rmSync(tempPath, { recursive: true });
+  // 1. Move dist/client to a temporary location outside of dist
+  if (fs.existsSync(tempPath)) fs.rmSync(tempPath, { recursive: true, force: true });
   fs.renameSync(clientPath, tempPath);
 
-  // 2. Clean the dist directory (remove everything except the 'server' folder if it exists, though we mostly want static)
-  fs.readdirSync(distPath).forEach(file => {
-    const p = path.join(distPath, file);
-    // Be careful not to delete things we just moved or directories we might need
-    try {
-      if (fs.lstatSync(p).isDirectory()) {
-        fs.rmSync(p, { recursive: true, force: true });
-      } else {
-        fs.unlinkSync(p);
-      }
-    } catch (e) {
-      // Ignore errors for files that might have been moved already
-    }
-  });
+  // 2. Wipe the dist directory completely to ensure no stale files or folders (like the now-empty client/) remain
+  if (fs.existsSync(distPath)) fs.rmSync(distPath, { recursive: true, force: true });
+  fs.mkdirSync(distPath);
 
   // 3. Move EVERYTHING from tempPath back into dist root
   fs.readdirSync(tempPath).forEach(file => {
@@ -44,7 +33,7 @@ async function fixBuild() {
   // 4. Cleanup
   fs.rmSync(tempPath, { recursive: true, force: true });
 
-  console.log('Build finalized: dist directory is now a clean static site root.');
+  console.log('Build finalized: dist directory is now a CLEAN static site root for Vercel.');
 }
 
 fixBuild().catch(err => {
