@@ -100,8 +100,11 @@
 
 /* ── Right counters ── */
 .ph-right {
+  min-height: 100%;
   display: flex;
+  flex-direction: row;
   gap: 1rem;
+  align-self: flex-end;
 }
 
 .ph-counter {

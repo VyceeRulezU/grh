@@ -65,15 +65,16 @@ const pageTransition = {
 
 function App() {
   const getPageFromUrl = () => {
-    // During build-time (SSR) window is not defined
     if (typeof window === 'undefined') return 'welcome';
-
-    // Dynamically handle base path (e.g., /grh/ or /)
     const base = import.meta.env.BASE_URL || '/';
-    const path = window.location.pathname.replace(base, '').replace(/^\//, '');
-    const normalizedPath = (path === 'admin-dashboard' || path === 'admin-login') ? 'admin' : path;
-    const fromStorage = typeof localStorage !== 'undefined' ? localStorage.getItem('currentPage') : null;
-    return normalizedPath || fromStorage || 'welcome';
+    const path = window.location.pathname.replace(base, '').replace(/^\//, '').replace(/\/$/, '');
+    let normalizedPath = path || 'welcome';
+    
+    // Core Naming Synchronization
+    if (normalizedPath === 'admin-dashboard' || normalizedPath === 'admin-login') normalizedPath = 'admin';
+    if (normalizedPath === 'library') normalizedPath = 'research'; 
+    
+    return normalizedPath;
   };
 
   const getNavDataFromSession = () => {
@@ -261,7 +262,9 @@ function App() {
 
   const navigate = (page, data = null) => {
     const targetPage = typeof page === 'string' ? page : page.page;
-    const targetData = data || (typeof page === 'object' ? page : null);
+    const targetData = typeof page === 'string' ? data : (page?.usr || data);
+    
+    console.log(`[GRH DEBUG] Navigating to: ${targetPage}`, { data: targetData });
     // Auth gate for protected pages — use ref so stale closures always see current user
     if (PROTECTED_PAGES.includes(targetPage) && !userRef.current) {
       localStorage.setItem('returnPage', targetPage);
@@ -330,28 +333,40 @@ function App() {
       });
     }
 
-    // Navigate only once — whichever call arrives first wins
-    if (loginNavigated.current) return true;
+    // Navigate only once — whichever call arrives first wins (Supabase event vs Modal callback)
+    if (loginNavigated.current) {
+      console.log("[GRH DEBUG] handleLogin suppressed: Navigation already in progress.");
+      return true;
+    }
+    
     loginNavigated.current = true;
 
-    const returnPage = localStorage.getItem('returnPage');
-    localStorage.removeItem('returnPage');
-
+    const returnPageManual = localStorage.getItem('returnPage');
+    const returnPageUrl = getPageFromUrl(); // Fallback to current URL if storage is empty
     const isUserAdmin = userData.isAdmin || userData.fromAdminWall;
-    const destination = isUserAdmin
-      ? 'admin'
-      : (returnPage && !['login', 'signup', 'welcome', 'admin', 'admin-login', 'forgot-password', 'reset-password'].includes(returnPage))
-        ? returnPage
-        : 'student';
+    
+    // Prioritize institutional stay-put behavior
+    const STAY_PUT_PAGES = ['learn', 'research', 'library', 'explore', 'about', 'assess', 'analyse', 'learn-discovery', 'privacy-policy', 'terms-of-service'];
+    
+    // Destination calculation: Admin > Manual Return Page > Current URL Page > Dashboard
+    let destination = isUserAdmin ? 'admin' : 'student';
+    
+    if (!isUserAdmin) {
+      if (returnPageManual && STAY_PUT_PAGES.includes(returnPageManual)) {
+        destination = returnPageManual;
+      } else if (STAY_PUT_PAGES.includes(returnPageUrl)) {
+        destination = returnPageUrl;
+      }
+    }
 
-    // Navigate quickly
-    const delay = 600; 
+    console.log("[GRH DEBUG] Login calculated destination:", destination, { manual: returnPageManual, url: returnPageUrl });
 
     setTimeout(() => {
       setStatusModal(p => ({ ...p, isOpen: false }));
-      loginNavigated.current = false; // reset for next login
+      localStorage.removeItem('returnPage'); 
+      loginNavigated.current = false;
       navigate(destination);
-    }, delay);
+    }, 600);
 
     return true;
   };
