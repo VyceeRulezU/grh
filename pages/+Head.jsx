@@ -3,8 +3,8 @@ import React from 'react'
 export default function Head() {
   return (
     <>
-      <link rel="icon" type="image/png" href="/og-image.png" />
-      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <link rel="icon" type="image/png" href="/icon.png" />
+      <link rel="apple-touch-icon" href="/icon.png" />
       <meta name="theme-color" content="#4DA771" />
       
       {/* DNS Preconnect for Performance */}
