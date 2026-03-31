@@ -137,9 +137,9 @@ const AboutUs = ({ onNavigate }) => {
       {/* ── IMPACT HERO SECTION ────────────────────────────────────────────── */}
       <section className="impact-hero-section" ref={statsRef}>
         <div className="container impact-container">
-          <div className="impact-tag">
+          {/* <div className="impact-tag">
             <span className="dot"></span> OUR IMPACT
-          </div>
+          </div> */}
           
           <h2 className="impact-headline">
             The Governance Resource Hub is a <i className="italic-highlight">purpose-driven</i> digital platform <i className="italic-highlight">helping</i> practitioners <i className="italic-highlight">navigate</i> reforms, <i className="italic-highlight">refine</i> policy, and <i className="italic-highlight">achieve</i> sustainable development.
@@ -219,7 +219,7 @@ const AboutUs = ({ onNavigate }) => {
       </section>
 
       {/* ── SERVICES / WHAT WE DO ── */}
-      <section className="about-services">
+      {/* <section className="about-services">
         <div className="about-services-bg">
           <img src={servicesBg} alt="Governance professionals" />
         </div>
@@ -249,7 +249,7 @@ const AboutUs = ({ onNavigate }) => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ── CORE VALUES -> FEATURED COURSE ── */}
       <section className="about-values" id="featured-course">
