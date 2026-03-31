@@ -2570,6 +2570,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           }
 
           setStatusModal(prev => ({ ...prev, isOpen: false }));
+          fetchData(); // Refresh list immediately
           // Use a small delay or ensure we don't overlap modals
           setTimeout(() => {
             setStatusModal({ 
