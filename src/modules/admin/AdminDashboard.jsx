@@ -2534,12 +2534,12 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the file permanently and this action cannot be undone.`,
       onConfirm: async () => {
         try {
-          let table = item.table_name || '';
           if (!table) {
             if (type === 'course') table = 'courses';
             if (type === 'resource') table = 'library_resources';
             if (type === 'book') table = 'books';
             if (type === 'workshop') table = 'workshops';
+            if (type === 'instructor') table = 'instructors';
             if (type === 'user') table = 'profiles';
           }
 
