@@ -140,6 +140,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         <title>Learn | Governance Excellence Courses | GRH</title>
         <meta name="description" content="Master Governance, Financial Management, and Institutional building with expert-led courses. High-impact learning for the next generation of leaders." />
       </Helmet>
+     
       {/* ── HERO ────────────────────────────────────────────────────── */}
       <PageHero 
         chip="STRUCTURED LEARNING PATHS"
@@ -159,27 +160,27 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             <a href="#courses-section" className="btn-outline">Browse Courses</a>
           </>
         }
-        customRight={
-          <div className="learn-social-proof" aria-label="Social proof: 1500+ enthusiasts">
-            <div className="learn-avatar-stack" aria-hidden="true">
-              {(portraitImgs.length > 0 ? portraitImgs : [
-                'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                'https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-                'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-              ]).slice(0, 5).map((src, idx) => (
-                <img key={idx} src={src} alt="" width="44" height="44" loading="lazy" />
-              ))}
-            </div>
-            <div className="learn-social-proof-text">
-              <span className="learn-rating-score">Join 1500+ enthusiasts</span>
-            </div>
-          </div>
-        }
+        // customRight={
+        //   <div className="learn-social-proof" aria-label="Social proof: 1500+ enthusiasts">
+        //     <div className="learn-avatar-stack" aria-hidden="true">
+        //       {(portraitImgs.length > 0 ? portraitImgs : [
+        //         'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+        //         'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+        //         'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+        //         'https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+        //         'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
+        //       ]).slice(0, 5).map((src, idx) => (
+        //         <img key={idx} src={src} alt="" width="44" height="44" loading="lazy" />
+        //       ))}
+        //     </div>
+        //     <div className="learn-social-proof-text">
+        //       <span className="learn-rating-score">Join 1500+ enthusiasts</span>
+        //     </div>
+        //   </div>
+        // }
       />
 
-      {/* ── TRUSTED BY ──────────────────────────────────────────────── */}
+      {/* ── TRUSTED BY ────────────────────────────────────────────────
       <div className="trusted-by">
         <p>Trusted by leading institutions worldwide</p>
         <div className="trusted-by-carousel">
@@ -194,7 +195,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="container learn-content" id="courses-section">
         <Tab tabs={COURSE_TABS} activeTab={activeTab} onTabChange={setActiveTab} />

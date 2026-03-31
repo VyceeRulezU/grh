@@ -7,6 +7,8 @@ const CourseDetails = ({ course, onNavigate, user }) => {
   const [loading, setLoading] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrollmentCount, setEnrollmentCount] = useState(0);
+  const [modules, setModules] = useState([]);
+  const [groupedModules, setGroupedModules] = useState({});
 
   useEffect(() => {
     if (course && user) {
@@ -14,8 +16,28 @@ const CourseDetails = ({ course, onNavigate, user }) => {
     }
     if (course) {
       fetchEnrollmentCount();
+      fetchModules();
     }
   }, [course, user]);
+
+  const fetchModules = async () => {
+    const { data } = await supabase
+      .from('course_modules')
+      .select('*')
+      .eq('course_id', course.id)
+      .order('sort_order', { ascending: true });
+    
+    if (data) {
+      setModules(data);
+      const grouped = data.reduce((acc, mod) => {
+        const chapter = mod.chapter_title || 'Course Content';
+        if (!acc[chapter]) acc[chapter] = [];
+        acc[chapter].push(mod);
+        return acc;
+      }, {});
+      setGroupedModules(grouped);
+    }
+  };
 
   const checkEnrollment = async () => {
     const { data } = await supabase
@@ -127,11 +149,17 @@ const CourseDetails = ({ course, onNavigate, user }) => {
             >
               Instructor
             </button>
-            <button 
+            {/* <button 
               className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
               onClick={() => setActiveTab('reviews')}
             >
               Reviews
+            </button> */}
+            <button 
+              className={`tab-btn ${activeTab === 'curriculum' ? 'active' : ''}`}
+              onClick={() => setActiveTab('curriculum')}
+            >
+              Course Details
             </button>
           </div>
 
@@ -170,6 +198,43 @@ const CourseDetails = ({ course, onNavigate, user }) => {
                 <p className="inst-bio">
                   An experienced professional in public sector management and governance reform with over 15 years of experience supporting institutional development across Nigeria and Sub-Saharan Africa.
                 </p>
+              </div>
+            )}
+
+            {activeTab === 'curriculum' && (
+              <div className="curriculum-tab animate-fade">
+                <h3>Course Content</h3>
+                <p className="curriculum-meta">
+                   {Object.keys(groupedModules).length} sections • {modules.length} modules
+                </p>
+                
+                <div className="curriculum-accordion">
+                  {Object.entries(groupedModules).map(([chapter, mods]) => (
+                    <details key={chapter} className="curriculum-chapter" open>
+                      <summary className="chapter-summary">
+                        <div className="chapter-info">
+                          <i className="ri-arrow-down-s-line chevron"></i>
+                          <h4>{chapter}</h4>
+                        </div>
+                        <span className="chapter-count">{mods.length} modules</span>
+                      </summary>
+                      <div className="chapter-content">
+                        {mods.map(mod => (
+                          <div key={mod.id} className="curriculum-module">
+                            <i className="ri-play-circle-line bg-icon"></i>
+                            <div className="module-details">
+                              <span className="mod-title">{mod.title}</span>
+                              <span className="mod-duration">{mod.duration || 'Video content'}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  ))}
+                  {modules.length === 0 && (
+                    <p style={{ color: 'var(--text-soft)', marginTop: '1rem' }}>No modules available yet.</p>
+                  )}
+                </div>
               </div>
             )}
 
