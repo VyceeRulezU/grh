@@ -191,10 +191,10 @@ const AboutUs = ({ onNavigate }) => {
               src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800"
               alt="Government Intelligence Team"
             />
-            <div className="mission-badge">
+            {/* <div className="mission-badge">
               <strong>99.9%</strong>
               <span>Data Accuracy</span>
-            </div>
+            </div> */}
           </div>
           <div className="mission-content">
             <span className="tag">About the Governance Resource Hub</span>

@@ -1073,6 +1073,11 @@
     transform: translateY(-4px);
 }
 
+/* Override fixed width for admin grid to fit 5 per row */
+.instr-card-container .instructor-card {
+    width: 100% !important;
+}
+
 .instr-delete-btn {
     position: absolute;
     top: 8px;
