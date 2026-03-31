@@ -48,8 +48,8 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
           email: data.user.email,
           id: data.user.id,
           name: profile?.name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
-          isAdmin: (profile?.role === 'Admin') || 
-                   (data.user.user_metadata?.role === 'Admin') || 
+          isAdmin: (profile?.role?.toLowerCase() === 'admin') || 
+                   (data.user.user_metadata?.role?.toLowerCase() === 'admin') || 
                    (data.user.email?.toLowerCase().includes('admin') && !data.user.email?.toLowerCase().includes('learner')),
           avatar_url: profile?.avatar_url || data.user.user_metadata?.avatar_url
         };
