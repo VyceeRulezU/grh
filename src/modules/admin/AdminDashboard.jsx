@@ -2526,24 +2526,26 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
   };
 
   const confirmDelete = (item, type) => {
+    let table = item.table_name || '';
+    if (!table) {
+      if (type === 'course') table = 'courses';
+      if (type === 'resource') table = 'library_resources';
+      if (type === 'book') table = 'books';
+      if (type === 'workshop') table = 'workshops';
+      if (type === 'instructor') table = 'instructors';
+      if (type === 'user') table = 'profiles';
+    }
+
+    console.log(`[Admin] Prepared delete for type: ${type}, table: ${table}, item id: ${item.id}`);
+
     const itemName = item.title || item.name || 'this item';
     setStatusModal({
       isOpen: true,
       type: 'error',
       title: 'Confirm Delete',
-      message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the file permanently and this action cannot be undone.`,
+      message: `Are you sure you want to delete this ${type}: "${itemName}"? This will remove the record permanently and this action cannot be undone.`,
       onConfirm: async () => {
         try {
-          let table = item.table_name || '';
-          if (!table) {
-            if (type === 'course') table = 'courses';
-            if (type === 'resource') table = 'library_resources';
-            if (type === 'book') table = 'books';
-            if (type === 'workshop') table = 'workshops';
-            if (type === 'instructor') table = 'instructors';
-            if (type === 'user') table = 'profiles';
-          }
-
           if (type === 'user') {
             const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`;
             
