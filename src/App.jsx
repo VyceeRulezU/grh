@@ -382,8 +382,9 @@ function App() {
     <div className="app-container">
       <Helmet>
         <title>Governance Resource Hub | Excellence Redefined</title>
-        <meta name="description" content="GRH is a premium educational platform dedicated to excellence in governance, policy research, and public leadership training." />
-        <link rel="canonical" href={`https://www.governanceresourcehub.com/${currentPage === 'welcome' ? '' : currentPage}`} />
+        <link rel="icon" type="image/png" href="/icon.png?v=1" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1" />
+        <link rel="apple-touch-icon" href="/icon.png?v=1" />
       </Helmet>
       {(currentPage !== 'welcome' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'forgot-password' && currentPage !== 'reset-password' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
         <Navbar 
