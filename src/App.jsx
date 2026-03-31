@@ -361,12 +361,11 @@ function App() {
 
     console.log("[GRH DEBUG] Login calculated destination:", destination, { manual: returnPageManual, url: returnPageUrl });
 
-    setTimeout(() => {
-      setStatusModal(p => ({ ...p, isOpen: false }));
-      localStorage.removeItem('returnPage'); 
-      loginNavigated.current = false;
-      navigate(destination);
-    }, 600);
+    setStatusModal(p => ({ ...p, isOpen: false }));
+    localStorage.removeItem('returnPage'); 
+    loginNavigated.current = false;
+    console.log("[GRH DEBUG] handleLogin calling navigate to:", destination, { user: userData.isAdmin, currentPage: currentPage });
+    navigate(destination);
 
     return true;
   };
