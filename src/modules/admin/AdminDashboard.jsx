@@ -9,7 +9,7 @@ import ModernDropdown from '../../shared/ui/ModernDropdown';
 import StatusModal from '../../shared/ui/StatusModal';
 import { useModal } from '../../shared/hooks/useModal';
 import ResourceViewer from '../research/components/ResourceViewer';
-import InstructorsManager from './components/InstructorsManager';
+import InstructorCard from '../../shared/ui/InstructorCard';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -1482,10 +1482,295 @@ function AdminQuizzesPanel() {
   );
 }
 
-function AdminInstructorsPanel() {
+function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingInstructor, setEditingInstructor] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    title: '',
+    summary: '',
+    avatar_url: '',
+    category: 'Governance'
+  });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
+
+  const handleAvatarFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showError('File Too Large', 'Please select an image smaller than 2MB.');
+        return;
+      }
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatarPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!formData.name || !formData.title) {
+      showError('Invalid Form', 'Name and Title are required.');
+      return;
+    }
+
+    try {
+      let finalAvatarUrl = formData.avatar_url;
+
+      // Upload nested if file exists
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `instructor_${Math.random()}.${fileExt}`;
+        const filePath = `instructors/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, avatarFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+        
+        finalAvatarUrl = publicUrl;
+      }
+
+      const payload = { ...formData, avatar_url: finalAvatarUrl };
+
+      if (editingInstructor) {
+        const { error } = await supabase
+          .from('instructors')
+          .update(payload)
+          .eq('id', editingInstructor.id);
+        if (error) throw error;
+        showSuccess('Updated!', 'Instructor details updated successfully.');
+      } else {
+        const { error } = await supabase
+          .from('instructors')
+          .insert([payload]);
+        if (error) throw error;
+        showSuccess('Added!', 'New instructor added successfully.');
+      }
+      setIsAddModalOpen(false);
+      setEditingInstructor(null);
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setFormData({ name: '', title: '', summary: '', avatar_url: '', category: 'Governance' });
+      if (fetchData) fetchData();
+    } catch (err) {
+      showError('Error', err.message);
+    }
+  };
+
+  const filtered = (instructors || []).filter(inst => 
+    inst.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    inst.title?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
-    <div className="adm-panel" style={{ padding: 0, background: 'transparent', boxShadow: 'none' }}>
-      <InstructorsManager />
+    <div className="instr-manager">
+      <header className="instr-header">
+        <div className="instr-header-left">
+          <h3>Instructors & Leadership <span className="adm-count">{instructors.length}</span></h3>
+          <p>Manage people appearing in the About and Learn sections.</p>
+        </div>
+        <button className="special-button" onClick={() => {
+          setEditingInstructor(null);
+          setAvatarFile(null);
+          setAvatarPreview(null);
+          setFormData({ name: '', title: '', summary: '', avatar_url: '', category: 'Governance' });
+          setIsAddModalOpen(true);
+        }}>
+          <i className="ri-user-add-line"></i> Add Member
+        </button>
+      </header>
+
+      <div className="instr-controls">
+        <div className="instr-search">
+          <i className="ri-search-line"></i>
+          <input 
+            type="text" 
+            placeholder="Search by name or title..." 
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+        <div className="instr-stats">
+          Showing {paginated.length} of {filtered.length} members
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="instr-empty">
+          <i className="ri-user-search-line" style={{ fontSize: '3rem', opacity: 0.5 }}></i>
+          <h4>No instructors found</h4>
+          <p>Try a different search term or add a new member.</p>
+        </div>
+      ) : (
+        <>
+          <div className="instr-grid">
+            {paginated.map(inst => (
+              <div key={inst.id} className="instr-card-container">
+                <InstructorCard 
+                  {...inst} 
+                  className="instr-card-hoverable"
+                  onClick={() => {
+                    setEditingInstructor(inst);
+                    setAvatarFile(null);
+                    setAvatarPreview(null);
+                    setFormData({
+                      name: inst.name,
+                      title: inst.title,
+                      summary: inst.summary || '',
+                      avatar_url: inst.avatar_url || '',
+                      category: inst.category || 'Governance'
+                    });
+                    setIsAddModalOpen(true);
+                  }}
+                />
+                <button 
+                  className="instr-delete-btn" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(inst, 'instructor');
+                  }}
+                  title="Delete Member"
+                >
+                  <i className="ri-delete-bin-line"></i>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="instr-pagination-box">
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Add/Edit Modal */}
+      {isAddModalOpen && (
+        <div className="adm-modal-overlay">
+          <div className="adm-modal animate-up">
+            <header className="adm-modal-header">
+              <h3>{editingInstructor ? 'Edit Member' : 'Add New Member'}</h3>
+              <button className="adm-close-btn" onClick={() => {
+                setIsAddModalOpen(false);
+                setAvatarFile(null);
+                setAvatarPreview(null);
+              }}>
+                <i className="ri-close-line"></i>
+              </button>
+            </header>
+            <div className="adm-modal-body">
+              <div className="instr-avatar-upload-section">
+                <div 
+                  className="instr-avatar-preview" 
+                  onClick={() => document.getElementById('instr-file-input').click()}
+                >
+                  <img src={avatarPreview || formData.avatar_url || 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} alt="Avatar Preview" />
+                  <div className="instr-avatar-overlay">
+                    <i className="ri-camera-line"></i>
+                    <span>Change</span>
+                  </div>
+                </div>
+                <input 
+                  type="file" 
+                  id="instr-file-input" 
+                  style={{ display: 'none' }} 
+                  accept="image/*"
+                  onChange={handleAvatarFileChange}
+                />
+                <div className="instr-avatar-help">
+                  <p>Click image to upload avatar</p>
+                  <span>JPG, PNG. Max 2MB.</span>
+                </div>
+              </div>
+
+              <div className="adm-form-group">
+                <label>Full Name*</label>
+                <input 
+                  placeholder="e.g. Dr. Amaka Okonkwo" 
+                  value={formData.name}
+                  onChange={e => setFormData({...formData, name: e.target.value})}
+                />
+              </div>
+              <div className="adm-form-row">
+                <div className="adm-form-group">
+                  <label>Role / Title*</label>
+                  <input 
+                    placeholder="e.g. Governance Specialist" 
+                    value={formData.title}
+                    onChange={e => setFormData({...formData, title: e.target.value})}
+                  />
+                </div>
+                <div className="adm-form-group">
+                  <label>Category</label>
+                  <ModernDropdown 
+                    options={['Governance', 'Finance', 'Leadership', 'Democracy', 'Integrity', 'Digital']}
+                    value={formData.category}
+                    onChange={v => setFormData({...formData, category: v})}
+                  />
+                </div>
+              </div>
+              <div className="adm-form-group">
+                <label>Avatar URL (Optional Fallback)</label>
+                <input 
+                  placeholder="https://images.unsplash.com/..." 
+                  value={formData.avatar_url}
+                  onChange={e => setFormData({...formData, avatar_url: e.target.value})}
+                />
+              </div>
+              <div className="adm-form-group">
+                <label>Brief Summary (Expertise / Background)</label>
+                <textarea 
+                  rows="4" 
+                  placeholder="A short bio that will show in the detail modal..."
+                  value={formData.summary}
+                  onChange={e => setFormData({...formData, summary: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--stroke-soft)',
+                    borderRadius: '12px',
+                    fontSize: '0.95rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+            </div>
+            <footer className="adm-modal-footer">
+              <button className="btn-outline" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
+              <button className="special-button" onClick={handleSave}>
+                {editingInstructor ? 'Save Changes' : 'Add Member'}
+              </button>
+            </footer>
+          </div>
+        </div>
+      )}
+
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
@@ -1902,6 +2187,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
   const [books, setBooks] = useState([]);
   const [users, setUsers] = useState([]);
   const [workshops, setWorkshops] = useState([]);
+  const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     learners: 0,
@@ -1937,7 +2223,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     try {
       setLoading(true);
       // Fetch data with individual error handling to prevent total crash if one schema is missing
-      let [crs, res, bks, sparc, prl, usr, wks, progress, mods] = await Promise.all([
+      // Let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst] = await Promise.all([
+      let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst] = await Promise.all([
         supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
@@ -1950,7 +2237,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           .eq('completed', true)
           .order('updated_at', { ascending: false })
           .limit(10).then(r => r, e => ({ error: e })),
-        supabase.from('course_modules').select('*').then(r => r, e => ({ error: e }))
+        supabase.from('course_modules').select('*').then(r => r, e => ({ error: e })),
+        supabase.from('instructors').select('*').then(r => r, e => ({ error: e }))
       ]);
 
       // ULTRA-RESILIENT FALLBACK: If join query failed (likely due to missing chapters table), try simple select
@@ -1970,6 +2258,9 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (usr.error) console.error("Users Fetch Error:", usr.error);
       if (wks.error) console.error("Workshops Fetch Error:", wks.error);
       if (progress.error) console.error("Progress Fetch Error:", progress.error);
+      if (inst.error) console.error("Instructors Fetch Error:", inst.error);
+      if (inst.data) setInstructors(inst.data);
+
 
       // 2. Fetch ALL progress for counting and recent activity (Manual join fallback)
       const { data: allProgress, error: allProgErr } = await supabase
@@ -2413,7 +2704,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
             {activeSection === 'users'      && <UsersPanel users={users} setUsers={setUsers} onDelete={confirmDelete} loggedInUser={user} fetchData={fetchData} />}
             {activeSection === 'analytics'  && <AnalyticsPanel stats={stats} />}
             {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
-            {activeSection === 'instructors'&& <AdminInstructorsPanel />}
+            {activeSection === 'instructors'&& <AdminInstructorsPanel instructors={instructors} onDelete={confirmDelete} fetchData={fetchData} />}
             {activeSection === 'settings'   && <AdminSettingsPanel user={user} onRefreshUser={onRefreshUser} />}
             {!PANEL_MAP[activeSection] && (
               <div className="adm-panel"><p style={{color:'var(--text-soft)', padding:'2rem'}}>Panel '{activeSection}' — coming soon</p></div>
