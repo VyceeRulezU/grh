@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../services/supabase/supabaseClient';
 import { COURSES, MENTORS, TESTIMONIALS } from '../../../data/legacyData';
+import InstructorCard from '../../../shared/ui/InstructorCard';
+import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 import CtaSection from '../../../shared/ui/CtaSection';
 import FaqSection from '../../../shared/ui/FaqSection';
 import ModernDropdown from '../../../shared/ui/ModernDropdown';
@@ -28,6 +30,8 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   const [level, setLevel] = useState("All Levels");
   const [activeTab, setActiveTab] = useState("all");
   const [courses, setCourses] = useState([]);
+  const [instructors, setInstructors] = useState([]);
+  const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Localized African portrait images for social proof, testimonials, and mentors (20 to cover all sections)
@@ -86,7 +90,31 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       }
     };
 
+    const fetchInstructors = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('instructors')
+          .select('*');
+        if (!error && data && data.length > 0) {
+          setInstructors(data);
+        } else {
+          // Fallback to legacy data if table doesn't exist yet
+          setInstructors(MENTORS.map((m, i) => ({
+            id: m.id,
+            name: m.name,
+            title: m.role,
+            avatar_url: portraitImgs[i + 10] || m.image,
+            category: m.category,
+            summary: "Governance expert and lead instructor at the Governance Resource Hub."
+          })));
+        }
+      } catch (err) {
+        console.error("Error fetching instructors:", err);
+      }
+    };
+
     fetchCourses();
+    fetchInstructors();
 
     // Subscribe to real-time changes
     const channel = supabase
@@ -314,17 +342,12 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             </button>
             
             <div className="mentors-grid" id="mentors-slider">
-              {MENTORS.map((mentor, i) => (
-                <div key={mentor.id} className="mentor-card animate-up" style={{ animationDelay: `${i * 0.05}s` }}>
-                  <img 
-                    src={portraitImgs.length > i + 10 ? portraitImgs[i + 10] : (portraitImgs[i] || mentor.image)} 
-                    alt={mentor.name} 
-                    loading="lazy"
-                    onError={(e) => { e.target.onerror = null; e.target.src = mentor.image; }}
+              {instructors.map((mentor, i) => (
+                <div key={mentor.id} className="animate-up" style={{ animationDelay: `${i * 0.05}s`, minWidth: '280px' }}>
+                  <InstructorCard 
+                    {...mentor}
+                    onClick={() => setSelectedInstructor(mentor)}
                   />
-                  <h3>{mentor.name}</h3>
-                  <p>{mentor.role}</p>
-                  <span className="mentor-tag">{mentor.category}</span>
                 </div>
               ))}
             </div>
@@ -404,6 +427,11 @@ const LearnLandingPage = ({ onNavigate, user }) => {
           />
         </div>
         
+        <InstructorDetailModal 
+          isOpen={!!selectedInstructor}
+          onClose={() => setSelectedInstructor(null)}
+          instructor={selectedInstructor}
+        />
     </div>
   );
 };

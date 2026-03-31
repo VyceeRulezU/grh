@@ -9,6 +9,7 @@ import ModernDropdown from '../../shared/ui/ModernDropdown';
 import StatusModal from '../../shared/ui/StatusModal';
 import { useModal } from '../../shared/hooks/useModal';
 import ResourceViewer from '../research/components/ResourceViewer';
+import InstructorsManager from './components/InstructorsManager';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -1482,16 +1483,9 @@ function AdminQuizzesPanel() {
 }
 
 function AdminInstructorsPanel() {
-  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
   return (
-    <div className="adm-panel">
-      <div className="adm-panel-header"><h3>Instructors</h3></div>
-      <div className="adm-placeholder-card">
-        <i className="ri-user-star-line"></i>
-        <h4>Instructor Management Coming Soon</h4>
-        <p>A hub to manage your team of governance experts and guest lecturers.</p>
-      </div>
-      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
+    <div className="adm-panel" style={{ padding: 0, background: 'transparent', boxShadow: 'none' }}>
+      <InstructorsManager />
     </div>
   );
 }

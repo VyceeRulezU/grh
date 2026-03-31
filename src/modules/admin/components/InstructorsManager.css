@@ -1,0 +1,202 @@
+.instr-manager {
+    padding: 2rem;
+    background: white;
+    border-radius: var(--radius-xl, 24px);
+    box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.instr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+}
+
+.instr-header-left h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--secondary, #0D2B1C);
+    margin-bottom: 0.5rem;
+}
+
+.instr-header-left p {
+    font-size: 0.95rem;
+    color: var(--text-soft, #566D64);
+}
+
+.instr-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: var(--bg-weak, #F9F9FB);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg, 16px);
+}
+
+.instr-search {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: white;
+    border: 1px solid var(--stroke-soft, #EEF2EE);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md, 12px);
+    width: 350px;
+    transition: all 0.2s;
+}
+
+.instr-search:focus-within {
+    border-color: var(--primary, #4DA771);
+    box-shadow: 0 0 0 2px rgba(77, 167, 113, 0.1);
+}
+
+.instr-search input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.9rem;
+    color: var(--secondary, #0D2B1C);
+}
+
+.instr-stats {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-soft, #566D64);
+}
+
+.instr-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.instr-card-container {
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.instr-card-container:hover {
+    transform: translateY(-4px);
+}
+
+.instr-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #FFEDED;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #FF4444;
+    transition: all 0.2s;
+    opacity: 0;
+}
+
+.instr-card-container:hover .instr-delete-btn {
+    opacity: 1;
+}
+
+.instr-delete-btn:hover {
+    background: #FF4444;
+    color: white;
+    border-color: #FF4444;
+}
+
+.instr-loading, .instr-empty {
+    padding: 5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.instr-empty span {
+    font-size: 3.5rem;
+    color: var(--text-soft, #566D64);
+    opacity: 0.5;
+}
+
+.instr-empty h3 {
+    font-size: 1.25rem;
+    color: var(--secondary, #0D2B1C);
+}
+
+.instr-pagination-box {
+    margin-top: auto;
+    padding-top: 2rem;
+    border-top: 1px solid var(--stroke-soft, #EEF2EE);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(77, 167, 113, 0.1);
+    border-top: 3px solid var(--primary, #4DA771);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 1400px) {
+    .instr-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .instr-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .instr-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .instr-header {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .instr-search {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .instr-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modal form extensions */
+.adm-modal-body .adm-form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--stroke-soft, #EEF2EE);
+    border-radius: var(--radius-md, 12px);
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.adm-modal-body .adm-form-group textarea:focus {
+    border-color: var(--primary, #4DA771);
+    outline: none;
+}

@@ -12,6 +12,9 @@ import PFM_Mock from '../../../assets/PFM_Mock.png';
 import Library from '../../../assets/Library.png';
 import Assess from '../../../assets/Assess.png';
 import E_learning from '../../../assets/e-Learning.png';
+import { supabase } from '../../../services/supabase/supabaseClient';
+import InstructorCard from '../../../shared/ui/InstructorCard';
+import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,6 +37,9 @@ const PARTNERS = [
 const AboutUs = ({ onNavigate }) => {
   const heroRef = useRef(null);
   const statsRef = useRef(null);
+  const [instructors, setInstructors] = React.useState([]);
+  const [selectedInstructor, setSelectedInstructor] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -47,6 +53,36 @@ const AboutUs = ({ onNavigate }) => {
       gsap.from('.about-hero-content > *', {
         y: 40, opacity: 0, duration: 1, stagger: 0.2, ease: 'power3.out'
       });
+
+      // Fetch instructors
+      const fetchInstructors = async () => {
+        try {
+          setLoading(true);
+          const { data, error } = await supabase
+            .from('instructors')
+            .select('*');
+          
+          if (!error && data && data.length > 0) {
+            setInstructors(data);
+          } else {
+            // Fallback to legacy data
+            setInstructors(TEAM_MEMBERS.map((m, i) => ({
+              id: `legacy-${i}`,
+              name: m.name,
+              title: m.role,
+              avatar_url: m.img,
+              category: 'Leadership',
+              summary: "A multidisciplinary governance expert and key member of the GRH leadership team."
+            })));
+          }
+        } catch (err) {
+          console.error("Error fetching team:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchInstructors();
 
       // Stats Counting
       const stats = document.querySelectorAll('.about-stat-number');
@@ -391,11 +427,12 @@ const AboutUs = ({ onNavigate }) => {
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
             <div className="mentors-grid" id="about-team-slider">
-              {TEAM_MEMBERS.map((m, i) => (
-                <div key={i} className="mentor-card team-card">
-                  <img src={m.img} alt={m.name} loading="lazy" />
-                  <h3>{m.name}</h3>
-                  <p>{m.role}</p>
+              {instructors.map((m, i) => (
+                <div key={m.id} className="animate-up" style={{ animationDelay: `${i * 0.05}s`, minWidth: '280px' }}>
+                  <InstructorCard 
+                    {...m}
+                    onClick={() => setSelectedInstructor(m)}
+                  />
                 </div>
               ))}
             </div>
@@ -440,6 +477,11 @@ const AboutUs = ({ onNavigate }) => {
         />
       </div>
 
+      <InstructorDetailModal 
+        isOpen={!!selectedInstructor}
+        onClose={() => setSelectedInstructor(null)}
+        instructor={selectedInstructor}
+      />
     </div>
   );
 };
