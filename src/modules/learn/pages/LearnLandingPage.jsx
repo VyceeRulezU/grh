@@ -10,7 +10,7 @@ import Tab from '../../../shared/ui/Tab';
 import { getRelativeTime } from '../../../shared/utils/dateUtils';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
-import PageHero from '../../../shared/ui/PageHero';
+import LearnHero from '../components/LearnHero';
 import { Helmet } from 'react-helmet-async';
 import './LearnLandingPage.css';
 import { usePixabayPortraits, usePixabayImages } from '../../../shared/hooks/usePixabayImages';
@@ -160,7 +160,26 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         }
       );
     }
-  }, [filtered]);
+
+    // Stats Counting
+    const stats = document.querySelectorAll('.about-stat-number');
+    stats.forEach(stat => {
+      const target = parseInt(stat.getAttribute('data-target'));
+      gsap.fromTo(stat,
+        { innerText: 0 },
+        {
+          innerText: target,
+          duration: 2.5,
+          snap: { innerText: 1 },
+          scrollTrigger: { trigger: stat, start: 'top 90%' },
+          onUpdate: function () {
+            const current = Math.floor(this.targets()[0].innerText);
+            stat.innerText = current + (stat.getAttribute('data-suffix') || '');
+          }
+        }
+      );
+    });
+  }, [filtered, loading]);
 
   return (
     <div className="page-wrapper learn-page">
@@ -170,7 +189,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       </Helmet>
      
       {/* ── HERO ────────────────────────────────────────────────────── */}
-      <PageHero 
+      <LearnHero 
         chip="STRUCTURED LEARNING PATHS"
         title={
           <>
@@ -188,25 +207,44 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             <a href="#courses-section" className="btn-outline">Browse Courses</a>
           </>
         }
-        // customRight={
-        //   <div className="learn-social-proof" aria-label="Social proof: 1500+ enthusiasts">
-        //     <div className="learn-avatar-stack" aria-hidden="true">
-        //       {(portraitImgs.length > 0 ? portraitImgs : [
-        //         'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-        //         'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-        //         'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-        //         'https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-        //         'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80',
-        //       ]).slice(0, 5).map((src, idx) => (
-        //         <img key={idx} src={src} alt="" width="44" height="44" loading="lazy" />
-        //       ))}
-        //     </div>
-        //     <div className="learn-social-proof-text">
-        //       <span className="learn-rating-score">Join 1500+ enthusiasts</span>
-        //     </div>
-        //   </div>
-        // }
+        counters={[
+          { value: '1+', label: 'COURSES' },
+          { value: '180+', label: 'MODULES' },
+          { value: '98%', label: 'COMPLETION' },
+          { value: 'Free', label: 'TO START' }
+        ]}
       />
+
+      {/* ── IMPACT HERO SECTION ────────────────────────────────────────────── */}
+      <section className="impact-hero-section">
+        <div className="container impact-container">
+          <h2 className="impact-headline">
+            Empowering governance through <i className="italic-highlight">specialized</i> learning, <i className="italic-highlight">practical</i> frameworks, and <i className="italic-highlight">expert-led</i> capacity building.
+          </h2>
+
+          <div className="impact-stats-grid">
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.1s' }}>
+              <h3 className="about-stat-number" data-target="100" data-suffix="%">0</h3>
+              <p>AI-driven research accuracy and intelligent resource matching for policy analysis.</p>
+            </div>
+            
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.2s' }}>
+              <h3 className="about-stat-number" data-target="5" data-suffix="K+">0</h3>
+              <p>Certified practitioners and officials actively implementing reforms across Nigeria.</p>
+            </div>
+            
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.3s' }}>
+              <h3 className="about-stat-number" data-target="500" data-suffix="+">0</h3>
+              <p>Hours of high-impact governance learning content and expert-developed toolkits.</p>
+            </div>
+            
+            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.4s' }}>
+              <h3 className="about-stat-number" data-target="36" data-suffix="">0</h3>
+              <p>States of the Federation covered by our localized governance training modules.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── TRUSTED BY ────────────────────────────────────────────────
       <div className="trusted-by">
