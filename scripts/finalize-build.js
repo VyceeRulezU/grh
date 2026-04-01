@@ -26,12 +26,15 @@ async function fixBuild() {
     const src = path.join(clientPath, file);
     const vDest = path.join(vercelStaticPath, file);
     const dDest = path.join(distPath, file); // Move back to dist root for GH Pages
-    
-    // Copy to Vercel output
-    fs.copyFileSync(src, vDest);
-    
-    // Move to dist root (for GH Pages compatibility)
-    fs.renameSync(src, dDest);
+
+    const stat = fs.statSync(src);
+    if (stat.isDirectory()) {
+      fs.cpSync(src, vDest, { recursive: true });
+      fs.cpSync(src, dDest, { recursive: true });
+    } else {
+      fs.copyFileSync(src, vDest);
+      fs.renameSync(src, dDest);
+    }
   });
 
   // 3. Create 404.html fallback for GitHub Pages (copy of index.html)
