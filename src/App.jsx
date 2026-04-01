@@ -203,15 +203,16 @@ function App() {
     if (authLoading) return; // Wait for session check
     
     const isProtected = PROTECTED_PAGES.includes(currentPage);
-    if (isProtected && !user) {
-      console.log("[GRH DEBUG] Auth Gate triggered for:", currentPage, "User:", user);
+    // Use userRef.current to avoid stale closure issues
+    if (isProtected && !userRef.current) {
+      console.log("[GRH DEBUG] Auth Gate triggered for:", currentPage, "User:", userRef.current);
       localStorage.setItem('returnPage', currentPage);
       setCurrentPage('login');
       currentPageRef.current = 'login';
       const base = import.meta.env.BASE_URL || '/';
       window.history.pushState({}, '', `${base}login`);
     }
-  }, [currentPage, user, authLoading]);
+  }, [currentPage, authLoading]);
 
   const openAuth = (type = 'login') => {
     // Store current page as return target before navigating to auth

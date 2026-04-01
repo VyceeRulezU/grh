@@ -7,6 +7,7 @@ import CertificatePreview from '../../shared/ui/CertificatePreview';
 import ResourceViewer from '../research/components/ResourceViewer';
 import { Helmet } from 'react-helmet-async';
 import './StudentDashboard.css';
+import mainLogo from '../../assets/images/Logo/Main logo.png';
 
 /* ───────────────────────── MOCK DATA ───────────────────────── */
 // (Keep for fallback if needed, but we'll try to use Supabase first)

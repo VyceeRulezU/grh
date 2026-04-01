@@ -162,7 +162,7 @@
   background: var(--sc-card);
   border-bottom: 1px solid var(--sc-border);
   gap: 1rem;
-  /* height: var(--nav-height); */
+  height: 5.2rem;
 }
 
 .topbar-welcome {
