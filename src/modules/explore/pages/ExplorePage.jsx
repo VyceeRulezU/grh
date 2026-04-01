@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../../../services/supabase/supabaseClient';
 import { SUGGESTED } from '../../../data/legacyData';
 import grhIcon from '../../../assets/images/Logo/GRH-alone.png';
+import { Helmet } from 'react-helmet-async';
 import './ExplorePage.css';
 
 // ---------------------------------------------------------------------------
@@ -211,7 +212,11 @@ const ExplorePage = ({ user, onNavigate }) => {
 
   return (
     <div className="explore-layout">
-      {isSidebarOpen && <div className="sidebar-backdrop" onClick={handleOverlayClick} />}
+      <Helmet>
+        <title>Governance AI Assistant | Research & Insights | GRH</title>
+        <meta name="description" content="Interact with our AI Research Assistant to explore governance frameworks, PFM strategies, and institutional reform insights powered by GovAI-Core." />
+      </Helmet>
+      {isSidebarOpen && <div className="sidebar-backdrop" onClick={handleOverlayClick} /> }
 
       <aside className={`chat-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="chat-sidebar-header">

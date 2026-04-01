@@ -4,9 +4,9 @@ import { generateCertificatePDF } from '../../shared/utils/certificateGenerator'
 import Pagination from '../../shared/ui/Pagination';
 import StatusModal from '../../shared/ui/StatusModal';
 import CertificatePreview from '../../shared/ui/CertificatePreview';
-import './StudentDashboard.css';
-import mainLogo from '../../assets/images/Logo/Main logo.png';
 import ResourceViewer from '../research/components/ResourceViewer';
+import { Helmet } from 'react-helmet-async';
+import './StudentDashboard.css';
 
 /* ───────────────────────── MOCK DATA ───────────────────────── */
 // (Keep for fallback if needed, but we'll try to use Supabase first)

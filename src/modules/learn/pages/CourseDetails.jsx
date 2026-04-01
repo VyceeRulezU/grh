@@ -210,7 +210,7 @@ const CourseDetails = ({ course, onNavigate, user }) => {
                 
                 <div className="curriculum-accordion">
                   {Object.entries(groupedModules).map(([chapter, mods]) => (
-                    <details key={chapter} className="curriculum-chapter" open>
+                    <details key={chapter} className="curriculum-chapter">
                       <summary className="chapter-summary">
                         <div className="chapter-info">
                           <i className="ri-arrow-down-s-line chevron"></i>

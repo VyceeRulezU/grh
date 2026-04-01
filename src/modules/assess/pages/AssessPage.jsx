@@ -4,6 +4,7 @@ import PageHero from '../../../shared/ui/PageHero';
 import Tab from '../../../shared/ui/Tab';
 import StatusModal from '../../../shared/ui/StatusModal';
 import StateLoginModal from '../components/StateLoginModal';
+import { Helmet } from 'react-helmet-async';
 import './AssessPage.css';
 import assessMainImg from '../../../assets/images/Pictures/assess_main.png';
 
@@ -386,6 +387,10 @@ const AssessPage = ({ onNavigate }) => {
 
   return (
     <div className="page-wrapper assess-page">
+      <Helmet>
+        <title>Self-Assessment Toolkit | Institutional Reform | GRH</title>
+        <meta name="description" content="Access the PERFORM self-assessment suite and PSR frameworks to evaluate and drive governance reform at the state level." />
+      </Helmet>
       <PageHero
         chip="Institutional Assessment"
         title={<>Self-Assessment for <br /><span className="green-text">Governance Reform</span></>}

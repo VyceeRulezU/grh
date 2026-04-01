@@ -10,8 +10,8 @@ import {
   SECTOR_EXPENDITURE,
   NIGERIA_STATES_DATA
 } from '../../../data/nigeriaData';
-import EgyptMap from '../components/NigeriaMap'; // Keep original import name if used that way, but actually it was NigeriaMap
 import NigeriaMap from '../components/NigeriaMap';
+import { Helmet } from 'react-helmet-async';
 import CtaSection from '../../../shared/ui/CtaSection';
 import PageHero from '../../../shared/ui/PageHero';
 import BudgetTableModal from '../components/BudgetTableModal';
@@ -69,6 +69,10 @@ const AnalysePage = ({ onNavigate }) => {
 
   return (
     <div className="page-wrapper analyse-page">
+      <Helmet>
+        <title>Governance Data Analytics | Institutional Performance | GRH</title>
+        <meta name="description" content="Explore comprehensive fiscal data, regional expenditure benchmarks, and institutional performance metrics for the 36 states of Nigeria." />
+      </Helmet>
 
       <PageHero
         chip="Governance Data Analytics"

@@ -10,6 +10,7 @@ import StatusModal from '../../shared/ui/StatusModal';
 import { useModal } from '../../shared/hooks/useModal';
 import ResourceViewer from '../research/components/ResourceViewer';
 import InstructorCard from '../../shared/ui/InstructorCard';
+import { Helmet } from 'react-helmet-async';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -764,7 +765,11 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
   };
 
   return (
-    <div className="adm-panel">
+    <div className="adm-dashboard">
+      <Helmet>
+        <title>Admin Shield | Global Analytics Portal | GRH</title>
+        <meta name="description" content="Access platform-wide governance analytics, manage institutional data, and monitor system performance on the GRH Admin Shield." />
+      </Helmet>
       {/* Quick Actions */}
       <div className="adm-quick-actions">
         <h4>Quick Actions</h4>
