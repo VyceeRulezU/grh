@@ -172,7 +172,7 @@
     line-height: 1.25;
     color: var(--text-strong);
     font-weight: 400;
-    max-width: 900px;
+    max-width: var(--max-width);
     margin: 0 0 4rem 0;
     letter-spacing: -0.02em;
 }
