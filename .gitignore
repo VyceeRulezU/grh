@@ -50,3 +50,6 @@ legacy/
 # Google API Credentials
 service-account.json
 *.json.key
+
+.vercel
+.env*.local
