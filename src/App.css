@@ -38,3 +38,31 @@
 .placeholder-content p {
   color: var(--text-secondary);
 }
+
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary, #1a5f4a);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s, transform 0.2s;
+  z-index: 100;
+}
+
+.back-to-top:hover {
+  background: var(--secondary, #2d8a5f);
+  transform: translateY(-2px);
+}
+
+.back-to-top .material-symbols-outlined {
+  font-size: 24px;
+}
