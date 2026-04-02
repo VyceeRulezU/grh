@@ -18,6 +18,8 @@
     "@supabase/supabase-js": "^2.98.0",
     "@tanstack/react-query": "^5.91.3",
     "@vercel/analytics": "^1.6.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "cross-env": "^7.0.3",
     "dotenv": "^17.3.1",
     "esbuild": "^0.27.4",
     "framer-motion": "^12.38.0",
@@ -30,13 +32,12 @@
     "react-helmet-async": "^3.0.0",
     "react-hook-form": "^7.72.0",
     "recharts": "^3.7.0",
+    "rollup-plugin-visualizer": "^7.0.1",
+    "vercel": "^50.38.2",
     "vike": "^0.4.255",
     "vike-react": "^0.6.21",
-    "zod": "^3.24.2",
     "vite": "^6.1.1",
-    "@vitejs/plugin-react": "^4.3.3",
-    "rollup-plugin-visualizer": "^7.0.1",
-    "cross-env": "^7.0.3"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
