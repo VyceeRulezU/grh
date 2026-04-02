@@ -212,6 +212,13 @@ const SignupPage = ({ onNavigate, onLogin }) => {
               <button type="submit" className="auth-primary-btn" disabled={loading}>
                 {loading ? 'Creating Account...' : 'Sign Up'}
               </button>
+              <p className="auth-terms-text">
+                By clicking Sign Up, you agree to the{' '}
+                <span className="auth-link-text" onClick={() => onNavigate('privacy-policy')}>Privacy Policy</span>
+                {' '}and{' '}
+                <span className="auth-link-text" onClick={() => onNavigate('terms-of-service')}>Terms of Service</span>
+                {' '}of Governance Resource Hub.
+              </p>
               
               <p className="auth-or-divider">Or</p>
               

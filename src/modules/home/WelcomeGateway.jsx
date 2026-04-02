@@ -158,7 +158,7 @@ const WelcomeGateway = ({ onNavigate }) => {
 
         <div className="legal-container">
 
-          <p className="copyright-text">© 2025 Governance Resource Hub. All rights reserved.</p>
+          <p className="copyright-text">© {new Date().getFullYear()} Governance Resource Hub. All rights reserved.</p>
 
           <div className="legal-links">
             <button onClick={() => onNavigate('privacy-policy')}>Privacy Policy</button>

@@ -42,7 +42,7 @@ const Footer = ({ onNavigate }) => {
 
         <div className="footer-bottom-container">
           <div className="copy-right-container">
-            <p className="copy-right-text">© 2025 Governance Resource Hub. All rights reserved.</p>
+            <p className="copy-right-text">© {new Date().getFullYear()} Governance Resource Hub. All rights reserved.</p>
 
             <div className="terms-container">
               <button className="terms-link text-btn" onClick={() => onNavigate('privacy-policy')}>Privacy Policy</button>
