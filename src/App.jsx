@@ -72,7 +72,7 @@ function App() {
     
     // Core Naming Synchronization
     if (normalizedPath === 'admin-dashboard' || normalizedPath === 'admin-login') normalizedPath = 'admin';
-    if (normalizedPath === 'library') normalizedPath = 'research'; 
+    if (normalizedPath === 'library' || normalizedPath === 'research') normalizedPath = 'research'; 
     
     return normalizedPath;
   };
