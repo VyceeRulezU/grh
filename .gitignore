@@ -51,5 +51,4 @@ legacy/
 service-account.json
 *.json.key
 
-.vercel
 .env*.local
