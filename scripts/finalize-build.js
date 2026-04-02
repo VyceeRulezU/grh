@@ -49,7 +49,8 @@ async function fixBuild() {
   const config = {
     version: 3,
     routes: [
-      { src: '/(.*)', dest: '/index.html', continue: true }
+      { handle: 'filesystem' },
+      { src: '/(.*)', dest: '/index.html' }
     ]
   };
   fs.writeFileSync(path.join(vercelOutputPath, 'config.json'), JSON.stringify(config, null, 2));
