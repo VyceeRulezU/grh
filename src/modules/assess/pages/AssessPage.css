@@ -580,7 +580,7 @@
 /* ── GRID view ── */
 .ap-resources--grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
 }
 
@@ -662,13 +662,15 @@
 }
 
 .ap-view-btn {
+  width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   background: var(--primary);
   border: none;
   color: #fff;
-  padding: 0.55rem 1.1rem;
+  padding: 0.75rem 1.1rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.82rem;
