@@ -181,10 +181,11 @@ const AssessPage = ({ onNavigate }) => {
                   src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=400"
                   alt="Government team reviewing assessments"
                 /> */}
-                <div className="ap-visual-stat">
+
+                {/* <div className="ap-visual-stat">
                   <strong>36</strong>
                   <span>States</span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

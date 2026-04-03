@@ -122,7 +122,7 @@
 }
 
 .ap-visual-main {
-  width: 85%;
+  width: 100%;
   height: 100%;
   border-radius: var(--radius-xl);
   overflow: hidden;
