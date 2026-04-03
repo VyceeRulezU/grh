@@ -1,0 +1,1699 @@
+{
+  "_-react-pdf-viewer-93f2720d.CLNuJifY.css": {
+    "file": "assets/static/-react-pdf-viewer-93f2720d.CLNuJifY.css",
+    "src": "_-react-pdf-viewer-93f2720d.CLNuJifY.css"
+  },
+  "_-react-pdf-viewer-cad3bada.Dig1JY98.css": {
+    "file": "assets/static/-react-pdf-viewer-cad3bada.Dig1JY98.css",
+    "src": "_-react-pdf-viewer-cad3bada.Dig1JY98.css"
+  },
+  "_chunk-0c4fC5J5.js": {
+    "file": "assets/chunks/chunk-0c4fC5J5.js",
+    "name": "App",
+    "imports": [
+      "_chunk-ckwbz45p.js",
+      "_chunk-DM9YOLel.js"
+    ],
+    "dynamicImports": [
+      "src/modules/home/WelcomeGateway.jsx",
+      "src/modules/learn/pages/LearnLandingPage.jsx",
+      "src/modules/research/pages/Library.jsx",
+      "src/modules/explore/pages/ExplorePage.jsx",
+      "src/modules/assess/pages/AssessPage.jsx",
+      "src/modules/analyse/pages/AnalysePage.jsx",
+      "src/modules/learn/pages/CourseDiscovery.jsx",
+      "src/modules/about/pages/AboutUs.jsx",
+      "src/modules/student/StudentDashboard.jsx",
+      "src/modules/admin/AdminDashboard.jsx",
+      "src/modules/learn/pages/CoursePlayer.jsx",
+      "src/modules/learn/pages/CourseDetails.jsx",
+      "src/modules/auth/LoginPage.jsx",
+      "src/modules/auth/SignupPage.jsx",
+      "src/modules/auth/AdminLoginPage.jsx",
+      "src/modules/auth/OAuthConsentPage.jsx",
+      "src/modules/legal/PrivacyPolicy.jsx",
+      "src/modules/legal/TermsOfService.jsx",
+      "src/modules/auth/ForgotPasswordPage.jsx",
+      "src/modules/auth/ResetPasswordPage.jsx",
+      "src/modules/home/NotFoundPage.jsx",
+      "src/services/supabase/supabaseClient.js",
+      "src/services/supabase/supabaseClient.js",
+      "src/services/supabase/supabaseClient.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "_chunk-7Sdh7357.js": {
+    "file": "assets/chunks/chunk-7Sdh7357.js",
+    "name": "PageHero",
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-CB87Sc6I.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "_chunk-BF_Jbx17.js": {
+    "file": "assets/chunks/chunk-BF_Jbx17.js",
+    "name": "FaqSection",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_InstructorDetailModal-089d71ee.CDTBxndj.css",
+      "assets/static/src_shared_ui_FaqSection-93f9764a.BftMk54u.css"
+    ]
+  },
+  "_chunk-BKAPyinw.js": {
+    "file": "assets/chunks/chunk-BKAPyinw.js",
+    "name": "Pagination",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css"
+    ]
+  },
+  "_chunk-BWODqyFj.js": {
+    "file": "assets/chunks/chunk-BWODqyFj.js",
+    "name": "BarChart",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ]
+  },
+  "_chunk-BZkerjCZ.js": {
+    "file": "assets/chunks/chunk-BZkerjCZ.js",
+    "name": "useModal",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ]
+  },
+  "_chunk-BatzxWVZ.js": {
+    "file": "assets/chunks/chunk-BatzxWVZ.js",
+    "name": "ResourceViewer",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ],
+    "css": [
+      "assets/static/-react-pdf-viewer-cad3bada.Dig1JY98.css",
+      "assets/static/-react-pdf-viewer-93f2720d.CLNuJifY.css",
+      "assets/static/src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css"
+    ]
+  },
+  "_chunk-CB87Sc6I.js": {
+    "file": "assets/chunks/chunk-CB87Sc6I.js",
+    "name": "index"
+  },
+  "_chunk-CQE-5ofm.js": {
+    "file": "assets/chunks/chunk-CQE-5ofm.js",
+    "name": "types"
+  },
+  "_chunk-CSBSBCBY.js": {
+    "file": "assets/chunks/chunk-CSBSBCBY.js",
+    "name": "dateUtils"
+  },
+  "_chunk-Ca7USjSC.js": {
+    "file": "assets/chunks/chunk-Ca7USjSC.js",
+    "name": "legacyData"
+  },
+  "_chunk-Cb7kqam9.js": {
+    "file": "assets/chunks/chunk-Cb7kqam9.js",
+    "name": "CertificatePreview",
+    "imports": [
+      "_chunk-ckwbz45p.js",
+      "_chunk-DM9YOLel.js"
+    ],
+    "dynamicImports": [
+      "node_modules/html2canvas/dist/html2canvas.esm.js",
+      "node_modules/dompurify/dist/purify.es.mjs",
+      "node_modules/canvg/lib/index.es.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_CertificatePreview-cca9a0dc.-v5glLVP.css",
+      "assets/static/src_shared_ui_ModernCertificate-fe1898e2.CDp9Hu4A.css"
+    ]
+  },
+  "_chunk-Cl3WhTG0.js": {
+    "file": "assets/chunks/chunk-Cl3WhTG0.js",
+    "name": "Main logo",
+    "assets": [
+      "assets/static/Main-logo.BXRGAMJV.png"
+    ]
+  },
+  "_chunk-CtyB9Cjt.js": {
+    "file": "assets/chunks/chunk-CtyB9Cjt.js",
+    "name": "InstructorCard",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_InstructorCard-75d52c42.DvMLVQlq.css"
+    ]
+  },
+  "_chunk-DA1-dgyW.js": {
+    "file": "assets/chunks/chunk-DA1-dgyW.js",
+    "name": "ModernDropdown",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_ModernDropdown-2b463487.DrEw56-B.css"
+    ]
+  },
+  "_chunk-DKLAgJrL.js": {
+    "file": "assets/chunks/chunk-DKLAgJrL.js",
+    "name": "logo-main",
+    "assets": [
+      "assets/static/logo-main.D2hNdU6_.svg"
+    ]
+  },
+  "_chunk-DM9YOLel.js": {
+    "file": "assets/chunks/chunk-DM9YOLel.js",
+    "name": "Loading",
+    "imports": [
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ]
+  },
+  "_chunk-DaCal7lM.js": {
+    "file": "assets/chunks/chunk-DaCal7lM.js",
+    "name": "Icon",
+    "assets": [
+      "assets/static/Icon.odpHZRjl.png"
+    ]
+  },
+  "_chunk-Dit3CJOi.js": {
+    "file": "assets/chunks/chunk-Dit3CJOi.js",
+    "name": "zod",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ]
+  },
+  "_chunk-JBaLyqNw.js": {
+    "file": "assets/chunks/chunk-JBaLyqNw.js",
+    "name": "GRH-icon",
+    "assets": [
+      "assets/static/GRH-icon.ClXrebsk.png"
+    ]
+  },
+  "_chunk-NeHyYuVB.js": {
+    "file": "assets/chunks/chunk-NeHyYuVB.js",
+    "name": "usePixabayImages",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ]
+  },
+  "_chunk-WAY02OZ4.js": {
+    "file": "assets/chunks/chunk-WAY02OZ4.js",
+    "name": "ScrollTrigger",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css"
+    ]
+  },
+  "_chunk-ckwbz45p.js": {
+    "file": "assets/chunks/chunk-ckwbz45p.js",
+    "name": "preload-helper"
+  },
+  "_chunk-n-6DT7Wu.js": {
+    "file": "assets/chunks/chunk-n-6DT7Wu.js",
+    "name": "renderPageClient"
+  },
+  "_chunk-pCO1LEMx.js": {
+    "file": "assets/chunks/chunk-pCO1LEMx.js",
+    "name": "Tab",
+    "imports": [
+      "_chunk-DM9YOLel.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_Tab-58ba84d3.D47h-3aW.css"
+    ]
+  },
+  "_src_App-ac5f32af.CVXR-lwf.css": {
+    "file": "assets/static/src_App-ac5f32af.CVXR-lwf.css",
+    "src": "_src_App-ac5f32af.CVXR-lwf.css"
+  },
+  "_src_index-b3c78705.BLTOYE0R.css": {
+    "file": "assets/static/src_index-b3c78705.BLTOYE0R.css",
+    "src": "_src_index-b3c78705.BLTOYE0R.css"
+  },
+  "_src_modules_about_pages_AboutUs-0ef18323.CduUk1dY.css": {
+    "file": "assets/static/src_modules_about_pages_AboutUs-0ef18323.CduUk1dY.css",
+    "src": "_src_modules_about_pages_AboutUs-0ef18323.CduUk1dY.css"
+  },
+  "_src_modules_admin_AdminDashboard-66af1c7f.CyEm4-bM.css": {
+    "file": "assets/static/src_modules_admin_AdminDashboard-66af1c7f.CyEm4-bM.css",
+    "src": "_src_modules_admin_AdminDashboard-66af1c7f.CyEm4-bM.css"
+  },
+  "_src_modules_analyse_components_BudgetTableModal-88382c86.CzRoQU49.css": {
+    "file": "assets/static/src_modules_analyse_components_BudgetTableModal-88382c86.CzRoQU49.css",
+    "src": "_src_modules_analyse_components_BudgetTableModal-88382c86.CzRoQU49.css"
+  },
+  "_src_modules_analyse_components_NigeriaMap-3cfecd23.D-FLJqES.css": {
+    "file": "assets/static/src_modules_analyse_components_NigeriaMap-3cfecd23.D-FLJqES.css",
+    "src": "_src_modules_analyse_components_NigeriaMap-3cfecd23.D-FLJqES.css"
+  },
+  "_src_modules_analyse_pages_AnalysePage-e4e60e66.B3RIZ_Ct.css": {
+    "file": "assets/static/src_modules_analyse_pages_AnalysePage-e4e60e66.B3RIZ_Ct.css",
+    "src": "_src_modules_analyse_pages_AnalysePage-e4e60e66.B3RIZ_Ct.css"
+  },
+  "_src_modules_assess_components_StateLoginModal-db243b1a.DDJ7DRvY.css": {
+    "file": "assets/static/src_modules_assess_components_StateLoginModal-db243b1a.DDJ7DRvY.css",
+    "src": "_src_modules_assess_components_StateLoginModal-db243b1a.DDJ7DRvY.css"
+  },
+  "_src_modules_assess_pages_AssessPage-fc7c4146.D9_bKqnT.css": {
+    "file": "assets/static/src_modules_assess_pages_AssessPage-fc7c4146.D9_bKqnT.css",
+    "src": "_src_modules_assess_pages_AssessPage-fc7c4146.D9_bKqnT.css"
+  },
+  "_src_modules_auth_LoginPage-dc980652.DJBemTvl.css": {
+    "file": "assets/static/src_modules_auth_LoginPage-dc980652.DJBemTvl.css",
+    "src": "_src_modules_auth_LoginPage-dc980652.DJBemTvl.css"
+  },
+  "_src_modules_auth_OAuthConsentPage-fba4cbe4.BmH2NlFR.css": {
+    "file": "assets/static/src_modules_auth_OAuthConsentPage-fba4cbe4.BmH2NlFR.css",
+    "src": "_src_modules_auth_OAuthConsentPage-fba4cbe4.BmH2NlFR.css"
+  },
+  "_src_modules_explore_pages_ExplorePage-7c23a7b2.BLqDG1b9.css": {
+    "file": "assets/static/src_modules_explore_pages_ExplorePage-7c23a7b2.BLqDG1b9.css",
+    "src": "_src_modules_explore_pages_ExplorePage-7c23a7b2.BLqDG1b9.css"
+  },
+  "_src_modules_home_NotFoundPage-6a5f5a72.pEQn5Dua.css": {
+    "file": "assets/static/src_modules_home_NotFoundPage-6a5f5a72.pEQn5Dua.css",
+    "src": "_src_modules_home_NotFoundPage-6a5f5a72.pEQn5Dua.css"
+  },
+  "_src_modules_home_WelcomeGateway-b736e605.CfsZGPCx.css": {
+    "file": "assets/static/src_modules_home_WelcomeGateway-b736e605.CfsZGPCx.css",
+    "src": "_src_modules_home_WelcomeGateway-b736e605.CfsZGPCx.css"
+  },
+  "_src_modules_learn_components_LearnHero-bcbf054f.MM_yV-co.css": {
+    "file": "assets/static/src_modules_learn_components_LearnHero-bcbf054f.MM_yV-co.css",
+    "src": "_src_modules_learn_components_LearnHero-bcbf054f.MM_yV-co.css"
+  },
+  "_src_modules_learn_pages_CourseDetails-6e73b0f6.CNZbWqi4.css": {
+    "file": "assets/static/src_modules_learn_pages_CourseDetails-6e73b0f6.CNZbWqi4.css",
+    "src": "_src_modules_learn_pages_CourseDetails-6e73b0f6.CNZbWqi4.css"
+  },
+  "_src_modules_learn_pages_CourseDiscovery-7b7854be.C4xgFWET.css": {
+    "file": "assets/static/src_modules_learn_pages_CourseDiscovery-7b7854be.C4xgFWET.css",
+    "src": "_src_modules_learn_pages_CourseDiscovery-7b7854be.C4xgFWET.css"
+  },
+  "_src_modules_learn_pages_CoursePlayer-7c40a1e4.hZL8ayDR.css": {
+    "file": "assets/static/src_modules_learn_pages_CoursePlayer-7c40a1e4.hZL8ayDR.css",
+    "src": "_src_modules_learn_pages_CoursePlayer-7c40a1e4.hZL8ayDR.css"
+  },
+  "_src_modules_learn_pages_LearnLandingPage-f1a7eb3d.DetKaWNR.css": {
+    "file": "assets/static/src_modules_learn_pages_LearnLandingPage-f1a7eb3d.DetKaWNR.css",
+    "src": "_src_modules_learn_pages_LearnLandingPage-f1a7eb3d.DetKaWNR.css"
+  },
+  "_src_modules_legal_LegalPage-476af3d9.CwiWQcVU.css": {
+    "file": "assets/static/src_modules_legal_LegalPage-476af3d9.CwiWQcVU.css",
+    "src": "_src_modules_legal_LegalPage-476af3d9.CwiWQcVU.css"
+  },
+  "_src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css": {
+    "file": "assets/static/src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css",
+    "src": "_src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css"
+  },
+  "_src_modules_research_pages_Library-c27913bf.Ds6EhWVd.css": {
+    "file": "assets/static/src_modules_research_pages_Library-c27913bf.Ds6EhWVd.css",
+    "src": "_src_modules_research_pages_Library-c27913bf.Ds6EhWVd.css"
+  },
+  "_src_modules_student_StudentDashboard-692b6c36.T_caJsmG.css": {
+    "file": "assets/static/src_modules_student_StudentDashboard-692b6c36.T_caJsmG.css",
+    "src": "_src_modules_student_StudentDashboard-692b6c36.T_caJsmG.css"
+  },
+  "_src_shared_layout_Footer-43e71e55.YJvT_-eu.css": {
+    "file": "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+    "src": "_src_shared_layout_Footer-43e71e55.YJvT_-eu.css"
+  },
+  "_src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css": {
+    "file": "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+    "src": "_src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css"
+  },
+  "_src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css": {
+    "file": "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+    "src": "_src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css"
+  },
+  "_src_shared_ui_Button-e48ade8c.YKdyuOpI.css": {
+    "file": "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+    "src": "_src_shared_ui_Button-e48ade8c.YKdyuOpI.css"
+  },
+  "_src_shared_ui_CertificatePreview-cca9a0dc.-v5glLVP.css": {
+    "file": "assets/static/src_shared_ui_CertificatePreview-cca9a0dc.-v5glLVP.css",
+    "src": "_src_shared_ui_CertificatePreview-cca9a0dc.-v5glLVP.css"
+  },
+  "_src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css": {
+    "file": "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css",
+    "src": "_src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css"
+  },
+  "_src_shared_ui_FaqSection-93f9764a.BftMk54u.css": {
+    "file": "assets/static/src_shared_ui_FaqSection-93f9764a.BftMk54u.css",
+    "src": "_src_shared_ui_FaqSection-93f9764a.BftMk54u.css"
+  },
+  "_src_shared_ui_InstructorCard-75d52c42.DvMLVQlq.css": {
+    "file": "assets/static/src_shared_ui_InstructorCard-75d52c42.DvMLVQlq.css",
+    "src": "_src_shared_ui_InstructorCard-75d52c42.DvMLVQlq.css"
+  },
+  "_src_shared_ui_InstructorDetailModal-089d71ee.CDTBxndj.css": {
+    "file": "assets/static/src_shared_ui_InstructorDetailModal-089d71ee.CDTBxndj.css",
+    "src": "_src_shared_ui_InstructorDetailModal-089d71ee.CDTBxndj.css"
+  },
+  "_src_shared_ui_ModernCertificate-fe1898e2.CDp9Hu4A.css": {
+    "file": "assets/static/src_shared_ui_ModernCertificate-fe1898e2.CDp9Hu4A.css",
+    "src": "_src_shared_ui_ModernCertificate-fe1898e2.CDp9Hu4A.css"
+  },
+  "_src_shared_ui_ModernDropdown-2b463487.DrEw56-B.css": {
+    "file": "assets/static/src_shared_ui_ModernDropdown-2b463487.DrEw56-B.css",
+    "src": "_src_shared_ui_ModernDropdown-2b463487.DrEw56-B.css"
+  },
+  "_src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css": {
+    "file": "assets/static/src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css",
+    "src": "_src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css"
+  },
+  "_src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css": {
+    "file": "assets/static/src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css",
+    "src": "_src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css"
+  },
+  "_src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css": {
+    "file": "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+    "src": "_src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css"
+  },
+  "_src_shared_ui_StatusModal-10e17688.B-RaM864.css": {
+    "file": "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+    "src": "_src_shared_ui_StatusModal-10e17688.B-RaM864.css"
+  },
+  "_src_shared_ui_Tab-58ba84d3.D47h-3aW.css": {
+    "file": "assets/static/src_shared_ui_Tab-58ba84d3.D47h-3aW.css",
+    "src": "_src_shared_ui_Tab-58ba84d3.D47h-3aW.css"
+  },
+  "_src_shared_ui_TestimonialSection-2e439632.Bxs5Dszo.css": {
+    "file": "assets/static/src_shared_ui_TestimonialSection-2e439632.Bxs5Dszo.css",
+    "src": "_src_shared_ui_TestimonialSection-2e439632.Bxs5Dszo.css"
+  },
+  "_src_styles_tokens-bd9a5666.CkdXwRoK.css": {
+    "file": "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+    "src": "_src_styles_tokens-bd9a5666.CkdXwRoK.css"
+  },
+  "assets/login-bg.svg": {
+    "file": "assets/static/login-bg.BDc51WMg.svg",
+    "src": "assets/login-bg.svg"
+  },
+  "node_modules/canvg/lib/index.es.js": {
+    "file": "assets/chunks/chunk-Bms4trIQ.js",
+    "name": "index.es",
+    "src": "node_modules/canvg/lib/index.es.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-Cb7kqam9.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_CertificatePreview-cca9a0dc.-v5glLVP.css",
+      "assets/static/src_shared_ui_ModernCertificate-fe1898e2.CDp9Hu4A.css"
+    ]
+  },
+  "node_modules/dompurify/dist/purify.es.mjs": {
+    "file": "assets/chunks/chunk-BgtpMKW3.js",
+    "name": "purify.es",
+    "src": "node_modules/dompurify/dist/purify.es.mjs",
+    "isDynamicEntry": true
+  },
+  "node_modules/html2canvas/dist/html2canvas.esm.js": {
+    "file": "assets/chunks/chunk-QH1iLAAe.js",
+    "name": "html2canvas.esm",
+    "src": "node_modules/html2canvas/dist/html2canvas.esm.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/vike/dist/client/runtime-client-routing/entry.js": {
+    "file": "assets/entries/entry-client-routing.DZdak_kL.js",
+    "name": "entries/entry-client-routing",
+    "src": "node_modules/vike/dist/client/runtime-client-routing/entry.js",
+    "isEntry": true,
+    "imports": [
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "dynamicImports": [
+      "virtual:vike:page-entry:client:/pages/_error",
+      "virtual:vike:page-entry:client:/pages/about",
+      "virtual:vike:page-entry:client:/pages/admin",
+      "virtual:vike:page-entry:client:/pages/analyse",
+      "virtual:vike:page-entry:client:/pages/assess",
+      "virtual:vike:page-entry:client:/pages/contact",
+      "virtual:vike:page-entry:client:/pages/explore",
+      "virtual:vike:page-entry:client:/pages/forgot-password",
+      "virtual:vike:page-entry:client:/pages/help-center",
+      "virtual:vike:page-entry:client:/pages/index",
+      "virtual:vike:page-entry:client:/pages/learn-details",
+      "virtual:vike:page-entry:client:/pages/learn-discovery",
+      "virtual:vike:page-entry:client:/pages/learn-player",
+      "virtual:vike:page-entry:client:/pages/learn",
+      "virtual:vike:page-entry:client:/pages/library",
+      "virtual:vike:page-entry:client:/pages/login",
+      "virtual:vike:page-entry:client:/pages/oauth-consent",
+      "virtual:vike:page-entry:client:/pages/privacy-policy",
+      "virtual:vike:page-entry:client:/pages/research",
+      "virtual:vike:page-entry:client:/pages/reset-password",
+      "virtual:vike:page-entry:client:/pages/signup",
+      "virtual:vike:page-entry:client:/pages/student",
+      "virtual:vike:page-entry:client:/pages/terms-of-service"
+    ]
+  },
+  "src/assets/Assess.png": {
+    "file": "assets/static/Assess.Cj-RUFM6.png",
+    "src": "src/assets/Assess.png"
+  },
+  "src/assets/Library.png": {
+    "file": "assets/static/Library.DaFfmLKv.png",
+    "src": "src/assets/Library.png"
+  },
+  "src/assets/PFM_Mock.png": {
+    "file": "assets/static/PFM_Mock.vU2OMvsS.png",
+    "src": "src/assets/PFM_Mock.png"
+  },
+  "src/assets/auth/login-bg.svg": {
+    "file": "assets/static/login-bg.BDc51WMg.svg",
+    "src": "assets/login-bg.svg"
+  },
+  "src/assets/auth/logo-main.svg": {
+    "file": "assets/static/logo-main.D2hNdU6_.svg",
+    "src": "src/assets/auth/logo-main.svg"
+  },
+  "src/assets/e-Learning.png": {
+    "file": "assets/static/e-Learning.B9ZfSOqS.png",
+    "src": "src/assets/e-Learning.png"
+  },
+  "src/assets/images/Logo/GRH-alone.png": {
+    "file": "assets/static/GRH-alone.DBniT5f4.png",
+    "src": "src/assets/images/Logo/GRH-alone.png"
+  },
+  "src/assets/images/Logo/GRH-icon.png": {
+    "file": "assets/static/GRH-icon.ClXrebsk.png",
+    "src": "src/assets/images/Logo/GRH-icon.png"
+  },
+  "src/assets/images/Logo/Icon.png": {
+    "file": "assets/static/Icon.odpHZRjl.png",
+    "src": "src/assets/images/Logo/Icon.png"
+  },
+  "src/assets/images/Logo/Main logo.png": {
+    "file": "assets/static/Main-logo.BXRGAMJV.png",
+    "src": "src/assets/images/Logo/Main logo.png"
+  },
+  "src/assets/images/Pictures/37815616495_24f17295f5_b.jpg": {
+    "file": "assets/static/37815616495_24f17295f5_b.BQo_ZqLR.jpg",
+    "src": "src/assets/images/Pictures/37815616495_24f17295f5_b.jpg"
+  },
+  "src/assets/images/Pictures/assess_main.png": {
+    "file": "assets/static/assess_main.D2m5n9vR.png",
+    "src": "src/assets/images/Pictures/assess_main.png"
+  },
+  "src/modules/about/pages/AboutUs.jsx": {
+    "file": "assets/chunks/chunk-DB4ihgOF.js",
+    "name": "AboutUs",
+    "src": "src/modules/about/pages/AboutUs.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-CB87Sc6I.js",
+      "_chunk-WAY02OZ4.js",
+      "_chunk-Ca7USjSC.js",
+      "_chunk-BF_Jbx17.js",
+      "_chunk-7Sdh7357.js",
+      "_chunk-DaCal7lM.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-CtyB9Cjt.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_TestimonialSection-2e439632.Bxs5Dszo.css",
+      "assets/static/src_modules_about_pages_AboutUs-0ef18323.CduUk1dY.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css",
+      "assets/static/src_shared_ui_InstructorDetailModal-089d71ee.CDTBxndj.css",
+      "assets/static/src_shared_ui_FaqSection-93f9764a.BftMk54u.css",
+      "assets/static/src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css",
+      "assets/static/src_shared_ui_InstructorCard-75d52c42.DvMLVQlq.css"
+    ],
+    "assets": [
+      "assets/static/PFM_Mock.vU2OMvsS.png",
+      "assets/static/Library.DaFfmLKv.png",
+      "assets/static/Assess.Cj-RUFM6.png",
+      "assets/static/e-Learning.B9ZfSOqS.png",
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/admin/AdminDashboard.jsx": {
+    "file": "assets/chunks/chunk-DsCGuPWt.js",
+    "name": "AdminDashboard",
+    "src": "src/modules/admin/AdminDashboard.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-ckwbz45p.js",
+      "_chunk-DM9YOLel.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-Cl3WhTG0.js",
+      "_chunk-BKAPyinw.js",
+      "_chunk-DA1-dgyW.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-BZkerjCZ.js",
+      "_chunk-BatzxWVZ.js",
+      "_chunk-CtyB9Cjt.js",
+      "_chunk-BWODqyFj.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "dynamicImports": [
+      "src/services/supabase/supabaseClient.js"
+    ],
+    "css": [
+      "assets/static/src_modules_admin_AdminDashboard-66af1c7f.CyEm4-bM.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css",
+      "assets/static/src_shared_ui_ModernDropdown-2b463487.DrEw56-B.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css",
+      "assets/static/-react-pdf-viewer-cad3bada.Dig1JY98.css",
+      "assets/static/-react-pdf-viewer-93f2720d.CLNuJifY.css",
+      "assets/static/src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css",
+      "assets/static/src_shared_ui_InstructorCard-75d52c42.DvMLVQlq.css"
+    ]
+  },
+  "src/modules/analyse/pages/AnalysePage.jsx": {
+    "file": "assets/chunks/chunk-C_7ot6W1.js",
+    "name": "AnalysePage",
+    "src": "src/modules/analyse/pages/AnalysePage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-WAY02OZ4.js",
+      "_chunk-7Sdh7357.js",
+      "_chunk-JBaLyqNw.js",
+      "_chunk-DaCal7lM.js",
+      "_chunk-CB87Sc6I.js",
+      "_chunk-BWODqyFj.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_analyse_components_NigeriaMap-3cfecd23.D-FLJqES.css",
+      "assets/static/src_modules_analyse_components_BudgetTableModal-88382c86.CzRoQU49.css",
+      "assets/static/src_modules_analyse_pages_AnalysePage-e4e60e66.B3RIZ_Ct.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css",
+      "assets/static/src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/assess/pages/AssessPage.jsx": {
+    "file": "assets/chunks/chunk-CnC6HHgX.js",
+    "name": "AssessPage",
+    "src": "src/modules/assess/pages/AssessPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-WAY02OZ4.js",
+      "_chunk-7Sdh7357.js",
+      "_chunk-pCO1LEMx.js",
+      "_chunk-0c4fC5J5.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-JBaLyqNw.js",
+      "_chunk-BatzxWVZ.js",
+      "_chunk-CB87Sc6I.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_modules_assess_components_StateLoginModal-db243b1a.DDJ7DRvY.css",
+      "assets/static/src_modules_assess_pages_AssessPage-fc7c4146.D9_bKqnT.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css",
+      "assets/static/src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css",
+      "assets/static/src_shared_ui_Tab-58ba84d3.D47h-3aW.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css",
+      "assets/static/-react-pdf-viewer-cad3bada.Dig1JY98.css",
+      "assets/static/-react-pdf-viewer-93f2720d.CLNuJifY.css",
+      "assets/static/src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css"
+    ],
+    "assets": [
+      "assets/static/assess_main.D2m5n9vR.png",
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/auth/AdminLoginPage.jsx": {
+    "file": "assets/chunks/chunk-CQ0edKmg.js",
+    "name": "AdminLoginPage",
+    "src": "src/modules/auth/AdminLoginPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/modules/auth/LoginPage.jsx",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-Dit3CJOi.js",
+      "_chunk-DKLAgJrL.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-ckwbz45p.js",
+      "_chunk-BZkerjCZ.js",
+      "_chunk-CQE-5ofm.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_modules_auth_LoginPage-dc980652.DJBemTvl.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/auth/ForgotPasswordPage.jsx": {
+    "file": "assets/chunks/chunk-CMdU--fu.js",
+    "name": "ForgotPasswordPage",
+    "src": "src/modules/auth/ForgotPasswordPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-Dit3CJOi.js",
+      "_chunk-DKLAgJrL.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-BZkerjCZ.js",
+      "_chunk-CQE-5ofm.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_modules_auth_LoginPage-dc980652.DJBemTvl.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/auth/LoginPage.jsx": {
+    "file": "assets/chunks/chunk-xqxOFcrB.js",
+    "name": "LoginPage",
+    "src": "src/modules/auth/LoginPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-Dit3CJOi.js",
+      "_chunk-DKLAgJrL.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-BZkerjCZ.js",
+      "_chunk-CQE-5ofm.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_modules_auth_LoginPage-dc980652.DJBemTvl.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/auth/OAuthConsentPage.jsx": {
+    "file": "assets/chunks/chunk-aiPOGuXc.js",
+    "name": "OAuthConsentPage",
+    "src": "src/modules/auth/OAuthConsentPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-DKLAgJrL.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_auth_OAuthConsentPage-fba4cbe4.BmH2NlFR.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ]
+  },
+  "src/modules/auth/ResetPasswordPage.jsx": {
+    "file": "assets/chunks/chunk-CvmAY4Xm.js",
+    "name": "ResetPasswordPage",
+    "src": "src/modules/auth/ResetPasswordPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-DKLAgJrL.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-BZkerjCZ.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_modules_auth_LoginPage-dc980652.DJBemTvl.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/auth/SignupPage.jsx": {
+    "file": "assets/chunks/chunk-DOVUnDK-.js",
+    "name": "SignupPage",
+    "src": "src/modules/auth/SignupPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-Dit3CJOi.js",
+      "_chunk-DKLAgJrL.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-BZkerjCZ.js",
+      "_chunk-CQE-5ofm.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_modules_auth_LoginPage-dc980652.DJBemTvl.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/explore/pages/ExplorePage.jsx": {
+    "file": "assets/chunks/chunk-BfYuA7lN.js",
+    "name": "ExplorePage",
+    "src": "src/modules/explore/pages/ExplorePage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-Ca7USjSC.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_explore_pages_ExplorePage-7c23a7b2.BLqDG1b9.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ],
+    "assets": [
+      "assets/static/GRH-alone.DBniT5f4.png"
+    ]
+  },
+  "src/modules/home/NotFoundPage.jsx": {
+    "file": "assets/chunks/chunk-C6Qbu1F7.js",
+    "name": "NotFoundPage",
+    "src": "src/modules/home/NotFoundPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_home_NotFoundPage-6a5f5a72.pEQn5Dua.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ]
+  },
+  "src/modules/home/WelcomeGateway.jsx": {
+    "file": "assets/chunks/chunk-D59R1Tgh.js",
+    "name": "WelcomeGateway",
+    "src": "src/modules/home/WelcomeGateway.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-CB87Sc6I.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_home_WelcomeGateway-b736e605.CfsZGPCx.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ]
+  },
+  "src/modules/learn/pages/CourseDetails.jsx": {
+    "file": "assets/chunks/chunk-Cn_Ad7oF.js",
+    "name": "CourseDetails",
+    "src": "src/modules/learn/pages/CourseDetails.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_learn_pages_CourseDetails-6e73b0f6.CNZbWqi4.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ]
+  },
+  "src/modules/learn/pages/CourseDiscovery.jsx": {
+    "file": "assets/chunks/chunk-CeGWCYjC.js",
+    "name": "CourseDiscovery",
+    "src": "src/modules/learn/pages/CourseDiscovery.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-Ca7USjSC.js",
+      "_chunk-pCO1LEMx.js",
+      "_chunk-BKAPyinw.js",
+      "_chunk-WAY02OZ4.js",
+      "_chunk-CSBSBCBY.js",
+      "_chunk-CB87Sc6I.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_modules_learn_pages_CourseDiscovery-7b7854be.C4xgFWET.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Tab-58ba84d3.D47h-3aW.css",
+      "assets/static/src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css",
+      "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css"
+    ]
+  },
+  "src/modules/learn/pages/CoursePlayer.jsx": {
+    "file": "assets/chunks/chunk-CzAw3i6O.js",
+    "name": "CoursePlayer",
+    "src": "src/modules/learn/pages/CoursePlayer.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-Cb7kqam9.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-BZkerjCZ.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_modules_learn_pages_CoursePlayer-7c40a1e4.hZL8ayDR.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_CertificatePreview-cca9a0dc.-v5glLVP.css",
+      "assets/static/src_shared_ui_ModernCertificate-fe1898e2.CDp9Hu4A.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "src/modules/learn/pages/LearnLandingPage.jsx": {
+    "file": "assets/chunks/chunk-0beJHVw8.js",
+    "name": "LearnLandingPage",
+    "src": "src/modules/learn/pages/LearnLandingPage.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-Ca7USjSC.js",
+      "_chunk-CtyB9Cjt.js",
+      "_chunk-BF_Jbx17.js",
+      "_chunk-WAY02OZ4.js",
+      "_chunk-DA1-dgyW.js",
+      "_chunk-pCO1LEMx.js",
+      "_chunk-CSBSBCBY.js",
+      "_chunk-CB87Sc6I.js",
+      "_chunk-NeHyYuVB.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_learn_components_LearnHero-bcbf054f.MM_yV-co.css",
+      "assets/static/src_modules_learn_pages_LearnLandingPage-f1a7eb3d.DetKaWNR.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_InstructorCard-75d52c42.DvMLVQlq.css",
+      "assets/static/src_shared_ui_InstructorDetailModal-089d71ee.CDTBxndj.css",
+      "assets/static/src_shared_ui_FaqSection-93f9764a.BftMk54u.css",
+      "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css",
+      "assets/static/src_shared_ui_ModernDropdown-2b463487.DrEw56-B.css",
+      "assets/static/src_shared_ui_Tab-58ba84d3.D47h-3aW.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/legal/PrivacyPolicy.jsx": {
+    "file": "assets/chunks/chunk-Bgla4N7Y.js",
+    "name": "PrivacyPolicy",
+    "src": "src/modules/legal/PrivacyPolicy.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_legal_LegalPage-476af3d9.CwiWQcVU.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ]
+  },
+  "src/modules/legal/TermsOfService.jsx": {
+    "file": "assets/chunks/chunk-ec_lcttl.js",
+    "name": "TermsOfService",
+    "src": "src/modules/legal/TermsOfService.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_legal_LegalPage-476af3d9.CwiWQcVU.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css"
+    ]
+  },
+  "src/modules/research/pages/Library.jsx": {
+    "file": "assets/chunks/chunk-Dx3bM6Ku.js",
+    "name": "Library",
+    "src": "src/modules/research/pages/Library.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-CQE-5ofm.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-Ca7USjSC.js",
+      "_chunk-WAY02OZ4.js",
+      "_chunk-BKAPyinw.js",
+      "_chunk-7Sdh7357.js",
+      "_chunk-NeHyYuVB.js",
+      "_chunk-CB87Sc6I.js",
+      "_chunk-BatzxWVZ.js",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_modules_research_pages_Library-c27913bf.Ds6EhWVd.css",
+      "assets/static/src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_CtaSection-cd33f5aa.CbFCMai-.css",
+      "assets/static/src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css",
+      "assets/static/src_shared_ui_PageHero-2687d4a0.BwNhq0yg.css",
+      "assets/static/-react-pdf-viewer-cad3bada.Dig1JY98.css",
+      "assets/static/-react-pdf-viewer-93f2720d.CLNuJifY.css"
+    ],
+    "assets": [
+      "assets/static/login-bg.BDc51WMg.svg"
+    ]
+  },
+  "src/modules/student/StudentDashboard.jsx": {
+    "file": "assets/chunks/chunk-RqAvjbIf.js",
+    "name": "StudentDashboard",
+    "src": "src/modules/student/StudentDashboard.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/services/supabase/supabaseClient.js",
+      "_chunk-Cb7kqam9.js",
+      "_chunk-BKAPyinw.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-BatzxWVZ.js",
+      "_chunk-Cl3WhTG0.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_modules_student_StudentDashboard-692b6c36.T_caJsmG.css",
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_CertificatePreview-cca9a0dc.-v5glLVP.css",
+      "assets/static/src_shared_ui_ModernCertificate-fe1898e2.CDp9Hu4A.css",
+      "assets/static/src_shared_ui_Pagination-e6ff90b0.9TgUBwfD.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css",
+      "assets/static/-react-pdf-viewer-cad3bada.Dig1JY98.css",
+      "assets/static/-react-pdf-viewer-93f2720d.CLNuJifY.css",
+      "assets/static/src_modules_research_components_ResourceViewer-ff8dabe9.ZUNQXxzN.css"
+    ]
+  },
+  "src/services/supabase/supabaseClient.js": {
+    "file": "assets/chunks/chunk-CnNN_oPr.js",
+    "name": "supabaseClient",
+    "src": "src/services/supabase/supabaseClient.js",
+    "isDynamicEntry": true
+  },
+  "virtual:vike:page-entry:client:/pages/_error": {
+    "file": "assets/entries/pages_error.BJyYgVz8.js",
+    "name": "entries/pages/_error",
+    "src": "virtual:vike:page-entry:client:/pages/_error",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "src/modules/home/NotFoundPage.jsx",
+      "_chunk-n-6DT7Wu.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_modules_home_NotFoundPage-6a5f5a72.pEQn5Dua.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/about": {
+    "file": "assets/entries/pages_about.C4H2CCGY.js",
+    "name": "entries/pages/about",
+    "src": "virtual:vike:page-entry:client:/pages/about",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/admin": {
+    "file": "assets/entries/pages_admin.DpIUsBZN.js",
+    "name": "entries/pages/admin",
+    "src": "virtual:vike:page-entry:client:/pages/admin",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/analyse": {
+    "file": "assets/entries/pages_analyse.CnkAa8tz.js",
+    "name": "entries/pages/analyse",
+    "src": "virtual:vike:page-entry:client:/pages/analyse",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/assess": {
+    "file": "assets/entries/pages_assess.BLu-Mk-c.js",
+    "name": "entries/pages/assess",
+    "src": "virtual:vike:page-entry:client:/pages/assess",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/contact": {
+    "file": "assets/entries/pages_contact.BtZ8tecg.js",
+    "name": "entries/pages/contact",
+    "src": "virtual:vike:page-entry:client:/pages/contact",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/explore": {
+    "file": "assets/entries/pages_explore.BUY3fTng.js",
+    "name": "entries/pages/explore",
+    "src": "virtual:vike:page-entry:client:/pages/explore",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/forgot-password": {
+    "file": "assets/entries/pages_forgot-password.CUrYKEXf.js",
+    "name": "entries/pages/forgot-password",
+    "src": "virtual:vike:page-entry:client:/pages/forgot-password",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/help-center": {
+    "file": "assets/entries/pages_help-center.BQQ89YOB.js",
+    "name": "entries/pages/help-center",
+    "src": "virtual:vike:page-entry:client:/pages/help-center",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/index": {
+    "file": "assets/entries/pages_index.CR91AwF-.js",
+    "name": "entries/pages/index",
+    "src": "virtual:vike:page-entry:client:/pages/index",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/learn": {
+    "file": "assets/entries/pages_learn.Eb05AbUE.js",
+    "name": "entries/pages/learn",
+    "src": "virtual:vike:page-entry:client:/pages/learn",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/learn-details": {
+    "file": "assets/entries/pages_learn-details.BB8kYPwE.js",
+    "name": "entries/pages/learn-details",
+    "src": "virtual:vike:page-entry:client:/pages/learn-details",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/learn-discovery": {
+    "file": "assets/entries/pages_learn-discovery.qlBtMglm.js",
+    "name": "entries/pages/learn-discovery",
+    "src": "virtual:vike:page-entry:client:/pages/learn-discovery",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/learn-player": {
+    "file": "assets/entries/pages_learn-player.oYMUE9Nd.js",
+    "name": "entries/pages/learn-player",
+    "src": "virtual:vike:page-entry:client:/pages/learn-player",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/library": {
+    "file": "assets/entries/pages_library.D8p4P6uN.js",
+    "name": "entries/pages/library",
+    "src": "virtual:vike:page-entry:client:/pages/library",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/login": {
+    "file": "assets/entries/pages_login.CFXk2qoH.js",
+    "name": "entries/pages/login",
+    "src": "virtual:vike:page-entry:client:/pages/login",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/oauth-consent": {
+    "file": "assets/entries/pages_oauth-consent.CtmOc4J4.js",
+    "name": "entries/pages/oauth-consent",
+    "src": "virtual:vike:page-entry:client:/pages/oauth-consent",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/privacy-policy": {
+    "file": "assets/entries/pages_privacy-policy.7sDGHump.js",
+    "name": "entries/pages/privacy-policy",
+    "src": "virtual:vike:page-entry:client:/pages/privacy-policy",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/research": {
+    "file": "assets/entries/pages_research.DoFp5uzK.js",
+    "name": "entries/pages/research",
+    "src": "virtual:vike:page-entry:client:/pages/research",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/reset-password": {
+    "file": "assets/entries/pages_reset-password.D0vlVawW.js",
+    "name": "entries/pages/reset-password",
+    "src": "virtual:vike:page-entry:client:/pages/reset-password",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/signup": {
+    "file": "assets/entries/pages_signup.DgEtrsS_.js",
+    "name": "entries/pages/signup",
+    "src": "virtual:vike:page-entry:client:/pages/signup",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/student": {
+    "file": "assets/entries/pages_student.DPlEJ3sy.js",
+    "name": "entries/pages/student",
+    "src": "virtual:vike:page-entry:client:/pages/student",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/terms-of-service": {
+    "file": "assets/entries/pages_terms-of-service.DBvGqaaP.js",
+    "name": "entries/pages/terms-of-service",
+    "src": "virtual:vike:page-entry:client:/pages/terms-of-service",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DM9YOLel.js",
+      "_chunk-0c4fC5J5.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  }
+}

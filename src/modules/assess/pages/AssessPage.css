@@ -500,28 +500,115 @@
 }
 
 /* ─── RESOURCES TAB ───────────────────────────────────────── */
-.ap-resources {
+
+/* Wrapper */
+.ap-resources-section {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
-.ap-resource-card {
+/* Toolbar: count + toggle */
+.ap-res-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ap-res-count {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.55);
+  font-weight: 500;
+  margin: 0;
+}
+
+.ap-view-toggle {
+  display: flex;
+  gap: 0.35rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.ap-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ap-toggle-btn .material-symbols-outlined { font-size: 20px; }
+
+.ap-toggle-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.ap-toggle-btn.active { background: var(--primary); color: #fff; }
+
+/* ── LIST view (default) ── */
+.ap-resources--list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ap-resources--list .ap-resource-card {
   display: flex;
   align-items: center;
   gap: 1.5rem;
   background: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: var(--radius-lg);
-  padding: 1.75rem 2rem;
+  padding: 1.5rem 2rem;
   transition: all 0.3s ease;
 }
 
-.ap-resource-card:hover {
+.ap-resources--list .ap-resource-card:hover {
   background: rgba(255,255,255,0.11);
   border-color: var(--primary);
 }
 
+.ap-resources--list .ap-res-icon {
+  flex-shrink: 0;
+}
+
+/* ── GRID view ── */
+.ap-resources--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.ap-resources--grid .ap-resource-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.ap-resources--grid .ap-resource-card:hover {
+  background: rgba(255,255,255,0.11);
+  border-color: var(--primary);
+  transform: translateY(-4px);
+}
+
+.ap-resources--grid .ap-res-actions {
+  margin-top: auto;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* Shared card subcomponents */
 .ap-res-icon {
   width: 48px;
   height: 48px;
@@ -534,40 +621,87 @@
   color: var(--primary);
 }
 
+.ap-res-icon .material-symbols-outlined { font-size: 24px; }
+
+.ap-res-category {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  margin-bottom: 0.35rem;
+}
+
 .ap-res-info {
   flex: 1;
+  min-width: 0;
 }
 
 .ap-res-info h4 {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.35rem;
+  line-height: 1.4;
 }
 
 .ap-res-info p {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: rgba(255,255,255,0.6);
   line-height: 1.5;
+  margin: 0;
 }
+
+/* Action buttons row */
+.ap-res-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ap-view-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.ap-view-btn:hover { background: #3a9060; }
+
+.ap-view-btn .material-symbols-outlined { font-size: 17px; }
 
 .ap-dl-btn {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
   color: #fff;
-  padding: 0.6rem 1.25rem;
+  padding: 0.55rem 0.75rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 700;
   white-space: nowrap;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  text-decoration: none;
 }
 
-.ap-dl-btn:hover { background: var(--primary); border-color: var(--primary); }
+.ap-dl-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.35); }
+
+.ap-dl-btn .material-symbols-outlined { font-size: 18px; }
+
 
 /* ─── PROCESS ─────────────────────────────────────────────── */
 .ap-process {
@@ -874,9 +1008,32 @@
 
   .ap-state-select { width: 100%; }
 
-  .ap-resource-card {
+  /* Resources: hide toggle, always column on mobile */
+  .ap-view-toggle {
+    display: none;
+  }
+
+  .ap-resources--list,
+  .ap-resources--grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ap-resources--list .ap-resource-card,
+  .ap-resources--grid .ap-resource-card {
     flex-direction: column;
     align-items: flex-start;
+    padding: 1.5rem;
+  }
+
+  .ap-resources--grid .ap-res-actions {
+    width: 100%;
+  }
+
+  .ap-res-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .ap-form-row {

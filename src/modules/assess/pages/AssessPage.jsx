@@ -4,6 +4,7 @@ import PageHero from '../../../shared/ui/PageHero';
 import Tab from '../../../shared/ui/Tab';
 import StatusModal from '../../../shared/ui/StatusModal';
 import StateLoginModal from '../components/StateLoginModal';
+import ResourceViewer from '../../research/components/ResourceViewer';
 import { Helmet } from 'react-helmet-async';
 import './AssessPage.css';
 import assessMainImg from '../../../assets/images/Pictures/assess_main.png';
@@ -17,6 +18,53 @@ gsap.registerPlugin(ScrollTrigger);
 const ASSESSMENT_TABS = [
   { id: 'assessment', label: 'Take Self Assessment' },
   { id: 'resources', label: 'Resources' },
+];
+
+// ─── Cloudflare R2 Base URL ───────────────────────────
+const R2_BASE = 'https://pub-18be25e422c14b14ac1da71403c739f3.r2.dev';
+
+// ─── Assess Resources ─────────────────────────────────
+const ASSESS_RESOURCES = [
+  {
+    id: 'perform-pms',
+    title: 'PERFORM (PMS)',
+    desc: 'Performance Management System framework for government institutions covering goal-setting, monitoring and improvement cycles.',
+    file_url: `${R2_BASE}/assess/PERFORM%20(PMS).pdf`,
+    type: 'PDF',
+    category: 'Assessment Framework',
+  },
+  {
+    id: 'perl-general-guide',
+    title: 'PERL General Guide to Self-Assessments with Government Partners',
+    desc: 'Comprehensive guide for government partners on the self-assessment process including Briefing, Retreat, and Validation steps.',
+    file_url: `${R2_BASE}/assess/PERL%20General%20Guide%20to%20Self-Assessments%20with%20Government%20Partners%20(1).pdf`,
+    type: 'PDF',
+    category: 'General Guide',
+  },
+  {
+    id: 'perl-governance-manual',
+    title: 'PERL Governance Assessment Manual',
+    desc: 'Full guidelines and indicator scoring frameworks for the PERL governance self-assessment and Public Sector Reform assessments.',
+    file_url: `${R2_BASE}/assess/PERL%20Governance%20Assessment%20Manual.pdf`,
+    type: 'PDF',
+    category: 'Assessment Manual',
+  },
+  {
+    id: 'pfm-raa-manual',
+    title: 'PFM-RAA Framework Manual',
+    desc: 'Step-by-step guide to conducting Public Financial Management Rapid Annual Assessments.',
+    file_url: `${R2_BASE}/assess/PFM-RAA%20Framework%20Manual.pdf`,
+    type: 'PDF',
+    category: 'PFM Framework',
+  },
+  {
+    id: 'regional-hubs-guide',
+    title: 'Regional Hubs Government Assessments Guide',
+    desc: 'Strategic assessment guide for regional governance hub structures and their effectiveness across partner states.',
+    file_url: `${R2_BASE}/assess/Regional%20Hubs%20Government%20Assessments%20Guide%20(1).pdf`,
+    type: 'PDF',
+    category: 'Regional Hubs',
+  },
 ];
 
 // ─── Nigerian States ──────────────────────────────────
@@ -66,6 +114,9 @@ const AssessPage = ({ onNavigate }) => {
   // Modal state
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [welcomeModal, setWelcomeModal] = useState({ open: false, state: '' });
+  // Resources state
+  const [resourceLayout, setResourceLayout] = useState('list'); // 'list' | 'grid'
+  const [viewerResource, setViewerResource] = useState(null);
 
   const handleLoginSuccess = (stateName) => {
     setIsLoggedIn(true);
@@ -234,26 +285,66 @@ const AssessPage = ({ onNavigate }) => {
                 </div>
               </>
             ) : (
-              <div className="ap-resources">
-                {[
-                  { title: 'PERL General Guide to Self-Assessments', desc: 'Comprehensive guide for government partners on the self-assessment process including Briefing, Retreat, and Validation steps.' },
-                  { title: 'PSR Assessment Manual', desc: 'Full guidelines and indicator scoring frameworks for Public Sector Reform assessments.' },
-                  { title: 'PFM-RAA Framework Manual', desc: 'Step-by-step guide to conducting Public Financial Management Rapid Annual Assessments.' },
-                ].map((r, i) => (
-                  <div key={i} className="ap-resource-card">
-                    <div className="ap-res-icon">
-                      <span className="material-symbols-outlined">description</span>
-                    </div>
-                    <div className="ap-res-info">
-                      <h4>{r.title}</h4>
-                      <p>{r.desc}</p>
-                    </div>
-                    <button className="ap-dl-btn">
-                      <span className="material-symbols-outlined">download</span>
-                      Download
+              // ── RESOURCES TAB ──────────────────────────────────────
+              <div className="ap-resources-section">
+                {/* View Toggle */}
+                <div className="ap-res-toolbar">
+                  <p className="ap-res-count">{ASSESS_RESOURCES.length} documents</p>
+                  <div className="ap-view-toggle">
+                    <button
+                      className={`ap-toggle-btn ${resourceLayout === 'list' ? 'active' : ''}`}
+                      onClick={() => setResourceLayout('list')}
+                      title="List view"
+                      aria-label="List view"
+                    >
+                      <span className="material-symbols-outlined">view_list</span>
+                    </button>
+                    <button
+                      className={`ap-toggle-btn ${resourceLayout === 'grid' ? 'active' : ''}`}
+                      onClick={() => setResourceLayout('grid')}
+                      title="Grid view"
+                      aria-label="Grid view"
+                    >
+                      <span className="material-symbols-outlined">grid_view</span>
                     </button>
                   </div>
-                ))}
+                </div>
+
+                {/* Resources */}
+                <div className={`ap-resources ${resourceLayout === 'grid' ? 'ap-resources--grid' : 'ap-resources--list'}`}>
+                  {ASSESS_RESOURCES.map((r) => (
+                    <div key={r.id} className="ap-resource-card">
+                      <div className="ap-res-icon">
+                        <span className="material-symbols-outlined">picture_as_pdf</span>
+                      </div>
+                      <div className="ap-res-info">
+                        <span className="ap-res-category">{r.category}</span>
+                        <h4>{r.title}</h4>
+                        <p>{r.desc}</p>
+                      </div>
+                      <div className="ap-res-actions">
+                        <button
+                          className="ap-view-btn"
+                          onClick={() => setViewerResource(r)}
+                          aria-label={`Open ${r.title}`}
+                        >
+                          <span className="material-symbols-outlined">open_in_full</span>
+                          Open
+                        </button>
+                        <a
+                          className="ap-dl-btn"
+                          href={r.file_url}
+                          download
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Download ${r.title}`}
+                        >
+                          <span className="material-symbols-outlined">download</span>
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -439,6 +530,13 @@ const AssessPage = ({ onNavigate }) => {
           />
         </div>
       )}
+
+      {/* ── PDF RESOURCE VIEWER ── */}
+      <ResourceViewer
+        isOpen={!!viewerResource}
+        onClose={() => setViewerResource(null)}
+        resource={viewerResource}
+      />
 
       <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">
         <span className="material-symbols-outlined">expand_less</span>
