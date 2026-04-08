@@ -510,7 +510,7 @@ const AboutUs = ({ onNavigate }) => {
       </div>
 
       {/* ── TEAM ── */}
-      <section className="about-team">
+      {/* <section className="about-team">
         <div className="container" style={{ position: 'relative' }}>
           <div className="team-header">
             <span className="tag">The People Behind GRH</span>
@@ -548,7 +548,7 @@ const AboutUs = ({ onNavigate }) => {
             </button>
           </div>
         </div>
-      </section>
+      </section> */}
 
       
 
