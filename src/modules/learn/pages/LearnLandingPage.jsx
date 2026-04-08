@@ -209,7 +209,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
         }
         counters={[
           { value: '1+', label: 'COURSES' },
-          { value: '180+', label: 'MODULES' },
+          { value: '12+', label: 'MODULES' },
           { value: '98%', label: 'COMPLETION' },
           { value: 'Free', label: 'TO START' }
         ]}

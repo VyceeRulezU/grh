@@ -15,6 +15,7 @@ import E_learning from '../../../assets/e-Learning.png';
 import { supabase } from '../../../services/supabase/supabaseClient';
 import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
+import NigeriaMap from '../../analyse/components/NigeriaMap';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -191,10 +192,6 @@ const AboutUs = ({ onNavigate }) => {
               src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800"
               alt="Government Intelligence Team"
             />
-            {/* <div className="mission-badge">
-              <strong>99.9%</strong>
-              <span>Data Accuracy</span>
-            </div> */}
           </div>
           <div className="mission-content">
             <span className="tag">About the Governance Resource Hub</span>
@@ -202,7 +199,7 @@ const AboutUs = ({ onNavigate }) => {
             <p>
               Welcome to the Governance Resource Hub—a central digital platform created to preserve, share, and build upon the extensive legacy of the Partnership to Engage, Reform, and Learn (PERL) programme and other FCDO-funded predecessor governance programmes.
             </p>
-            <p style={{ marginTop: '1rem', color: 'var(--text-sub)', fontSize: '1.05rem', lineHeight: '1.7' }}>
+            <p style={{ marginTop: '1rem', color: 'var(--text-soft)', fontSize: '1.05rem', lineHeight: '1.7' }}>
               This innovative hub is dedicated to advancing governance reform in Nigeria by making critical and practical tools accessible to reform champions, policymakers, academics, and practitioners alike. At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.
             </p>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
@@ -213,7 +210,103 @@ const AboutUs = ({ onNavigate }) => {
                 Partner with Us
               </button>
             </div>
+          </div>
+        </div>
+      </section>
 
+      {/* ── ABOUT THE PROGRAMMES (Image 1 Style) ── */}
+      <section className="about-programmes section-padding">
+        <div className="container">
+          <div className="section-header center">
+            <h2>About the <span className="green-text">Programmes</span></h2>
+          </div>
+          
+          <div className="programmes-grid">
+            <div className="programme-card">
+              <div className="programme-img-box slgp">
+                <img src="https://pub-fdfba072807b47d897c074367b14e463.r2.dev/web-assets/slgp-logo.png" alt="SLGP" onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800'} />
+              </div>
+              <div className="programme-info">
+                <h3>SLGP</h3>
+                <p>The State and Local Government Programme (SLGP) sought to increase and improve the interaction between citizens and state governments. SLGP included the strengthening of the civil service and participatory consultation with service providers, including nongovernmental organisations, to determine priority actions for local gov...</p>
+                <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
+              </div>
+            </div>
+
+            <div className="programme-card">
+              <div className="programme-img-box sparc">
+                <img src="https://pub-fdfba072807b47d897c074367b14e463.r2.dev/web-assets/sparc-logo.png" alt="SPARC" onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800'} />
+              </div>
+              <div className="programme-info">
+                <h3>SPARC</h3>
+                <p>The State Partnership for Accountability, Responsiveness and Capability (SPARC) was designed by the UK Government's Department for International Development (DFID) to improve governance for better service delivery in the originally five, increased to ten, state governments of the Federal Republic of Nigeria.</p>
+                <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
+              </div>
+            </div>
+
+            <div className="programme-card">
+              <div className="programme-img-box perl">
+                <img src="https://pub-fdfba072807b47d897c074367b14e463.r2.dev/web-assets/perl-logo.png" alt="PERL" onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'} />
+              </div>
+              <div className="programme-info">
+                <h3>PERL</h3>
+                <p>The Partnership to Engage, Reform and Learn (PERL) was an eight-year governance program funded by the UK’s Foreign, Commonwealth and Development Office (FCDO). It focused on supporting governments, citizens, and evidence-based advocacy by assisting with policy development and implementation. PERL aimed to track h...</p>
+                <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHAT YOU EXPECT TO SEE (Map Section - Image 2 Style) ── */}
+      <section className="about-expectations section-padding bg-soft">
+        <div className="container overflow-hidden">
+          <div className="expect-grid">
+            <div className="expect-visual">
+              <div className="map-wrapper animate-float">
+                <NigeriaMap data={[
+                  { name: 'Katsina', amount: 'Reform Hub' },
+                  { name: 'Kano', amount: 'Reform Hub' },
+                  { name: 'Yobe', amount: 'Reform Hub' },
+                  { name: 'Kaduna', amount: 'Reform Hub' },
+                  { name: 'Jigawa', amount: 'Reform Hub' },
+                  { name: 'Borno', amount: 'Reform Hub' },
+                  { name: 'Zamfara', amount: 'Reform Hub' },
+                  { name: 'Enugu', amount: 'Reform Hub' },
+                  { name: 'Anambra', amount: 'Reform Hub' },
+                  { name: 'Lagos', amount: 'Reform Hub' },
+                  { name: 'FCT', amount: 'Reform Hub' }
+                ]} />
+              </div>
+              <div className="map-legend-grid">
+                {[
+                  'Abuja', 'Lagos', 'Kaduna', 'Kano', 'Enugu', 'Jigawa', 'Anambra', 'Katsina', 'Yobe', 'Borno', 'Zamfara'
+                ].map(state => (
+                  <div key={state} className="legend-item">
+                    <span className="dot"></span> {state}
+                  </div>
+                ))}
+              </div>
+              <button className="view-map-btn" onClick={() => onNavigate('analyse')}>
+                View Map Data <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+
+            <div className="expect-content">
+              <h2>What you <span className="green-text">expect to see</span></h2>
+              <div className="expect-divider"></div>
+              
+              <div className="expect-list">
+                {[
+                  'PSM', 'PFM', 'M & E', 'Delivery Unit', 'Education', 'Health', 'Water', 'Agriculture'
+                ].map(item => (
+                  <div key={item} className="expect-list-item btn-hover">
+                    <span>{item}</span>
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

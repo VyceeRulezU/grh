@@ -13,7 +13,14 @@ const InstructorDetailModal = ({ isOpen, onClose, instructor }) => {
         
         <div className="instructor-modal-header">
           <div className="instructor-modal-img">
-             <img src={instructor.avatar_url || 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} alt={instructor.name} />
+             <img 
+               src={`https://pub-fdfba072807b47d897c074367b14e463.r2.dev/avatars/${instructor.name?.toLowerCase().replace(/\s+/g, '-')}.png`} 
+               alt={instructor.name} 
+               onError={(e) => {
+                 e.target.onerror = null;
+                 e.target.src = instructor.avatar_url || 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
+               }}
+             />
           </div>
           <div className="instructor-modal-intro">
             <span className="instructor-modal-tag">{instructor.category || 'Expert'}</span>
