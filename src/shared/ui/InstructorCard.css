@@ -24,8 +24,8 @@
 }
 
 .instructor-card-img-wrapper {
-    width: 110px; /* Slightly larger for a more premium feel */
-    height: 110px;
+    width: 120px; /* Slightly larger for a more premium feel */
+    height: 120px;
     border-radius: 50%;
     margin-bottom: 1.5rem;
     border: 4px solid rgba(77, 167, 113, 0.1);
@@ -38,6 +38,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top;
     display: block;
 }
 

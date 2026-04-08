@@ -1493,6 +1493,7 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingInstructor, setEditingInstructor] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     title: '',
@@ -1505,8 +1506,13 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
 
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
 
+  useEffect(() => {
+    console.log("[GRH] Instructors list updated:", instructors.length, "items");
+  }, [instructors]);
+
   const handleAvatarFileChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
         showError('File Too Large', 'Please select an image smaller than 2MB.');
@@ -1520,18 +1526,22 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
   };
 
   const handleSave = async () => {
+    console.log("[GRH] handleSave triggered", { formData, isEditing: !!editingInstructor });
+    
     if (!formData.name || !formData.title) {
       showError('Invalid Form', 'Name and Title are required.');
       return;
     }
 
+    setIsSaving(true);
     try {
       let finalAvatarUrl = formData.avatar_url;
 
-      // Upload nested if file exists
+      // Upload if a new file was chosen
       if (avatarFile) {
+        console.log("[GRH] Uploading new avatar file...");
         const fileExt = avatarFile.name.split('.').pop();
-        const fileName = `instructor_${Math.random()}.${fileExt}`;
+        const fileName = `instructor_${Date.now()}_${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
         const filePath = `instructors/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -1545,32 +1555,61 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
           .getPublicUrl(filePath);
         
         finalAvatarUrl = publicUrl;
+        console.log("[GRH] Avatar uploaded successfully:", finalAvatarUrl);
       }
 
-      const payload = { ...formData, avatar_url: finalAvatarUrl };
+      const payload = { 
+        name: formData.name,
+        title: formData.title,
+        summary: formData.summary,
+        avatar_url: finalAvatarUrl,
+        category: formData.category 
+      };
+
+      console.log("[GRH] Sending payload to Supabase:", payload);
 
       if (editingInstructor) {
-        const { error } = await supabase
+        const { error, data } = await supabase
           .from('instructors')
           .update(payload)
-          .eq('id', editingInstructor.id);
-        if (error) throw error;
+          .eq('id', editingInstructor.id)
+          .select();
+        
+        if (error) {
+          console.error("[GRH] Supabase Update Error:", error);
+          throw error;
+        }
+        console.log("[GRH] Update success:", data);
         showSuccess('Updated!', 'Instructor details updated successfully.');
       } else {
-        const { error } = await supabase
+        const { error, data } = await supabase
           .from('instructors')
-          .insert([payload]);
-        if (error) throw error;
+          .insert([payload])
+          .select();
+        
+        if (error) {
+          console.error("[GRH] Supabase Insert Error:", error);
+          throw error;
+        }
+        console.log("[GRH] Insert success:", data);
         showSuccess('Added!', 'New instructor added successfully.');
       }
+      
       setIsAddModalOpen(false);
       setEditingInstructor(null);
       setAvatarFile(null);
       setAvatarPreview(null);
       setFormData({ name: '', title: '', summary: '', avatar_url: '', category: 'Governance' });
-      if (fetchData) fetchData();
+      
+      if (fetchData) {
+        console.log("[GRH] Refreshing data...");
+        await fetchData();
+      }
     } catch (err) {
-      showError('Error', err.message);
+      console.error("[GRH] Save Instructor Exception:", err);
+      showError('Error Saving', err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1739,11 +1778,12 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
                 </div>
               </div>
               <div className="adm-form-group">
-                <label>Avatar URL (Optional Fallback)</label>
+                <label>Direct Link / R2 URL (Paste avatar link here)</label>
                 <input 
-                  placeholder="https://images.unsplash.com/..." 
+                  placeholder="https://pub-xxxx.r2.dev/your-image.png" 
                   value={formData.avatar_url}
                   onChange={e => setFormData({...formData, avatar_url: e.target.value})}
+                  disabled={isSaving}
                 />
               </div>
               <div className="adm-form-group">
@@ -1766,9 +1806,25 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
               </div>
             </div>
             <footer className="adm-modal-footer">
-              <button className="btn-outline" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
-              <button className="special-button" onClick={handleSave}>
-                {editingInstructor ? 'Save Changes' : 'Add Member'}
+              <button 
+                className="btn-outline" 
+                onClick={() => setIsAddModalOpen(false)}
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+              <button 
+                className="special-button" 
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <i className="ri-loader-4-line ri-spin"></i> Saving...
+                  </>
+                ) : (
+                  editingInstructor ? 'Save Changes' : 'Add Member'
+                )}
               </button>
             </footer>
           </div>
@@ -2499,12 +2555,21 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       })
       .subscribe();
 
+    const instructorsChannel = supabase
+      .channel('admin-dashboard:instructors')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'instructors' }, () => {
+        console.log("[GRH] Real-time instructor change detected!");
+        fetchData();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(coursesChannel);
       supabase.removeChannel(resourcesChannel);
       supabase.removeChannel(booksChannel);
       supabase.removeChannel(profilesChannel);
       supabase.removeChannel(workshopsChannel);
+      supabase.removeChannel(instructorsChannel);
     };
   }, []);
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './NigeriaMap.css';
 import NIGERIA_SVG_DATA from '../../../data/nigeriaMapPaths';
 
-const NigeriaMap = ({ data = [] }) => {
+const NigeriaMap = ({ data = [], showPins = false }) => {
   const [hoveredState, setHoveredState] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -19,6 +19,21 @@ const NigeriaMap = ({ data = [] }) => {
   };
 
   const states = NIGERIA_SVG_DATA.locations;
+
+  // Pin coordinates for 11 states
+  const PIN_COORDS = {
+    'FCT': { x: 305, y: 310 },
+    'Lagos': { x: 40, y: 465 },
+    'Kaduna': { x: 340, y: 190 },
+    'Kano': { x: 380, y: 110 },
+    'Enugu': { x: 300, y: 450 },
+    'Jigawa': { x: 460, y: 80 },
+    'Anambra': { x: 270, y: 460 },
+    'Katsina': { x: 340, y: 60 },
+    'Yobe': { x: 580, y: 65 },
+    'Borno': { x: 670, y: 90 },
+    'Zamfara': { x: 260, y: 80 }
+  };
 
   return (
     <div className="nigeria-map-container" onMouseMove={handleMouseMove}>
@@ -37,6 +52,27 @@ const NigeriaMap = ({ data = [] }) => {
             />
           ))}
         </g>
+        
+        {/* Pins Layer */}
+        {showPins && Object.entries(PIN_COORDS).map(([state, pos]) => (
+          <g key={state} className="map-pin-group">
+            <circle 
+              cx={pos.x} 
+              cy={pos.y} 
+              r="12" 
+              fill="var(--secondary)" 
+              className="pin-pulse"
+              opacity="0.3"
+            />
+            <circle 
+              cx={pos.x} 
+              cy={pos.y} 
+              r="4" 
+              fill="var(--secondary)" 
+              className="pin-dot"
+            />
+          </g>
+        ))}
       </svg>
       
       {hoveredState && (
@@ -51,13 +87,13 @@ const NigeriaMap = ({ data = [] }) => {
           <div className="tooltip-body">
             <div className="tooltip-row">
               <span className="label">Year:</span>
-              <span className="value">{getHoverData(hoveredState).year}</span>
+              <span className="value">{getHoverData(hoveredState).year || 2024}</span>
             </div>
             <div className="tooltip-row">
-              <span className="label">Amount:</span>
+              <span className="label">Focus:</span>
               <span className="value highlight">{getHoverData(hoveredState).amount}</span>
             </div>
-            <div className="tooltip-note">Actual Revenue / Expenditure</div>
+            <div className="tooltip-note">GRH Regional Hub</div>
           </div>
         </div>
       )}

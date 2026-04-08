@@ -203,9 +203,9 @@ const AboutUs = ({ onNavigate }) => {
               This innovative hub is dedicated to advancing governance reform in Nigeria by making critical and practical tools accessible to reform champions, policymakers, academics, and practitioners alike. At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.
             </p>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
-              <button className="special-button" onClick={() => onNavigate && onNavigate('signup')}>
+              {/* <button className="special-button" onClick={() => onNavigate && onNavigate('signup')}>
                 Join Our Platform
-              </button>
+              </button> */}
               <button className="white-pill-btn" onClick={() => { /* Handle partner inquiry */ }}>
                 Partner with Us
               </button>
@@ -214,8 +214,13 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* ── ABOUT THE PROGRAMMES (Image 1 Style) ── */}
-      <section className="about-programmes section-padding">
+      {/* ── ABOUT THE PROGRAMMES (Premium Redesign) ── */}
+      <section className="about-programmes">
+        <div className="about-programmes-bg">
+          <img src={servicesBg} alt="Governance Background" />
+        </div>
+        <div className="about-programmes-overlay"></div>
+        
         <div className="container">
           <div className="section-header center">
             <h2>About the <span className="green-text">Programmes</span></h2>
@@ -224,33 +229,33 @@ const AboutUs = ({ onNavigate }) => {
           <div className="programmes-grid">
             <div className="programme-card">
               <div className="programme-img-box slgp">
-                <img src="https://pub-fdfba072807b47d897c074367b14e463.r2.dev/web-assets/slgp-logo.png" alt="SLGP" onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800'} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/SLGP.png" alt="SLGP" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
               </div>
               <div className="programme-info">
                 <h3>SLGP</h3>
-                <p>The State and Local Government Programme (SLGP) sought to increase and improve the interaction between citizens and state governments. SLGP included the strengthening of the civil service and participatory consultation with service providers, including nongovernmental organisations, to determine priority actions for local gov...</p>
+                <p>The State and Local Government Programme (SLGP) sought to increase and improve the interaction between citizens and state governments. SLGP included the strengthening of the civil service and participatory consultation with service providers.</p>
                 <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
               </div>
             </div>
 
             <div className="programme-card">
               <div className="programme-img-box sparc">
-                <img src="https://pub-fdfba072807b47d897c074367b14e463.r2.dev/web-assets/sparc-logo.png" alt="SPARC" onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800'} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/SPARC-Logo.jpg" alt="SPARC" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
               </div>
               <div className="programme-info">
                 <h3>SPARC</h3>
-                <p>The State Partnership for Accountability, Responsiveness and Capability (SPARC) was designed by the UK Government's Department for International Development (DFID) to improve governance for better service delivery in the originally five, increased to ten, state governments of the Federal Republic of Nigeria.</p>
+                <p>The State Partnership for Accountability, Responsiveness and Capability (SPARC) was designed by the UK Government's DFID to improve governance for better service delivery in ten state governments of Nigeria.</p>
                 <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
               </div>
             </div>
 
             <div className="programme-card">
               <div className="programme-img-box perl">
-                <img src="https://pub-fdfba072807b47d897c074367b14e463.r2.dev/web-assets/perl-logo.png" alt="PERL" onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/PERL-logo-white.jpg" alt="PERL" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
               </div>
               <div className="programme-info">
                 <h3>PERL</h3>
-                <p>The Partnership to Engage, Reform and Learn (PERL) was an eight-year governance program funded by the UK’s Foreign, Commonwealth and Development Office (FCDO). It focused on supporting governments, citizens, and evidence-based advocacy by assisting with policy development and implementation. PERL aimed to track h...</p>
+                <p>The Partnership to Engage, Reform and Learn (PERL) was an eight-year governance program funded by the UK’s FCDO. It focused on supporting governments, citizens, and evidence-based advocacy.</p>
                 <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
               </div>
             </div>
@@ -258,25 +263,28 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* ── WHAT YOU EXPECT TO SEE (Map Section - Image 2 Style) ── */}
-      <section className="about-expectations section-padding bg-soft">
+      {/* ── WHAT YOU EXPECT TO SEE (Premium Redesign) ── */}
+      <section className="about-expectations section-padding">
         <div className="container overflow-hidden">
           <div className="expect-grid">
             <div className="expect-visual">
               <div className="map-wrapper animate-float">
-                <NigeriaMap data={[
-                  { name: 'Katsina', amount: 'Reform Hub' },
-                  { name: 'Kano', amount: 'Reform Hub' },
-                  { name: 'Yobe', amount: 'Reform Hub' },
-                  { name: 'Kaduna', amount: 'Reform Hub' },
-                  { name: 'Jigawa', amount: 'Reform Hub' },
-                  { name: 'Borno', amount: 'Reform Hub' },
-                  { name: 'Zamfara', amount: 'Reform Hub' },
-                  { name: 'Enugu', amount: 'Reform Hub' },
-                  { name: 'Anambra', amount: 'Reform Hub' },
-                  { name: 'Lagos', amount: 'Reform Hub' },
-                  { name: 'FCT', amount: 'Reform Hub' }
-                ]} />
+                <NigeriaMap 
+                  showPins={true}
+                  data={[
+                    { name: 'Katsina', amount: 'Reform Hub' },
+                    { name: 'Kano', amount: 'Reform Hub' },
+                    { name: 'Yobe', amount: 'Reform Hub' },
+                    { name: 'Kaduna', amount: 'Reform Hub' },
+                    { name: 'Jigawa', amount: 'Reform Hub' },
+                    { name: 'Borno', amount: 'Reform Hub' },
+                    { name: 'Zamfara', amount: 'Reform Hub' },
+                    { name: 'Enugu', amount: 'Reform Hub' },
+                    { name: 'Anambra', amount: 'Reform Hub' },
+                    { name: 'Lagos', amount: 'Reform Hub' },
+                    { name: 'FCT', amount: 'Reform Hub' }
+                  ]} 
+                />
               </div>
               <div className="map-legend-grid">
                 {[
@@ -288,7 +296,7 @@ const AboutUs = ({ onNavigate }) => {
                 ))}
               </div>
               <button className="view-map-btn" onClick={() => onNavigate('analyse')}>
-                View Map Data <span className="material-symbols-outlined">chevron_right</span>
+                Explore Analytic Map <span className="material-symbols-outlined">analytics</span>
               </button>
             </div>
 
@@ -302,7 +310,7 @@ const AboutUs = ({ onNavigate }) => {
                 ].map(item => (
                   <div key={item} className="expect-list-item btn-hover">
                     <span>{item}</span>
-                    <span className="material-symbols-outlined">chevron_right</span>
+                    <span className="material-symbols-outlined">arrow_outward</span>
                   </div>
                 ))}
               </div>
