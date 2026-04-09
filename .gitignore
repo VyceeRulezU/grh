@@ -52,3 +52,6 @@ service-account.json
 *.json.key
 
 .env*.local
+
+# Database backups and scripts
+/_database_backups
