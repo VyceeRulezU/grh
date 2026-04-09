@@ -304,6 +304,13 @@
   padding: 2rem;
 }
 
+.adm-dashboard{
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* height: 100%; */
+}
+
 .adm-panel {
   display: flex;
   flex-direction: column;
