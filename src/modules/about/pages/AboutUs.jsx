@@ -229,7 +229,7 @@ const AboutUs = ({ onNavigate }) => {
           <div className="programmes-grid">
             <div className="programme-card">
               <div className="programme-img-box slgp">
-                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/SLGP.png" alt="SLGP" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/sldp-logo.png" alt="SLGP" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
               </div>
               <div className="programme-info">
                 <h3>SLGP</h3>
@@ -240,7 +240,7 @@ const AboutUs = ({ onNavigate }) => {
 
             <div className="programme-card">
               <div className="programme-img-box sparc">
-                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/SPARC-Logo.jpg" alt="SPARC" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/sparc-logo.png" alt="SPARC" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
               </div>
               <div className="programme-info">
                 <h3>SPARC</h3>
@@ -251,7 +251,7 @@ const AboutUs = ({ onNavigate }) => {
 
             <div className="programme-card">
               <div className="programme-img-box perl">
-                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/PERL-logo-white.jpg" alt="PERL" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/pearl-logo.png" alt="PERL" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
               </div>
               <div className="programme-info">
                 <h3>PERL</h3>
@@ -271,6 +271,7 @@ const AboutUs = ({ onNavigate }) => {
               <div className="map-wrapper animate-float">
                 <NigeriaMap 
                   showPins={true}
+                  highlightPinnedStates={true}
                   data={[
                     { name: 'Katsina', amount: 'Reform Hub' },
                     { name: 'Kano', amount: 'Reform Hub' },

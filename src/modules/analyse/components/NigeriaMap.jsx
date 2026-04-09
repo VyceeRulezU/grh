@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './NigeriaMap.css';
 import NIGERIA_SVG_DATA from '../../../data/nigeriaMapPaths';
 
-const NigeriaMap = ({ data = [], showPins = false }) => {
+const PINNED_STATES_NAMES = ['Federal Capital Territory', 'Lagos', 'Kaduna', 'Kano', 'Enugu', 'Jigawa', 'Anambra', 'Katsina', 'Yobe', 'Borno', 'Zamfara'];
+const NAME_MAP = { 'Federal Capital Territory': 'FCT' };
+
+const NigeriaMap = ({ data = [], showPins = false, highlightPinnedStates = false }) => {
   const [hoveredState, setHoveredState] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [pinCoords, setPinCoords] = useState({});
+  const svgRef = useRef(null);
+
+  useEffect(() => {
+    if (showPins && svgRef.current) {
+      const newCoords = {};
+      
+      const paths = svgRef.current.querySelectorAll('.state-path');
+      paths.forEach(path => {
+        const stateName = path.getAttribute('data-name');
+        const mapName = NAME_MAP[stateName] || stateName;
+        if (PINNED_STATES_NAMES.includes(stateName) || PINNED_STATES_NAMES.includes(mapName)) {
+           const bbox = path.getBBox();
+           newCoords[mapName] = {
+             x: bbox.x + bbox.width / 2,
+             y: bbox.y + bbox.height / 2
+           };
+        }
+      });
+      setPinCoords(newCoords);
+    }
+  }, [showPins]);
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -20,33 +45,25 @@ const NigeriaMap = ({ data = [], showPins = false }) => {
 
   const states = NIGERIA_SVG_DATA.locations;
 
-  // Pin coordinates for 11 states
-  const PIN_COORDS = {
-    'FCT': { x: 305, y: 310 },
-    'Lagos': { x: 40, y: 465 },
-    'Kaduna': { x: 340, y: 190 },
-    'Kano': { x: 380, y: 110 },
-    'Enugu': { x: 300, y: 450 },
-    'Jigawa': { x: 460, y: 80 },
-    'Anambra': { x: 270, y: 460 },
-    'Katsina': { x: 340, y: 60 },
-    'Yobe': { x: 580, y: 65 },
-    'Borno': { x: 670, y: 90 },
-    'Zamfara': { x: 260, y: 80 }
-  };
-
   return (
     <div className="nigeria-map-container" onMouseMove={handleMouseMove}>
-      <svg viewBox={NIGERIA_SVG_DATA.viewBox} className="nigeria-map-svg">
+      <svg ref={svgRef} viewBox={NIGERIA_SVG_DATA.viewBox} className="nigeria-map-svg">
         <g className="states-group">
           {states.map((state) => (
             <path
               key={state.id}
+              data-name={state.name}
               d={state.path}
               className={`state-path ${hoveredState === state.name ? 'hovered' : ''}`}
               onMouseEnter={() => setHoveredState(state.name)}
               onMouseLeave={() => setHoveredState(null)}
-              fill={hoveredState === state.name ? "var(--primary)" : "#e2e8f0"}
+              fill={
+                hoveredState === state.name 
+                  ? "var(--primary)" 
+                  : (highlightPinnedStates && PINNED_STATES_NAMES.includes(state.name))
+                      ? "var(--secondary)" 
+                      : "#e2e8f0"
+              }
               stroke="#fff"
               strokeWidth="1"
             />
@@ -54,21 +71,11 @@ const NigeriaMap = ({ data = [], showPins = false }) => {
         </g>
         
         {/* Pins Layer */}
-        {showPins && Object.entries(PIN_COORDS).map(([state, pos]) => (
-          <g key={state} className="map-pin-group">
-            <circle 
-              cx={pos.x} 
-              cy={pos.y} 
-              r="12" 
-              fill="var(--secondary)" 
-              className="pin-pulse"
-              opacity="0.3"
-            />
-            <circle 
-              cx={pos.x} 
-              cy={pos.y} 
-              r="4" 
-              fill="var(--secondary)" 
+        {showPins && Object.entries(pinCoords).map(([state, pos]) => (
+          <g key={state} className="map-pin-group" transform={`translate(${pos.x - 12}, ${pos.y - 22})`}>
+            <path
+              d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+              fill="var(--sc-destructive, #ef4444)"
               className="pin-dot"
             />
           </g>
