@@ -30,7 +30,7 @@ const Footer = ({ onNavigate }) => {
               <p className="footer-link-title">Support</p>
               <div className="footer-link-group">
                 <button className="footer-link" onClick={() => onNavigate('help-center')}>Help Center</button>
-                <button className="footer-link" onClick={() => onNavigate('contact')}>Contact Us</button>
+                <a href="mailto:info@governanceresourcehub.com" className="footer-link">Contact Us</a>
               </div>
             </div>
           </div>
