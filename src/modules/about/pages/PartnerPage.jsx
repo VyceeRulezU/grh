@@ -24,23 +24,76 @@ const PartnerPage = ({ onNavigate }) => {
   };
 
   useEffect(() => {
-    if (cardsRef.current.length > 0) {
-      gsap.fromTo(cardsRef.current, 
-        { y: 50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '.partner-content-section',
-            start: 'top 80%',
-            toggleActions: 'play none none none'
-          }
+    const ctx = gsap.context(() => {
+      // 1. Approach Section Reveal
+      gsap.fromTo('.approach-header > *', 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: 'power3.out',
+          scrollTrigger: { trigger: '.approach-header', start: 'top 90%' }
         }
       );
-    }
+
+      gsap.fromTo('.img-box', 
+        { y: 60, opacity: 0 },
+        { 
+          y: 0, opacity: 1, duration: 1.2, stagger: 0.3, ease: 'power2.out',
+          scrollTrigger: { trigger: '.approach-images', start: 'top 85%' }
+        }
+      );
+
+      gsap.fromTo('.approach-text-block > *', 
+        { x: 30, opacity: 0 },
+        { 
+          x: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power3.out',
+          scrollTrigger: { trigger: '.approach-text-block', start: 'top 90%' }
+        }
+      );
+
+      gsap.fromTo('.goal-row', 
+        { y: 40, opacity: 0 },
+        { 
+          y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power2.out',
+          scrollTrigger: { trigger: '.approach-goals-list', start: 'top 85%' }
+        }
+      );
+
+      // 2. Bento Section Reveal
+      gsap.fromTo('.bento-header > *', 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: 'power3.out',
+          scrollTrigger: { trigger: '.bento-header', start: 'top 90%' }
+        }
+      );
+
+      gsap.fromTo('.bento-card', 
+        { scale: 0.95, y: 40, opacity: 0 },
+        { 
+          scale: 1, y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out',
+          scrollTrigger: { trigger: '.bento-grid', start: 'top 85%' }
+        }
+      );
+
+      // 3. Footer/Misc Reveal
+      gsap.fromTo('.reach-us-footer', 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, opacity: 1, duration: 1, ease: 'power3.out',
+          scrollTrigger: { trigger: '.reach-us-footer', start: 'top 95%' }
+        }
+      );
+
+      gsap.fromTo('.faq-section-header > *', 
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: 'power3.out',
+          scrollTrigger: { trigger: '.faq-section-header', start: 'top 90%' }
+        }
+      );
+    });
+
+    return () => ctx.revert();
   }, []);
 
   return (
