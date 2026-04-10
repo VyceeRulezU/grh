@@ -288,11 +288,26 @@
   grid-row: 2;
 }
 
-.bento-stat-logo {
+.decorative-pattern-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 1.5rem;
+  justify-content: center;
+  background: var(--secondary) !important;
+}
+
+.bento-stat-pattern {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/icon.png');
+  background-repeat: repeat;
+  background-size: 40px;
+  opacity: 0.15;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
 }
 
 .bento-wide {
@@ -301,7 +316,7 @@
 }
 
 .bento-card.bg-dark {
-  background: #111;
+  background: var(--secondary);
   color: white;
 }
 

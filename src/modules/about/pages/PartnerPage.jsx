@@ -183,12 +183,8 @@ const PartnerPage = ({ onNavigate }) => {
             </div>
 
             {/* 5. Stat Card */}
-            <div className="bento-card bg-dark bento-stat flex-col">
-              <div className="bento-stat-logo">
-                <img src="/icon.png" alt="GRH" style={{width: 24, filter: 'brightness(0) invert(1)'}} onError={(e) => e.target.style.display='none'} />
-                <span className="text-white fw-bold" style={{fontSize: '0.8rem'}}>GRH</span>
-              </div>
-              
+            <div className="bento-card bg-dark bento-stat decorative-pattern-card">
+              <div className="bento-stat-pattern"></div>
             </div>
 
             {/* 6. Wide Bottom Card */}
