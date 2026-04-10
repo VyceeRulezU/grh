@@ -1,4 +1,5 @@
 import React from 'react';
+import TextLink from '../ui/TextLink';
 import './Footer.css';
 
 const Footer = ({ onNavigate }) => {
@@ -12,26 +13,26 @@ const Footer = ({ onNavigate }) => {
             <div className="link-container">
               <p className="footer-link-title">Product</p>
               <div className="footer-link-group">
-                <button className="footer-link" onClick={() => onNavigate('learn')}>Learn</button>
-                <button className="footer-link" onClick={() => onNavigate('research')}>Research</button>
-                <button className="footer-link" onClick={() => onNavigate('explore')}>Explore</button>
+                <TextLink onClick={() => onNavigate('learn')}>Learn</TextLink>
+                <TextLink onClick={() => onNavigate('research')}>Research</TextLink>
+                <TextLink onClick={() => onNavigate('explore')}>Explore</TextLink>
               </div>
             </div>
 
             <div className="link-container">
               <p className="footer-link-title">Solutions</p>
               <div className="footer-link-group">
-                <button className="footer-link" onClick={() => onNavigate('assess')}>Assess</button>
-                <button className="footer-link" onClick={() => onNavigate('analyse')}>Analyse</button>
+                <TextLink onClick={() => onNavigate('assess')}>Assess</TextLink>
+                <TextLink onClick={() => onNavigate('analyse')}>Analyse</TextLink>
               </div>
             </div>
 
             <div className="link-container">
               <p className="footer-link-title">Support</p>
               <div className="footer-link-group">
-                <button className="footer-link" onClick={() => onNavigate('help-center')}>Help Center</button>
-                <button className="footer-link" onClick={() => onNavigate('partner')}>Partner With Us</button>
-                <a href="mailto:info@governanceresourcehub.com" className="footer-link">Contact Us</a>
+                <TextLink onClick={() => onNavigate('help-center')}>Help Center</TextLink>
+                <TextLink onClick={() => onNavigate('partner')}>Partner With Us</TextLink>
+                <TextLink href="mailto:info@governanceresourcehub.com">Contact Us</TextLink>
               </div>
             </div>
           </div>
@@ -46,8 +47,8 @@ const Footer = ({ onNavigate }) => {
             <p className="copy-right-text">© {new Date().getFullYear()} Governance Resource Hub. All rights reserved.</p>
 
             <div className="terms-container">
-              <button className="terms-link text-btn" onClick={() => onNavigate('privacy-policy')}>Privacy Policy</button>
-              <button className="terms-link text-btn" onClick={() => onNavigate('terms-of-service')}>Terms of Service</button>
+              <TextLink onClick={() => onNavigate('privacy-policy')}>Privacy Policy</TextLink>
+              <TextLink onClick={() => onNavigate('terms-of-service')}>Terms of Service</TextLink>
               <button className="footer-link admin-shield" onClick={() => onNavigate('admin')}>
                 <span>🛡️</span> Admin Shield
               </button>

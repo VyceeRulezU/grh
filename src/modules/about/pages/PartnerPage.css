@@ -445,6 +445,44 @@
   margin-left: 0;
 }
 
+.reach-us-footer{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.pointer:hover {
+  text-decoration: underline;
+}
+
+/* Reach Us Section */
+
+.reach-us-section{
+  border-radius: 24px;
+  padding: 6rem;
+  background-color: var(--bg-weak);
+}
+
+.reach-us-title{
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 400;
+  color: var(--text-strong);
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+/* faq section */
+
 .faq-section-header{
   display: flex;
   flex-direction: row;
@@ -455,7 +493,7 @@
 }
 
 .faq-section-header h2{
-  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-size: clamp(1.5rem, 2vw, 2.5rem);
   font-weight: 400;
   color: #222;
   line-height: 1.1;
@@ -483,6 +521,10 @@
     grid-row: auto !important;
   }
   .approach-header, .approach-images, .approach-goals-list, .why-bento-section {
-    padding: 0 0.5rem;
+    padding: 1rem 0.5rem;
+  }
+
+  .faq-section-header{
+    flex-direction: column;
   }
 }

@@ -140,7 +140,7 @@ const PartnerPage = ({ onNavigate }) => {
         <div className="container">
           <div className="bento-header center">
             <span className="pill-label">Why choose us</span>
-            <h2>Why people <i className="italic-serif">choose</i> to<br />work with us</h2>
+            <h2>Why <i className="italic-serif">partner</i> with us</h2>
           </div>
 
           <div className="bento-grid">
@@ -157,8 +157,8 @@ const PartnerPage = ({ onNavigate }) => {
 
             {/* 2. Top Middle */}
             <div className="bento-card bento-light">
-              <h3>Drive Learning</h3>
-              <p>Support the development and delivery of e-learning content that strengthens institutional capabilities and builds skills across the governance ecosystem.</p>
+              <h3>Drive Learning and Capacity Building</h3>
+              <p>Support the development and delivery of e-learning content that strengthens institutional capabilities and builds the skills of key actors across the governance ecosystem.</p>
             </div>
 
             {/* 3. Image Square */}
@@ -189,12 +189,26 @@ const PartnerPage = ({ onNavigate }) => {
 
             {/* 6. Wide Bottom Card */}
             <div className="bento-card bento-light bento-wide">
-              <h3>Strengthen Sustainability</h3>
-              <p>Help maintain and expand the Hub as a locally-owned and community-driven platform that continues to serve the needs of users into the future. Our shared mission is to guide institutions toward balanced, healthier systems through the power of mindful policy making and cross-sector collaboration.</p>
+              <h3>Strengthen Sustainability and Local Ownership</h3>
+              <p>Help maintain and expand the Hub as a locally-owned and community-driven platform that continues to serve the needs of users.</p>
             </div>
           </div>
+
+          <div className="reach-us-footer">
+            <h2 className="reach-us-title">If you are interested in partnering with the Governance Resource Hub or would like to learn more, please send an email to <span className='italic-highlight pointer' onClick={() => window.location.href = 'mailto:info@governanceresourcehub.com'}>info@governanceresourcehub.com</span>.</h2>
+          </div>
+
         </div>
       </section>
+
+      {/* ── REACH US ── */}
+      {/* <section className="reach-us-section section-padding" ref={addToRefs}>
+        <div className="container">
+          <div className="reach-us-header">
+            <h2 className="reach-us-title">If you are interested in partnering with the Governance Resource Hub or would like to learn more, please send an email to <span className='italic-highlight'>info@governanceresourccehub.com</span>.</h2>
+          </div>
+        </div>
+      </section> */}
 
       {/* ── TESTIMONIALS ── */}
       <TestimonialSection
@@ -206,7 +220,7 @@ const PartnerPage = ({ onNavigate }) => {
       {/* ── FAQ ── */}
       <section className="about-faq container" style={{ marginTop: '2rem' }}>
          <div className="faq-section-header">
-           <span className="tag">Common Queries</span>
+           <p className='dot-label'>Common Queries</p>
            <h2>Partnership FAQs</h2>
          </div>
         <FaqSection />
