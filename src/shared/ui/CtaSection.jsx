@@ -1,4 +1,5 @@
 import React from 'react';
+import SpecialButton from './SpecialButton';
 import './CtaSection.css';
 
 const CtaSection = ({ 
@@ -19,10 +20,10 @@ const CtaSection = ({
         <h2 id="cta-heading">{title}</h2>
         <p className="cta-summary">{description}</p>
         <div className="cta-btn-row">
-          <button className="special-button" onClick={primaryActionOnClick}>
+          <SpecialButton onClick={primaryActionOnClick}>
             {primaryActionLabel}
             <span className="material-symbols-outlined">arrow_outward</span>
-          </button>
+          </SpecialButton>
           {secondaryActionOnClick ? (
             <button className="btn-outline" onClick={secondaryActionOnClick}>
               {secondaryActionLabel}

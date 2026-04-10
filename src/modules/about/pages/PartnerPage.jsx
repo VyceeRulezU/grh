@@ -7,6 +7,7 @@ import PageHero from '../../../shared/ui/PageHero';
 import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import FaqSection from '../../../shared/ui/FaqSection';
 import CtaSection from '../../../shared/ui/CtaSection';
+import SpecialButton from '../../../shared/ui/SpecialButton';
 
 import './PartnerPage.css';
 
@@ -59,9 +60,9 @@ const PartnerPage = ({ onNavigate }) => {
         }
         subtitle="We welcome partnerships with organisations and individuals committed to advancing good governance, strengthening public sector accountability, and improving service delivery."
         actions={
-          <button className="special-button" onClick={() => window.location.href = 'mailto:info@governanceresourcehub.com'}>
+          <SpecialButton onClick={() => window.location.href = 'mailto:info@governanceresourcehub.com'}>
             Partner with Us
-          </button>
+          </SpecialButton>
         }
       />
 

@@ -469,7 +469,7 @@
     "isDynamicEntry": true
   },
   "node_modules/vike/dist/client/runtime-client-routing/entry.js": {
-    "file": "assets/entries/entry-client-routing.8-2e_i9j.js",
+    "file": "assets/entries/entry-client-routing.jVhl_NC3.js",
     "name": "entries/entry-client-routing",
     "src": "node_modules/vike/dist/client/runtime-client-routing/entry.js",
     "isEntry": true,
@@ -495,6 +495,7 @@
       "virtual:vike:page-entry:client:/pages/library",
       "virtual:vike:page-entry:client:/pages/login",
       "virtual:vike:page-entry:client:/pages/oauth-consent",
+      "virtual:vike:page-entry:client:/pages/partner",
       "virtual:vike:page-entry:client:/pages/privacy-policy",
       "virtual:vike:page-entry:client:/pages/research",
       "virtual:vike:page-entry:client:/pages/reset-password",
@@ -1587,6 +1588,30 @@
     "file": "assets/entries/pages_oauth-consent.Fnz5WFNN.js",
     "name": "entries/pages/oauth-consent",
     "src": "virtual:vike:page-entry:client:/pages/oauth-consent",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-CuooTuTj.js",
+      "_chunk-5pX_1DLX.js",
+      "_chunk-n-6DT7Wu.js",
+      "_chunk-ckwbz45p.js"
+    ],
+    "css": [
+      "assets/static/src_shared_layout_Navbar-e3f1c649.D1OXdVuu.css",
+      "assets/static/src_shared_ui_SpecialButton-7ce07223.BUnDQZG6.css",
+      "assets/static/src_shared_layout_Footer-43e71e55.YJvT_-eu.css",
+      "assets/static/src_styles_tokens-bd9a5666.CkdXwRoK.css",
+      "assets/static/src_index-b3c78705.BLTOYE0R.css",
+      "assets/static/src_shared_ui_Button-e48ade8c.YKdyuOpI.css",
+      "assets/static/src_shared_ui_AuthModal-39fc1595.DgbbpbLW.css",
+      "assets/static/src_shared_ui_StatusModal-10e17688.B-RaM864.css",
+      "assets/static/src_App-ac5f32af.CVXR-lwf.css"
+    ]
+  },
+  "virtual:vike:page-entry:client:/pages/partner": {
+    "file": "assets/entries/pages_partner.bxGQUH8G.js",
+    "name": "entries/pages/partner",
+    "src": "virtual:vike:page-entry:client:/pages/partner",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
