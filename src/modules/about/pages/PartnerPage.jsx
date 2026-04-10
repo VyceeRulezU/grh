@@ -83,7 +83,7 @@ const PartnerPage = ({ onNavigate }) => {
                <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=1200" alt="Collaboration" loading="lazy" />
              </div>
              <div className="approach-text-block">
-               <h3>Let's make this digital time we live in more humane.</h3>
+               <h3>Who Can Partner?</h3>
                <p>We invite expressions of interest from a diverse array of stakeholders:</p>
                <ul className="stakeholder-list">
                  <li>Government Agencies</li>
@@ -210,7 +210,7 @@ const PartnerPage = ({ onNavigate }) => {
 
       {/* ── FAQ ── */}
       <section className="about-faq container" style={{ marginTop: '2rem' }}>
-         <div className="section-header center">
+         <div className="faq-section-header">
            <span className="tag">Common Queries</span>
            <h2>Partnership FAQs</h2>
          </div>

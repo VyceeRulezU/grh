@@ -423,6 +423,23 @@
   margin-left: 0;
 }
 
+.faq-section-header{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.faq-section-header h2{
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 400;
+  color: #222;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
 @media (max-width: 1024px) {
   .bento-grid {
     grid-template-columns: 1fr 1fr;
