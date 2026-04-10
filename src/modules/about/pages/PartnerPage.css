@@ -288,6 +288,13 @@
   grid-row: 2;
 }
 
+.bento-stat-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
 .bento-wide {
   grid-column: 3 / span 2;
   grid-row: 2;

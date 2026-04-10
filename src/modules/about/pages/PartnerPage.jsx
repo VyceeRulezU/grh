@@ -183,14 +183,12 @@ const PartnerPage = ({ onNavigate }) => {
             </div>
 
             {/* 5. Stat Card */}
-            <div className="bento-card bento-light bento-stat flex-col">
-              <h2 className="stat-huge">98%</h2>
-              <span className="stat-label">Partner Satisfaction</span>
-              <div className="avatar-group">
-                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="avatar" />
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="avatar" />
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="avatar" />
+            <div className="bento-card bg-dark bento-stat flex-col">
+              <div className="bento-stat-logo">
+                <img src="/icon.png" alt="GRH" style={{width: 24, filter: 'brightness(0) invert(1)'}} onError={(e) => e.target.style.display='none'} />
+                <span className="text-white fw-bold" style={{fontSize: '0.8rem'}}>GRH</span>
               </div>
+              
             </div>
 
             {/* 6. Wide Bottom Card */}
