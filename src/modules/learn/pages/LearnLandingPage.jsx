@@ -165,19 +165,20 @@ const LearnLandingPage = ({ onNavigate, user }) => {
     const stats = document.querySelectorAll('.about-stat-number');
     stats.forEach(stat => {
       const target = parseInt(stat.getAttribute('data-target'));
-      gsap.fromTo(stat,
-        { innerText: 0 },
-        {
-          innerText: target,
-          duration: 2.5,
-          snap: { innerText: 1 },
-          scrollTrigger: { trigger: stat, start: 'top 90%' },
-          onUpdate: function () {
-            const current = Math.floor(this.targets()[0].innerText);
-            stat.innerText = current + (stat.getAttribute('data-suffix') || '');
-          }
+      const suffix = stat.getAttribute('data-suffix') || '';
+      const obj = { val: 0 };
+      
+      stat.innerHTML = `0<span class="stat-suffix">${suffix}</span>`;
+      
+      gsap.to(obj, {
+        val: target,
+        duration: 2.5,
+        scrollTrigger: { trigger: stat, start: 'top 90%' },
+        onUpdate: function () {
+          const current = Math.floor(obj.val);
+          stat.innerHTML = `${current}<span class="stat-suffix">${suffix}</span>`;
         }
-      );
+      });
     });
   }, [filtered, loading]);
 
@@ -224,24 +225,24 @@ const LearnLandingPage = ({ onNavigate, user }) => {
 
           <div className="impact-stats-grid">
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.1s' }}>
-              <h3 className="about-stat-number" data-target="100" data-suffix="%">0</h3>
-              <p>AI-driven research accuracy and intelligent resource matching for policy analysis.</p>
+              <h3 className="about-stat-number" data-target="3000" data-suffix="+">0</h3>
+              <p>Explore a curated collection of reports, policy briefs, and case studies that capture lessons, evidence, and results from years of governance reform work. These resources provide insights into what works, emerging challenges, and opportunities for improving governance.</p>
             </div>
             
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.2s' }}>
-              <h3 className="about-stat-number" data-target="5" data-suffix="K+">0</h3>
-              <p>Certified practitioners and officials actively implementing reforms across Nigeria.</p>
+              <h3 className="about-stat-number" data-target="50" data-suffix="+ Toolkits">0</h3>
+              <p>Explore practical guides, templates, and step-by-step tools designed to support government actors, civil society, and reform partners in planning, implementing, and monitoring governance reforms. These toolkits translate lessons from the field into actionable resources for real-world use.</p>
             </div>
             
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.3s' }}>
-              <h3 className="about-stat-number" data-target="500" data-suffix="+">0</h3>
-              <p>Hours of high-impact governance learning content and expert-developed toolkits.</p>
+              <h3 className="about-stat-number" data-target="20" data-suffix="+ Years" >0</h3>
+              <p>This platform brings together over two decades of experience supporting governance reforms in Nigeria. It captures the tools, evidence, and lessons from partnerships with government, civil society, and citizens—highlighting what works in strengthening accountability, improving service delivery, and driving sustainable change.</p>
             </div>
             
-            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.4s' }}>
+            {/* <div className="impact-stat-card animate-up" style={{ animationDelay: '0.4s' }}>
               <h3 className="about-stat-number" data-target="36" data-suffix="">0</h3>
               <p>States of the Federation covered by our localized governance training modules.</p>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

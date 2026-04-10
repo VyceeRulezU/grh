@@ -89,19 +89,20 @@ const AboutUs = ({ onNavigate }) => {
       const stats = document.querySelectorAll('.about-stat-number');
       stats.forEach(stat => {
         const target = parseInt(stat.getAttribute('data-target'));
-        gsap.fromTo(stat,
-          { innerText: 0 },
-          {
-            innerText: target,
-            duration: 2.5,
-            snap: { innerText: 1 },
-            scrollTrigger: { trigger: stat, start: 'top 90%' },
-            onUpdate: function () {
-              const current = Math.floor(this.targets()[0].innerText);
-              stat.innerText = current + (stat.getAttribute('data-suffix') || '');
-            }
+        const suffix = stat.getAttribute('data-suffix') || '';
+        const obj = { val: 0 };
+        
+        stat.innerHTML = `0<span class="stat-suffix">${suffix}</span>`;
+        
+        gsap.to(obj, {
+          val: target,
+          duration: 2.5,
+          scrollTrigger: { trigger: stat, start: 'top 90%' },
+          onUpdate: function () {
+            const current = Math.floor(obj.val);
+            stat.innerHTML = `${current}<span class="stat-suffix">${suffix}</span>`;
           }
-        );
+        });
       });
 
       // Cards reveal
@@ -148,24 +149,24 @@ const AboutUs = ({ onNavigate }) => {
 
           <div className="impact-stats-grid">
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.1s' }}>
-              <h3 className="about-stat-number" data-target="10" data-suffix="K+">0</h3>
-              <p>Public officials trained in evidence-based policymaking across Nigeria.</p>
+              <h3 className="about-stat-number" data-target="3000" data-suffix="+">0</h3>
+              <p>Explore a curated collection of reports, policy briefs, and case studies that capture lessons, evidence, and results from years of governance reform work. These resources provide insights into what works, emerging challenges, and opportunities for improving governance.</p>
             </div>
             
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.2s' }}>
-              <h3 className="about-stat-number" data-target="50" data-suffix="B+">0</h3>
-              <p>In public funds monitored and optimized through our PFM frameworks.</p>
+              <h3 className="about-stat-number" data-target="50" data-suffix="+ Toolkits">0</h3>
+              <p>Explore practical guides, templates, and step-by-step tools designed to support government actors, civil society, and reform partners in planning, implementing, and monitoring governance reforms. These toolkits translate lessons from the field into actionable resources for real-world use.</p>
             </div>
             
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.3s' }}>
-              <h3 className="about-stat-number" data-target="100" data-suffix="+">0</h3>
-              <p>Policy frameworks and resources accessed by state institutions.</p>
+              <h3 className="about-stat-number" data-target="20" data-suffix="+ Years" >0</h3>
+              <p>This platform brings together over two decades of experience supporting governance reforms in Nigeria. It captures the tools, evidence, and lessons from partnerships with government, civil society, and citizens—highlighting what works in strengthening accountability, improving service delivery, and driving sustainable change.</p>
             </div>
             
-            <div className="impact-stat-card animate-up" style={{ animationDelay: '0.4s' }}>
+            {/* <div className="impact-stat-card animate-up" style={{ animationDelay: '0.4s' }}>
               <h3 className="about-stat-number" data-target="15" data-suffix="+">0</h3>
               <p>Years of combined expertise guiding public sector reforms and execution.</p>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -203,10 +204,10 @@ const AboutUs = ({ onNavigate }) => {
               This innovative hub is dedicated to advancing governance reform in Nigeria by making critical and practical tools accessible to reform champions, policymakers, academics, and practitioners alike. At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.
             </p>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
-              {/* <button className="special-button" onClick={() => onNavigate && onNavigate('signup')}>
+              {/* <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('signup')}>
                 Join Our Platform
               </button> */}
-              <button className="white-pill-btn" onClick={() => { /* Handle partner inquiry */ }}>
+              <button className="special-button" onClick={() => onNavigate && onNavigate('partner')}>
                 Partner with Us
               </button>
             </div>

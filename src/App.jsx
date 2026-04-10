@@ -17,6 +17,7 @@ const AssessPage         = lazy(() => import('./modules/assess/pages/AssessPage'
 const AnalysePage        = lazy(() => import('./modules/analyse/pages/AnalysePage'));
 const CourseDiscovery    = lazy(() => import('./modules/learn/pages/CourseDiscovery'));
 const AboutUs            = lazy(() => import('./modules/about/pages/AboutUs'));
+const PartnerPage        = lazy(() => import('./modules/about/pages/PartnerPage'));
 const StudentDashboard   = lazy(() => import('./modules/student/StudentDashboard'));
 const AdminDashboard     = lazy(() => import('./modules/admin/AdminDashboard'));
 const CoursePlayer       = lazy(() => import('./modules/learn/pages/CoursePlayer'));
@@ -347,7 +348,7 @@ function App() {
     const isUserAdmin = userData.isAdmin || userData.fromAdminWall;
     
     // Prioritize institutional stay-put behavior
-    const STAY_PUT_PAGES = ['learn', 'research', 'library', 'explore', 'about', 'assess', 'analyse', 'learn-discovery', 'privacy-policy', 'terms-of-service'];
+    const STAY_PUT_PAGES = ['learn', 'research', 'library', 'explore', 'about', 'partner', 'assess', 'analyse', 'learn-discovery', 'privacy-policy', 'terms-of-service'];
     
     // Destination calculation: Admin > Manual Return Page > Current URL Page > Dashboard
     let destination = isUserAdmin ? 'admin' : 'student';
@@ -428,6 +429,7 @@ function App() {
                 {currentPage === 'assess' && <AssessPage onNavigate={navigate} />}
                 {currentPage === 'analyse' && <AnalysePage onNavigate={navigate} />}
                 {currentPage === 'about' && <AboutUs onNavigate={navigate} />}
+                {currentPage === 'partner' && <PartnerPage onNavigate={navigate} />}
                 {currentPage === 'help-center' && <NotFoundPage onNavigate={navigate} />}
                 {currentPage === 'contact' && <NotFoundPage onNavigate={navigate} />}
                 {currentPage === 'student' && <StudentDashboard user={user} onNavigate={navigate} onLogout={handleLogout} onRefreshUser={refreshUser} />}
@@ -442,7 +444,7 @@ function App() {
                 {currentPage === 'privacy-policy' && <PrivacyPolicy />}
                 {currentPage === 'terms-of-service' && <TermsOfService />}
                 {currentPage === 'reset-password' && <ResetPasswordPage onNavigate={navigate} />}
-                {!['welcome','learn','research','explore','assess','analyse','about','help-center','contact','student','learn-discovery','admin','learn-player','learn-details','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
+                {!['welcome','learn','research','explore','assess','analyse','about','partner','help-center','contact','student','learn-discovery','admin','learn-player','learn-details','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
                   <NotFoundPage onNavigate={navigate} />
                 )}
               </Suspense>
@@ -451,7 +453,7 @@ function App() {
         )}
       </main>
 
-      {['learn','research','assess','analyse','about','learn-discovery','help-center','contact', 'privacy-policy', 'terms-of-service'].includes(currentPage) && <Footer onNavigate={navigate} />}
+      {['learn','research','assess','analyse','about','partner','learn-discovery','help-center','contact', 'privacy-policy', 'terms-of-service'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 

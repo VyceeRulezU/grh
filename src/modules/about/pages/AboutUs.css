@@ -184,7 +184,7 @@
   
   .impact-stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     width: 100%;
   }
@@ -213,6 +213,17 @@
     line-height: 1;
     margin: 0;
     font-family: serif; /* Gives the elegant numeric look */
+  }
+  
+  .stat-suffix {
+    font-size: clamp(1.2rem, 1.5vw, 1.4rem);
+    color: var(--text-sub);
+    font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+    font-weight: 300;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: normal;
+    
   }
   
   .impact-stat-card p {
