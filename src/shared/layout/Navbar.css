@@ -12,7 +12,7 @@
   border-radius: 50rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   width: auto;
-  min-width: min(100% - 2rem, var(--max-width));
+  min-width: min(100% - 2rem, var(--max-width-md));
 }
 
 .nav-container {
