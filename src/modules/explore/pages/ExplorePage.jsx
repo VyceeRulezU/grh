@@ -3,6 +3,7 @@ import { supabase } from '../../../services/supabase/supabaseClient';
 import { SUGGESTED } from '../../../data/legacyData';
 import grhIcon from '../../../assets/images/Logo/GRH-alone.png';
 import { Helmet } from 'react-helmet-async';
+import ResourceViewer from '../../research/components/ResourceViewer';
 import './ExplorePage.css';
 
 // ---------------------------------------------------------------------------
@@ -47,19 +48,148 @@ const HISTORY_CONVERSATIONS = {
 };
 
 // ---------------------------------------------------------------------------
-// OpenAI API call (or fallback to dummy)
+// AI Assistant call (Using Gemini 1.5 Flash with Context)
 // ---------------------------------------------------------------------------
-const getAIResponse = async (userText) => {
+const getAIResponse = async (userText, context = null) => {
   try {
-    const { data, error } = await supabase.functions.invoke('openai-assistant', {
-      body: { userText }
+    // Try Gemini first
+    const { data, error } = await supabase.functions.invoke('gemini-assistant', {
+      body: { 
+        userText,
+        context: context // Pass the library resource context!
+      }
     });
 
-    if (error) throw error;
-    return data?.content || getDummyResponse();
+    if (error || !data?.content) {
+      // Fallback to OpenAI if Gemini fails or is not setup
+      const { data: oaiData, error: oaiError } = await supabase.functions.invoke('openai-assistant', {
+        body: { userText }
+      });
+      if (oaiError) throw oaiError;
+      return oaiData?.content || getDummyResponse();
+    }
+    
+    return data.content;
   } catch (err) {
     console.error("AI Assistant Error:", err);
     return getDummyResponse();
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Caching & Resource Search Logic
+// ---------------------------------------------------------------------------
+const checkCache = async (query) => {
+  try {
+    const normalized = query.trim().toLowerCase();
+    const { data } = await supabase
+      .from('chat_research_cache')
+      .select('*')
+      .eq('user_query', normalized)
+      .single();
+    
+    if (data) {
+      // Increment hit count asynchronously
+      supabase.rpc('increment_cache_hit', { row_id: data.id }).catch(() => {});
+      return data;
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+};
+
+const updateCache = async (query, content, sourceType) => {
+  try {
+    const normalized = query.trim().toLowerCase();
+    await supabase.from('chat_research_cache').upsert({
+      user_query: normalized,
+      response_content: content,
+      source_type: sourceType,
+      last_used_at: new Date().toISOString()
+    }, { onConflict: 'user_query' });
+  } catch (err) {
+    console.error("Cache Update Error:", err);
+  }
+};
+
+const findResourceMatch = async (query) => {
+  try {
+    const rawQ = query.toLowerCase();
+    const stopWords = new Set(['what', 'is', 'the', 'of', 'in', 'and', 'to', 'for', 'about', 'how', 'can', 'me', 'tell', 'show', 'find', 'research', 'information', 'resource', 'please']);
+    const keywords = rawQ.split(/[\s,?.!]+/)
+      .filter(w => w.length > 2 && !stopWords.has(w));
+    
+    if (keywords.length === 0) return null;
+
+    console.log("🔍 GovAI Search Keywords:", keywords);
+
+    const tables = [
+      { name: 'library_resources', cols: ['title', 'description'] },
+      { name: 'books', cols: ['title', 'summary'] },
+      { name: 'sparc_resources', cols: ['title', 'description'] },
+      { name: 'perl_resource', cols: ['title', 'description'] }
+    ];
+    
+    let matches = [];
+
+    for (const table of tables) {
+      // Create OR string only for columns that exist in THIS table
+      const orClauses = keywords.flatMap(kw => 
+        table.cols.map(col => `${col}.ilike.%${kw}%`)
+      ).join(',');
+      
+      const { data, error } = await supabase
+        .from(table.name)
+        .select('*')
+        .or(orClauses)
+        .limit(3);
+      
+      if (error) {
+        console.warn(`⚠️ Search error on ${table.name}:`, error);
+        continue;
+      }
+      
+      if (data && data.length > 0) {
+        matches.push(...data.map(d => ({ ...d, tableName: table.name })));
+      }
+    }
+
+    if (matches.length > 0) {
+      // Ranking Logic
+      const ranked = matches.map(item => {
+        let score = 0;
+        const mainText = (item.title || "").toLowerCase();
+        const subText = (item.description || item.summary || "").toLowerCase();
+        
+        keywords.forEach(kw => {
+          if (mainText.includes(kw)) score += 10; // Title match is high weight
+          if (subText.includes(kw)) score += 2;  // Description match
+          if (mainText === kw) score += 20;      // Perfect title match
+        });
+        return { ...item, score };
+      }).sort((a, b) => b.score - a.score);
+
+      const best = ranked[0];
+      const isHighConfidence = best.score >= 10;
+      const desc = best.description || best.summary || "Archived hub document.";
+      
+      console.log(`✅ Library Match Found (${isHighConfidence ? 'High' : 'Low'}):`, best.title);
+
+      return {
+        text: `I found a relevant resource: **${best.title}**.\n\n**Summary:** ${desc.substring(0, 300)}...\n\n[Preview Document](preview:${best.tableName}:${best.id})`,
+        source: 'resource',
+        confidence: isHighConfidence ? 'high' : 'medium',
+        context: ranked.slice(0, 4).map(r => `[${r.tableName}] ${r.title}: ${r.description || r.summary || ''}`).join('\n\n'),
+        fullResource: best // Pass the full object so we can preview it
+      };
+    }
+    
+    console.log("❌ No relevant library resources found for these keywords.");
+    return null;
+  } catch (err) {
+    console.error("Resource Search Error:", err);
+    return null;
   }
 };
 
@@ -68,13 +198,50 @@ const getAIResponse = async (userText) => {
 // ---------------------------------------------------------------------------
 const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "Hello! I'm the Governance AI Assistant, trained on all the resources in this hub. How can I help with your research today?" };
 
-const PROMPT_LIMIT = 10;
+const PROMPT_LIMIT = 20;
+
+// Simple markdown-to-JSX converter for links and bold text
+const renderMessage = (text, onPreview = null) => {
+  if (!text) return null;
+  // Bold: **text**
+  let parts = text.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('[') && part.includes('](')) {
+      const match = part.match(/\[(.*?)\]\((.*?)\)/);
+      if (match) {
+        const label = match[1];
+        const url = match[2];
+        
+        // Handle internal preview links
+        if (url.startsWith('preview:') && onPreview) {
+          return (
+            <button 
+              key={i} 
+              className="preview-trigger-btn" 
+              onClick={() => onPreview()}
+            >
+              <span className="material-symbols-outlined">visibility</span>
+              {label}
+            </button>
+          );
+        }
+        
+        return <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="message-link">{label}</a>;
+      }
+    }
+    return part;
+  });
+};
 
 const ExplorePage = ({ user, onNavigate }) => {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [viewingResource, setViewingResource] = useState(null);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
   const [typing, setTyping] = useState(false);
   const [suggestions, setSuggestions] = useState(SUGGESTED);
@@ -189,7 +356,32 @@ const ExplorePage = ({ user, onNavigate }) => {
       });
       setPromptsUsed(prev => prev + 1);
 
-      const responseText = await getAIResponse(msgText);
+      // --- UNIFIED RESOURCE + AI LOGIC ---
+      let responseText = "";
+      let source = "ai";
+      let referencedResource = null;
+
+      // 1. Check Cache (Highest Priority)
+      const cached = await checkCache(msgText);
+      if (cached) {
+        responseText = cached.response_content;
+        source = cached.source_type;
+      } else {
+        // 2. Search Library Resources (Always done to provide context)
+        const resourceMatch = await findResourceMatch(msgText);
+        if (resourceMatch) {
+          referencedResource = resourceMatch.fullResource;
+        }
+
+        // 3. AI Synthesis (Always called, grounded by resource if found)
+        responseText = await getAIResponse(msgText, resourceMatch?.context || null);
+        source = 'ai_unified';
+        
+        // 4. Update Cache with the synthesized result
+        await updateCache(msgText, responseText, 'ai_unified');
+      }
+      // ------------------------------------
+
       const { data: aiMsgData } = await supabase.from('chat_messages').insert({
         session_id: currentSessionId,
         role: 'assistant',
@@ -197,7 +389,13 @@ const ExplorePage = ({ user, onNavigate }) => {
       }).select().single();
 
       setTyping(false);
-      setMessages(prev => [...prev, { id: aiMsgData?.id || Date.now()+1, role: 'assistant', text: responseText }]);
+      setMessages(prev => [...prev, { 
+        id: aiMsgData?.id || Date.now()+1, 
+        role: 'assistant', 
+        text: responseText, 
+        source,
+        fullResource: referencedResource 
+      }]);
       
       await supabase.from('chat_sessions')
         .update({ updated_at: new Date().toISOString() })
@@ -310,8 +508,26 @@ const ExplorePage = ({ user, onNavigate }) => {
                   )
                 )}
               </div>
-              <div className={`message-bubble ${msg.role}`}>
-                <div className="message-content">{msg.text || msg.content}</div>
+              <div className={`message-bubble ${msg.role} ${msg.fullResource ? 'has-resource' : ''}`}>
+                <div className="message-content">
+                  {renderMessage(msg.text || msg.content)}
+                </div>
+                
+                {msg.fullResource && (
+                  <div className="referenced-resource-card">
+                    <div className="ref-card-header">
+                      <span className="material-symbols-outlined">library_books</span>
+                      <span>Referenced Hub Resource</span>
+                    </div>
+                    <div className="ref-card-body">
+                      <h4>{msg.fullResource.title}</h4>
+                      <p>{(msg.fullResource.description || msg.fullResource.summary || '').substring(0, 80)}...</p>
+                      <button className="preview-btn-sm" onClick={() => setViewingResource(msg.fullResource)}>
+                        View Document
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -347,6 +563,13 @@ const ExplorePage = ({ user, onNavigate }) => {
           <p className="input-hint">{promptsUsed >= PROMPT_LIMIT ? "You have exhausted your free monthly chats." : "AI may generate inaccurate information. Cross-reference with hub source documents."}</p>
         </div>
       </div>
+      
+      {/* In-App Resource Viewer */}
+      <ResourceViewer 
+        isOpen={!!viewingResource} 
+        onClose={() => setViewingResource(null)} 
+        resource={viewingResource} 
+      />
     </div>
   );
 };
