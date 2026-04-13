@@ -54,10 +54,14 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               );
             }
 
-            // 2. Detect Extension for Office Documents
+            // 2. Detect Extension for Different File Types
             const extension = url.split('.').pop().toLowerCase().split(/[?#]/)[0];
+            
             const isOfficeDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension);
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension);
+            const isVideo = ['mp4', 'webm', 'ogg'].includes(extension);
 
+            // Handle Office Documents
             if (isOfficeDoc) {
               const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
               return (
@@ -69,6 +73,35 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
                   style={{ border: 'none' }}
                   title={resource.title}
                 ></iframe>
+              );
+            }
+
+            // Handle Images
+            if (isImage) {
+              return (
+                <div className="viewer-media-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '2rem' }}>
+                  <img 
+                    src={url} 
+                    alt={resource.title} 
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', borderRadius: '8px' }}
+                  />
+                </div>
+              );
+            }
+
+            // Handle Videos
+            if (isVideo) {
+              return (
+                <div className="viewer-media-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '1rem', background: '#000' }}>
+                  <video 
+                    src={url} 
+                    controls 
+                    autoPlay 
+                    style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '8px' }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
               );
             }
 
