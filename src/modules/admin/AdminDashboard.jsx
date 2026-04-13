@@ -2147,8 +2147,76 @@ const PANEL_MAP = {
   quizzes: AdminQuizzesPanel,
   instructors: AdminInstructorsPanel,
   settings: AdminSettingsPanel,
-  workshops: WorkshopsPanel
+  workshops: WorkshopsPanel,
+  gaps: LibraryGapsPanel
 };
+
+function LibraryGapsPanel({ gaps, onResolve, onDelete }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const filtered = (gaps || []).filter(g => g.query.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  return (
+    <div className="adm-panel">
+      <div className="adm-panel-header">
+        <div className="adm-header-title">
+          <h3>Library Gaps <span className="adm-count">{gaps.filter(g => !g.resolved).length} Unresolved</span></h3>
+          <p style={{fontSize: '0.8rem', color: 'var(--text-soft)'}}>Monitor searches that returned zero results to identify content needs.</p>
+        </div>
+        <div className="adm-search-wrap">
+          <i className="ri-search-line"></i>
+          <input 
+            type="text" 
+            className="adm-search-input" 
+            placeholder="Search queries..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="adm-table-wrap">
+        <table className="adm-table">
+          <thead>
+            <tr>
+              <th>Missing Query</th>
+              <th>Date Asked</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan="4" style={{textAlign:'center', padding:'3rem', color:'var(--text-soft)'}}>No gaps found. Your library is well-covered!</td></tr>
+            ) : filtered.sort((a,b) => new Date(b.asked_at) - new Date(a.asked_at)).map(g => (
+              <tr key={g.id}>
+                <td><strong style={{color: 'var(--text-main)'}}>"{g.query}"</strong></td>
+                <td>{new Date(g.asked_at).toLocaleDateString()}</td>
+                <td>
+                  <span className={`adm-status-badge ${g.resolved ? 'published' : 'draft'}`}>
+                    {g.resolved ? 'Resolved' : 'Pending'}
+                  </span>
+                </td>
+                <td>
+                  <div className="adm-row-actions">
+                    {!g.resolved && (
+                      <button className="adm-icon-btn" title="Mark as Resolved" onClick={() => onResolve(g.id)}>
+                        <i className="ri-check-line"></i>
+                      </button>
+                    )}
+                    <button className="adm-icon-btn danger" title="Delete Log" onClick={() => onDelete(g, 'gap')}>
+                      <i className="ri-delete-bin-line"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:'var(--text-soft)'}}>Panel '{id}' — coming soon</p></div>;
 
 /* --- WORKSHOPS PANEL --- */
@@ -2249,6 +2317,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
   const [users, setUsers] = useState([]);
   const [workshops, setWorkshops] = useState([]);
   const [instructors, setInstructors] = useState([]);
+  const [exploreGaps, setExploreGaps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     learners: 0,
@@ -2285,7 +2354,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       setLoading(true);
       // Fetch data with individual error handling to prevent total crash if one schema is missing
       // Let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst] = await Promise.all([
-      let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst] = await Promise.all([
+      let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst, gapsRes] = await Promise.all([
         supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
@@ -2299,7 +2368,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           .order('updated_at', { ascending: false })
           .limit(10).then(r => r, e => ({ error: e })),
         supabase.from('course_modules').select('*').then(r => r, e => ({ error: e })),
-        supabase.from('instructors').select('*').then(r => r, e => ({ error: e }))
+        supabase.from('instructors').select('*').then(r => r, e => ({ error: e })),
+        supabase.from('explore_gaps').select('*').then(r => r, e => ({ error: e }))
       ]);
 
       // ULTRA-RESILIENT FALLBACK: If join query failed (likely due to missing chapters table), try simple select
@@ -2321,6 +2391,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (progress.error) console.error("Progress Fetch Error:", progress.error);
       if (inst.error) console.error("Instructors Fetch Error:", inst.error);
       if (inst.data) setInstructors(inst.data);
+      if (gapsRes.data) setExploreGaps(gapsRes.data);
 
 
       // 2. Fetch ALL progress for counting and recent activity (Manual join fallback)
@@ -2604,6 +2675,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (type === 'workshop') table = 'workshops';
       if (type === 'instructor') table = 'instructors';
       if (type === 'user') table = 'profiles';
+      if (type === 'gap') table = 'explore_gaps';
     }
 
     console.log(`[Admin] Prepared delete for type: ${type}, table: ${table}, item id: ${item.id}`);
@@ -2679,6 +2751,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         { id: 'books',      icon: 'ri-booklet-fill',      label: 'Books',   badge: books.length },
         { id: 'resources',  icon: 'ri-folder-fill',       label: 'Library Resources', badge: resources.length },
         { id: 'workshops',  icon: 'ri-calendar-event-fill', label: 'Workshops', badge: workshops.length },
+        { id: 'gaps',       icon: 'ri-question-fill',     label: 'Library Gaps', badge: exploreGaps.filter(g => !g.resolved).length },
         { id: 'quizzes',    icon: 'ri-file-list-3-fill',  label: 'Quizzes & Assessments' },
       ],
     },
@@ -2780,6 +2853,16 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
             {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
             {activeSection === 'instructors'&& <AdminInstructorsPanel instructors={instructors} onDelete={confirmDelete} fetchData={fetchData} />}
             {activeSection === 'settings'   && <AdminSettingsPanel user={user} onRefreshUser={onRefreshUser} />}
+            {activeSection === 'gaps'       && (
+              <LibraryGapsPanel 
+                gaps={exploreGaps} 
+                onDelete={confirmDelete}
+                onResolve={async (id) => {
+                  const { error } = await supabase.from('explore_gaps').update({ resolved: true }).eq('id', id);
+                  if (!error) fetchData();
+                }}
+              />
+            )}
             {!PANEL_MAP[activeSection] && (
               <div className="adm-panel"><p style={{color:'var(--text-soft)', padding:'2rem'}}>Panel '{activeSection}' — coming soon</p></div>
             )}

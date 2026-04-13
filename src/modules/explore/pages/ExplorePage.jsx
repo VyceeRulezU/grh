@@ -50,23 +50,25 @@ const HISTORY_CONVERSATIONS = {
 // ---------------------------------------------------------------------------
 // AI Assistant call (Using Gemini 1.5 Flash with Context)
 // ---------------------------------------------------------------------------
-const getAIResponse = async (userText, context = null) => {
+const getAIResponse = async (userText, context = null, history = [], userId = null) => {
   try {
     // Try Gemini first
     const { data, error } = await supabase.functions.invoke('gemini-assistant', {
       body: { 
         userText,
-        context: context // Pass the library resource context!
+        context,
+        userId,
+        conversationHistory: history
       }
     });
 
+    if (data?.error === 'daily_limit_reached') {
+       return { error: 'daily_limit_reached' };
+    }
+
     if (error || !data?.content) {
-      // Fallback to OpenAI if Gemini fails or is not setup
-      const { data: oaiData, error: oaiError } = await supabase.functions.invoke('openai-assistant', {
-        body: { userText }
-      });
-      if (oaiError) throw oaiError;
-      return oaiData?.content || getDummyResponse();
+      // Fallback
+      return getDummyResponse();
     }
     
     return data.content;
@@ -113,16 +115,56 @@ const updateCache = async (query, content, sourceType) => {
   }
 };
 
+const scoreResult = (result, queryKeywords) => {
+  const title = (result.title || "").toLowerCase();
+  const body = (result.description || result.summary || "").toLowerCase();
+  
+  let score = 0;
+  let uniqueMatches = 0;
+
+  queryKeywords.forEach(keyword => {
+    const kw = keyword.toLowerCase();
+    let kwMatched = false;
+
+    // 1. Title Match (Extremely High Weight)
+    const titleOccurrences = (title.match(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+    if (titleOccurrences > 0) {
+      score += titleOccurrences * 100;
+      kwMatched = true;
+    }
+
+    // 2. Body Match (Moderate Weight)
+    const bodyOccurrences = (body.match(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+    if (bodyOccurrences > 0) {
+      score += bodyOccurrences * 2;
+      kwMatched = true;
+    }
+
+    if (kwMatched) uniqueMatches++;
+  });
+
+  // 3. Intersection Bonus (Massive multiplier for documents matching multiple query words)
+  // If a user searches "Public Finance", a doc matching both words is exponentially better
+  if (uniqueMatches > 1) {
+    score *= (uniqueMatches * 2);
+  }
+
+  return score;
+};
+
 const findResourceMatch = async (query) => {
   try {
     const rawQ = query.toLowerCase();
-    const stopWords = new Set(['what', 'is', 'the', 'of', 'in', 'and', 'to', 'for', 'about', 'how', 'can', 'me', 'tell', 'show', 'find', 'research', 'information', 'resource', 'please']);
+    const stopWords = new Set([
+      'what', 'is', 'the', 'of', 'in', 'and', 'to', 'for', 'about', 'how', 'can', 'me', 'tell', 'show', 'find', 'research', 
+      'information', 'resource', 'please', 'with', 'from', 'this', 'that', 'they', 'their', 'them', 'these'
+    ]);
     const keywords = rawQ.split(/[\s,?.!]+/)
       .filter(w => w.length > 2 && !stopWords.has(w));
     
     if (keywords.length === 0) return null;
 
-    console.log("🔍 GovAI Search Keywords:", keywords);
+    console.log("🔍 GovAI Enhanced Search Keywords:", keywords);
 
     const tables = [
       { name: 'library_resources', cols: ['title', 'description'] },
@@ -131,10 +173,9 @@ const findResourceMatch = async (query) => {
       { name: 'perl_resource', cols: ['title', 'description'] }
     ];
     
-    let matches = [];
+    let allMatches = [];
 
     for (const table of tables) {
-      // Create OR string only for columns that exist in THIS table
       const orClauses = keywords.flatMap(kw => 
         table.cols.map(col => `${col}.ilike.%${kw}%`)
       ).join(',');
@@ -143,49 +184,30 @@ const findResourceMatch = async (query) => {
         .from(table.name)
         .select('*')
         .or(orClauses)
-        .limit(3);
+        .limit(10);
       
-      if (error) {
-        console.warn(`⚠️ Search error on ${table.name}:`, error);
-        continue;
-      }
-      
-      if (data && data.length > 0) {
-        matches.push(...data.map(d => ({ ...d, tableName: table.name })));
+      if (!error && data) {
+        allMatches.push(...data.map(d => ({ ...d, tableName: table.name })));
       }
     }
 
-    if (matches.length > 0) {
-      // Ranking Logic
-      const ranked = matches.map(item => {
-        let score = 0;
-        const mainText = (item.title || "").toLowerCase();
-        const subText = (item.description || item.summary || "").toLowerCase();
-        
-        keywords.forEach(kw => {
-          if (mainText.includes(kw)) score += 10; // Title match is high weight
-          if (subText.includes(kw)) score += 2;  // Description match
-          if (mainText === kw) score += 20;      // Perfect title match
-        });
-        return { ...item, score };
-      }).sort((a, b) => b.score - a.score);
+    if (allMatches.length > 0) {
+      const ranked = allMatches
+        .map(item => ({ ...item, relevanceScore: scoreResult(item, keywords) }))
+        .filter(item => item.relevanceScore > 0)
+        .sort((a, b) => b.relevanceScore - a.relevanceScore);
 
-      const best = ranked[0];
-      const isHighConfidence = best.score >= 10;
-      const desc = best.description || best.summary || "Archived hub document.";
+      const top3 = ranked.slice(0, 3);
       
-      console.log(`✅ Library Match Found (${isHighConfidence ? 'High' : 'Low'}):`, best.title);
+      if (top3.length === 0) return null;
+
+      console.log(`✅ Library Matches Found:`, top3.length);
 
       return {
-        text: `I found a relevant resource: **${best.title}**.\n\n**Summary:** ${desc.substring(0, 300)}...\n\n[Preview Document](preview:${best.tableName}:${best.id})`,
-        source: 'resource',
-        confidence: isHighConfidence ? 'high' : 'medium',
-        context: ranked.slice(0, 4).map(r => `[${r.tableName}] ${r.title}: ${r.description || r.summary || ''}`).join('\n\n'),
-        fullResource: best // Pass the full object so we can preview it
+        context: top3.map((r, idx) => `Document ${idx+1}: [${r.title}] — ${r.description || r.summary || ''}`).join('\n\n'),
+        resources: top3
       };
     }
-    
-    console.log("❌ No relevant library resources found for these keywords.");
     return null;
   } catch (err) {
     console.error("Resource Search Error:", err);
@@ -246,6 +268,8 @@ const ExplorePage = ({ user, onNavigate }) => {
   const [typing, setTyping] = useState(false);
   const [suggestions, setSuggestions] = useState(SUGGESTED);
   const [promptsUsed, setPromptsUsed] = useState(0);
+  const [conversationHistory, setConversationHistory] = useState([]);
+  const [isLimited, setIsLimited] = useState(false);
 
   const messagesEndRef = useRef(null);
 
@@ -317,14 +341,17 @@ const ExplorePage = ({ user, onNavigate }) => {
 
   const handleSend = async (text = null) => {
     if (!user) {
-      alert("Please login to use the Research Assistant.");
-      return;
+      // Guest Rate Limiting
+      const guestQueries = parseInt(localStorage.getItem('grh_guest_queries') || '0');
+      if (guestQueries >= 3) {
+        setIsLimited(true);
+        setMessages(prev => [...prev, { id: 'limit', role: 'assistant', text: "You've reached the 3-query limit for guests. Please sign up to continue exploring our full library." }]);
+        return;
+      }
+      localStorage.setItem('grh_guest_queries', (guestQueries + 1).toString());
     }
     
-    if (promptsUsed >= PROMPT_LIMIT) {
-      alert("You have reached your free monthly limit of 10 chats. Please try again next month.");
-      return;
-    }
+    if (isLimited) return;
 
     const msgText = text || input;
     if (!msgText.trim()) return;
@@ -359,7 +386,7 @@ const ExplorePage = ({ user, onNavigate }) => {
       // --- UNIFIED RESOURCE + AI LOGIC ---
       let responseText = "";
       let source = "ai";
-      let referencedResource = null;
+      let referencedResources = [];
 
       // 1. Check Cache (Highest Priority)
       const cached = await checkCache(msgText);
@@ -367,17 +394,26 @@ const ExplorePage = ({ user, onNavigate }) => {
         responseText = cached.response_content;
         source = cached.source_type;
       } else {
-        // 2. Search Library Resources (Always done to provide context)
-        const resourceMatch = await findResourceMatch(msgText);
-        if (resourceMatch) {
-          referencedResource = resourceMatch.fullResource;
+        // 2. Search Library Resources (Top 3 Scoring)
+        const searchResult = await findResourceMatch(msgText);
+        if (searchResult) {
+          referencedResources = searchResult.resources;
         }
 
-        // 3. AI Synthesis (Always called, grounded by resource if found)
-        responseText = await getAIResponse(msgText, resourceMatch?.context || null);
+        // 3. AI Synthesis (Always called, grounded by context)
+        const aiOutput = await getAIResponse(msgText, searchResult?.context || null, conversationHistory, user?.id);
+        
+        if (aiOutput?.error === 'daily_limit_reached') {
+          setTyping(false);
+          setIsLimited(true);
+          setMessages(prev => [...prev, { id: 'limit', role: 'assistant', text: "You've reached your 20 daily research queries. Come back tomorrow for more deep-dive research." }]);
+          return;
+        }
+
+        responseText = aiOutput;
         source = 'ai_unified';
         
-        // 4. Update Cache with the synthesized result
+        // 4. Update Cache
         await updateCache(msgText, responseText, 'ai_unified');
       }
       // ------------------------------------
@@ -389,13 +425,20 @@ const ExplorePage = ({ user, onNavigate }) => {
       }).select().single();
 
       setTyping(false);
-      setMessages(prev => [...prev, { 
+      const assistantMsg = { 
         id: aiMsgData?.id || Date.now()+1, 
         role: 'assistant', 
         text: responseText, 
         source,
-        fullResource: referencedResource 
-      }]);
+        fullResources: referencedResources 
+      };
+      setMessages(prev => [...prev, assistantMsg]);
+      
+      // Update Conversation Memory (Last 5 exchanges)
+      setConversationHistory(prev => {
+        const newHistory = [...prev, { role: 'user', content: msgText }, { role: 'assistant', content: responseText }];
+        return newHistory.slice(-10); // 10 messages = 5 exchanges
+      });
       
       await supabase.from('chat_sessions')
         .update({ updated_at: new Date().toISOString() })
@@ -508,24 +551,28 @@ const ExplorePage = ({ user, onNavigate }) => {
                   )
                 )}
               </div>
-              <div className={`message-bubble ${msg.role} ${msg.fullResource ? 'has-resource' : ''}`}>
+              <div className={`message-bubble ${msg.role} ${msg.fullResources?.length > 0 ? 'has-resource' : ''}`}>
                 <div className="message-content">
                   {renderMessage(msg.text || msg.content)}
                 </div>
                 
-                {msg.fullResource && (
-                  <div className="referenced-resource-card">
-                    <div className="ref-card-header">
-                      <span className="material-symbols-outlined">library_books</span>
-                      <span>Referenced Hub Resource</span>
-                    </div>
-                    <div className="ref-card-body">
-                      <h4>{msg.fullResource.title}</h4>
-                      <p>{(msg.fullResource.description || msg.fullResource.summary || '').substring(0, 80)}...</p>
-                      <button className="preview-btn-sm" onClick={() => setViewingResource(msg.fullResource)}>
-                        View Document
-                      </button>
-                    </div>
+                {msg.fullResources?.length > 0 && (
+                  <div className="referenced-resources-container">
+                    {msg.fullResources.map(res => (
+                      <div key={res.id} className="referenced-resource-card">
+                        <div className="ref-card-header">
+                          <span className="material-symbols-outlined">library_books</span>
+                          <span>{res.tableName?.replace('_', ' ').toUpperCase()} RESOURCE</span>
+                        </div>
+                        <div className="ref-card-body">
+                          <h4>{res.title}</h4>
+                          <p>{(res.description || res.summary || '').substring(0, 80)}...</p>
+                          <button className="preview-btn-sm" onClick={() => setViewingResource(res)}>
+                            View Document
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -550,17 +597,17 @@ const ExplorePage = ({ user, onNavigate }) => {
             <textarea
               className="chat-input"
               rows="1"
-              placeholder={promptsUsed >= PROMPT_LIMIT ? "Monthly limit reached (10/10)." : "Ask anything about governance, PFM, or integrity..."}
+              placeholder={isLimited ? "Daily limit reached." : "Ask anything about governance, PFM, or integrity..."}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-              disabled={promptsUsed >= PROMPT_LIMIT}
+              disabled={isLimited}
             />
-            <button className="send-btn" onClick={() => handleSend()} disabled={!input.trim() || promptsUsed >= PROMPT_LIMIT}>
+            <button className="send-btn" onClick={() => handleSend()} disabled={!input.trim() || isLimited}>
               ↑
             </button>
           </div>
-          <p className="input-hint">{promptsUsed >= PROMPT_LIMIT ? "You have exhausted your free monthly chats." : "AI may generate inaccurate information. Cross-reference with hub source documents."}</p>
+          <p className="input-hint">{isLimited ? "Research limit reached for today." : "AI may generate inaccurate information. Cross-reference with hub source documents."}</p>
         </div>
       </div>
       
