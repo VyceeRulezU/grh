@@ -423,7 +423,7 @@
 
 .stat-label {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--text-white);
   font-weight: 500;
   margin-bottom: 1.5rem;
   display: block;
