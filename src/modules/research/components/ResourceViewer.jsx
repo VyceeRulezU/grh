@@ -34,7 +34,7 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             const url = resource.file_url || resource.fileUrl || resource.preview_url || resource.download_url;
             if (!url) return <div className="viewer-page-mock" style={{ padding: '2rem' }}><div className="placeholder-text">No document link available.</div></div>;
 
-            // Handle Google Drive Links - Use iframe because react-pdf-viewer blocks on CORS
+            // 1. Handle Google Drive Links
             if (url.includes('drive.google.com')) {
               let embedUrl = url;
               if (url.includes('/view')) embedUrl = url.replace('/view', '/preview');
@@ -54,7 +54,25 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               );
             }
 
-            // Standard PDF Viewer for direct links
+            // 2. Detect Extension for Office Documents
+            const extension = url.split('.').pop().toLowerCase().split(/[?#]/)[0];
+            const isOfficeDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension);
+
+            if (isOfficeDoc) {
+              const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
+              return (
+                <iframe 
+                  src={officeUrl} 
+                  width="100%" 
+                  height="100%" 
+                  frameBorder="0"
+                  style={{ border: 'none' }}
+                  title={resource.title}
+                ></iframe>
+              );
+            }
+
+            // 3. Fallback to Standard PDF Viewer (Default)
             return (
               <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
                 <Viewer
