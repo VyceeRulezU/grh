@@ -5,6 +5,7 @@ import Pagination from '../../shared/ui/Pagination';
 import StatusModal from '../../shared/ui/StatusModal';
 import CertificatePreview from '../../shared/ui/CertificatePreview';
 import ResourceViewer from '../research/components/ResourceViewer';
+import { usePixabayImages } from '../../shared/hooks/usePixabayImages';
 import { Helmet } from 'react-helmet-async';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
@@ -872,6 +873,12 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     return localStorage.getItem('studentActiveTab') || "Home";
   });
 
+  // Imagery Hooks for Resources
+  const { getImage: getPerlImg } = usePixabayImages('finance', 10);
+  const { getImage: getSparcImg } = usePixabayImages('sparc', 10);
+  const { getImage: getGovImg } = usePixabayImages('governance', 10);
+  const { getImage: getLibImg } = usePixabayImages('library', 6);
+
   useEffect(() => {
     localStorage.setItem('studentActiveTab', activeTab);
   }, [activeTab]);
@@ -904,6 +911,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
   const [workshops, setWorkshops] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [allResources, setAllResources] = useState([]);
+  const [rawResources, setRawResources] = useState([]);
   const [completedLessons, setCompletedLessons] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -1066,7 +1074,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
           file_url: p.preview_url || p.download_url
         }))
       ];
-      setAllResources(normalizedResources);
+      setRawResources(normalizedResources);
 
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -1075,6 +1083,33 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
       setLoading(false);
     }
   };
+
+  // REACTIVE IMAGERY ENGINE: Identical to the Library logic
+  useEffect(() => {
+    if (rawResources.length === 0) return;
+    
+    const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
+    
+    const enriched = rawResources.map((item, idx) => {
+      let coverImage = item.coverImage;
+      
+      if (!coverImage || coverImage === DEFAULT_IMG) {
+        if (item.type === 'Book') {
+          coverImage = item.image_url || getLibImg(idx) || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80";
+        } else if (item.type === 'SPARC') {
+          coverImage = getSparcImg(idx) || DEFAULT_IMG;
+        } else if (item.type === 'PERL') {
+          coverImage = getPerlImg(idx) || DEFAULT_IMG;
+        } else {
+          coverImage = getGovImg(idx) || DEFAULT_IMG;
+        }
+      }
+      
+      return { ...item, coverImage };
+    });
+    
+    setAllResources(enriched);
+  }, [rawResources, getPerlImg, getSparcImg, getGovImg, getLibImg]);
 
   const handleCertDownload = (cert) => {
     generateCertificatePDF({

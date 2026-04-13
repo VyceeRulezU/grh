@@ -35,7 +35,7 @@ const Library = ({ onNavigate }) => {
   const [readingResource, setReadingResource] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const heroRef = React.useRef(null);
-  const { data: allResources = [], isLoading: loading, isSuccess } = useQuery({
+  const { data: rawResources = [], isLoading: loading, isSuccess } = useQuery({
     queryKey: ['library-resources'],
     queryFn: async () => {
       const [res, bks, sparc, perl] = await Promise.all([
@@ -94,7 +94,7 @@ const Library = ({ onNavigate }) => {
           programme: programme,
           location: location,
           thematic_area: thematic,
-          coverImage: TYPE_IMAGES[normalizedType] || DEFAULT_IMG,
+          // coverImage will be assigned reactively in useMemo
           author: r.author || 'GRH',
           year: r.published_year || new Date(r.created_at || Date.now()).getFullYear(),
           file_url: r.file_url || r.file_url || '',
@@ -109,7 +109,7 @@ const Library = ({ onNavigate }) => {
           type: "BOOK",
           author: b.author || "GRH Lib",
           year: b.published_year || new Date(b.created_at || Date.now()).getFullYear(),
-          coverImage: b.image_url || getLibImg(0) || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+          // coverImage will be assigned reactively in useMemo
           category: b.category || "Governance",
           programme: b.programme || null,
           location: location,
@@ -130,7 +130,7 @@ const Library = ({ onNavigate }) => {
           thematic_area: thematic,
           author: p.author || "GRH",
           year: new Date(p.created_at).getFullYear(),
-          coverImage: getSparcImg(idx) || TYPE_IMAGES['SPARC'] || DEFAULT_IMG,
+          // coverImage will be assigned reactively in useMemo
           file_url: p.preview_url || p.download_url || p.file_url || '',
           description: p.description || `Synced document: ${p.title}`
         };
@@ -147,7 +147,7 @@ const Library = ({ onNavigate }) => {
           thematic_area: thematic,
           author: p.author || "GRH",
           year: new Date(p.created_at).getFullYear(),
-          coverImage: getPerlImg(idx) || TYPE_IMAGES['PERL'] || DEFAULT_IMG,
+          // coverImage will be assigned reactively in useMemo
           file_url: p.preview_url || p.download_url || p.file_url || '',
           description: p.description || `Synced document: ${p.title}`
         };
@@ -202,6 +202,32 @@ const Library = ({ onNavigate }) => {
       }
     }
   });
+
+  // REACTIVE IMAGERY ENGINE: Injects images from Pixabay hooks into Supabase results 
+  // as soon as they become available. No more "fixed" placeholders!
+  const allResources = React.useMemo(() => {
+    const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
+    
+    return rawResources.map((item, idx) => {
+      let coverImage = item.coverImage;
+      
+      // Only assign if it doesn't have a valid image URL already from Supabase
+      if (!coverImage || coverImage === DEFAULT_IMG) {
+        if (item.type === 'BOOK') {
+          coverImage = item.image_url || getLibImg(idx) || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80";
+        } else if (item.type === 'SPARC') {
+          coverImage = getSparcImg(idx) || DEFAULT_IMG;
+        } else if (item.type === 'PERL') {
+          coverImage = getPerlImg(idx) || DEFAULT_IMG;
+        } else {
+          coverImage = getGovImg(idx) || DEFAULT_IMG;
+        }
+      }
+      
+      return { ...item, coverImage };
+    });
+  }, [rawResources, getPerlImg, getSparcImg, getGovImg, getLibImg]);
+
   const itemsPerPage = 6;
   const statsRef = React.useRef(null);
   const resultsRef = React.useRef(null);
