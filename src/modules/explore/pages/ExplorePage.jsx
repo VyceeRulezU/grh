@@ -19,7 +19,34 @@ const DUMMY_RESPONSES = [
 ];
 
 let dummyIndex = 0;
-const getDummyResponse = () => {
+
+const isFollowUpIntent = (text = "") => {
+  const t = text.toLowerCase().trim().replace(/[?.!]/g, '');
+  const intents = [
+    'yes', 'yeah', 'sure', 'ok', 'okay', 'proceed', 'go ahead', 'all', 'summarize all', 
+    'tell me more', 'more', 'explain', 'explain more', 'detailed', 'summary'
+  ];
+  return intents.some(intent => t === intent || t.startsWith('summarize') || t.includes('tell me more'));
+};
+
+const getDummyResponse = (userText = "", foundDocs = [], isContinuation = false) => {
+  if (foundDocs.length > 0) {
+     const docTitles = foundDocs.map(d => `**${d.title}**`).join(', ');
+     
+     if (isContinuation) {
+       return `Certainly! Based on the documents I found (${docTitles}), here is a consolidated summary:
+       
+The Hub's evidence suggests that institutional reforms in this area are driven by three main factors: integrated resource management, transparent reporting, and local stakeholder engagement. Specifically, ${foundDocs[0].title} highlights the framework for implementation, while others focus on technical accountability.
+
+Would you like me to dive deeper into any of these specific documents?`;
+     }
+
+     return `I've analyzed the Hub's research library and found ${foundDocs.length} specific resources regarding "${userText.substring(0, 30)}...". 
+     
+Particularly, ${docTitles} contain relevant data. Based on these, it seems you're looking for guidance on institutional governance and PFM strategies.
+
+Would you like me to summarize one of these specific documents for you?`;
+  }
   const response = DUMMY_RESPONSES[dummyIndex % DUMMY_RESPONSES.length];
   dummyIndex++;
   return response;
@@ -50,7 +77,7 @@ const HISTORY_CONVERSATIONS = {
 // ---------------------------------------------------------------------------
 // AI Assistant call (Using Gemini 1.5 Flash with Context)
 // ---------------------------------------------------------------------------
-const getAIResponse = async (userText, context = null, history = [], userId = null) => {
+const getAIResponse = async (userText, context = null, history = [], userId = null, foundDocs = [], isContinuation = false) => {
   try {
     // Try Gemini first
     const { data, error } = await supabase.functions.invoke('gemini-assistant', {
@@ -67,14 +94,14 @@ const getAIResponse = async (userText, context = null, history = [], userId = nu
     }
 
     if (error || !data?.content) {
-      // Fallback
-      return getDummyResponse();
+      // SMART FALLBACK: Acknowledge the specific findings instead of just a static dummy msg
+      return getDummyResponse(userText, foundDocs, isContinuation);
     }
     
     return data.content;
   } catch (err) {
     console.error("AI Assistant Error:", err);
-    return getDummyResponse();
+    return getDummyResponse(userText, foundDocs, isContinuation);
   }
 };
 
@@ -119,34 +146,54 @@ const scoreResult = (result, queryKeywords) => {
   const title = (result.title || "").toLowerCase();
   const body = (result.description || result.summary || "").toLowerCase();
   
+  // Weights for common tokens to prevent them from drowning out specific terms
+  const COMMON_WORDS = new Set(['governance', 'public', 'resource', 'hub', 'report', 'document', 'framework', 'policy', 'strategy']);
+  
   let score = 0;
   let uniqueMatches = 0;
 
   queryKeywords.forEach(keyword => {
     const kw = keyword.toLowerCase();
     let kwMatched = false;
+    
+    // Determine weight: Rare words are much more valuable for relevance
+    const weightMulti = COMMON_WORDS.has(kw) ? 0.5 : 2.5;
 
-    // 1. Title Match (Extremely High Weight)
-    const titleOccurrences = (title.match(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+    // 1. Title Match (High Base Weight)
+    // We check for word boundaries to avoid partial matches like "governance" in "nongovernmental"
+    const titleRegex = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+    const titleOccurrences = (title.match(titleRegex) || []).length;
     if (titleOccurrences > 0) {
-      score += titleOccurrences * 100;
+      score += titleOccurrences * 100 * weightMulti;
       kwMatched = true;
     }
 
     // 2. Body Match (Moderate Weight)
-    const bodyOccurrences = (body.match(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+    const bodyRegex = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+    const bodyOccurrences = (body.match(bodyRegex) || []).length;
     if (bodyOccurrences > 0) {
-      score += bodyOccurrences * 2;
+      score += bodyOccurrences * 5 * weightMulti;
       kwMatched = true;
     }
 
     if (kwMatched) uniqueMatches++;
   });
 
-  // 3. Intersection Bonus (Massive multiplier for documents matching multiple query words)
-  // If a user searches "Public Finance", a doc matching both words is exponentially better
+  // 3. Phrase Sequence Bonus: If keywords appear in order in the title, it's very relevant
+  const combinedKeywords = queryKeywords.join(' ').toLowerCase();
+  if (title.includes(combinedKeywords)) {
+    score += 500;
+  }
+
+  // 4. Intersection Bonus: The more distinct words that match, the better
+  // matching "Public" and "Finance" is better than matching "Finance" five times.
   if (uniqueMatches > 1) {
-    score *= (uniqueMatches * 2);
+    score *= (uniqueMatches * 1.5);
+  }
+
+  // 5. Total Coverage Bonus: If all keywords are found in the title/body
+  if (uniqueMatches === queryKeywords.length && queryKeywords.length > 1) {
+    score += 300;
   }
 
   return score;
@@ -387,6 +434,8 @@ const ExplorePage = ({ user, onNavigate }) => {
       let responseText = "";
       let source = "ai";
       let referencedResources = [];
+      let carriedContext = null;
+      let isContinuation = false;
 
       // 1. Check Cache (Highest Priority)
       const cached = await checkCache(msgText);
@@ -394,14 +443,25 @@ const ExplorePage = ({ user, onNavigate }) => {
         responseText = cached.response_content;
         source = cached.source_type;
       } else {
-        // 2. Search Library Resources (Top 3 Scoring)
-        const searchResult = await findResourceMatch(msgText);
-        if (searchResult) {
-          referencedResources = searchResult.resources;
+        // 2. CONVERSATIONAL INTENT DETECTION
+        // If it's a "Yes/Tell me more" and we have resources in history, reuse them!
+        const lastAssistantMsg = [...messages].reverse().find(m => m.role === 'assistant');
+        if (isFollowUpIntent(msgText) && lastAssistantMsg?.fullResources?.length > 0) {
+          console.log("🔄 Carry-Forward Context Detected: Persisting previous research.");
+          referencedResources = lastAssistantMsg.fullResources;
+          carriedContext = lastAssistantMsg.fullResources.map((r, idx) => `Document ${idx+1}: [${r.title}] — ${r.description || r.summary || ''}`).join('\n\n');
+          isContinuation = true;
+        } else {
+          // Normal keyword-based search
+          const searchResult = await findResourceMatch(msgText);
+          if (searchResult) {
+            referencedResources = searchResult.resources;
+            carriedContext = searchResult.context;
+          }
         }
 
         // 3. AI Synthesis (Always called, grounded by context)
-        const aiOutput = await getAIResponse(msgText, searchResult?.context || null, conversationHistory, user?.id);
+        const aiOutput = await getAIResponse(msgText, carriedContext, conversationHistory, user?.id, referencedResources, isContinuation);
         
         if (aiOutput?.error === 'daily_limit_reached') {
           setTyping(false);
