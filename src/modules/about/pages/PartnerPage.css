@@ -45,11 +45,14 @@
     color: var(--primary); /* Keep theme relevant to GRH instead of blue */
     font-weight: 400;
     font-family: serif;
+    word-break: break-word; /* handle long text/emails */
+    overflow-wrap: anywhere;
   }
 
   .italic-highlight-text{
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap; /* Added to prevent overflow */
     column-gap: 0.5rem;
     align-items: center;
     color: var(--secondary);
@@ -59,6 +62,7 @@
   .approach-goals-list-header{
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap; /* Added to prevent overflow */
     column-gap: 0.5rem;
     align-items: center;
     color: var(--primary);
@@ -67,7 +71,6 @@
     font-weight: 400;
     margin-bottom: 0.5rem;
     color: #111;
-    
   }
 
 .approach-images {
@@ -197,9 +200,18 @@
   .img-tall, .img-wide, .approach-text-block {
     width: 100%;
   }
+  .goal-row {
+    flex-direction: column; /* better for small mobile */
+    gap: 1rem;
+    padding: 2rem 0;
+  }
+  .goal-num {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
   .goal-content {
-    width: 80%;
-    margin-left: 10%;
+    width: 100%;
+    margin-left: 0;
   }
 }
 
@@ -448,12 +460,13 @@
 .reach-us-footer{
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap; /* allow title/email to wrap */
   align-items: center;
   justify-content: center;
   text-align: center;
   gap: 1rem;
   margin-top: 5rem;
-  padding-top: 3rem;
+  padding: 3rem 1rem; /* add horizontal padding */
   border-top: 1px solid rgba(0,0,0,0.05);
 }
 
