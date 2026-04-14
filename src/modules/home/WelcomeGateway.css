@@ -47,7 +47,7 @@
 }
 
 .section-container {
-    max-width: var(--max-width);
+    max-width: var(--max-width-lg);
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -126,7 +126,7 @@
 }
 
 .card-wrapper {
-    max-width: var(--max-width);
+    max-width: var(--max-width-lg);
     margin: 0 auto;
     display: flex;
     flex-direction: row;
@@ -236,7 +236,7 @@
 }
 
 .legal-container {
-    width: var(--max-width);
+    width: var(--max-width-lg);
     display: flex;
     align-items: center;
     justify-content: space-between;
