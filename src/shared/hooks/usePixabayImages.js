@@ -13,11 +13,12 @@ import { fetchPixabayImages, PIXABAY_QUERIES } from '../../services/pixabay/pixa
  * @param {string} queryKey - Key from PIXABAY_QUERIES (e.g. 'finance', 'governance')
  * @param {number} count - Number of images to fetch
  * @param {string} fallback - Fallback Unsplash URL if Pixabay fails
+ * @param {boolean} documentFocus - Whether to force document-centric imagery and filter animals/nature
  */
-export function usePixabayImages(queryKey = 'governance', count = 6, fallback = null) {
+export function usePixabayImages(queryKey = 'governance', count = 6, fallback = null, documentFocus = false) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const stableKey = `${queryKey}_${count}`;
+  const stableKey = `${queryKey}_${count}_${documentFocus}`;
   const fetchedRef = useRef('');
 
   useEffect(() => {
@@ -25,8 +26,12 @@ export function usePixabayImages(queryKey = 'governance', count = 6, fallback = 
     fetchedRef.current = stableKey;
 
     const query = PIXABAY_QUERIES[queryKey] || queryKey;
+    const options = { 
+      per_page: Math.min(count, 20),
+      documentFocus: documentFocus 
+    };
 
-    fetchPixabayImages(query, { per_page: Math.min(count, 20) })
+    fetchPixabayImages(query, options)
       .then(urls => {
         setImages(urls);
       })

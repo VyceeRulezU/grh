@@ -873,11 +873,11 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     return localStorage.getItem('studentActiveTab') || "Home";
   });
 
-  // Imagery Hooks for Resources
-  const { getImage: getPerlImg } = usePixabayImages('finance', 10);
-  const { getImage: getSparcImg } = usePixabayImages('sparc', 10);
-  const { getImage: getGovImg } = usePixabayImages('governance', 10);
-  const { getImage: getLibImg } = usePixabayImages('library', 6);
+  // Imagery Hooks for Resources with document-centric focus
+  const { getImage: getPerlImg } = usePixabayImages('finance', 10, null, true);
+  const { getImage: getSparcImg } = usePixabayImages('sparc', 10, null, true);
+  const { getImage: getGovImg } = usePixabayImages('governance', 10, null, true);
+  const { getImage: getLibImg } = usePixabayImages('library', 6, null, true);
 
   useEffect(() => {
     localStorage.setItem('studentActiveTab', activeTab);

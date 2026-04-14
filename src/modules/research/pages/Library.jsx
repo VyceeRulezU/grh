@@ -19,11 +19,11 @@ import '../components/ResourceViewer.css';
 gsap.registerPlugin(Flip, ScrollTrigger);
 
 const Library = ({ onNavigate }) => {
-  // Fetch localized imagery for each resource type
-  const { getImage: getPerlImg } = usePixabayImages('finance', 10);
-  const { getImage: getSparcImg } = usePixabayImages('sparc', 10);
-  const { getImage: getGovImg } = usePixabayImages('governance', 10);
-  const { getImage: getLibImg } = usePixabayImages('library', 6);
+  // Fetch localized imagery for each resource type with document-centric focus
+  const { getImage: getPerlImg } = usePixabayImages('finance', 10, null, true);
+  const { getImage: getSparcImg } = usePixabayImages('sparc', 10, null, true);
+  const { getImage: getGovImg } = usePixabayImages('governance', 10, null, true);
+  const { getImage: getLibImg } = usePixabayImages('library', 6, null, true);
   const [search, setSearch] = useState("");
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedCats, setSelectedCats] = useState([]);
