@@ -33,6 +33,8 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   const [instructors, setInstructors] = useState([]);
   const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [totalCourseCount, setTotalCourseCount] = useState(null);
+  const [totalModuleCount, setTotalModuleCount] = useState(null);
 
   // Localized African portrait images for social proof, testimonials, and mentors (20 to cover all sections)
   const { images: portraitImgs } = usePixabayPortraits(20);
@@ -82,7 +84,15 @@ const LearnLandingPage = ({ onNavigate, user }) => {
              duration: '2h 30m',
              progress: 0
           }));
+        // Also store total count BEFORE slicing for the hero counter
+          setTotalCourseCount(data.length);
           setCourses(formattedCourses.slice(0, 6)); 
+
+          // Fetch total module count across all courses
+          const { count: moduleCount } = await supabase
+            .from('course_modules')
+            .select('*', { count: 'exact', head: true });
+          setTotalModuleCount(moduleCount || 0);
         }
       } catch (err) {
         console.error("Error fetching courses:", err);
@@ -245,8 +255,8 @@ const LearnLandingPage = ({ onNavigate, user }) => {
           </>
         }
         counters={[
-          { value: '1+', label: 'COURSES' },
-          { value: '12+', label: 'MODULES' },
+          { value: totalCourseCount !== null ? `${totalCourseCount}+` : '...', label: 'COURSES' },
+          { value: totalModuleCount !== null ? `${totalModuleCount}+` : '...', label: 'MODULES' },
           { value: '98%', label: 'COMPLETION' },
           { value: 'Free', label: 'TO START' }
         ]}
