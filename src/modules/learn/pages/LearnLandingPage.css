@@ -548,15 +548,15 @@
 .mentors-grid {
     display: flex;
     gap: 2rem;
-    overflow-x: auto;
-    scroll-behavior: smooth;
+    overflow: hidden; /* Changed from auto to hidden for GSAP marquee */
     padding: 1rem;
-    scrollbar-width: none; /* Hide scrollbar Firefox */
-    -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
 }
 
-.mentors-grid::-webkit-scrollbar {
-    display: none; /* Hide scrollbar Chrome/Safari */
+.mentors-track {
+    display: flex;
+    gap: 2rem;
+    width: fit-content;
+    will-change: transform;
 }
 
 

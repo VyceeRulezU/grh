@@ -39,8 +39,10 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   // Localized governance images for course card fallbacks
   const { getImage: getCourseImg } = usePixabayImages('governance', 12);
 
-  // Refs for animations
+  // Refs for marquee and animations
   const cardsRef = React.useRef([]);
+  const marqueeRef = React.useRef(null);
+  const marqueeTl = React.useRef(null);
   cardsRef.current = [];
 
   const addToRefs = (el) => {
@@ -141,7 +143,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
     return ms && mc && ml && mt;
   });
 
-  // Scroll Animations for cards
+  // Scroll Animations for cards & Stats Counting
   useEffect(() => {
     if (cardsRef.current.length > 0) {
       gsap.fromTo(cardsRef.current, 
@@ -181,6 +183,40 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       });
     });
   }, [filtered, loading]);
+
+  // Continuous Linear Marquee for Instructors
+  useEffect(() => {
+    if (instructors.length > 0 && marqueeRef.current) {
+      // Clear any existing animation
+      if (marqueeTl.current) marqueeTl.current.kill();
+
+      const track = marqueeRef.current;
+      const cardWidth = 280; // minWidth from CSS
+      const gap = 32; // 2rem gap
+      const totalWidth = (cardWidth + gap) * instructors.length;
+      
+      marqueeTl.current = gsap.to(track, {
+        x: `-=${totalWidth}`,
+        duration: instructors.length * 10, // Adjust speed (higher = slower)
+        ease: 'none',
+        repeat: -1
+      });
+
+      // Pause/Resume logic
+      const handleMouseEnter = () => marqueeTl.current.pause();
+      const handleMouseLeave = () => marqueeTl.current.play();
+
+      const container = track.parentElement;
+      container.addEventListener('mouseenter', handleMouseEnter);
+      container.addEventListener('mouseleave', handleMouseLeave);
+
+      return () => {
+        if (marqueeTl.current) marqueeTl.current.kill();
+        container.removeEventListener('mouseenter', handleMouseEnter);
+        container.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
+  }, [instructors]);
 
   return (
     <div className="page-wrapper learn-page">
@@ -372,30 +408,33 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             <button 
               className="slider-btn prev" 
               onClick={() => {
-                const el = document.getElementById('mentors-slider');
-                el.scrollBy({ left: -320, behavior: 'smooth' });
+                const track = marqueeRef.current;
+                if (track) gsap.to(track, { x: '+=320', duration: 0.5, ease: 'power2.out' });
               }}
               aria-label="Previous experts"
             >
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
             
-            <div className="mentors-grid" id="mentors-slider">
-              {instructors.map((mentor, i) => (
-                <div key={mentor.id} className="animate-up" style={{ animationDelay: `${i * 0.05}s`, minWidth: '280px' }}>
-                  <InstructorCard 
-                    {...mentor}
-                    onClick={() => setSelectedInstructor(mentor)}
-                  />
-                </div>
-              ))}
+            <div className="mentors-grid">
+              <div className="mentors-track" ref={marqueeRef}>
+                {/* Render Instructors twice for seamless loop */}
+                {[...instructors, ...instructors].map((mentor, i) => (
+                  <div key={`${mentor.id}-${i}`} style={{ minWidth: '280px' }}>
+                    <InstructorCard 
+                      {...mentor}
+                      onClick={() => setSelectedInstructor(mentor)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <button 
               className="slider-btn next" 
               onClick={() => {
-                const el = document.getElementById('mentors-slider');
-                el.scrollBy({ left: 320, behavior: 'smooth' });
+                const track = marqueeRef.current;
+                if (track) gsap.to(track, { x: '-=320', duration: 0.5, ease: 'power2.out' });
               }}
               aria-label="Next experts"
             >
