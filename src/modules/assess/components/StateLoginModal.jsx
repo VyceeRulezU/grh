@@ -42,9 +42,7 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
   // Admin select state
   const [adminSelectedState, setAdminSelectedState] = useState('');
 
-  if (!isOpen) return null;
-
-  // ── Login ────────────────────────────────────────────
+  // ── Render ───────────────────────────────────────────
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
@@ -165,7 +163,11 @@ const StateLoginModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="slm-overlay" onClick={(e) => e.target.classList.contains('slm-overlay') && onClose()}>
+    <div
+      className="slm-overlay"
+      style={!isOpen ? { display: 'none' } : undefined}
+      onClick={(e) => e.target.classList.contains('slm-overlay') && onClose()}
+    >
       <div className="slm-modal">
         {/* Close */}
         <button className="slm-close" onClick={onClose} aria-label="Close">
