@@ -227,7 +227,7 @@ const PartnerPage = ({ onNavigate }) => {
             <div className="bento-card bento-quote">
               <p className="bento-quote-text">"We designed this platform to make your governance journey smoother, smarter, and more connected to real-world policy."</p>
                <div className="bento-author">
-                 <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="CEO" />
+                 <img src="https://images.unsplash.com/photo-1531123897727-8f129e1ebaaa?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="Dr. Amaka Okonkwo" />
                  <div>
                    <strong>Dr. Amaka Okonkwo</strong>
                    <span>Governance Specialist</span>

@@ -285,42 +285,42 @@ export const MENTORS = [
     name: "Dr. Amaka Okonkwo",
     role: "Governance Specialist, World Bank",
     category: "Governance",
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1531123897727-8f129e1ebaaa?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 2,
     name: "Dr. Fatima Al-Hassan",
     role: "PFM Advisor, IMF",
     category: "Public Finance",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1589156191108-c7ea6fceb205?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 3,
     name: "Prof. Chidi Nwachukwu",
     role: "Corporate Governance, Lagos BSE",
     category: "Corporate",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 4,
     name: "Ms. Ngozi Adebayo",
     role: "Anti-Corruption Specialist, AU",
     category: "Integrity",
-    image: "https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 5,
     name: "Dr. Emeka Chibuike",
     role: "Electoral Systems Expert, IDEA",
     category: "Democracy",
-    image: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1506803682981-6e718a9dd3ee?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   },
   {
     id: 6,
     name: "Adaeze Eze, MSc",
     role: "Civic Tech & Open Government",
     category: "Digital",
-    image: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1567532900872-f4e906cbf06a?auto=format&fit=facearea&facepad=3&w=300&h=300&q=80"
   }
 ];
 
@@ -330,7 +330,7 @@ export const TESTIMONIALS = [
     name: "Emeka Okafor",
     role: "Budget Director, Federal Ministry of Finance",
     text: "The PFM course completely changed how I approach budget execution in my ministry. The PEFA framework module alone was worth the entire programme. Highly practical and evidence-based.",
-    avatar: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5,
     featured: true
   },
@@ -339,7 +339,7 @@ export const TESTIMONIALS = [
     name: "Amina Bello",
     role: "Compliance Officer, EFCC",
     text: "The anti-corruption modules gave our compliance team a shared framework. We implemented UNCAC-aligned internal controls within a month of completion.",
-    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1ebaaa?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5
   },
   {
@@ -347,7 +347,7 @@ export const TESTIMONIALS = [
     name: "Taiwo Adeyemi",
     role: "Policy Researcher, CLEEN Foundation",
     text: "Excellent content and well-paced. The electoral systems course gave me the comparative context I needed for our reform advocacy work.",
-    avatar: "https://images.unsplash.com/photo-1530268729831-4b0b9e170218?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1506803682981-6e718a9dd3ee?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 4
   },
   {
@@ -355,7 +355,7 @@ export const TESTIMONIALS = [
     name: "Chinwe Eze",
     role: "LGA Finance Officer, Anambra State",
     text: "As a local government official, I found the decentralisation and fiscal federalism sections incredibly relevant. Now I can articulate our fiscal gaps with data.",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1589156191108-c7ea6fceb205?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5
   },
   {
@@ -363,7 +363,7 @@ export const TESTIMONIALS = [
     name: "Babatunde Lawal",
     role: "Policy Advisor, Ogun State Government",
     text: "The open government course gave me the tools to draft our state's first transparency policy. Real frameworks, not theory.",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
+    avatar: "https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80",
     rating: 5
   }
 ];

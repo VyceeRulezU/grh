@@ -4,6 +4,7 @@ import { COURSES, MENTORS, TESTIMONIALS } from '../../../data/legacyData';
 import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 import CtaSection from '../../../shared/ui/CtaSection';
+import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import FaqSection from '../../../shared/ui/FaqSection';
 import ModernDropdown from '../../../shared/ui/ModernDropdown';
 import Tab from '../../../shared/ui/Tab';
@@ -456,52 +457,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       </div>
 
       {/* Testimonials Section */}
-        <section className="testimonials-section" aria-labelledby="testimonials-heading">
-
-          <div className="container learn-content" id="courses-section">
-          
-            <header className="section-header section-header--centered">
-              <div>
-                <p className="section-eyebrow">Learner Stories</p>
-                <h2 id="testimonials-heading">What Our Learners Say</h2>
-              </div>
-            </header>
-            <p className="testimonials-sub">Hear from government officials, civil society practitioners, and researchers who've completed our courses.</p>
-            
-            <div className="testimonials-grid">
-              {TESTIMONIALS.map((t, i) => (
-                <blockquote 
-                  key={t.id} 
-                  className={`testimonial-card animate-up ${t.featured ? 'testimonial-card--featured' : ''}`} 
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                >
-                  <div className="testimonial-stars">{"★".repeat(t.rating)}{"☆".repeat(5-t.rating)}</div>
-                  <p>"{t.text}"</p>
-                  <footer>
-                    <img 
-                      src={portraitImgs.length > i + 5 ? portraitImgs[i + 5] : (portraitImgs[i] || t.avatar)} 
-                      alt="" 
-                      loading="lazy" 
-                      onError={(e) => { e.target.onerror = null; e.target.src = t.avatar; }}
-                    />
-                    <div className="testimonial-info">
-                      <cite className="testimonial-name">{t.name}</cite>
-                      <span className="testimonial-role">{t.role}</span>
-                    </div>
-                  </footer>
-                </blockquote>
-              ))}
-            </div>
-
-            <nav className="testimonials-pagination" aria-label="Testimonials pagination">
-              <button className="page-dot page-dot--active" aria-label="Page 1"></button>
-              <button className="page-dot" aria-label="Page 2"></button>
-              <button className="page-dot" aria-label="Page 3"></button>
-            </nav>
-
-          </div>
-
-        </section>
+      <TestimonialSection />
 
         {/* FAQ Section */}
         <div className="container learn-content" style={{ marginTop: '2rem' }}>
