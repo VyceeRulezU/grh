@@ -746,6 +746,29 @@ function WorkshopAttendeesModal({ workshop, onClose }) {
 }
 
 function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats, recentActivitiesPage, setRecentActivitiesPage, itemsPerRecentPage }) {
+  const [selectedActivities, setSelectedActivities] = useState(new Set());
+
+  const currentActivities = stats.recentActivities.slice((recentActivitiesPage - 1) * itemsPerRecentPage, recentActivitiesPage * itemsPerRecentPage);
+  const allSelected = currentActivities.length > 0 && selectedActivities.size === currentActivities.length;
+
+  const handleSelectAll = () => {
+    if (allSelected) {
+      setSelectedActivities(new Set());
+    } else {
+      setSelectedActivities(new Set(currentActivities.map((_, i) => i)));
+    }
+  };
+
+  const handleSelectActivity = (index) => {
+    const newSelected = new Set(selectedActivities);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedActivities(newSelected);
+  };
+
   const handleExportActivityCSV = () => {
     const headers = ['Activity', 'User', 'Time', 'Status'];
     const rows = stats.recentActivities.map(act => [
@@ -873,54 +896,67 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
       {/* Recent Activity */}
       <div className="adm-panel-header">
-        <h3>Recent Completions <span className="adm-count">{stats.recentActivities.length} New</span></h3>
+        <h3>Recent Activity <span className="adm-count">{stats.recentActivities.length} New</span></h3>
         <button className="btn-outline btn-sm" onClick={handleExportActivityCSV} title="Export CSV">
           <i className="ri-download-2-line"></i> Export CSV
         </button>
       </div>
 
-      <div className="adm-table-wrap">
-        <table className="adm-table">
+      <div className="adm-premium-table-wrap">
+        <table className="adm-premium-table">
           <thead>
             <tr>
-              <th>Activity</th>
+              <th style={{ width: 40, textAlign: 'center' }}>
+                <label className="adm-checkbox">
+                  <input type="checkbox" checked={allSelected} onChange={handleSelectAll} />
+                </label>
+              </th>
+              <th>Event</th>
               <th>User</th>
+              <th>Course / Resource</th>
               <th>Time</th>
-              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {stats.recentActivities.length > 0 ? stats.recentActivities.slice((recentActivitiesPage - 1) * itemsPerRecentPage, recentActivitiesPage * itemsPerRecentPage).map((act, index) => (
-              <tr key={index}>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: act.type === 'course' ? 'var(--primary)' : 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                      <i className={act.type === 'course' ? "ri-award-line" : "ri-book-open-line"}></i>
-                    </div>
-                    <div>
-                      {act.type === 'course' ? (
-                        <strong>Finished {act.courses?.title || 'Course'}</strong>
-                      ) : (
-                        <span>Completed "{act.modules?.title}" in <strong>{act.courses?.title}</strong></span>
-                      )}
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', color: 'white' }}>
-                      {act.profiles?.name?.substring(0,2).toUpperCase() || '??'}
-                    </div>
-                    <span>{act.profiles?.name || 'Anonymous'}</span>
-                  </div>
-                </td>
-                <td>{new Date(act.updated_at).toLocaleDateString()}</td>
-                <td><span className="adm-status-badge published">Completed</span></td>
-              </tr>
-            )) : (
+            {currentActivities.length > 0 ? currentActivities.map((act, index) => {
+              const eventType = act.type === 'course' ? 'Enrolled' : 'Completed module';
+              const courseName = act.courses?.title || 'Course';
+              const userName = act.profiles?.name || 'Anonymous';
+              
+              const date = new Date(act.updated_at || act.created_at || act.last_accessed);
+              const now = new Date();
+              const diffHrs = Math.floor((now - date) / (1000 * 60 * 60));
+              let timeStr = date.toLocaleDateString();
+              
+              if (diffHrs === 0) timeStr = 'Today';
+              else if (diffHrs < 24) timeStr = `${diffHrs} hrs ago`;
+              else if (diffHrs < 48) timeStr = 'Yesterday';
+
+              return (
+                <tr key={index} className={selectedActivities.has(index) ? 'selected-row' : ''}>
+                  <td style={{ textAlign: 'center' }}>
+                    <label className="adm-checkbox">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedActivities.has(index)} 
+                        onChange={() => handleSelectActivity(index)} 
+                      />
+                    </label>
+                  </td>
+                  <td className="premium-focus">{eventType}</td>
+                  <td className="premium-focus">{userName}</td>
+                  <td>{courseName}</td>
+                  <td>{timeStr}</td>
+                  <td>
+                    <span className="adm-table-action-link">{act.type === 'course' ? 'View gap' : 'View'}</span>
+                  </td>
+                </tr>
+              );
+            }) : (
               <tr>
-                <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-soft)' }}>
-                  No recent completions yet.
+                <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-soft)' }}>
+                  No recent activity found.
                 </td>
               </tr>
             )}

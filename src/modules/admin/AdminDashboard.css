@@ -386,7 +386,7 @@
 /* ===== V2 STAT CARDS (Mini-Chart) ===== */
 .adm-stat-card-v2 {
   background: white;
-  border-radius: 12px;
+  border-radius: 1rem;
   padding: 1.25rem;
   border: 1px solid var(--sc-border);
   display: flex;
@@ -575,6 +575,83 @@
 
 .adm-table tbody tr:last-child td { border-bottom: none; }
 .adm-table tbody tr:hover td { background: var(--sc-muted); }
+
+/* ===== PREMIUM ACTIVITY TABLE ===== */
+.adm-premium-table-wrap {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--stroke-soft);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.adm-premium-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 700px;
+}
+
+.adm-premium-table thead th {
+  text-align: left;
+  padding: 1.25rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--secondary);
+  border-bottom: 1px solid var(--stroke-soft);
+}
+
+.adm-premium-table tbody td {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid var(--stroke-soft);
+  color: var(--text-soft);
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.adm-premium-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.adm-premium-table tbody tr:hover td {
+  background: var(--bg-weak);
+}
+
+.adm-premium-table td.premium-focus {
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+.adm-premium-table td label.adm-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.adm-premium-table td label.adm-checkbox input[type="checkbox"],
+.adm-premium-table th label.adm-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary);
+  filter: hue-rotate(0deg);
+}
+
+.adm-premium-table tr.selected-row td {
+  background-color: rgba(77, 167, 113, 0.05); /* Match var(--primary) gently */
+}
+
+.adm-table-action-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.adm-table-action-link:hover {
+  text-decoration: underline;
+}
 
 .adm-course-title-cell { font-weight: 700; }
 
