@@ -8,10 +8,12 @@
 }
 
 .discovery-v2-container{
-  width: var(--max-width);
+  width: 100%;
+  max-width: var(--max-width);
   display: flex;
   flex-direction: column;
   row-gap: 4rem;
+  padding: 0 1rem;
 }
 
 .discovery-header-v2 {
