@@ -36,7 +36,7 @@
     inset: 0;
     background-image: url('/icon.png');
     background-repeat: repeat;
-    background-size: 60px;
+    background-size: 100px;
     opacity: 0.02;
     filter: brightness(0) invert(1); /* Ensures pattern is white over dark background to be visible at 0.04 */
     pointer-events: none;
