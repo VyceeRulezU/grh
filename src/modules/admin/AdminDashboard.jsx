@@ -796,6 +796,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
       {/* Stats Grid */}
       <div className="adm-stats-grid">
+        {/* V1 Original Design (Preserved)
         {[
           { icon: 'ri-team-fill',       label: 'Total Learners',       value: stats.learners,       delta: '+0%', color: 'blue'   },
           { icon: 'ri-book-fill',       label: 'Active Courses',       value: stats.courses,       delta: 'Stable', color: 'green' },
@@ -807,6 +808,36 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
             <div>
               <span className="adm-stat-label">{s.label}</span>
               <h3 className="adm-stat-value">{s.value.toLocaleString()}</h3>
+            </div>
+          </div>
+        ))}
+        */}
+
+        {/* V2 New Design with Mini-Chart */}
+        {[
+          { label: 'Total Learners',       value: stats.learners,       delta: '+12%', isPositive: true, chartData: [40, 30, 45, 40, 50, 70] },
+          { label: 'Active Courses',       value: stats.courses,       delta: '+8%',  isPositive: true, chartData: [20, 30, 25, 20, 35, 50] },
+          { label: 'Certifications Issued',value: stats.certs,  delta: '+15%', isPositive: true, chartData: [10, 15, 30, 25, 40, 30] },
+          { label: 'Library Resources',    value: stats.resources,    delta: '-2%',  isPositive: false, chartData: [30, 25, 25, 20, 15, 10] },
+        ].map((s, i) => (
+          <div className="adm-stat-card-v2 animate-up" style={{ animationDelay: `${i * 0.1}s` }} key={s.label}>
+            <div className="adm-stat-card-v2-header">
+              <span className="adm-stat-card-v2-label">{s.label}</span>
+              <span className={`adm-stat-card-v2-delta ${s.isPositive ? 'positive' : 'negative'}`}>
+                {s.delta}
+              </span>
+            </div>
+            
+            <h3 className="adm-stat-card-v2-value">{s.value.toLocaleString()}</h3>
+            
+            <div className="adm-stat-card-v2-chart">
+              {s.chartData.map((val, idx) => (
+                <div 
+                  key={idx} 
+                  className={`adm-stat-card-v2-bar ${s.isPositive ? 'positive' : 'negative'} ${idx === s.chartData.length - 1 ? 'current' : ''}`}
+                  style={{ height: `${val}%` }}
+                ></div>
+              ))}
             </div>
           </div>
         ))}
