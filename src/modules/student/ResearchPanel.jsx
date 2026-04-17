@@ -107,13 +107,31 @@ const ResearchPanel = ({ user }) => {
     setSelectedSessions(next);
   };
 
+  const handleNewChat = () => {
+    setActiveSessionId(null);
+    setMessages([
+      { id: Date.now(), role: 'assistant', text: "Hello! I'm your AI Research Assistant. I can help you find insights across our entire library. What are you researching today?" }
+    ]);
+    setInput('');
+  };
+
   return (
     <div className="std-panel research-panel-layout" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '2rem', height: '100%' }}>
       {/* Sidebar - History */}
       <div className="research-sidebar" style={{ background: 'var(--bg-weak)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflow: 'hidden' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h4>History</h4>
-          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary)' }}>{promptsUsed}/{PROMPT_LIMIT}</span>
+          <button 
+            className="row-action" 
+            title="New Research" 
+            onClick={handleNewChat}
+            style={{ padding: '4px', borderRadius: '8px' }}
+          >
+            <i className="ri-add-line" style={{ fontSize: '1.2rem' }}></i>
+          </button>
+        </div>
+        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary)', marginTop: '-1rem', opacity: 0.8 }}>
+          {promptsUsed}/{PROMPT_LIMIT} prompts used this month
         </div>
         
         <div className="history-list" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>

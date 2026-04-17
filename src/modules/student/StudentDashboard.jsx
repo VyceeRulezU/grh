@@ -711,9 +711,9 @@ function ResourcesPanel({ resources = [], onNavigate }) {
                   <td>{r.author || 'GRH Hub'}</td>
                   <td>{r.thematic_area || 'Public Governance'}</td>
                   <td>{r.year}</td>
-                  <td style={{ textAlign: 'center' }}>
+                  <td style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
                     <button className="row-action" title="View Resource" onClick={(e) => { e.stopPropagation(); setViewer({ isOpen: true, resource: r }); }}>
-                       <i className="ri-eye-line" style={{ fontSize: '1.2rem' }}></i>
+                       <i className="ri-eye-line"></i>
                     </button>
                   </td>
                 </tr>
