@@ -9,6 +9,7 @@ import { usePixabayImages } from '../../shared/hooks/usePixabayImages';
 import { Helmet } from 'react-helmet-async';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
+import ResearchPanel from './ResearchPanel';
 
 /* ───────────────────────── MOCK DATA ───────────────────────── */
 // (Keep for fallback if needed, but we'll try to use Supabase first)
@@ -50,7 +51,7 @@ const NAV_GROUPS = [
     links: [
       { name: 'Home',           icon: 'ri-home-fill' },
       { name: 'Courses',        icon: 'ri-book-fill' },
-      { name: 'Tutorials',      icon: 'ri-movie-fill' },
+      { name: 'Research',       icon: 'ri-magic-line' },
       { name: 'Workshop',       icon: 'ri-tools-fill' },
     ]
   },
@@ -73,44 +74,108 @@ const NAV_GROUPS = [
    ═══════════════════════════════════════════════════════════════ */
 
 function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = [], completedLessons = 0, certificates = [], workshops = [], registeredWorkshops = [] }) {
+  const [activitySearchTerm, setActivitySearchTerm] = useState("");
+  const [activityFilter, setActivityFilter] = useState("All");
+  
   const enrolledCount = myCourses.length;
   const certificatesCount = certificates?.length || 0;
   // Show ALL registered workshops as "Upcoming/Enrolled" instead of ONLY completed/attended ones
   const registeredCount = registeredWorkshops?.length || 0;
-  const attendedWorkshopsCount = (workshops || []).filter(w => (w?.status || "").toLowerCase() === 'completed' && (registeredWorkshops || []).includes(w?.id)).length;
+  
+  const filteredCourses = myCourses.filter(c => {
+    const matchesSearch = (c.title || "").toLowerCase().includes(activitySearchTerm.toLowerCase()) ||
+                          (c.instructor || "").toLowerCase().includes(activitySearchTerm.toLowerCase());
+    const matchesFilter = activityFilter === "All" || 
+                          (activityFilter === "In Progress" && (c.progress || 0) > 0 && (c.progress || 0) < 100) ||
+                          (activityFilter === "Completed" && (c.progress || 0) === 100) ||
+                          (activityFilter === "Not Started" && (c.progress || 0) === 0);
+    return matchesSearch && matchesFilter;
+  });
+
+  const displayedCourses = filteredCourses.slice(0, 5); // Increased limit slightly for better discovery
 
   return (
     <>
       <section className="courses-progress-section">
         <div className="progress-card">
-          <div className="section-header" style={{marginBottom: '1rem'}}>
-            <h3>My Courses</h3>
-            <button className="view-all" onClick={() => onNavigate('learn-discovery')}>View All</button>
-          </div>
-          <div className="table-header">
-            <span>Course Name</span>
-            <span>Instructor</span>
-            <span>Progress</span>
-            <span>Level</span>
-            <span>Action</span>
-          </div>
-          <div className="table-body">
-            {myCourses.slice(0, 3).map(course => (
-              <div key={course.id} className="table-row">
-                <span className="course-name-cell">
-                  <i className={course.icon}></i>
-                  {course.title}
-                </span>
-                <span>{course.instructor || 'GRH Staff'}</span>
-                <div className="progress-cell">
-                  <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
-                  <span>{course.progress || 0}%</span>
-                </div>
-                <span><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></span>
-                <button className="row-action" onClick={() => onNavigate('learn-player', course)}><i className="ri-play-circle-fill"></i></button>
+          <div className="section-header" style={{ marginBottom: '1.5rem', alignItems: 'flex-start', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+              <h3>Recent Activity</h3>
+              <button className="view-all" onClick={() => onNavigate('learn-discovery')}>View My Courses</button>
+            </div>
+            
+            <div className="table-controls" style={{ display: 'flex', gap: '1rem', width: '100%', flexWrap: 'wrap' }}>
+              <div className="panel-search" style={{ maxWidth: '350px' }}>
+                <i className="ri-search-line"></i>
+                <input 
+                  type="text" 
+                  placeholder="Search your courses..." 
+                  value={activitySearchTerm}
+                  onChange={(e) => setActivitySearchTerm(e.target.value)}
+                />
               </div>
-            ))}
-            {myCourses.length === 0 && <div style={{padding: '20px', textAlign: 'center', color: 'var(--text-soft)'}}>No courses started yet.</div>}
+              <div className="std-filter-row">
+                {['All', 'In Progress', 'Completed', 'Not Started'].map(f => (
+                  <button 
+                    key={f} 
+                    className={`std-filter-btn ${activityFilter === f ? 'active' : ''}`}
+                    onClick={() => setActivityFilter(f)}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="std-table-wrap">
+            <table className="std-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '35%' }}>Course name</th>
+                  <th style={{ width: '15%' }}>Category</th>
+                  <th style={{ width: '15%' }}>Instructor</th>
+                  <th style={{ width: '140px' }}>Progress</th>
+                  <th style={{ width: '12%' }}>Level</th>
+                  <th style={{ width: '12%' }}>Duration</th>
+                  <th style={{ width: '12%', textAlign: 'center' }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {displayedCourses.map(course => (
+                  <tr key={course.id}>
+                    <td>
+                      <div className="title-cell-flex">
+                        <span className="title-text truncate-1">{course.title}</span>
+                      </div>
+                    </td>
+                    <td><span style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{course.category || 'General'}</span></td>
+                    <td><span style={{ fontSize: '0.85rem' }}>{course.instructor || 'GRH Staff'}</span></td>
+                    <td>
+                      <div className="progress-cell">
+                        <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
+                        <span style={{ fontSize: '0.75rem', fontWeight: '700', minWidth: '35px' }}>{course.progress || 0}%</span>
+                      </div>
+                    </td>
+                    <td><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></td>
+                    <td><span style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}><i className="ri-time-line" style={{marginRight: '4px'}}></i>{course.duration || 'Self-paced'}</span></td>
+                    <td style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
+                      <button className="row-action" title="Resume Learning" onClick={() => onNavigate('learn-player', course)}>
+                         <i className="ri-play-circle-fill"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredCourses.length === 0 && (
+                  <tr>
+                    <td colSpan="7" style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-soft)' }}>
+                      <i className="ri-search-line" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem', opacity: 0.3 }}></i>
+                      No courses found matching your criteria.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -187,7 +252,8 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [viewMode, setViewMode] = useState('grid');
+  const itemsPerPage = viewMode === 'grid' ? 10 : 15;
 
   const filtered = (filter === 'all'
     ? (myCourses || [])
@@ -225,44 +291,103 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
             />
           </div>
         </div>
-        <div className="std-filter-row">
+        <div className="std-filter-row" style={{ alignItems: 'center' }}>
           {[{id:'all',l:'All'},{id:'in-progress',l:'In Progress'},{id:'completed',l:'Completed'},{id:'not-started',l:'Not Started'}].map(f => (
             <button key={f.id} className={`std-filter-btn ${filter === f.id ? 'active' : ''}`} onClick={() => { setFilter(f.id); setCurrentPage(1); }}>{f.l}</button>
           ))}
+          <div className="std-view-toggle">
+            <button 
+              className={`std-view-btn ${viewMode === 'grid' ? 'active' : ''}`} 
+              onClick={() => setViewMode('grid')}
+            >
+              <i className="ri-grid-fill"></i>
+            </button>
+            <button 
+              className={`std-view-btn ${viewMode === 'list' ? 'active' : ''}`} 
+              onClick={() => setViewMode('list')}
+            >
+              <i className="ri-list-check"></i>
+            </button>
+          </div>
         </div>
       </div>
-      <div className="std-course-grid">
-        {pagedItems.map(course => (
-          <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player', course)}>
-            <div className="std-course-thumb">
-              <img 
-                src={course.coverImage} 
-                alt={course.title} 
-                className="std-course-cover-img" 
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800';
-                }}
-              />
-              <span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span>
-            </div>
-            <div className="std-course-info">
-              <span className="std-course-cat">{course.category || 'General'}</span>
-              <h4 className="truncate-1">{course.title || 'Untitled Course'}</h4>
-              <p className="std-instructor"><i className="ri-user-line"></i> {course.instructor || 'GRH Staff'}</p>
-              <div className="std-progress-row">
-                <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
-                <span className="std-progress-text">{course.progress || 0}%</span>
+
+      {viewMode === 'grid' ? (
+        <div className="std-course-grid">
+          {pagedItems.map(course => (
+            <div key={course.id} className="std-course-card" onClick={() => onNavigate('learn-player', course)}>
+              <div className="std-course-thumb">
+                <img 
+                  src={course.coverImage} 
+                  alt={course.title} 
+                  className="std-course-cover-img" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800';
+                  }}
+                />
+                <span className={`badge ${course.level.toLowerCase()}`}>{course.level}</span>
               </div>
-              <div className="std-course-bottom">
-                <span><i className="ri-time-line"></i> {course.duration || 'Self-paced'}</span>
-                <span><i className="ri-book-open-line"></i> {course.lessons || 0} lessons</span>
+              <div className="std-course-info">
+                <span className="std-course-cat">{course.category || 'General'}</span>
+                <h4 className="truncate-1">{course.title || 'Untitled Course'}</h4>
+                <p className="std-instructor"><i className="ri-user-line"></i> {course.instructor || 'GRH Staff'}</p>
+                <div className="std-progress-row">
+                  <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
+                  <span className="std-progress-text">{course.progress || 0}%</span>
+                </div>
+                <div className="std-course-bottom">
+                  <span><i className="ri-time-line"></i> {course.duration || 'Self-paced'}</span>
+                  <span><i className="ri-book-open-line"></i> {course.lessons || 0} lessons</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-        {filtered.length === 0 && <div style={{gridColumn:'1/-1', textAlign:'center', padding:'40px', color:'var(--text-soft)'}}>No courses found matching your criteria.</div>}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="std-table-wrap">
+          <table className="std-table">
+            <thead>
+              <tr>
+                <th style={{ width: '35%' }}>Course name</th>
+                <th style={{ width: '15%' }}>Category</th>
+                <th style={{ width: '15%' }}>Instructor</th>
+                <th style={{ width: '140px' }}>Progress</th>
+                <th style={{ width: '12%' }}>Level</th>
+                <th style={{ width: '12%' }}>Duration</th>
+                <th style={{ width: '12%', textAlign: 'center' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pagedItems.map(course => (
+                <tr key={course.id} onClick={() => onNavigate('learn-player', course)}>
+                  <td>
+                    <div className="title-cell-flex">
+                       <span className="title-text truncate-1">{course.title}</span>
+                    </div>
+                  </td>
+                  <td><span style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>{course.category || 'General'}</span></td>
+                  <td>{course.instructor || 'GRH Staff'}</td>
+                  <td>
+                    <div className="progress-cell">
+                      <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
+                      <span style={{ fontSize: '0.75rem', fontWeight: '700' }}>{course.progress || 0}%</span>
+                    </div>
+                  </td>
+                  <td><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></td>
+                  <td style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}><i className="ri-time-line" style={{marginRight: '4px'}}></i>{course.duration || 'Self-paced'}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button className="row-action" title="Resume Learning" onClick={(e) => { e.stopPropagation(); onNavigate('learn-player', course); }}>
+                       <i className="ri-play-circle-fill"></i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {filtered.length === 0 && <div style={{textAlign:'center', padding:'40px', color:'var(--text-soft)'}}>No courses found matching your criteria.</div>}
       <Pagination 
         currentPage={currentPage}
         totalPages={totalPages}
@@ -272,65 +397,6 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   PANEL: TUTORIALS
-   ═══════════════════════════════════════════════════════════════ */
-
-function TutorialsPanel({ onNavigate }) {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const filtered = TUTORIALS.filter(t => 
-    t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.instructor.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  return (
-    <section className="std-panel">
-      <div className="section-header">
-        <div className="section-title-group">
-          <h3>Video Tutorials</h3>
-          <div className="panel-search">
-            <i className="ri-search-line"></i>
-            <input 
-              type="text" 
-              placeholder="Search tutorials..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-        <button className="view-all" onClick={() => onNavigate('learn')}>Browse All</button>
-      </div>
-      <div className="std-tutorial-grid">
-        {filtered.map(t => (
-          <div key={t.id} className="std-tutorial-card">
-            <div className="std-tutorial-thumb">
-              <img 
-                src={t.thumbnail} 
-                alt={t.title} 
-                loading="lazy" 
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://images.unsplash.com/photo-1517245366810-54070744a417?auto=format&fit=crop&q=80&w=800';
-                }}
-              />
-              <div className="std-play-overlay">
-                <span className="material-symbols-outlined">play_arrow</span>
-              </div>
-              <span className="std-duration">{t.duration}</span>
-            </div>
-            <div className="std-tutorial-info">
-              <span className="std-tut-cat">{t.category || 'Tutorial'}</span>
-              <h4>{t.title || 'Untitled Video'}</h4>
-              <p><i className="ri-user-line"></i> {t.instructor || 'GRH Hub'}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════════════
    MODAL: WORKSHOP REGISTRATION
@@ -519,9 +585,9 @@ function ResourcesPanel({ resources = [], onNavigate }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [viewer, setViewer] = useState({ isOpen: false, resource: null });
-  const itemsPerPage = 10;
+  const [viewMode, setViewMode] = useState('grid');
+  const itemsPerPage = viewMode === 'grid' ? 10 : 20;
 
-  // SAFE FILTERING: Added guards for title and author to prevent "blank page" crashes
   const filtered = (resources || []).filter(r => {
     const titleVal = (r.title || "").toLowerCase();
     const searchVal = (searchTerm || "").toLowerCase();
@@ -552,54 +618,118 @@ function ResourcesPanel({ resources = [], onNavigate }) {
             />
           </div>
         </div>
-        <button className="view-all" onClick={() => onNavigate('research')}>Full Library</button>
+        <div className="std-filter-row" style={{ alignItems: 'center' }}>
+          <button className="view-all" onClick={() => onNavigate('research')}>Explore Full Library</button>
+          <div className="std-view-toggle">
+            <button 
+              className={`std-view-btn ${viewMode === 'grid' ? 'active' : ''}`} 
+              onClick={() => setViewMode('grid')}
+            >
+              <i className="ri-grid-fill"></i>
+            </button>
+            <button 
+              className={`std-view-btn ${viewMode === 'list' ? 'active' : ''}`} 
+              onClick={() => setViewMode('list')}
+            >
+              <i className="ri-list-check"></i>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* RESOURCE GRID: Using .resource-card for Library Parity */}
-      <div className="std-resource-grid" style={{ gap: '2rem' }}>
-        {pagedItems.map(r => (
-          <div key={r.id} className="resource-card std-card-parity" onClick={() => setViewer({ isOpen: true, resource: r })}>
-            <div className="resource-cover" style={{ height: '100%' }}>
-              <img src={r.coverImage} alt={r.title} className="resource-cover-img" loading="lazy" />
-              {r.featured && <span className="featured-badge">FEATURED</span>}
+      {/* RESOURCE GRID/TABLE */}
+      {viewMode === 'grid' ? (
+        <div className="std-resource-grid" style={{ gap: '2rem' }}>
+          {pagedItems.map(r => (
+            <div key={r.id} className="resource-card std-card-parity" onClick={() => setViewer({ isOpen: true, resource: r })}>
+              <div className="resource-cover" style={{ height: '100%' }}>
+                <img src={r.coverImage} alt={r.title} className="resource-cover-img" loading="lazy" />
+                {r.featured && <span className="featured-badge">FEATURED</span>}
+              </div>
+              
+              <div className="resource-body" style={{ padding: '1rem 1rem' }}>
+                <div className="resource-meta-top" style={{ marginBottom: '0.2rem' }}>
+                  <span className="tag" style={{ fontSize: '0.65rem' }}>{r.category || r.type || 'Resource'}</span>
+                  <span className="resource-year" style={{ fontSize: '0.75rem' }}>{r.year}</span>
+                </div>
+                
+                <h4 className="resource-title truncate-2" style={{ fontSize: '0.95rem' }}>
+                  {r.title || 'Untitled Document'}
+                </h4>
+                
+                <div className="resource-footer" style={{ borderTop: '1px solid var(--bg-weak)', paddingTop: '0.75rem', marginTop: 'auto' }}>
+                  <span className="resource-author" style={{ fontSize: '0.75rem', color: 'var(--text-soft)' }}>
+                    {r.author || 'GRH Hub'}
+                  </span>
+                </div>
+                
+                <div className="resource-actions" style={{ marginTop: '1rem' }}>
+                  <button 
+                    className="special-button btn-sm" 
+                    style={{ width: '100%', padding: '0.5rem' }}
+                    onClick={(e) => { e.stopPropagation(); setViewer({ isOpen: true, resource: r }); }}
+                  >
+                    Read Now
+                  </button>
+                </div>
+              </div>
             </div>
-            
-            <div className="resource-body" style={{ padding: '1rem 1rem' }}>
-              <div className="resource-meta-top" style={{ marginBottom: '0.2rem' }}>
-                <span className="tag" style={{ fontSize: '0.65rem' }}>{r.category || r.type || 'Resource'}</span>
-                <span className="resource-year" style={{ fontSize: '0.75rem' }}>{r.year}</span>
-              </div>
-              
-              <h4 className="resource-title truncate-2" style={{ fontSize: '0.95rem' }}>
-                {r.title || 'Untitled Document'}
-              </h4>
-              
-              <div className="resource-footer" style={{ borderTop: '1px solid var(--bg-weak)', paddingTop: '0.75rem', marginTop: 'auto' }}>
-                <span className="resource-author" style={{ fontSize: '0.75rem', color: 'var(--text-soft)' }}>
-                  {r.author || 'GRH Hub'}
-                </span>
-              </div>
-              
-              <div className="resource-actions" style={{ marginTop: '1rem' }}>
-                <button 
-                  className="special-button btn-sm" 
-                  style={{ width: '100%', padding: '0.5rem' }}
-                  onClick={(e) => { e.stopPropagation(); setViewer({ isOpen: true, resource: r }); }}
-                >
-                  Read Now
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))}
 
-        {filtered.length === 0 && (
-          <div style={{gridColumn: '1/-1', textAlign: 'center', padding: '60px', opacity: 0.6}}>
-            <i className="ri-folder-open-line" style={{fontSize: '3rem', display: 'block', marginBottom: '1rem'}}></i>
-            <p>No resources found matching your search.</p>
-          </div>
-        )}
-      </div>
+          {filtered.length === 0 && (
+            <div style={{gridColumn: '1/-1', textAlign: 'center', padding: '60px', opacity: 0.6}}>
+              <i className="ri-folder-open-line" style={{fontSize: '3rem', display: 'block', marginBottom: '1rem'}}></i>
+              <p>No resources found matching your search.</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="std-table-wrap">
+          <table className="std-table">
+            <thead>
+              <tr>
+                <th style={{ width: '35%' }}>Resource Title</th>
+                <th style={{ width: '15%' }}>Category</th>
+                <th style={{ width: '15%' }}>Author</th>
+                <th style={{ width: '15%' }}>Thematic Area</th>
+                <th style={{ width: '10%' }}>Year</th>
+                <th style={{ width: '12%', textAlign: 'center' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pagedItems.map(r => (
+                <tr key={r.id} onClick={() => setViewer({ isOpen: true, resource: r })}>
+                  <td>
+                    <div className="title-cell-flex">
+                      <div>
+                        <span className="title-text truncate-1">{r.title}</span>
+                        <span className="author-text">{r.author || 'GRH Hub'}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span className="tag" style={{ fontSize: '0.65rem' }}>{r.type}</span></td>
+                  <td>{r.author || 'GRH Hub'}</td>
+                  <td>{r.thematic_area || 'Public Governance'}</td>
+                  <td>{r.year}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button className="row-action" title="View Resource" onClick={(e) => { e.stopPropagation(); setViewer({ isOpen: true, resource: r }); }}>
+                       <i className="ri-eye-line" style={{ fontSize: '1.2rem' }}></i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {pagedItems.length === 0 && (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '100px', color: 'var(--text-soft)' }}>
+                    <i className="ri-search-line" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem', opacity: 0.3 }}></i>
+                    No resources found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {totalPages > 1 && (
         <Pagination 
@@ -1320,7 +1450,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     switch (activeTab) {
       case 'Home':           return <HomePanel name={profileName} onNavigate={onNavigate} onEnroll={handleEnroll} myCourses={myCourses} allCourses={allCourses} completedLessons={completedLessons} certificates={certificates} workshops={workshops} registeredWorkshops={registeredWorkshops} />;
       case 'Courses':        return <CoursesPanel onNavigate={onNavigate} myCourses={myCourses} />;
-      case 'Tutorials':      return <TutorialsPanel onNavigate={onNavigate} />;
+      case 'Research':       return <ResearchPanel user={user} />;
       case 'Workshop':       return <WorkshopPanel onRegister={handleRegistration} registeredIds={registeredWorkshops} workshops={workshops} />;
       case 'Resources':      return <ResourcesPanel resources={allResources} onNavigate={onNavigate} />;
       case 'Certifications': return (
