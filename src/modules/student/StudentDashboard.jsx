@@ -376,7 +376,7 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
                   </td>
                   <td><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></td>
                   <td style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}><i className="ri-time-line" style={{marginRight: '4px'}}></i>{course.duration || 'Self-paced'}</td>
-                  <td style={{ textAlign: 'center' }}>
+                  <td style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
                     <button className="row-action" title="Resume Learning" onClick={(e) => { e.stopPropagation(); onNavigate('learn-player', course); }}>
                        <i className="ri-play-circle-fill"></i>
                     </button>
