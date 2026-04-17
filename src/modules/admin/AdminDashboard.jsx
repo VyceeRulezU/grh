@@ -747,8 +747,24 @@ function WorkshopAttendeesModal({ workshop, onClose }) {
 
 function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats, recentActivitiesPage, setRecentActivitiesPage, itemsPerRecentPage }) {
   const [selectedActivities, setSelectedActivities] = useState(new Set());
+  const [activitySearch, setActivitySearch] = useState('');
+  const [activityFilterStatus, setActivityFilterStatus] = useState('All');
+  const [activityFilterType, setActivityFilterType] = useState('All');
+  const [activeActivity, setActiveActivity] = useState(null);
 
-  const currentActivities = stats.recentActivities.slice((recentActivitiesPage - 1) * itemsPerRecentPage, recentActivitiesPage * itemsPerRecentPage);
+  // Filter logic for recent activities
+  const filteredActivities = stats.recentActivities.filter(act => {
+    const userName = (act.profiles?.name || 'Anonymous').toLowerCase();
+    const courseName = (act.courses?.title || 'Course').toLowerCase();
+    const matchesSearch = userName.includes(activitySearch.toLowerCase()) || courseName.includes(activitySearch.toLowerCase());
+    
+    const matchesStatus = activityFilterStatus === 'All' || (activityFilterStatus === 'Completed' && act.type === 'module'); // Assuming module completions are 'Completed'
+    const matchesType = activityFilterType === 'All' || (activityFilterType === 'Course' && act.type === 'course') || (activityFilterType === 'Resource' && act.type === 'resource') || (activityFilterType === 'Module' && act.type === 'module');
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  const currentActivities = filteredActivities.slice((recentActivitiesPage - 1) * itemsPerRecentPage, recentActivitiesPage * itemsPerRecentPage);
   const allSelected = currentActivities.length > 0 && selectedActivities.size === currentActivities.length;
 
   const handleSelectAll = () => {
@@ -771,7 +787,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
   const handleExportActivityCSV = () => {
     const headers = ['Activity', 'User', 'Time', 'Status'];
-    const rows = stats.recentActivities.map(act => [
+    const rows = filteredActivities.map(act => [
       `"Finished ${act.courses?.title || 'Course'}"`,
       `"${act.profiles?.name || 'Learner'}"`,
       `"${new Date(act.updated_at || act.created_at || act.last_accessed).toLocaleDateString()}"`,
@@ -798,19 +814,19 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
         <h4>Quick Actions</h4>
         <div className="adm-action-row">
           
-          <button className="btn-outline" onClick={onAddBook}>
+          <button className="btn-outline" onClick={onAddBook} title="Add a new book to the library">
             <i className="ri-book-3-fill"></i><span>Add Book</span>
           </button>
 
-          <button className="btn-outline" onClick={onAddResource}>
+          <button className="btn-outline" onClick={onAddResource} title="Upload a document or research paper">
             <i className="ri-upload-cloud-fill"></i><span>Upload Resource</span>
           </button>
 
-          <button className="btn-outline" onClick={onAddQuiz}>
+          <button className="btn-outline" onClick={onAddQuiz} title="Create a new assessment for a course">
             <i className="ri-file-list-3-fill"></i><span>Create Quiz</span>
           </button>
 
-          <button className="special-button" onClick={onAddCourse}>
+          <button className="special-button" onClick={onAddCourse} title="Launch a new learning course">
             <i className="ri-add-circle-fill"></i><span>Add Course</span>
           </button>
 
@@ -819,24 +835,6 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
       {/* Stats Grid */}
       <div className="adm-stats-grid">
-        {/* V1 Original Design (Preserved)
-        {[
-          { icon: 'ri-team-fill',       label: 'Total Learners',       value: stats.learners,       delta: '+0%', color: 'blue'   },
-          { icon: 'ri-book-fill',       label: 'Active Courses',       value: stats.courses,       delta: 'Stable', color: 'green' },
-          { icon: 'ri-award-fill',      label: 'Certifications Issued',value: stats.certs,  delta: '+0%',  color: 'orange' },
-          { icon: 'ri-folder-fill',     label: 'Library Resources',    value: stats.resources,    delta: '+0%',  color: 'purple' },
-        ].map(s => (
-          <div key={s.label} className="adm-stat-card">
-            <div className={`adm-stat-icon ${s.color}`}><i className={s.icon}></i></div>
-            <div>
-              <span className="adm-stat-label">{s.label}</span>
-              <h3 className="adm-stat-value">{s.value.toLocaleString()}</h3>
-            </div>
-          </div>
-        ))}
-        */}
-
-        {/* V2 New Design with Mini-Chart */}
         {[
           { label: 'Total Learners',       value: stats.learners,       delta: '+12%', isPositive: true, chartData: [40, 30, 45, 40, 50, 70] },
           { label: 'Active Courses',       value: stats.courses,       delta: '+8%',  isPositive: true, chartData: [20, 30, 25, 20, 35, 50] },
@@ -847,7 +845,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
             <div className="adm-stat-card-v2-header">
               <span className="adm-stat-card-v2-label">{s.label}</span>
               <span className={`adm-stat-card-v2-delta ${s.isPositive ? 'positive' : 'negative'}`}>
-                {s.delta}
+                {s.delta} {s.isPositive ? 'this month' : 'last month'}
               </span>
             </div>
             
@@ -895,11 +893,39 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
       </div>
 
       {/* Recent Activity */}
-      <div className="adm-panel-header">
-        <h3>Recent Activity <span className="adm-count">{stats.recentActivities.length} New</span></h3>
-        <button className="btn-outline btn-sm" onClick={handleExportActivityCSV} title="Export CSV">
-          <i className="ri-download-2-line"></i> Export CSV
-        </button>
+      <div className="adm-panel-header" style={{ marginBottom: '1rem' }}>
+        <div className="adm-header-title">
+          <h3>Recent Activity <span className="adm-count">{filteredActivities.length} Found</span></h3>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="adm-search-wrap">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              className="adm-search-input" 
+              placeholder="Search user or event..." 
+              value={activitySearch}
+              onChange={(e) => { setActivitySearch(e.target.value); setRecentActivitiesPage(1); }}
+            />
+          </div>
+          <div className="adm-recent-activity-filter">
+            <ModernDropdown 
+              options={['All', 'Course', 'Module', 'Resource']} 
+              value={activityFilterType} 
+              onChange={v => { setActivityFilterType(v); setRecentActivitiesPage(1); }} 
+            />
+          </div>
+          <div className="adm-recent-activity-filter">
+            <ModernDropdown 
+              options={['All', 'Completed']} 
+              value={activityFilterStatus} 
+              onChange={v => { setActivityFilterStatus(v); setRecentActivitiesPage(1); }} 
+            />
+          </div>
+          <button className="btn-outline btn-sm" onClick={handleExportActivityCSV} title="Export current results to CSV">
+            <i className="ri-download-2-line"></i> Export
+          </button>
+        </div>
       </div>
 
       <div className="adm-premium-table-wrap">
@@ -908,13 +934,14 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
             <tr>
               <th style={{ width: 40, textAlign: 'center' }}>
                 <label className="adm-checkbox">
-                  <input type="checkbox" checked={allSelected} onChange={handleSelectAll} />
+                  <input type="checkbox" className="adm-custom-checkbox" checked={allSelected} onChange={handleSelectAll} />
                 </label>
               </th>
               <th>Event</th>
               <th>User</th>
               <th>Course / Resource</th>
               <th>Time</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -939,6 +966,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
                     <label className="adm-checkbox">
                       <input 
                         type="checkbox" 
+                        className="adm-custom-checkbox"
                         checked={selectedActivities.has(index)} 
                         onChange={() => handleSelectActivity(index)} 
                       />
@@ -949,14 +977,22 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
                   <td>{courseName}</td>
                   <td>{timeStr}</td>
                   <td>
-                    <span className="adm-table-action-link">{act.type === 'course' ? 'View gap' : 'View'}</span>
+                    <span className="adm-status-badge published">Completed</span>
+                  </td>
+                  <td>
+                    <span className="adm-table-action-link" onClick={() => setActiveActivity(act)}>
+                      {act.type === 'course' ? 'View gap' : 'View'}
+                    </span>
                   </td>
                 </tr>
               );
             }) : (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-soft)' }}>
-                  No recent activity found.
+                <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-soft)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <i className="ri-search-2-line" style={{ fontSize: '2rem', opacity: 0.3 }}></i>
+                    No activity matches your current filters.
+                  </div>
                 </td>
               </tr>
             )}
@@ -964,14 +1000,53 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
         </table>
       </div>
 
-      {stats.recentActivities.length > itemsPerRecentPage && (
+      {filteredActivities.length > itemsPerRecentPage && (
         <div style={{ marginTop: '1.5rem' }}>
           <Pagination 
             currentPage={recentActivitiesPage}
-            totalPages={Math.ceil(stats.recentActivities.length / itemsPerRecentPage)}
+            totalPages={Math.ceil(filteredActivities.length / itemsPerRecentPage)}
             onPageChange={setRecentActivitiesPage}
             itemsPerPage={itemsPerRecentPage}
           />
+        </div>
+      )}
+
+      {/* Activity Detail Modal */}
+      {activeActivity && (
+        <div className="adm-modal-overlay">
+          <div className="adm-modal animate-up" style={{ maxWidth: 450 }}>
+            <header className="adm-modal-header">
+              <h3>Activity Details</h3>
+              <button className="adm-close-btn" onClick={() => setActiveActivity(null)}><i className="ri-close-line"></i></button>
+            </header>
+            <div className="adm-modal-body" style={{ gap: '1.5rem' }}>
+              <div className="activity-info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>User</label>
+                  <p style={{ fontWeight: 600 }}>{activeActivity.profiles?.name || 'Anonymous'}</p>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Event Type</label>
+                  <p style={{ fontWeight: 600 }}>{activeActivity.type === 'course' ? 'Enrolled' : 'Module Completion'}</p>
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Target Content</label>
+                  <p style={{ fontWeight: 600 }}>{activeActivity.courses?.title || 'General content'}</p>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Timestamp</label>
+                  <p style={{ fontWeight: 500 }}>{new Date(activeActivity.updated_at || activeActivity.created_at).toLocaleString()}</p>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Status</label>
+                  <p style={{ color: 'var(--primary)', fontWeight: 700 }}>Successfully Completed</p>
+                </div>
+              </div>
+            </div>
+            <footer className="adm-modal-footer">
+              <button className="special-button" onClick={() => setActiveActivity(null)}>Close</button>
+            </footer>
+          </div>
         </div>
       )}
     </div>
@@ -980,14 +1055,57 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
 function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
   const [modal, setModal] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = viewMode === 'list' ? 10 : 12;
 
-  const totalPages = Math.ceil(courses.length / itemsPerPage);
-  const paginatedCourses = courses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const filteredCourses = courses.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) || (c.instructor || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === "All" || c.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
+  const paginatedCourses = filteredCourses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const editCourse = courses.find(c => c.id === modal);
-  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === paginatedCourses.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(paginatedCourses.map(c => c.id)));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkDelete = () => {
+    showConfirm('Bulk Delete', `Are you sure you want to delete ${selectedIds.size} selected courses?`, async () => {
+        try {
+            setLoading(true);
+            const idsToDelete = Array.from(selectedIds);
+            const { error } = await supabase.from('courses').delete().in('id', idsToDelete);
+            if (error) throw error;
+            showSuccess('Deleted', 'Selected courses have been removed.');
+            setSelectedIds(new Set());
+            fetchData();
+        } catch (err) {
+            showError('Error', err.message);
+        } finally {
+            setLoading(false);
+        }
+    });
+  };
 
   const [loading, setLoading] = useState(false);
   const save = async (form) => {
@@ -996,7 +1114,6 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
       setLoading(true);
       const { chapters } = form;
       
-      // Defensive handle price to satisfy both numeric and text column types
       let finalPrice = form.price;
       if (finalPrice === '' || finalPrice === null || finalPrice === undefined) {
         finalPrice = '0';
@@ -1006,7 +1123,6 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
 
       let finalThumbnail = form.thumbnail;
 
-      // Upload cover if present
       if (form.coverFile) {
         const ext = form.coverFile.name.split('.').pop();
         const fileName = `course-covers/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`;
@@ -1033,43 +1149,18 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
         cover_image: finalThumbnail || null
       };
 
-      console.log("Defensive Payload to Supabase:", coursePayload);
-
       let courseId;
-
       if (modal === 'add' || (typeof modal !== 'number' && typeof modal !== 'string')) {
-        // Create Course
-        const { data: newCourse, error } = await supabase
-          .from('courses')
-          .insert([coursePayload])
-          .select()
-          .single();
-        
-        if (error) {
-          console.error("Supabase Course Insert Error:", error);
-          if (error.message.includes('row-level security')) throw new Error("Permission Denied: You must be an Admin in the 'profiles' table to create courses.");
-          throw error;
-        }
+        const { data: newCourse, error } = await supabase.from('courses').insert([coursePayload]).select().single();
+        if (error) throw error;
         courseId = newCourse.id;
       } else {
-        // Update Course
         courseId = modal;
-        const { error } = await supabase
-          .from('courses')
-          .update(coursePayload)
-          .eq('id', courseId);
-        
-        if (error) {
-          console.error("Supabase Course Update Error:", error);
-          if (error.message.includes('row-level security')) throw new Error("Permission Denied: You must be an Admin in the 'profiles' table to update courses.");
-          throw error;
-        }
+        const { error } = await supabase.from('courses').update(coursePayload).eq('id', courseId);
+        if (error) throw error;
       }
 
-      // 2. Save Modules to course_modules table (the actual DB table)
       const targetCourseId = Number(courseId);
-
-      // Flatten all modules from all chapters into a single list for course_modules
       const allModules = [];
       if (chapters && chapters.length > 0) {
         chapters.forEach((chap) => {
@@ -1083,103 +1174,175 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
                 course_id: targetCourseId
               });
             });
-          } else {
-            // Chapter with no sub-modules — treat the chapter itself as a module
-            allModules.push({
-              chapter_title: chap.title || 'Untitled Chapter',
-              title: 'Untitled Module',
-              video_url: '',
-              course_id: targetCourseId
-            });
           }
         });
       }
 
       if (allModules.length > 0) {
-        // Delete existing modules on edits
         if (modal !== 'add') {
           await supabase.from('course_modules').delete().eq('course_id', targetCourseId);
         }
-        // Insert with sort_order
         const modulesWithOrder = allModules.map((m, i) => ({ ...m, sort_order: i }));
         const { error: modError } = await supabase.from('course_modules').insert(modulesWithOrder);
-        if (modError) {
-          console.error("Module Insert Error:", modError);
-          throw modError;
-        }
+        if (modError) throw modError;
       }
 
-      showSuccess('Course Saved', 'The course and its content have been successfully saved!');
+      showSuccess('Course Saved', 'Successful!');
       setModal(null);
-      if (typeof fetchData === 'function') {
-        await fetchData();
-      } else {
-        console.warn('fetchData not provided to CoursesPanel, reloading...');
-        window.location.reload();
-      }
+      if (typeof fetchData === 'function') await fetchData();
     } catch (err) {
-      console.error("Final Save Operation Error:", err);
-      showError('Save Error', err.message || "An unexpected error occurred while saving.");
+      showError('Save Error', err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
-        <h3>Courses <span className="adm-count">{courses.length}</span></h3>
-        <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Course</button>
+        <div className="adm-header-title">
+          <h3>Courses <span className="adm-count">{filteredCourses.length}</span></h3>
+        </div>
+        
+        <div className="adm-header-filters">
+           <div className="adm-search-wrap header-integrated">
+              <i className="ri-search-line"></i>
+              <input 
+                type="text" 
+                className="adm-search-input" 
+                placeholder="Search courses..." 
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              />
+            </div>
+            <ModernDropdown 
+               options={['All', ...new Set(courses.map(c => c.category))]}
+               value={categoryFilter}
+               onChange={v => { setCategoryFilter(v); setCurrentPage(1); }}
+            />
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="adm-view-toggle">
+            <button className={`adm-toggle-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} title="Table View">
+              <i className="ri-list-check"></i>
+            </button>
+            <button className={`adm-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')} title="Grid View">
+              <i className="ri-grid-fill"></i>
+            </button>
+          </div>
+          <button className="special-button" onClick={() => setModal('add')} title="Create a new course"><i className="ri-add-line"></i> Add Course</button>
+        </div>
       </div>
 
-      <div className="adm-table-wrap">
-        <table className="adm-table">
-          <thead>
-            <tr>
-              <th>Title</th><th>Category</th><th>Level</th><th>Learners</th><th>Status</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedCourses.map(c => (
-              <tr key={c.id}>
-                <td className="adm-course-title-cell">{c.title}</td>
-                <td><span className="adm-cat-badge">{c.category}</span></td>
-                <td>{c.level}</td>
-                <td>{c.learners || 0}</td>
-                <td>
-                  <span className={`adm-status-badge ${c.status === 'Published' ? 'published' : 'draft'}`}>
-                    {c.status}
-                  </span>
-                </td>
-                <td>
-                  <div className="adm-row-actions">
-                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(c.id)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn" title="Toggle status" onClick={async () => {
-                      try {
-                        const newStatus = c.status === 'Published' ? 'Draft' : 'Published';
-                        const { error } = await supabase.from('courses').update({ status: newStatus }).eq('id', c.id);
-                        if (error) throw error;
-                        if (typeof fetchData === 'function') await fetchData();
-                        else window.location.reload();
-                      } catch (err) { showError('Error', err.message); }
-                    }}>
-                      <i className={c.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
-                    </button>
-                    <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(c, 'course')}><i className="ri-delete-bin-line"></i></button>
-                  </div>
-                </td>
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar">
+          <div className="adm-bulk-info">{selectedIds.size} courses selected</div>
+          <div className="adm-bulk-actions">
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={handleBulkDelete}>
+              <i className="ri-delete-bin-line"></i> Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
+      {courses.length === 0 ? (
+        <div className="adm-empty-state">
+          <i className="ri-book-open-line"></i>
+          <h3>No courses found</h3>
+          <p>Start by adding your first educational course to the platform.</p>
+          <button className="special-button" style={{ marginTop: '1.5rem' }} onClick={() => setModal('add')}>Add New Course</button>
+        </div>
+      ) : viewMode === 'list' ? (
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr>
+              <th style={{ width: 40, textAlign: 'center' }}>
+                    <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === paginatedCourses.length && paginatedCourses.length > 0} onChange={handleSelectAll} />
+                </th>
+                <th>Title</th><th>Category</th><th>Level</th><th>Learners</th><th>Status</th><th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {paginatedCourses.map(c => (
+                <tr key={c.id} className={selectedIds.has(c.id) ? 'selected-row' : ''}>
+                  <td style={{ textAlign: 'center' }}>
+                      <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(c.id)} onChange={() => toggleSelect(c.id)} />
+                  </td>
+                  <td className="adm-course-title-cell">{c.title}</td>
+                  <td><span className="adm-cat-badge">{c.category}</span></td>
+                  <td>{c.level}</td>
+                  <td>{c.learners || 0}</td>
+                  <td>
+                    <span className={`adm-status-badge ${c.status === 'Published' ? 'published' : 'draft'}`}>
+                      {c.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="adm-row-actions">
+                      <button className="adm-icon-btn" data-tooltip="Edit Course" onClick={() => setModal(c.id)}><i className="ri-edit-line"></i></button>
+                      <button className="adm-icon-btn" data-tooltip="Toggle Visibility" onClick={async () => {
+                        try {
+                          const newStatus = c.status === 'Published' ? 'Draft' : 'Published';
+                          const { error } = await supabase.from('courses').update({ status: newStatus }).eq('id', c.id);
+                          if (error) throw error;
+                          if (typeof fetchData === 'function') await fetchData();
+                          else window.location.reload();
+                        } catch (err) { showError('Error', err.message); }
+                      }}>
+                        <i className={c.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                      </button>
+                      <button className="adm-icon-btn danger" data-tooltip="Delete" onClick={() => onDelete(c, 'course')}><i className="ri-delete-bin-line"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="adm-card-grid">
+          {paginatedCourses.map(c => (
+            <div key={c.id} className={`adm-course-grid-card ${selectedIds.has(c.id) ? 'selected' : ''}`}>
+              <div className="adm-course-card-image">
+                <img src={c.thumbnail || `${COURSE_IMAGE_BANK[Math.floor(Math.random() * COURSE_IMAGE_BANK.length)]}?auto=format&fit=crop&w=600&q=80`} alt={c.title} />
+                <span className="adm-course-card-badge">{c.level}</span>
+                  <input 
+                    type="checkbox" 
+                    className="adm-custom-checkbox" 
+                    style={{ position: 'absolute', top: 12, right: 12, zIndex: 10 }}
+                    checked={selectedIds.has(c.id)} 
+                    onChange={() => toggleSelect(c.id)} 
+                  />
+              </div>
+              <div className="adm-course-card-content">
+                <h4 className="adm-course-card-title">{c.title}</h4>
+                <span className="adm-cat-badge" style={{ alignSelf: 'flex-start', marginBottom: '1rem' }}>{c.category}</span>
+                <div className="adm-course-card-meta">
+                  <span><i className="ri-group-line"></i> {c.learners || 0} Learners</span>
+                  <span><i className="ri-calendar-line"></i> {c.status}</span>
+                </div>
+                <div className="adm-row-actions" style={{ marginTop: '1.25rem', justifyContent: 'flex-end' }}>
+                   <button className="adm-icon-btn" data-tooltip="Edit" onClick={() => setModal(c.id)}><i className="ri-edit-line"></i></button>
+                   <button className="adm-icon-btn danger" data-tooltip="Delete" onClick={() => onDelete(c, 'course')}><i className="ri-delete-bin-line"></i></button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-      <div className="adm-pagination-bar">
-        <Pagination 
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(p) => setCurrentPage(p)}
-          itemsPerPage={itemsPerPage}
-        />
-      </div>
+      {totalPages > 1 && (
+        <div className="adm-pagination-bar">
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(p) => setCurrentPage(p)}
+            itemsPerPage={itemsPerPage}
+          />
+        </div>
+      )}
 
       {modal && (
         <CourseModal
@@ -1188,6 +1351,7 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
           onSave={save}
         />
       )}
+
       <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
@@ -1199,22 +1363,77 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState("");
+  const [progFilter, setProgFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [yearFilter, setYearFilter] = useState("All");
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
   
   const [loading, setLoading] = useState(false);
-  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
 
-  // Filter items based on search
-  const filteredItems = (resources || []).filter(r => 
-    (r.title?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (r.programme?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (r.category?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (r.author?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (r.thematic_area?.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Filter items based on filters
+  const filteredItems = (resources || []).filter(r => {
+    const matchesSearch = (r.title?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (r.author?.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesProg = progFilter === "All" || r.programme === progFilter;
+    const matchesStatus = statusFilter === "All" || r.status === statusFilter;
+    const matchesYear = yearFilter === "All" || String(r.published_year || r.year) === yearFilter;
+    
+    return matchesSearch && matchesProg && matchesStatus && matchesYear;
+  });
 
   const editItem = filteredItems.find(r => r.id === modal);
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const pagedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === pagedItems.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(pagedItems.map(i => i.id)));
+  };
+
+  const handleBulkAction = async (action, value = null) => {
+    try {
+        setBulkActionLoading(true);
+        const ids = Array.from(selectedIds);
+        
+        if (action === 'delete') {
+            showConfirm('Bulk Delete', `Delete ${ids.length} items?`, async () => {
+                const { error } = await supabase.from('library_resources').delete().in('id', ids);
+                if (error) throw error;
+                showSuccess('Deleted', 'Items removed.');
+                setSelectedIds(new Set());
+                fetchData();
+            });
+        } else if (action === 'status') {
+            const { error } = await supabase.from('library_resources').update({ status: value }).in('id', ids);
+            if (error) throw error;
+            showSuccess('Updated', 'Status changed.');
+            setSelectedIds(new Set());
+            fetchData();
+        } else if (action === 'categorize') {
+            const { error } = await supabase.from('library_resources').update({ category: value }).in('id', ids);
+            if (error) throw error;
+            showSuccess('Categorized', 'Category updated.');
+            setSelectedIds(new Set());
+            fetchData();
+        }
+    } catch (err) {
+        showError('Bulk Action Error', err.message);
+    } finally {
+        setBulkActionLoading(false);
+    }
+  };
+
+  // Dynamic Categories from existing resources
+  const dynamicCategories = Array.from(new Set(resources.map(r => r.category).filter(Boolean)));
 
   const save = async (form) => {
     try {
@@ -1272,30 +1491,70 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
 
   return (
     <div className="adm-panel">
-      <div className="adm-panel-header">
+      <div className="adm-panel-header" style={{ marginBottom: '1.5rem' }}>
         <div className="adm-header-title">
           <h3>Library Resources <span className="adm-count">{filteredItems.length}</span></h3>
-          <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: '2px'}}>View and manage resources from SPARC, PERL, and Library.</p>
+          <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: '2px'}}>Unified management for SPARC, PERL, and Hub assets.</p>
         </div>
+
+        <div className="adm-header-filters">
+           <ModernDropdown 
+                label="Programme"
+                options={['All', 'SPARC', 'PERL', 'General']} 
+                value={progFilter} 
+                onChange={v => { setProgFilter(v); setCurrentPage(1); }} 
+            />
+            <ModernDropdown 
+                label="Status"
+                options={['All', 'Published', 'Draft']} 
+                value={statusFilter} 
+                onChange={v => { setStatusFilter(v); setCurrentPage(1); }} 
+            />
+        </div>
+
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <div className="adm-search-wrap">
             <i className="ri-search-line"></i>
             <input 
               type="text" 
               className="adm-search-input" 
-              placeholder="Search title, programme, author..." 
+              placeholder="Search title, author..." 
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
           </div>
-          <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Asset</button>
+          <button className="special-button" onClick={() => setModal('add')} title="Add new library asset"><i className="ri-add-line"></i> Add Asset</button>
         </div>
       </div>
+
+      {/* Filter row merged into header above */}
+
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar" style={{ animation: 'slideDown 0.3s ease' }}>
+          <div className="adm-bulk-info">{selectedIds.size} items selected</div>
+          <div className="adm-bulk-actions">
+            <ModernDropdown 
+                options={['Categorize', ...dynamicCategories]} 
+                value="Categorize" 
+                onChange={v => v !== 'Categorize' && handleBulkAction('categorize', v)} 
+            />
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('status', 'Published')}>
+              Publish
+            </button>
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('delete')}>
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="adm-table-wrap">
         <table className="adm-table">
           <thead>
             <tr>
+              <th style={{ width: 40, textAlign: 'center' }}>
+                <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === pagedItems.length && pagedItems.length > 0} onChange={handleSelectAll} />
+              </th>
               <th>Title</th>
               <th>Programme</th>
               <th>Thematic Area</th>
@@ -1307,9 +1566,15 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
           </thead>
           <tbody>
             {pagedItems.length === 0 ? (
-              <tr><td colSpan="7" style={{textAlign:'center', padding:'3rem', color:'var(--text-soft)'}}>No resources found matching your search.</td></tr>
+              <tr><td colSpan="8" style={{textAlign:'center', padding:'4rem', color:'var(--text-soft)'}}>
+                <i className="ri-file-search-line" style={{ fontSize: '3rem', opacity: 0.1, display: 'block', marginBottom: '1rem' }}></i>
+                No resources found matching your perspective.
+              </td></tr>
             ) : pagedItems.map(r => (
-              <tr key={r.id}>
+              <tr key={r.id} className={selectedIds.has(r.id) ? 'selected-row' : ''}>
+                <td style={{ textAlign: 'center' }}>
+                    <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(r.id)} onChange={() => toggleSelect(r.id)} />
+                </td>
                 <td>
                   <div style={{display:'flex', flexDirection:'column'}}>
                     <strong style={{color:'var(--text-main)'}}>{r.title}</strong>
@@ -1323,10 +1588,10 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
                 <td><span className={`adm-status-badge ${r.status === 'Published' ? 'published' : 'draft'}`}>{r.status || 'Published'}</span></td>
                 <td>
                   <div className="adm-row-actions">
-                    <button className="adm-icon-btn" title="Preview" onClick={() => setViewer({ isOpen: true, resource: r })}><i className="ri-eye-line"></i></button>
-                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(r.id)}><i className="ri-edit-line"></i></button>
-                    <a href={r.fileUrl || r.file_url} target="_blank" rel="noreferrer" className="adm-icon-btn" title="View Document"><i className="ri-external-link-line"></i></a>
-                    <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(r, 'resource')}><i className="ri-delete-bin-line"></i></button>
+                    <button className="adm-icon-btn" data-tooltip="Preview" onClick={() => setViewer({ isOpen: true, resource: r })}><i className="ri-eye-line"></i></button>
+                    <button className="adm-icon-btn" data-tooltip="Edit" onClick={() => setModal(r.id)}><i className="ri-edit-line"></i></button>
+                    <a href={r.fileUrl || r.file_url} target="_blank" rel="noreferrer" className="adm-icon-btn" data-tooltip="Open File"><i className="ri-external-link-line"></i></a>
+                    <button className="adm-icon-btn danger" data-tooltip="Delete" onClick={() => onDelete(r, 'resource')}><i className="ri-delete-bin-line"></i></button>
                   </div>
                 </td>
               </tr>
@@ -1379,6 +1644,55 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
     a.download = `grh-users-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredUsers = users.filter(u => 
+    (u.name || u.full_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === filteredUsers.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredUsers.map(u => u.id)));
+  };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkAction = (action, value = null) => {
+    const ids = Array.from(selectedIds);
+    if (action === 'delete') {
+      showConfirm('Bulk Delete', `Are you sure you want to delete ${ids.length} users?`, async () => {
+        try {
+          setLoading(true);
+          const { error } = await supabase.from('profiles').delete().in('id', ids);
+          if (error) throw error;
+          showSuccess('Deleted', 'Selected users have been removed.');
+          setSelectedIds(new Set());
+          if (fetchData) fetchData();
+        } catch (err) { showError('Error', err.message); }
+        finally { setLoading(false); }
+      });
+    } else if (action === 'status') {
+        showConfirm('Bulk Status Update', `Set ${ids.length} users to ${value}?`, async () => {
+            try {
+              setLoading(true);
+              const { error } = await supabase.from('profiles').update({ status: value }).in('id', ids);
+              if (error) throw error;
+              showSuccess('Updated', 'User status updated.');
+              setSelectedIds(new Set());
+              if (fetchData) fetchData();
+            } catch (err) { showError('Error', err.message); }
+            finally { setLoading(false); }
+        });
+    }
   };
 
   const handleUserSave = async (nu) => {
@@ -1471,30 +1785,78 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
-        <h3>Users <span className="adm-count">{users.length}</span></h3>
-        <div style={{display:'flex', gap:'0.75rem'}}>
-          <button className="btn-outline" title="Export CSV" onClick={handleExportCSV}>
-            <i className="ri-download-2-line"></i> Export CSV
-          </button>
+        <div className="adm-header-title">
+          <h3>Users <span className="adm-count">{users.length}</span></h3>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="adm-search-wrap">
+            <i className="ri-search-line"></i>
+            <input 
+              type="text" 
+              className="adm-search-input" 
+              placeholder="Search users..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button className="btn-outline" onClick={handleExportCSV} title="Export CSV"><i className="ri-download-2-line"></i> Export</button>
+          <button className="special-button" onClick={() => setModal('add')} title="Invite User"><i className="ri-user-add-line"></i> Invite</button>
         </div>
       </div>
+
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar" style={{ animation: 'slideDown 0.3s ease' }}>
+          <div className="adm-bulk-info">{selectedIds.size} users selected</div>
+          <div className="adm-bulk-actions">
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('status', 'Active')}>Set Active</button>
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('status', 'Suspended')}>Suspend</button>
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('delete')}>Delete</button>
+          </div>
+        </div>
+      )}
+
       <div className="adm-table-wrap">
         <table className="adm-table">
-           {/* ... existing table code ... */}
-          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Courses</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+          <thead>
+            <tr>
+              <th style={{ width: 40, textAlign: 'center' }}>
+                <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === filteredUsers.length && filteredUsers.length > 0} onChange={handleSelectAll} />
+              </th>
+              <th>User</th><th>Role</th><th>Learning</th><th>Joined</th><th>Status</th><th></th>
+            </tr>
+          </thead>
           <tbody>
-            {users.map(u => (
-              <tr key={u.id || u.email}>
-                <td><strong>{u.name}</strong></td>
-                <td>{u.email}</td>
-                <td>{u.role}</td>
-                <td>{u.courses || 0}</td>
+            {(filteredUsers || []).map(u => (
+              <tr key={u.id || u.email} className={selectedIds.has(u.id) ? 'selected-row' : ''}>
+                <td style={{ textAlign: 'center' }}>
+                    <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(u.id)} onChange={() => toggleSelect(u.id)} />
+                </td>
+                <td>
+                  <div style={{display:'flex', alignItems:'center', gap:'0.75rem'}}>
+                    <div style={{width:32, height:32, borderRadius:'50%', background:'var(--bg-weak)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.8rem', fontWeight:600, overflow: 'hidden'}}>
+                      {u.avatar_url ? <img src={u.avatar_url} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : (u.name || u.full_name || 'U').substring(0,1).toUpperCase()}
+                    </div>
+                    <div>
+                      <strong style={{display:'block'}}>{u.name || u.full_name}</strong>
+                      <span style={{fontSize:'0.75rem', color:'var(--text-soft)'}}>{u.email}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span className="adm-role-badge">{u.role}</span></td>
+                <td>{u.courses || 0} Courses</td>
                 <td>{u.joined || 'Just now'}</td>
-                <td><span className={`adm-status-badge ${u.status === 'Active' ? 'published' : 'draft'}`}>{u.status}</span></td>
+                <td><span className={`adm-status-badge ${u.status === 'Active' ? 'published' : 'draft'}`}>{u.status || 'Active'}</span></td>
                 <td>
                   <div className="adm-row-actions">
-                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(u)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn danger" title="Delete" onClick={() => onDelete(u, 'user')}><i className="ri-delete-bin-line"></i></button>
+                    <button className="adm-icon-btn" data-tooltip="Edit User" onClick={() => setModal(u)}><i className="ri-edit-line"></i></button>
+                    <button 
+                      className="adm-icon-btn danger" 
+                      data-tooltip="Delete User"
+                      disabled={u.id === loggedInUser?.id} 
+                      onClick={() => onDelete(u, 'user')}
+                    >
+                      <i className="ri-delete-bin-line"></i>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -1504,7 +1866,7 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
       </div>
       {modal && (
         <UserModal 
-          initial={typeof modal === 'object' ? modal : null}
+          initial={typeof modal === 'object' ? modal : (modal === 'add' ? null : null)}
           onClose={() => setModal(null)} 
           onSave={handleUserSave} 
         />
@@ -1556,8 +1918,12 @@ function AdminQuizzesPanel() {
 
 function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const itemsPerPage = viewMode === 'list' ? 10 : 12;
+
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingInstructor, setEditingInstructor] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -1572,6 +1938,36 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
   const [avatarPreview, setAvatarPreview] = useState(null);
 
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === filtered.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filtered.map(i => i.id)));
+  };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkAction = (action) => {
+    const ids = Array.from(selectedIds);
+    if (action === 'delete') {
+      showConfirm('Bulk Delete', `Remove ${ids.length} instructors?`, async () => {
+        try {
+          setIsSaving(true);
+          const { error } = await supabase.from('instructors').delete().in('id', ids);
+          if (error) throw error;
+          showSuccess('Deleted', 'Selected members removed.');
+          setSelectedIds(new Set());
+          if (fetchData) fetchData();
+        } catch (err) { showError('Error', err.message); }
+        finally { setIsSaving(false); }
+      });
+    }
+  };
+
 
   useEffect(() => {
     console.log("[GRH] Instructors list updated:", instructors.length, "items");
@@ -1695,15 +2091,25 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
           <h3>Instructors & Leadership <span className="adm-count">{instructors.length}</span></h3>
           <p>Manage people appearing in the About and Learn sections.</p>
         </div>
-        <button className="special-button" onClick={() => {
-          setEditingInstructor(null);
-          setAvatarFile(null);
-          setAvatarPreview(null);
-          setFormData({ name: '', title: '', summary: '', avatar_url: '', category: 'Governance' });
-          setIsAddModalOpen(true);
-        }}>
-          <i className="ri-user-add-line"></i> Add Member
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="adm-view-toggle">
+            <button className={`adm-toggle-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} title="Table View">
+              <i className="ri-list-check"></i> List
+            </button>
+            <button className={`adm-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')} title="Profile Gallery View">
+              <i className="ri-grid-fill"></i> Grid
+            </button>
+          </div>
+          <button className="special-button" onClick={() => {
+            setEditingInstructor(null);
+            setAvatarFile(null);
+            setAvatarPreview(null);
+            setFormData({ name: '', title: '', summary: '', avatar_url: '', category: 'Governance' });
+            setIsAddModalOpen(true);
+          }}>
+            <i className="ri-user-add-line"></i> Add Member
+          </button>
+        </div>
       </header>
 
       <div className="instr-controls">
@@ -1713,10 +2119,7 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
             type="text" 
             placeholder="Search by name or title..." 
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           />
         </div>
         <div className="instr-stats">
@@ -1724,21 +2127,89 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
         </div>
       </div>
 
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar" style={{ animation: 'slideDown 0.3s ease' }}>
+          <div className="adm-bulk-info">{selectedIds.size} instructors selected</div>
+          <div className="adm-bulk-actions">
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('delete')}>
+              <i className="ri-delete-bin-line"></i> Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
       {filtered.length === 0 ? (
         <div className="instr-empty">
           <i className="ri-user-search-line" style={{ fontSize: '3rem', opacity: 0.5 }}></i>
           <h4>No instructors found</h4>
           <p>Try a different search term or add a new member.</p>
         </div>
+      ) : viewMode === 'list' ? (
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th style={{ width: 40, textAlign: 'center' }}>
+                  <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === filtered.length && filtered.length > 0} onChange={handleSelectAll} />
+                </th>
+                <th>Member</th><th>Title</th><th>Category</th><th>Summary</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map(inst => (
+                <tr key={inst.id} className={selectedIds.has(inst.id) ? 'selected-row' : ''}>
+                  <td style={{ textAlign: 'center' }}>
+                      <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(inst.id)} onChange={() => toggleSelect(inst.id)} />
+                  </td>
+                  <td>
+                    <div style={{display:'flex', alignItems:'center', gap:'0.75rem'}}>
+                      <img src={inst.avatar_url || DEFAULT_AVATAR} alt="" style={{width:36, height:36, borderRadius:'50%', objectFit:'cover'}} />
+                      <strong>{inst.name}</strong>
+                    </div>
+                  </td>
+                  <td>{inst.title}</td>
+                  <td><span className="adm-tag">{inst.category}</span></td>
+                  <td style={{maxWidth:300}}><p style={{fontSize:'0.8rem', color:'var(--text-soft)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', margin:0}}>{inst.summary}</p></td>
+                  <td>
+                    <div className="adm-row-actions">
+                      <button className="adm-icon-btn" data-tooltip="Edit Profile" onClick={() => {
+                        setEditingInstructor(inst);
+                        setFormData({ 
+                          name: inst.name, 
+                          title: inst.title, 
+                          summary: inst.summary || '', 
+                          avatar_url: inst.avatar_url || '', 
+                          category: inst.category || 'Governance'
+                        });
+                        setAvatarPreview(inst.avatar_url);
+                        setIsAddModalOpen(true);
+                      }}><i className="ri-edit-line"></i></button>
+                      <button className="adm-icon-btn danger" data-tooltip="Remove" onClick={() => onDelete(inst, 'instructor')}><i className="ri-delete-bin-line"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {totalPages > 1 && (
+            <div className="instr-pagination-box">
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+          )}
+        </div>
       ) : (
         <>
           <div className="instr-grid">
             {paginated.map(inst => (
-              <div key={inst.id} className="instr-card-container">
+              <div key={inst.id} className={`instr-card-container ${selectedIds.has(inst.id) ? 'selected' : ''}`} onClick={() => toggleSelect(inst.id)}>
+                <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 5 }}>
+                    <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(inst.id)} readOnly style={{ transform: 'scale(1.2)' }} />
+                </div>
                 <InstructorCard 
                   {...inst} 
                   className="instr-card-hoverable"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setEditingInstructor(inst);
                     setAvatarFile(null);
                     setAvatarPreview(null);
@@ -2057,11 +2528,39 @@ function AdminSettingsPanel({ user }) {
 /* --- BOOKS PANEL --- */
 function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
   const [modal, setModal] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const [viewer, setViewer] = useState({ isOpen: false, resource: null });
   const [loading, setLoading] = useState(false);
   const editItem = books.find(b => b.id === modal);
   const DEFAULT_BOOK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
-  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === books.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(books.map(b => b.id)));
+  };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkDelete = () => {
+    showConfirm('Bulk Delete', `Delete ${selectedIds.size} books?`, async () => {
+      try {
+        setLoading(true);
+        const { error } = await supabase.from('books').delete().in('id', Array.from(selectedIds));
+        if (error) throw error;
+        showSuccess('Deleted', 'Books removed.');
+        setSelectedIds(new Set());
+        fetchData();
+      } catch (err) { showError('Error', err.message); }
+      finally { setLoading(false); }
+    });
+  };
 
   const save = async (data) => {
     try {
@@ -2120,26 +2619,8 @@ function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
       }
       setModal(null);
       showSuccess('Books Saved', 'Books saved successfully!');
-
-      // Update local state instantly for better UX
-      if (setBooks) {
-        setBooks(prev => {
-          if (isEdit) {
-             // We need to fetch the full payload from processBook if possible, but data contains most of it
-             const updatedItem = { ...data, id: bookId };
-             return prev.map(b => b.id === bookId ? { ...b, ...updatedItem } : b);
-          } else {
-             const newItems = Array.isArray(data) ? data : [data];
-             return [...newItems, ...prev];
-          }
-        });
-      }
-
-      if (typeof fetchData === 'function') {
-        fetchData();
-      }
+      if (typeof fetchData === 'function') fetchData();
     } catch (err) {
-      console.error("Save Books Error:", err);
       showError('Save Error', 'Error saving books: ' + err.message);
     } finally {
       setLoading(false);
@@ -2149,45 +2630,106 @@ function BooksPanel({ books, setBooks, onDelete, fetchData, onSync }) {
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
-        <h3>Books <span className="adm-count">{books.length}</span></h3>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div className="adm-header-title">
+          <h3>Books <span className="adm-count">{books.length}</span></h3>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="adm-view-toggle">
+            <button className={`adm-toggle-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} title="Table View">
+              <i className="ri-list-check"></i> List
+            </button>
+            <button className={`adm-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')} title="Grid Gallery View">
+              <i className="ri-grid-fill"></i> Grid
+            </button>
+          </div>
           <button className="special-button" onClick={() => setModal('add')}><i className="ri-add-line"></i> Add Book</button>
         </div>
       </div>
-      <div className="adm-table-wrap">
-        <table className="adm-table">
-          <thead><tr><th></th><th>Title</th><th>Summary</th><th>Status</th><th></th></tr></thead>
-          <tbody>
-            {books.map(b => (
-              <tr key={b.id}>
-                <td style={{width: 80}}>
-                  <img src={b.imageUrl || DEFAULT_BOOK_IMG} alt={b.title} style={{width: 60, height: 56, objectFit: 'cover', borderRadius: 6}} />
-                </td>
-                <td><strong>{b.title}</strong></td>
-                <td style={{maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{b.summary}</td>
-                <td><span className={`adm-status-badge ${b.status === 'Published' ? 'published' : 'draft'}`}>{b.status}</span></td>
-                <td>
-                  <div className="adm-row-actions">
-                    <button className="adm-icon-btn" title="Preview" onClick={() => setViewer({ isOpen: true, resource: b })}><i className="ri-eye-line"></i></button>
-                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(b.id)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn" title="Toggle status" onClick={async () => {
-                      try {
-                        const newStatus = b.status === 'Published' ? 'Draft' : 'Published';
-                        const { error } = await supabase.from('books').update({ status: newStatus }).eq('id', b.id);
-                        if (error) throw error;
-                        window.location.reload();
-                      } catch (err) { showError('Error', err.message); }
-                    }}>
-                      <i className={b.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
-                    </button>
-                    <button className="adm-icon-btn danger" onClick={() => onDelete(b, 'book')}><i className="ri-delete-bin-line"></i></button>
-                  </div>
-                </td>
+
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar">
+          <div className="adm-bulk-info">{selectedIds.size} books selected</div>
+          <div className="adm-bulk-actions">
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={handleBulkDelete}>
+              <i className="ri-delete-bin-line"></i> Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
+      {books.length === 0 ? (
+        <div className="adm-empty-state">
+          <i className="ri-book-2-line"></i>
+          <h3>No books in library</h3>
+          <p>Your digital bookshelf is empty. Start adding publications, guides, and reports.</p>
+        </div>
+      ) : viewMode === 'list' ? (
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th style={{ width: 40, textAlign: 'center' }}>
+                  <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === books.length && books.length > 0} onChange={handleSelectAll} />
+                </th>
+                <th>Cover</th><th>Title</th><th>Summary</th><th>Status</th><th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {books.map(b => (
+                <tr key={b.id} className={selectedIds.has(b.id) ? 'selected-row' : ''}>
+                  <td style={{ textAlign: 'center' }}>
+                    <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(b.id)} onChange={() => toggleSelect(b.id)} />
+                  </td>
+                  <td style={{width: 80}}>
+                    <img src={b.imageUrl || DEFAULT_BOOK_IMG} alt={b.title} style={{width: 60, height: 76, objectFit: 'cover', borderRadius: 6, boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}} />
+                  </td>
+                  <td><strong>{b.title}</strong></td>
+                  <td style={{maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{b.summary}</td>
+                  <td><span className={`adm-status-badge ${b.status === 'Published' ? 'published' : 'draft'}`}>{b.status}</span></td>
+                  <td>
+                    <div className="adm-row-actions">
+                      <button className="adm-icon-btn" data-tooltip="Preview Content" onClick={() => setViewer({ isOpen: true, resource: b })}><i className="ri-eye-line"></i></button>
+                      <button className="adm-icon-btn" data-tooltip="Edit Details" onClick={() => setModal(b.id)}><i className="ri-edit-line"></i></button>
+                      <button className="adm-icon-btn" data-tooltip="Toggle Visibility" onClick={async () => {
+                        try {
+                          const newStatus = b.status === 'Published' ? 'Draft' : 'Published';
+                          const { error } = await supabase.from('books').update({ status: newStatus }).eq('id', b.id);
+                          if (error) throw error;
+                          fetchData();
+                        } catch (err) { showError('Error', err.message); }
+                      }}>
+                        <i className={b.status === 'Published' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                      </button>
+                      <button className="adm-icon-btn danger" data-tooltip="Delete" onClick={() => onDelete(b, 'book')}><i className="ri-delete-bin-line"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="adm-card-grid">
+          {books.map(b => (
+            <div key={b.id} className={`adm-book-grid-card ${selectedIds.has(b.id) ? 'selected' : ''}`} onClick={() => toggleSelect(b.id)}>
+              <img src={b.imageUrl || DEFAULT_BOOK_IMG} alt={b.title} className="adm-book-cover-mini" />
+              <div className="adm-book-card-info" style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <h4>{b.title}</h4>
+                  <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(b.id)} readOnly />
+                </div>
+                <p>{b.summary}</p>
+                <div className="adm-row-actions" style={{ marginTop: '0.75rem', justifyContent: 'flex-end' }} onClick={e => e.stopPropagation()}>
+                   <button className="adm-icon-btn btn-sm" onClick={() => setViewer({ isOpen: true, resource: b })}><i className="ri-eye-line"></i></button>
+                   <button className="adm-icon-btn btn-sm" onClick={() => setModal(b.id)}><i className="ri-edit-line"></i></button>
+                   <button className="adm-icon-btn btn-sm danger" onClick={() => onDelete(b, 'book')}><i className="ri-delete-bin-line"></i></button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {modal && <BookModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
 
       <ResourceViewer 
@@ -2218,9 +2760,54 @@ const PANEL_MAP = {
   gaps: LibraryGapsPanel
 };
 
-function LibraryGapsPanel({ gaps, onResolve, onDelete }) {
+function LibraryGapsPanel({ gaps, onResolve, onDelete, fetchData }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [loading, setLoading] = useState(false);
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
+
   const filtered = (gaps || []).filter(g => g.query.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === filtered.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filtered.map(g => g.id)));
+  };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkAction = (action) => {
+    const ids = Array.from(selectedIds);
+    if (action === 'delete') {
+      showConfirm('Bulk Delete', `Remove ${ids.length} search gap logs?`, async () => {
+        try {
+          setLoading(true);
+          const { error } = await supabase.from('explore_gaps').delete().in('id', ids);
+          if (error) throw error;
+          showSuccess('Deleted', 'Logs removed successfully.');
+          setSelectedIds(new Set());
+          if (fetchData) fetchData();
+        } catch (err) { showError('Error', err.message); }
+        finally { setLoading(false); }
+      });
+    } else if (action === 'resolve') {
+        showConfirm('Bulk Resolve', `Mark ${ids.length} gaps as resolved?`, async () => {
+            try {
+              setLoading(true);
+              const { error } = await supabase.from('explore_gaps').update({ resolved: true }).in('id', ids);
+              if (error) throw error;
+              showSuccess('Resolved', 'Gaps marked as resolved.');
+              setSelectedIds(new Set());
+              if (fetchData) fetchData();
+            } catch (err) { showError('Error', err.message); }
+            finally { setLoading(false); }
+        });
+    }
+  };
 
   return (
     <div className="adm-panel">
@@ -2241,10 +2828,23 @@ function LibraryGapsPanel({ gaps, onResolve, onDelete }) {
         </div>
       </div>
 
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar" style={{ animation: 'slideDown 0.3s ease' }}>
+          <div className="adm-bulk-info">{selectedIds.size} logs selected</div>
+          <div className="adm-bulk-actions">
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('resolve')}>Mark Resolved</button>
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('delete')}>Delete Logs</button>
+          </div>
+        </div>
+      )}
+
       <div className="adm-table-wrap">
         <table className="adm-table">
           <thead>
             <tr>
+              <th style={{ width: 40, textAlign: 'center' }}>
+                <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === filtered.length && filtered.length > 0} onChange={handleSelectAll} />
+              </th>
               <th>Missing Query</th>
               <th>Date Asked</th>
               <th>Status</th>
@@ -2253,9 +2853,12 @@ function LibraryGapsPanel({ gaps, onResolve, onDelete }) {
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan="4" style={{textAlign:'center', padding:'3rem', color:'var(--text-soft)'}}>No gaps found. Your library is well-covered!</td></tr>
+              <tr><td colSpan="5" style={{textAlign:'center', padding:'3rem', color:'var(--text-soft)'}}>No gaps found. Your library is well-covered!</td></tr>
             ) : filtered.sort((a,b) => new Date(b.asked_at) - new Date(a.asked_at)).map(g => (
-              <tr key={g.id}>
+              <tr key={g.id} className={selectedIds.has(g.id) ? 'selected-row' : ''}>
+                <td style={{ textAlign: 'center' }}>
+                    <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(g.id)} onChange={() => toggleSelect(g.id)} />
+                </td>
                 <td><strong style={{color: 'var(--text-main)'}}>"{g.query}"</strong></td>
                 <td>{new Date(g.asked_at).toLocaleDateString()}</td>
                 <td>
@@ -2266,11 +2869,11 @@ function LibraryGapsPanel({ gaps, onResolve, onDelete }) {
                 <td>
                   <div className="adm-row-actions">
                     {!g.resolved && (
-                      <button className="adm-icon-btn" title="Mark as Resolved" onClick={() => onResolve(g.id)}>
+                      <button className="adm-icon-btn" data-tooltip="Mark Resolved" onClick={() => onResolve(g.id)}>
                         <i className="ri-check-line"></i>
                       </button>
                     )}
-                    <button className="adm-icon-btn danger" title="Delete Log" onClick={() => onDelete(g, 'gap')}>
+                    <button className="adm-icon-btn danger" data-tooltip="Delete Log" onClick={() => onDelete(g, 'gap')}>
                       <i className="ri-delete-bin-line"></i>
                     </button>
                   </div>
@@ -2280,6 +2883,7 @@ function LibraryGapsPanel({ gaps, onResolve, onDelete }) {
           </tbody>
         </table>
       </div>
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }
@@ -2290,16 +2894,42 @@ const DEFAULT_PANEL = (id) => () => <div className="adm-panel"><p style={{color:
 function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
   const [modal, setModal] = useState(null); // null | 'add' | number (id)
   const [attendeeModal, setAttendeeModal] = useState(null); // null | workshop object
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const editItem = workshops.find(w => w.id === modal);
   const [loading, setLoading] = useState(false);
-  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === workshops.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(workshops.map(w => w.id)));
+  };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkDelete = () => {
+    showConfirm('Bulk Delete', `Delete ${selectedIds.size} workshops?`, async () => {
+      try {
+        setLoading(true);
+        const { error } = await supabase.from('workshops').delete().in('id', Array.from(selectedIds));
+        if (error) throw error;
+        showSuccess('Deleted', 'Workshops removed.');
+        setSelectedIds(new Set());
+        if (fetchData) fetchData();
+      } catch (err) { showError('Error', err.message); }
+      finally { setLoading(false); }
+    });
+  };
 
   const save = async (data) => {
     try {
        setLoading(true);
        const { registrations, ...wData } = data;
        
-       // Map to snake_case if UI uses camelCase (though WorkshopModal seems to use snake_case or neutral names)
        const payload = {
          title: wData.title,
          date: wData.date,
@@ -2332,37 +2962,71 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
   return (
     <div className="adm-panel">
       <div className="adm-panel-header">
-        <h3>Workshops <span className="adm-count">{workshops.length}</span></h3>
-        <button className="special-button" onClick={() => setModal('add')}><i className="ri-calendar-event-line"></i> Create Workshop</button>
+        <div className="adm-header-title">
+          <h3>Workshops <span className="adm-count">{workshops.length}</span></h3>
+        </div>
+        <button className="special-button" onClick={() => setModal('add')} title="Schedule new event"><i className="ri-calendar-event-line"></i> Create Workshop</button>
       </div>
-      <div className="adm-table-wrap">
-        <table className="adm-table">
-          <thead><tr><th>Title</th><th>Date / Time</th><th>Host</th><th>Status</th><th>Attendees</th><th></th></tr></thead>
-          <tbody>
-            {workshops.map(w => (
-              <tr key={w.id}>
-                <td><strong>{w.title}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-soft)'}}>{w.format}</span></td>
-                <td>{w.date} @ {w.time}</td>
-                <td>{w.host}</td>
-                <td><span className={`adm-status-badge ${w.status === 'Upcoming' ? 'published' : (w.status === 'Completed' ? 'draft' : 'draft')}`}>{w.status}</span></td>
-                <td>
-                  <button className="adm-link-btn" onClick={() => setAttendeeModal(w)}>
-                    <i className="ri-user-follow-line"></i> {w.registrations?.length || 0} Registered
-                  </button>
-                </td>
-                <td>
-                  <div className="adm-row-actions">
-                    <button className="adm-icon-btn" title="Edit" onClick={() => setModal(w.id)}><i className="ri-edit-line"></i></button>
-                    <button className="adm-icon-btn danger" onClick={() => onDelete(w, 'workshop')}><i className="ri-delete-bin-line"></i></button>
-                  </div>
-                </td>
+
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar">
+          <div className="adm-bulk-info">{selectedIds.size} workshops selected</div>
+          <div className="adm-bulk-actions">
+            <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={handleBulkDelete}>
+              <i className="ri-delete-bin-line"></i> Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
+      {workshops.length === 0 ? (
+        <div className="adm-empty-state">
+          <i className="ri-calendar-todo-line"></i>
+          <h3>No workshops scheduled</h3>
+          <p>Plan and manage your upcoming webinars and physical training sessions.</p>
+          <button className="special-button" style={{ marginTop: '1.5rem' }} onClick={() => setModal('add')}>Create First Workshop</button>
+        </div>
+      ) : (
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th style={{ width: 40, textAlign: 'center' }}>
+                  <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === workshops.length && workshops.length > 0} onChange={handleSelectAll} />
+                </th>
+                <th>Title</th><th>Date / Time</th><th>Host</th><th>Status</th><th>Attendees</th><th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {workshops.map(w => (
+                <tr key={w.id} className={selectedIds.has(w.id) ? 'selected-row' : ''}>
+                   <td style={{ textAlign: 'center' }}>
+                      <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(w.id)} onChange={() => toggleSelect(w.id)} />
+                  </td>
+                  <td><strong>{w.title}</strong><br/><span style={{fontSize:'0.75rem', color:'var(--text-soft)'}}>{w.format}</span></td>
+                  <td>{w.date} @ {w.time}</td>
+                  <td>{w.host}</td>
+                  <td><span className={`adm-status-badge ${w.status === 'Upcoming' ? 'published' : 'draft'}`}>{w.status}</span></td>
+                  <td>
+                    <button className="adm-link-btn" data-tooltip="View Roster" onClick={() => setAttendeeModal(w)}>
+                      <i className="ri-user-follow-line"></i> {w.registrations?.length || 0} Registered
+                    </button>
+                  </td>
+                  <td>
+                    <div className="adm-row-actions">
+                      <button className="adm-icon-btn" data-tooltip="Edit Details" onClick={() => setModal(w.id)}><i className="ri-edit-line"></i></button>
+                      <button className="adm-icon-btn danger" data-tooltip="Delete" onClick={() => onDelete(w, 'workshop')}><i className="ri-delete-bin-line"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {modal && <WorkshopModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
       {attendeeModal && <WorkshopAttendeesModal workshop={attendeeModal} onClose={() => setAttendeeModal(null)} />}
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
     </div>
   );
 }

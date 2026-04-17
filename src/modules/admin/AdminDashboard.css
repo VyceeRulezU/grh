@@ -579,10 +579,14 @@
 /* ===== PREMIUM ACTIVITY TABLE ===== */
 .adm-premium-table-wrap {
   background: white;
-  border-radius: 12px;
+  border-radius: 1rem;
   border: 1px solid var(--stroke-soft);
   overflow-x: auto;
   box-shadow: var(--shadow-sm);
+}
+
+.adm-premium-table th {
+  background-color: var(--bg-weak);
 }
 
 .adm-premium-table {
@@ -1381,4 +1385,290 @@
     color: var(--text-soft);
 }
 
+/* ===== VIEW TOGGLES & GRID LAYOUTS ===== */
+.adm-view-toggle {
+    display: flex;
+    background: var(--bg-weak);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--stroke-soft);
+}
 
+.adm-toggle-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.adm-toggle-btn.active {
+    background: white;
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.adm-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Course Card (Premium) */
+.adm-course-grid-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--stroke-soft);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.adm-course-grid-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(77, 167, 113, 0.1);
+    border-color: var(--primary);
+}
+
+.adm-course-card-image {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+}
+
+.adm-course-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.adm-course-card-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.adm-course-card-content {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.adm-course-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.adm-course-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    margin-top: auto;
+}
+
+.adm-course-card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Book Card (Gallery) */
+.adm-book-grid-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--stroke-soft);
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.adm-book-grid-card:hover {
+    border-color: var(--primary);
+    background: #f0fdf4;
+}
+
+.adm-book-cover-mini {
+    width: 80px;
+    height: 110px;
+    border-radius: 6px;
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.adm-book-card-info h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 4px;
+}
+
+.adm-book-card-info p {
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Bulk Actions Bar */
+.adm-bulk-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--secondary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 30px rgba(2, 49, 55, 0.2);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.adm-bulk-info {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.adm-bulk-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Tooltips */
+[data-tooltip] {
+    position: relative;
+    cursor: pointer;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: 110%;
+}
+
+/* Empty State */
+.adm-empty-state {
+    padding: 5rem 2rem;
+    text-align: center;
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed var(--stroke-soft);
+    color: var(--text-soft);
+    width: 100%;
+}
+
+.adm-empty-state i {
+    font-size: 4rem;
+    opacity: 0.2;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.adm-empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--secondary);
+    margin-bottom: 0.5rem;
+}
+
+/* Custom Themed Checkboxes */
+.adm-custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--text-soft);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.adm-custom-checkbox:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.adm-custom-checkbox:checked::after {
+    content: '\eb7a'; /* remixicon check mark */
+    font-family: 'remixicon';
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.adm-custom-checkbox:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-faint);
+}
+
+/* Header Refinements */
+.adm-header-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.adm-recent-activity-filter {
+    min-width: 140px;
+}
+
+.adm-search-wrap.header-integrated {
+    max-width: 280px;
+    width: 100%;
+}
