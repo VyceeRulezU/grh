@@ -451,13 +451,13 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           <div className="video-wrapper">
             <div className="video-viewport">
               {/* 1. The Video Content (Iframe vs Native Video) */}
-              {(isDrive || (videoId && isPlaying) || (isNative && isPlaying)) ? (
+              {(isDrive || isNative || (videoId && isPlaying)) ? (
                 isNative ? (
                   <video 
+                    key={videoUrl}
                     src={videoUrl}
                     className="yt-iframe"
                     controls
-                    autoPlay
                     playsInline
                     onEnded={() => saveProgress(true)}
                   />
