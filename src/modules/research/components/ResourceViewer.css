@@ -4,9 +4,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  z-index: 11000;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 12000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -217,12 +217,33 @@
     padding: 12px 16px;
   }
 
-  .viewer-mobile-back {
+  .viewer-info {
     display: flex;
+    flex: 1;
+    gap: 8px;
+    margin-right: 8px;
   }
 
-  .viewer-info {
+  .viewer-info h3 {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    display: block;
+  }
+
+  .viewer-info p {
     display: none;
+  }
+
+  .viewer-icon {
+    font-size: 20px;
+    min-width: 20px;
+  }
+
+  .viewer-mobile-back {
+    display: none !important;
   }
 
   .viewer-content {
@@ -234,6 +255,6 @@
   }
 
   .viewer-controls {
-    display: none;
+    display: flex;
   }
 }

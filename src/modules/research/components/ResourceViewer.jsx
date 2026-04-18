@@ -12,16 +12,18 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
   if (!isOpen || !resource) return null;
 
   return (
-    <div className="viewer-overlay glass" onClick={onClose} style={{ zIndex: 9999 }}>
+    <div className="viewer-overlay glass" onClick={onClose}>
       <div className="viewer-modal animate-up" onClick={e => e.stopPropagation()} style={{ padding: 0, overflow: 'hidden' }}>
         <header className="viewer-header" style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-          <div className="viewer-info">
-            <i className={`${resource.icon || 'ri-file-text-line'} viewer-icon`}></i>
-            <div>
-              <h3 style={{ margin: 0, fontSize: '1rem' }}>{resource.title}</h3>
-              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-soft)' }}>
-                {resource.author || 'GRH'} · {resource.year}
-              </p>
+          <div className="viewer-header-left">
+            <div className="viewer-info">
+              <i className={`${resource.icon || 'ri-file-text-line'} viewer-icon`}></i>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1rem' }}>{resource.title}</h3>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-soft)' }}>
+                  {resource.author || 'GRH'} · {resource.year}
+                </p>
+              </div>
             </div>
           </div>
           <div className="viewer-controls">
