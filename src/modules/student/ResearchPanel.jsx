@@ -380,7 +380,7 @@ const ResearchPanel = ({ user }) => {
         </div>
         {showSidebar && <div className="research-sidebar-overlay" onClick={() => setShowSidebar(false)}></div>}
 
-        <div className="chat-input-area">
+        <div className="research-input-section">
           <textarea 
             placeholder="Search the hub library..." 
             value={input}

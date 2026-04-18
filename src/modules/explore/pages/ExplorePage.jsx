@@ -652,7 +652,7 @@ const ExplorePage = ({ user, onNavigate }) => {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="chat-input-area">
+        <div className="explore-input-section">
           <div className="input-wrapper">
             <textarea
               className="chat-input"
