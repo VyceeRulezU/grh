@@ -458,6 +458,8 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
                     src={videoUrl}
                     className="yt-iframe"
                     controls
+                    controlsList="nodownload"
+                    onContextMenu={(e) => e.preventDefault()}
                     playsInline
                     onEnded={() => saveProgress(true)}
                   />
