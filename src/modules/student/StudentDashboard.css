@@ -672,7 +672,8 @@
   height: 100%;
 }
 
-.messages-area {
+/* Scope these shared names to the research-panel-layout only */
+.research-panel-layout .messages-area {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
@@ -754,15 +755,15 @@
 }
 
 @media (max-width: 600px) {
-  .messages-area {
+  .research-panel-layout .messages-area {
     padding: 1.25rem;
   }
 
-  .message-bubble {
+  .research-panel-layout .message-bubble {
     max-width: 90% !important;
   }
 
-  .chat-input-area {
+  .research-panel-layout .chat-input-area {
     padding: 1rem;
   }
 }
@@ -2102,4 +2103,15 @@
   border: none;
   font-size: 1.25rem;
   box-shadow: var(--shadow-sm);
+}
+
+.research-panel-layout .chat-input-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--sc-border);
+  background: white;
 }
