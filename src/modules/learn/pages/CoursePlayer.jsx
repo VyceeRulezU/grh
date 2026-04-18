@@ -104,6 +104,11 @@ const getDriveVideoId = (url) => {
   return match ? (match[1] || match[2]) : null;
 };
 
+const isNativeVideo = (url) => {
+  if (!url) return false;
+  return url.includes('.mp4') || url.includes('.webm') || url.includes('r2.dev') || url.includes('cloudflarestorage.com');
+};
+
 const CoursePlayer = ({ onNavigate, user, course }) => {
   const [lessons, setLessons] = useState([]);
   const [activeLesson, setActiveLesson] = useState(null);
@@ -407,6 +412,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const videoId = getYouTubeVideoId(videoUrl);
   const driveId = getDriveVideoId(videoUrl);
   const isDrive = !!driveId;
+  const isNative = isNativeVideo(videoUrl);
   
   // Flat lessons list stats
   const totalCompleted = lessons.filter(l => l.completed).length;
@@ -444,18 +450,29 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         <div className="player-content-area">
           <div className="video-wrapper">
             <div className="video-viewport">
-              {/* 1. The Video Content (Iframe) */}
-              {(isDrive || (videoId && isPlaying)) ? (
-                <iframe
-                  className="yt-iframe"
-                  src={isDrive 
-                    ? `https://drive.google.com/file/d/${driveId}/preview` 
-                    : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-                  title={activeLesson.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  frameBorder="0"
-                />
+              {/* 1. The Video Content (Iframe vs Native Video) */}
+              {(isDrive || (videoId && isPlaying) || (isNative && isPlaying)) ? (
+                isNative ? (
+                  <video 
+                    src={videoUrl}
+                    className="yt-iframe"
+                    controls
+                    autoPlay
+                    playsInline
+                    onEnded={() => saveProgress(true)}
+                  />
+                ) : (
+                  <iframe
+                    className="yt-iframe"
+                    src={isDrive 
+                      ? `https://drive.google.com/file/d/${driveId}/preview` 
+                      : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+                    title={activeLesson.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    frameBorder="0"
+                  />
+                )
               ) : videoId ? (
                 <img
                   src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
@@ -477,14 +494,14 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
                 >
                   <div className="yt-play-btn"><span className="material-symbols-outlined">play_arrow</span></div>
                   <div className="yt-meta">
-                    <p className="yt-lesson-label">Lesson {activeLesson.sequence_order || lessons.indexOf(activeLesson) + 1} — {isDrive ? 'GOOGLE DRIVE' : 'VIDEO'}</p>
+                    <p className="yt-lesson-label">Lesson {activeLesson.sequence_order || lessons.indexOf(activeLesson) + 1} — {isNative ? 'CLOUD STREAM' : isDrive ? 'GOOGLE DRIVE' : 'VIDEO'}</p>
                     <p className="yt-lesson-title">{activeLesson.title}</p>
                   </div>
                 </div>
               )}
 
               {/* 3. Empty State Fallback */}
-              {(!videoId && !driveId) && (
+              {(!videoId && !driveId && !isNative) && (
                 <div className="yt-placeholder">
                   <div className="yt-overlay">
                     <div className="yt-meta"><h3>No video available</h3></div>
