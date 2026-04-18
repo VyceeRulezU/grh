@@ -125,6 +125,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const [loadError, setLoadError] = useState(null);
   const [showCertificatePreview, setShowCertificatePreview] = useState(false);
   const [certificatePdfUrl, setCertificatePdfUrl] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // 1. Initial Data Fetch
   useEffect(() => {
@@ -426,11 +427,17 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
 
   return (
     <>
-      <div className="course-player">
+      <div className={`course-player ${showSidebar ? 'sidebar-open' : ''}`}>
       <header className="player-header">
-        <div className="player-back" onClick={() => onNavigate('student')}>
-          <i className="ri-arrow-left-line"></i>
-          <span>Back to Dashboard</span>
+        <div className="player-header-left">
+          <div className="player-back" onClick={() => onNavigate('student')}>
+            <i className="ri-arrow-left-line"></i>
+            <span>Back</span>
+          </div>
+          <button className="mobile-sidebar-toggle" onClick={() => setShowSidebar(!showSidebar)}>
+            <i className={showSidebar ? "ri-close-line" : "ri-menu-unfold-line"}></i>
+            <span>Chapters</span>
+          </button>
         </div>
         <div className="player-course-title">
           <h3>{course.title}</h3>
@@ -534,7 +541,11 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           </div>
         </div>
 
-        <div className="player-sidebar">
+        <div className={`player-sidebar ${showSidebar ? 'mobile-show' : ''}`}>
+          <div className="sidebar-mobile-header">
+            <h3>Course content</h3>
+            <button className="close-sidebar-btn" onClick={() => setShowSidebar(false)}><i className="ri-close-line"></i></button>
+          </div>
           <div className="sidebar-header">
             <h3>Course Content</h3>
             <div className="course-progress-mini">
@@ -574,7 +585,12 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
                     <div
                       key={lesson.id}
                       className={`lesson-item ${activeLesson?.id === lesson.id ? 'active' : ''} ${lesson.completed ? 'completed' : ''} ${locked ? 'locked' : ''}`}
-                      onClick={() => !locked && setActiveLesson(lesson)}
+                      onClick={() => {
+                        if (!locked) {
+                          setActiveLesson(lesson);
+                          setShowSidebar(false); // Auto-close on select for mobile
+                        }
+                      }}
                     >
                       <div className="lesson-status">
                         {locked ? <i className="ri-lock-fill"></i> : lesson.completed ? <i className="ri-checkbox-circle-fill"></i> : <i className="ri-play-line"></i>}
@@ -589,9 +605,9 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
               </div>
             ))}
           </div>
-
         </div>
       </div>
+      {showSidebar && <div className="player-sidebar-overlay" onClick={() => setShowSidebar(false)}></div>}
     </div>
     <StatusModal
       isOpen={modal.isOpen}

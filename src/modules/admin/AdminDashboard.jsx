@@ -897,7 +897,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
         <div className="adm-header-title">
           <h3>Recent Activity <span className="adm-count">{filteredActivities.length} Found</span></h3>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="adm-recent-filters-row">
           <div className="adm-search-wrap">
             <i className="ri-search-line"></i>
             <input 
@@ -1512,7 +1512,7 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
             />
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="adm-header-actions">
           <div className="adm-search-wrap">
             <i className="ri-search-line"></i>
             <input 
@@ -2091,7 +2091,7 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
           <h3>Instructors & Leadership <span className="adm-count">{instructors.length}</span></h3>
           <p>Manage people appearing in the About and Learn sections.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="instr-header-actions">
           <div className="adm-view-toggle">
             <button className={`adm-toggle-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} title="Table View">
               <i className="ri-list-check"></i> List

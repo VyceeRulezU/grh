@@ -104,8 +104,8 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
               <button className="view-all" onClick={() => onNavigate('learn-discovery')}>View My Courses</button>
             </div>
             
-            <div className="table-controls" style={{ display: 'flex', gap: '1rem', width: '100%', flexWrap: 'wrap' }}>
-              <div className="panel-search" style={{ maxWidth: '350px' }}>
+            <div className="table-controls">
+              <div className="panel-search">
                 <i className="ri-search-line"></i>
                 <input 
                   type="text" 
@@ -291,7 +291,7 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
             />
           </div>
         </div>
-        <div className="std-filter-row" style={{ alignItems: 'center' }}>
+        <div className="std-filter-row">
           {[{id:'all',l:'All'},{id:'in-progress',l:'In Progress'},{id:'completed',l:'Completed'},{id:'not-started',l:'Not Started'}].map(f => (
             <button key={f.id} className={`std-filter-btn ${filter === f.id ? 'active' : ''}`} onClick={() => { setFilter(f.id); setCurrentPage(1); }}>{f.l}</button>
           ))}
@@ -618,7 +618,7 @@ function ResourcesPanel({ resources = [], onNavigate }) {
             />
           </div>
         </div>
-        <div className="std-filter-row" style={{ alignItems: 'center' }}>
+        <div className="std-filter-row">
           <button className="view-all" onClick={() => onNavigate('research')}>Explore Full Library</button>
           <div className="std-view-toggle">
             <button 
@@ -642,7 +642,7 @@ function ResourcesPanel({ resources = [], onNavigate }) {
         <div className="std-resource-grid" style={{ gap: '2rem' }}>
           {pagedItems.map(r => (
             <div key={r.id} className="resource-card std-card-parity" onClick={() => setViewer({ isOpen: true, resource: r })}>
-              <div className="resource-cover" style={{ height: '100%' }}>
+              <div className="resource-cover">
                 <img src={r.coverImage} alt={r.title} className="resource-cover-img" loading="lazy" />
                 {r.featured && <span className="featured-badge">FEATURED</span>}
               </div>
@@ -1529,10 +1529,10 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
           {/* Topbar */}
           <header className="student-topbar">
             <div className="topbar-welcome">
-              <span role="img" aria-label="wave">👋</span>
+              <span role="img" aria-label="wave" className="desktop-only">👋</span>
               <div>
                 <h3>Welcome back, {profileName}!</h3>
-                <p>Continue your governance learning journey.</p>
+                <p className="desktop-only">Continue your governance learning journey.</p>
               </div>
             </div>
             {/* Remove global search from center as it's now local to panels */}

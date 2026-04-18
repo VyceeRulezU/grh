@@ -147,6 +147,7 @@ const ResearchPanel = ({ user }) => {
   const [selectedSessions, setSelectedSessions] = useState(new Set());
   const [conversationHistory, setConversationHistory] = useState([]);
   const [isLimited, setIsLimited] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -278,6 +279,7 @@ const ResearchPanel = ({ user }) => {
 
   const loadHistory = async (session) => {
     setActiveSessionId(session.id);
+    setShowSidebar(false); // Close sidebar on mobile after selection
     const { data } = await supabase.from('chat_messages').select('*').eq('session_id', session.id).order('created_at', { ascending: true });
     if (data) {
       setMessages([{ id: 0, role: 'assistant', text: "Chat history loaded." }, ...data.map(d => ({ ...d, text: d.content }))]);
@@ -300,38 +302,34 @@ const ResearchPanel = ({ user }) => {
   };
 
   return (
-    <div className="std-panel research-panel-layout" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '2rem', height: '100%' }}>
+    <div className="std-panel research-panel-layout">
       {/* Sidebar - History */}
-      <div className="research-sidebar" style={{ background: 'var(--bg-weak)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h4>History</h4>
+      <div className={`research-sidebar ${showSidebar ? 'mobile-show' : ''}`}>
+        <div className="research-sidebar-header">
+          <h4>Research History</h4>
           <button 
-            className="row-action" 
+            className="close-sidebar-btn mobile-only" 
+            onClick={() => setShowSidebar(false)}
+          >
+            <i className="ri-close-line"></i>
+          </button>
+          <button 
+            className="row-action desktop-only" 
             title="New Research" 
             onClick={handleNewChat}
-            style={{ padding: '4px', borderRadius: '8px' }}
           >
-            <i className="ri-add-line" style={{ fontSize: '1.2rem' }}></i>
+            <i className="ri-add-line"></i>
           </button>
         </div>
         <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary)', marginTop: '-1rem', opacity: 0.8 }}>
           {promptsUsed}/{PROMPT_LIMIT} prompts used this month
         </div>
         
-        <div className="history-list" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div className="history-list">
           {sessions.map(s => (
             <div 
                 key={s.id} 
                 className={`history-item-wrap ${activeSessionId === s.id ? 'active' : ''}`}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.75rem', 
-                  padding: '4px 8px',
-                  borderRadius: '10px',
-                  transition: 'all 0.2s',
-                  cursor: 'pointer'
-                }}
                 onClick={() => loadHistory(s)}
             >
               <div onClick={(e) => e.stopPropagation()}>
@@ -342,9 +340,9 @@ const ResearchPanel = ({ user }) => {
                   onChange={() => toggleSessionSelection(s.id)}
                 />
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.title}</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{new Date(s.updated_at).toLocaleDateString()}</div>
+              <div className="history-item-content">
+                <div className="history-item-title">{s.title}</div>
+                <div className="history-item-date">{new Date(s.updated_at).toLocaleDateString()}</div>
               </div>
             </div>
           ))}
@@ -358,20 +356,21 @@ const ResearchPanel = ({ user }) => {
       </div>
 
       {/* Main Chat Area */}
-      <div className="research-chat-main" style={{ background: 'white', borderRadius: '16px', border: '1px solid var(--sc-border)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div className="messages-area" style={{ flex: 1, padding: '2rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div className="research-chat-main">
+        <div className="research-chat-header">
+          <button className="history-toggle-btn" onClick={() => setShowSidebar(true)}>
+            <i className="ri-history-line"></i>
+            <span>History</span>
+          </button>
+          <button className="new-chat-mobile-btn" onClick={handleNewChat}>
+            <i className="ri-add-line"></i>
+          </button>
+        </div>
+        <div className="messages-area">
           {messages.map((m, i) => (
-            <div key={i} className={`message-row ${m.role}`} style={{ display: 'flex', gap: '1rem', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
-              {m.role === 'assistant' && <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>◆</div>}
-              <div className="message-bubble" style={{ 
-                maxWidth: '80%', 
-                padding: '1rem', 
-                borderRadius: '16px', 
-                background: m.role === 'user' ? 'var(--primary)' : 'var(--bg-weak)',
-                color: m.role === 'user' ? 'white' : 'var(--secondary)',
-                fontSize: '0.9rem',
-                lineHeight: '1.5'
-              }}>
+            <div key={i} className={`message-row ${m.role}`}>
+              {m.role === 'assistant' && <div className="assistant-avatar">◆</div>}
+              <div className="message-bubble">
                 {m.text}
               </div>
             </div>
@@ -379,13 +378,13 @@ const ResearchPanel = ({ user }) => {
           {typing && <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>AI is thinking...</div>}
           <div ref={messagesEndRef} />
         </div>
+        {showSidebar && <div className="research-sidebar-overlay" onClick={() => setShowSidebar(false)}></div>}
 
-        <div className="chat-input-area" style={{ padding: '1.5rem', borderTop: '1px solid var(--sc-border)', display: 'flex', gap: '1rem' }}>
+        <div className="chat-input-area">
           <textarea 
             placeholder="Search the hub library..." 
             value={input}
             onChange={e => setInput(e.target.value)}
-            style={{ flex: 1, padding: '1rem', borderRadius: '12px', border: '1px solid var(--sc-border)', outline: 'none', resize: 'none' }}
             rows="1"
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
           />

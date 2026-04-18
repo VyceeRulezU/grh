@@ -10,7 +10,7 @@
   max-width: 1200px;
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 64px;
   border-radius: 32px;
   overflow: hidden;
@@ -21,14 +21,21 @@
 
 @media (max-width: 1024px) {
   .details-container {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 40px;
     padding: 24px;
     border-radius: 0;
   }
   .course-details-page {
-    padding: 40px 0;
+    padding: 0;
+    padding-top: 80px; /* Header height */
     background: #fff;
+  }
+  .details-left {
+    width: 100%;
+  }
+  .details-header h1 {
+    font-size: 2rem;
   }
 }
 
@@ -497,6 +504,48 @@
     flex-direction: column;
     gap: 24px;
     padding: 24px;
+  }
+  
+  .details-actions {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .details-actions .special-button {
+    width: 100%;
+  }
+
+  .details-tabs {
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .details-tabs::-webkit-scrollbar { display: none; }
+  
+  .tab-btn {
+    white-space: nowrap;
+    padding: 10px 0;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .details-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .details-quick-meta {
+    gap: 12px;
+    font-size: 0.85rem;
+  }
+
+  .learning-outcomes {
+    padding: 16px;
+  }
+
+  .details-image-card {
+    border-radius: 16px;
   }
 }
 
