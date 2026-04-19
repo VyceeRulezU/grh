@@ -35,7 +35,12 @@ async function flatten() {
   }
 
   // 4. Cleanup
+  console.log('[flatten-sane] Final cleanup...');
   rmSync(TEMP_DIST, { recursive: true, force: true });
+  
+  // 5. Final Stability Marker
+  const markerPath = join(DIST, 'VERCEL_IS_IN_DIST.txt');
+  import('fs').then(fs => fs.writeFileSync(markerPath, `Vercel is now correctly serving from the dist folder. Time: ${new Date().toISOString()}`));
 
   console.log('[flatten-sane] SUCCESS! Build output is now neatly flattened in /dist ✅');
 }
