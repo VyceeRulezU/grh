@@ -6,8 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const rootPath = path.resolve(__dirname, '..');
-const distPath = path.join(rootPath, 'dist');
-const clientPath = path.join(distPath, 'client');
+const originalDistPath = path.join(rootPath, 'dist');
+const tempDistPath = path.join(rootPath, 'dist-vike');
+const finalDistPath = path.join(rootPath, 'dist');
 
 // Vercel output paths
 const vercelOutputDir = path.join(rootPath, '.vercel', 'output');
@@ -15,68 +16,69 @@ const vercelStaticDir = path.join(vercelOutputDir, 'static');
 const vercelConfigPath = path.join(vercelOutputDir, 'config.json');
 
 async function fixBuild() {
-  console.log('\n--- STARTING BUILD FINALIZATION ---');
-  console.log('Root path:', rootPath);
-  console.log('Dist path:', distPath);
-  console.log('Client path:', clientPath);
-
-  if (!fs.existsSync(clientPath)) {
-    console.error('CRITICAL ERROR: dist/client not found. Vite build failed or output directory mismatch.');
+  console.log('\n--- STARTING CLEAN-MOVE BUILD FINALIZATION ---');
+  
+  if (!fs.existsSync(originalDistPath)) {
+    console.error('CRITICAL ERROR: dist folder not found. Vite build failed.');
     process.exit(1);
   }
 
   try {
-    const files = fs.readdirSync(clientPath);
-    console.log(`Found ${files.length} files/folders in dist/client to process.\n`);
+    // 1. Move original dist to temporary folder
+    console.log(`Moving original dist/ to dist-vike/ ...`);
+    if (fs.existsSync(tempDistPath)) {
+      fs.rmSync(tempDistPath, { recursive: true, force: true });
+    }
+    fs.renameSync(originalDistPath, tempDistPath);
 
-    files.forEach(file => {
-      const src = path.join(clientPath, file);
-      const dest = path.join(distPath, file);
+    // 2. Create a brand new, clean dist folder
+    console.log(`Creating fresh, clean dist/ folder ...`);
+    fs.mkdirSync(finalDistPath, { recursive: true });
 
-      try {
-        const stat = fs.statSync(src);
-        if (stat.isDirectory()) {
-          console.log(`- Copying directory: ${file} ...`);
-          fs.cpSync(src, dest, { recursive: true, force: true });
-        } else {
-          console.log(`- Copying file: ${file} (${stat.size} bytes) ...`);
-          fs.copyFileSync(src, dest);
-        }
-      } catch (err) {
-        console.error(`  ! Error processing ${file}:`, err.message);
-        throw err;
-      }
-    });
-
-    // Verification step
-    const indexInDist = path.join(distPath, 'index.html');
-    if (fs.existsSync(indexInDist)) {
-      console.log('\nSUCCESS: index.html found at the dist root.');
-    } else {
-      console.error('\nCRITICAL ERROR: index.html was NOT found at the dist root after copy.');
+    // 3. Define the path to pre-rendered client files
+    const clientPath = path.join(tempDistPath, 'client');
+    if (!fs.existsSync(clientPath)) {
+      console.error('CRITICAL ERROR: dist-vike/client not found. Pre-rendering might have failed.');
       process.exit(1);
     }
 
-    // Create 404.html fallback for GitHub Pages SPA routing
-    console.log('Creating 404.html fallback from index.html...');
-    fs.copyFileSync(indexInDist, path.join(distPath, '404.html'));
+    const files = fs.readdirSync(clientPath);
+    console.log(`Copying ${files.length} pre-rendered items to fresh dist/ root ...`);
 
-    // --- Vercel Build Output API ---
-    console.log('\n--- GENERATING VERCEL BUILD OUTPUT API ---');
-    
-    if (fs.existsSync(vercelOutputDir)) {
-      try {
-        fs.rmSync(vercelOutputDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
-      } catch (e) {
-        console.warn('Warning: Could not completely remove .vercel/output. Will overwrite existing files.', e.message);
+    files.forEach(file => {
+      const src = path.join(clientPath, file);
+      const dest = path.join(finalDistPath, file);
+
+      const stat = fs.statSync(src);
+      if (stat.isDirectory()) {
+        console.log(`- Copying directory: ${file}`);
+        fs.cpSync(src, dest, { recursive: true, force: true });
+      } else {
+        console.log(`- Copying file: ${file}`);
+        fs.copyFileSync(src, dest);
       }
+    });
+
+    // 4. Verification
+    const indexInDist = path.join(finalDistPath, 'index.html');
+    if (fs.existsSync(indexInDist)) {
+      console.log('\nSUCCESS: Verified index.html at fresh dist root.');
+    } else {
+      console.error('\nCRITICAL ERROR: index.html missing from fresh dist root!');
+      process.exit(1);
+    }
+
+    // 5. Fallbacks and Vercel Config
+    console.log('Generating 404.html fallback...');
+    fs.copyFileSync(indexInDist, path.join(finalDistPath, '404.html'));
+
+    console.log('\n--- GENERATING VERCEL BUILD OUTPUT API ---');
+    if (fs.existsSync(vercelOutputDir)) {
+      fs.rmSync(vercelOutputDir, { recursive: true, force: true });
     }
     fs.mkdirSync(vercelStaticDir, { recursive: true });
+    fs.cpSync(finalDistPath, vercelStaticDir, { recursive: true });
 
-    console.log('Copying finalized dist/ contents to .vercel/output/static/ ...');
-    fs.cpSync(distPath, vercelStaticDir, { recursive: true });
-
-    // Create Vercel config.json for SPA fallback (Build Output API routing)
     const config = {
       version: 3,
       routes: [
@@ -84,14 +86,12 @@ async function fixBuild() {
         { src: '/(.*)', dest: '/index.html' }
       ]
     };
-    
     fs.writeFileSync(vercelConfigPath, JSON.stringify(config, null, 2));
-    console.log('Vercel config.json generated successfully.');
+    
+    console.log('\n--- CLEAN-MOVE FINALIZATION COMPLETE ---\n');
 
-    console.log('\n--- BUILD FINALIZATION COMPLETE ---\n');
-
-  } catch (globalErr) {
-    console.error('\nCRITICAL GLOBAL ERROR IN FINALIZATION:', globalErr);
+  } catch (err) {
+    console.error('\nCRITICAL BUILD ERROR:', err);
     process.exit(1);
   }
 }
