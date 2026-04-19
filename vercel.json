@@ -6,13 +6,6 @@
     {
       "source": "/",
       "destination": "/index.html"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1/index.html"
     }
   ]
 }
