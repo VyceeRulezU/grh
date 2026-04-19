@@ -1,4 +1,6 @@
 {
+  "framework": null,
+  "outputDirectory": "dist/client",
   "cleanUrls": true,
   "trailingSlash": false
 }
