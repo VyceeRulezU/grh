@@ -1,55 +1,62 @@
 import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
+// This script moves the build output from dist/client to the project root (.)
+// for maximum zero-configuration compatibility on Vercel.
+
+const ROOT = '.';
 const DIST = 'dist';
 const CLIENT_DIST = join(DIST, 'client');
-const SERVER_DIST = join(DIST, 'server');
-const TEMP_DIST = 'dist_temp';
+const PROTECTED = ['src', 'node_modules', 'scripts', 'public', '.git', '.github', '.vercel', 'pages', 'assets-src'];
 
 async function flatten() {
-  console.log('[flatten] Starting absolute zero-config flattening...');
+  console.log('[flatten-root] Starting authoritative root deployment move...');
 
   if (!existsSync(CLIENT_DIST)) {
-    console.error(`[flatten] ERROR: ${CLIENT_DIST} not found. Build likely failed.`);
-    process.exit(1);
-    return;
+    console.warn(`[flatten-root] WARNING: ${CLIENT_DIST} not found. Checking if files are already flattened in ${DIST}...`);
+    // If dist exists but not dist/client, maybe it's already flattened.
+    if (!existsSync(DIST)) {
+      console.error('[flatten-root] FATAL: Build output folder missing.');
+      process.exit(1);
+    }
   }
 
-  // 1. Move CLIENT_DIST to a temporary location to clear the way
-  console.log(`[flatten] Moving ${CLIENT_DIST} to ${TEMP_DIST}...`);
-  if (existsSync(TEMP_DIST)) rmSync(TEMP_DIST, { recursive: true, force: true });
-  renameSync(CLIENT_DIST, TEMP_DIST);
+  const sourceDir = existsSync(CLIENT_DIST) ? CLIENT_DIST : DIST;
+  console.log(`[flatten-root] Source directory identified: ${sourceDir}`);
 
-  // 2. Wipe the original DIST folder completely
-  console.log(`[flatten] Wiping original ${DIST} folder...`);
-  rmSync(DIST, { recursive: true, force: true });
-  mkdirSync(DIST);
+  // 1. Get all files and folders in the build output
+  const items = readdirSync(sourceDir);
 
-  // 3. Move all contents from TEMP_DIST into DIST (root level)
-  console.log(`[flatten] Exporting all files to ${DIST} root...`);
-  const items = readdirSync(TEMP_DIST);
   for (const item of items) {
-    const src = join(TEMP_DIST, item);
-    const dest = join(DIST, item);
-    renameSync(src, dest);
+    if (item === 'index.html' || item === 'assets' || item === 'robots.txt' || item === 'sitemap.xml' || lstatSync(join(sourceDir, item)).isDirectory()) {
+      const src = join(sourceDir, item);
+      const dest = join(ROOT, item);
+
+      // Skip if the item is in our protected list (like 'scripts' or 'src')
+      if (PROTECTED.includes(item)) {
+        console.log(`[flatten-root] Skipping protected item: ${item}`);
+        continue;
+      }
+
+      // If destination exists, remove it first (especially folders like 'assets')
+      if (existsSync(dest)) {
+        console.log(`[flatten-root] Overwriting existing item: ${dest}`);
+        rmSync(dest, { recursive: true, force: true });
+      }
+
+      console.log(`[flatten-root] Moving ${src} -> ${dest}`);
+      renameSync(src, dest);
+    }
   }
 
-  // 4. Cleanup
-  console.log('[flatten] Final cleanup...');
-  rmSync(TEMP_DIST, { recursive: true, force: true });
-  if (existsSync(SERVER_DIST)) rmSync(SERVER_DIST, { recursive: true, force: true });
+  // 2. Clean up build artifacts
+  console.log('[flatten-root] Cleaning up build folders...');
+  if (existsSync(DIST)) rmSync(DIST, { recursive: true, force: true });
 
-  // 5. Diagnostic Marker
-  console.log('[flatten] Creating diagnostic marker...');
-  const markerPath = join(DIST, 'VERCEL_IS_SERVING_DIST.txt');
-  readdirSync(DIST); // Ensure DIST is accessible
-  const markerContent = `I AM HERE - Time: ${new Date().toISOString()} - Build Successful`;
-  import('fs').then(fs => fs.writeFileSync(markerPath, markerContent));
-
-  console.log('[flatten] DONE! Build output is now 100% flat in /dist ✅');
+  console.log('[flatten-root] SUCCESS! Application is now available at the project root for Vercel. ✅');
 }
 
 flatten().catch(err => {
-  console.error('[flatten] FATAL ERROR during flattening:', err);
+  console.error('[flatten-root] ERROR:', err);
   process.exit(1);
 });
