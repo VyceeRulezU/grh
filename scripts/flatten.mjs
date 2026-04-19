@@ -1,43 +1,48 @@
-import { readdirSync, renameSync, rmSync, existsSync, lstatSync } from 'fs';
+import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 const DIST = 'dist';
 const CLIENT_DIST = join(DIST, 'client');
 const SERVER_DIST = join(DIST, 'server');
+const TEMP_DIST = 'dist_temp';
 
 async function flatten() {
-  console.log('[flatten] Starting build output flattening...');
+  console.log('[flatten] Starting absolute zero-config flattening...');
 
   if (!existsSync(CLIENT_DIST)) {
-    console.error(`[flatten] ERROR: ${CLIENT_DIST} not found. Skipping.`);
+    console.error(`[flatten] ERROR: ${CLIENT_DIST} not found. Build likely failed.`);
+    process.exit(1);
     return;
   }
 
-  // 1. Get all files and folders in dist/client
-  const items = readdirSync(CLIENT_DIST);
+  // 1. Move CLIENT_DIST to a temporary location to clear the way
+  console.log(`[flatten] Moving ${CLIENT_DIST} to ${TEMP_DIST}...`);
+  if (existsSync(TEMP_DIST)) rmSync(TEMP_DIST, { recursive: true, force: true });
+  renameSync(CLIENT_DIST, TEMP_DIST);
 
+  // 2. Wipe the original DIST folder completely
+  console.log(`[flatten] Wiping original ${DIST} folder...`);
+  rmSync(DIST, { recursive: true, force: true });
+  mkdirSync(DIST);
+
+  // 3. Move all contents from TEMP_DIST into DIST (root level)
+  console.log(`[flatten] Exporting all files to ${DIST} root...`);
+  const items = readdirSync(TEMP_DIST);
   for (const item of items) {
-    const src = join(CLIENT_DIST, item);
+    const src = join(TEMP_DIST, item);
     const dest = join(DIST, item);
-
-    // If destination already exists (from a previous build or server build), remove it
-    if (existsSync(dest)) {
-      rmSync(dest, { recursive: true, force: true });
-    }
-
-    console.log(`[flatten] Moving ${src} -> ${dest}`);
     renameSync(src, dest);
   }
 
-  // 2. Clean up empty/unnecessary directories
-  console.log('[flatten] Cleaning up build artifacts...');
-  if (existsSync(CLIENT_DIST)) rmSync(CLIENT_DIST, { recursive: true, force: true });
+  // 4. Cleanup
+  console.log('[flatten] Final cleanup...');
+  rmSync(TEMP_DIST, { recursive: true, force: true });
   if (existsSync(SERVER_DIST)) rmSync(SERVER_DIST, { recursive: true, force: true });
 
-  console.log('[flatten] Build output flattened to /dist! ✅');
+  console.log('[flatten] DONE! Build output is now 100% flat in /dist ✅');
 }
 
 flatten().catch(err => {
-  console.error('[flatten] FATAL ERROR:', err);
+  console.error('[flatten] FATAL ERROR during flattening:', err);
   process.exit(1);
 });
