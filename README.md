@@ -23,7 +23,7 @@ A premium, unified platform for governance excellence, featuring interactive e-l
 - **Filtered Research**: Advanced topic and category-based resource discovery.
 
 ### 🤖 AI Research Assistant
-- **Explore Module**: AI-powered chat assistant trained on governance resources for instant insights and summaries.
+- **Explore Module**: AI-powered chat assistant (Gemini) trained on governance resources for instant insights and summaries.
 
 ## 🛠️ Technology Stack
 - **Frontend**: React 18 (Vite)
@@ -35,7 +35,9 @@ A premium, unified platform for governance excellence, featuring interactive e-l
 - **Icons**: Remix Icons
 - **Imagery**: Pixabay API (Dynamic Localized Visuals)
 - **Auth & DB**: Supabase (PostgreSQL + Auth)
+- **AI**: Google Gemini API
 - **Validation**: React-Hook-Form + Zod
+- **Error Handling**: react-error-boundary
 
 ## 🏃 Getting Started
 
@@ -46,7 +48,7 @@ A premium, unified platform for governance excellence, featuring interactive e-l
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/teeRulezU/grh.git
+   git clone https://github.com/VyceeRulezU/grh.git
    ```
 2. Navigate to the project directory:
    ```bash
@@ -56,6 +58,7 @@ A premium, unified platform for governance excellence, featuring interactive e-l
    ```bash
    npm install
    ```
+4. Copy `.env.example` to `.env` and fill in your environment variables.
 
 ### Development
 Run the development server:
@@ -71,10 +74,7 @@ npm run build
 ```
 
 ### Deployment
-Deploy to GitHub Pages:
-```bash
-npm run deploy
-```
+This project is deployed on **Vercel**. Production URL: [https://governanceresourcehub.com](https://governanceresourcehub.com)
 
 ## 📜 License
 This project is proprietary software. All rights reserved by Governance Resource Hub. See the [LICENSE](LICENSE) file for specific terms and conditions.

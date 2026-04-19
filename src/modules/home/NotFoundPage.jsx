@@ -2,7 +2,12 @@ import React from 'react';
 import SpecialButton from '../../shared/ui/SpecialButton';
 import './NotFoundPage.css';
 
-const NotFoundPage = ({ onNavigate }) => {
+const NotFoundPage = ({ 
+  onNavigate,
+  title = null,
+  summary = null,
+  errorCode = '404'
+}) => {
   return (
     <div className="notfound-container">
       {/* Background decoration matching welcome page */}
@@ -16,24 +21,22 @@ const NotFoundPage = ({ onNavigate }) => {
           <div className="dot">
             <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="" />
           </div>
-          <p className="chip-text">Page Not Found</p>
+          <p className="chip-text">{errorCode === '404' ? 'Page Not Found' : 'Something Went Wrong'}</p>
         </div>
 
-        {/* Large 404 */}
-        <div className="notfound-code" aria-label="404">
-          <span>4</span>
-          <span className="notfound-zero">0</span>
-          <span>4</span>
+        {/* Large error code */}
+        <div className="notfound-code" aria-label={errorCode}>
+          {errorCode.split('').map((char, i) => (
+            <span key={i} className={char === '0' ? 'notfound-zero' : ''}>{char}</span>
+          ))}
         </div>
 
         <h1 className="notfound-title">
-          This page doesn't <br />
-          <span className="green-text">exist yet</span>
+          {title || (<>This page doesn't <br /> <span className="green-text">exist yet</span></>)}
         </h1>
 
         <p className="notfound-summary">
-          The page you're looking for may have been moved, renamed,
-          or is not available. Let's get you back to the Hub.
+          {summary || 'The page you\'re looking for may have been moved, renamed, or is not available. Let\'s get you back to the Hub.'}
         </p>
 
         <SpecialButton onClick={() => onNavigate('welcome')}>

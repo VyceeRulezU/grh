@@ -383,9 +383,36 @@ function App() {
     <div className="app-container">
       <Helmet>
         <title>Governance Resource Hub | Excellence Redefined</title>
-        <link rel="icon" type="image/png" href="/icon.png?v=1" />
+        <meta name="description" content="A premium, unified platform for governance excellence — featuring interactive e-learning, a digital research library, AI-powered insights, and advanced institutional diagnostics." />
+        <link rel="canonical" href="https://governanceresourcehub.com" />
+
+        {/* Favicon */}
+        <link rel="icon" type="image/png" href="/icon.png?v=2" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1" />
-        <link rel="apple-touch-icon" href="/icon.png?v=1" />
+        <link rel="apple-touch-icon" href="/grh-learn.webp" />
+        <meta name="theme-color" content="#4DA771" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://governanceresourcehub.com" />
+        <meta property="og:title" content="Governance Resource Hub | Excellence Redefined" />
+        <meta property="og:description" content="A premium, unified platform for governance excellence — featuring interactive e-learning, a digital research library, AI-powered insights, and advanced institutional diagnostics." />
+        <meta property="og:image" content="https://governanceresourcehub.com/grh-learn.webp" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="Governance Resource Hub" />
+
+        {/* Twitter / X */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://governanceresourcehub.com" />
+        <meta name="twitter:title" content="Governance Resource Hub | Excellence Redefined" />
+        <meta name="twitter:description" content="A premium, unified platform for governance excellence — featuring interactive e-learning, a digital research library, AI-powered insights, and advanced institutional diagnostics." />
+        <meta name="twitter:image" content="https://governanceresourcehub.com/grh-learn.webp" />
+
+        {/* Preconnects */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://vedvxjugpwisjshanmyk.supabase.co" />
       </Helmet>
       {(currentPage !== 'welcome' && currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin-login' && currentPage !== 'forgot-password' && currentPage !== 'reset-password' && currentPage !== 'explore' && currentPage !== 'learn-player' && currentPage !== 'student' && currentPage !== 'admin') && (
         <Navbar 
