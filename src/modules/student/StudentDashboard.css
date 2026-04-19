@@ -256,6 +256,22 @@
 }
 
 /* ===== COURSE TABLE ===== */
+
+.std-header-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.std-header-controls{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
 .courses-progress-section {
   display: grid;
   grid-template-columns: 1fr 240px;
@@ -305,23 +321,58 @@
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  margin-top: 0.5rem;
+  border-radius: var(--sc-radius);
+  border: 1px solid var(--sc-border);
 }
 
 .std-table {
-  width: 100%;
-  border-collapse: collapse;
+  display: flex;
+  flex-direction: column;
   min-width: 900px;
-  table-layout: auto;
+  width: 100%;
 }
 
-.std-table th, .std-table td {
-  padding: 1.25rem 1rem;
-  text-align: left;
+.std-table thead,
+.std-table tbody {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.std-table tr {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
   border-bottom: 1px solid var(--sc-border);
+  transition: background 0.2s ease;
 }
 
-.std-table thead th {
+.std-table tr:hover {
+  background: rgba(77, 167, 113, 0.04);
+}
+
+.std-table tr:last-child {
+  border-bottom: none;
+}
+
+.std-table thead tr {
   background: var(--bg-weak);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.std-table th, 
+.std-table td {
+  padding: 1rem 0.75rem;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-align: left;
+}
+
+.std-table th {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--sc-muted-foreground);
@@ -329,35 +380,42 @@
   letter-spacing: 0.05em;
 }
 
-.table-row.selected {
-  background: #f0fdf4;
+/* Specific Column Flex Logic */
+.col-course { flex: 0 0 25%; min-width: 0; }
+.col-cat { flex: 0 0 13%; }
+.col-instr { flex: 0 0 14%; }
+.col-prog { flex: 0 0 18%; }
+.col-lv { flex: 0 0 10%; }
+.col-dur { flex: 0 0 10%; }
+.col-act { 
+  flex: 0 0 70px; 
+  justify-content: center;
+  padding-right: 1rem;
 }
 
-.table-row > span {
-  padding: 0 0.5rem;
-}
-
+/* Inner cell styles */
 .course-name-cell {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.course-name-cell .title-text {
   font-weight: 600;
   color: var(--sc-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.course-name-cell i {
-  color: var(--primary);
-  font-size: 1.2rem;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .progress-cell {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .prog-bar {
@@ -371,6 +429,37 @@
 .prog-fill {
   height: 100%;
   background: var(--primary);
+}
+
+.cat-label {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.instr-name {
+  font-size: 0.85rem;
+  color: var(--sc-foreground);
+}
+
+.prog-percentage {
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 35px;
+}
+
+.dur-text {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dur-text i {
+  font-size: 1rem;
 }
 
 .badge {
@@ -556,7 +645,28 @@
   .courses-progress-section { grid-template-columns: 1fr; }
   .stats-sidebar { flex-direction: row; flex-wrap: wrap; }
   .stat-box { flex: 1; min-width: 160px; }
+  
+  .std-header-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .std-activity-search {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .std-filter-group {
+    width: 100%;
+  }
+
+  .std-table {
+    min-width: 900px; /* Force table width on mobile to enable scroll */
+    table-layout: fixed; /* Still use fixed for truncation */
+  }
 }
+
 
 @media (max-width: 900px) {
   .student-dashboard-wrapper { position: relative; height: 100dvh; }
@@ -968,7 +1078,7 @@
   padding-bottom: 10px;
   -ms-overflow-style: none;
   scrollbar-width: none;
-  width: 100%;
+  width: fit-content;
 }
 
 .std-filter-row::-webkit-scrollbar {
@@ -1833,6 +1943,13 @@
 @media (max-width: 600px) {
   .resource-card.std-card-parity {
     height: 360px;
+  }
+
+  .std-filter-row{
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+
   }
 }
 

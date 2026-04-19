@@ -98,14 +98,14 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
     <>
       <section className="courses-progress-section">
         <div className="progress-card">
-          <div className="section-header" style={{ marginBottom: '1.5rem', alignItems: 'flex-start', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+          <div className="std-recent-header">
+            <div className="std-header-top">
               <h3>Recent Activity</h3>
               <button className="view-all" onClick={() => onNavigate('learn-discovery')}>View My Courses</button>
             </div>
             
-            <div className="table-controls">
-              <div className="panel-search">
+            <div className="std-header-controls">
+              <div className="panel-search std-activity-search">
                 <i className="ri-search-line"></i>
                 <input 
                   type="text" 
@@ -114,7 +114,7 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
                   onChange={(e) => setActivitySearchTerm(e.target.value)}
                 />
               </div>
-              <div className="std-filter-row">
+              <div className="std-filter-group">
                 {['All', 'In Progress', 'Completed', 'Not Started'].map(f => (
                   <button 
                     key={f} 
@@ -132,34 +132,34 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
             <table className="std-table">
               <thead>
                 <tr>
-                  <th style={{ width: '35%' }}>Course name</th>
-                  <th style={{ width: '15%' }}>Category</th>
-                  <th style={{ width: '15%' }}>Instructor</th>
-                  <th style={{ width: '140px' }}>Progress</th>
-                  <th style={{ width: '12%' }}>Level</th>
-                  <th style={{ width: '12%' }}>Duration</th>
-                  <th style={{ width: '12%', textAlign: 'center' }}>Action</th>
+                  <th className="col-course">Course name</th>
+                  <th className="col-cat">Category</th>
+                  <th className="col-instr">Instructor</th>
+                  <th className="col-prog">Progress</th>
+                  <th className="col-lv">Level</th>
+                  <th className="col-dur">Duration</th>
+                  <th className="col-act">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {displayedCourses.map(course => (
                   <tr key={course.id}>
-                    <td>
-                      <div className="title-cell-flex">
-                        <span className="title-text truncate-1">{course.title}</span>
+                    <td className="col-course">
+                      <div className="course-name-cell">
+                        <span className="title-text">{course.title}</span>
                       </div>
                     </td>
-                    <td><span style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{course.category || 'General'}</span></td>
-                    <td><span style={{ fontSize: '0.85rem' }}>{course.instructor || 'GRH Staff'}</span></td>
-                    <td>
+                    <td className="col-cat"><span className="cat-label">{course.category || 'General'}</span></td>
+                    <td className="col-instr"><span className="instr-name">{course.instructor || 'GRH Staff'}</span></td>
+                    <td className="col-prog">
                       <div className="progress-cell">
                         <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '700', minWidth: '35px' }}>{course.progress || 0}%</span>
+                        <span className="prog-percentage">{course.progress || 0}%</span>
                       </div>
                     </td>
-                    <td><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></td>
-                    <td><span style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}><i className="ri-time-line" style={{marginRight: '4px'}}></i>{course.duration || 'Self-paced'}</span></td>
-                    <td style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
+                    <td className="col-lv"><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></td>
+                    <td className="col-dur"><span className="dur-text"><i className="ri-time-line"></i>{course.duration || 'Self-paced'}</span></td>
+                    <td className="col-act">
                       <button className="row-action" title="Resume Learning" onClick={() => onNavigate('learn-player', course)}>
                          <i className="ri-play-circle-fill"></i>
                       </button>
@@ -168,7 +168,7 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
                 ))}
                 {filteredCourses.length === 0 && (
                   <tr>
-                    <td colSpan="7" style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-soft)' }}>
+                    <td className="col-course" style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-soft)', flex: '1' }}>
                       <i className="ri-search-line" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem', opacity: 0.3 }}></i>
                       No courses found matching your criteria.
                     </td>
@@ -348,40 +348,46 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
         <div className="std-table-wrap">
           <table className="std-table">
             <thead>
-              <tr>
-                <th style={{ width: '35%' }}>Course name</th>
-                <th style={{ width: '15%' }}>Category</th>
-                <th style={{ width: '15%' }}>Instructor</th>
-                <th style={{ width: '140px' }}>Progress</th>
-                <th style={{ width: '12%' }}>Level</th>
-                <th style={{ width: '12%' }}>Duration</th>
-                <th style={{ width: '12%', textAlign: 'center' }}>Action</th>
-              </tr>
+                <tr>
+                  <th className="col-course">Course name</th>
+                  <th className="col-cat">Category</th>
+                  <th className="col-instr">Instructor</th>
+                  <th className="col-prog">Progress</th>
+                  <th className="col-lv">Level</th>
+                  <th className="col-dur">Duration</th>
+                  <th className="col-act">Action</th>
+                </tr>
             </thead>
             <tbody>
               {pagedItems.map(course => (
-                <tr key={course.id} onClick={() => onNavigate('learn-player', course)}>
-                  <td>
-                    <div className="title-cell-flex">
-                       <span className="title-text truncate-1">{course.title}</span>
-                    </div>
-                  </td>
-                  <td><span style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase' }}>{course.category || 'General'}</span></td>
-                  <td>{course.instructor || 'GRH Staff'}</td>
-                  <td>
-                    <div className="progress-cell">
-                      <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
-                      <span style={{ fontSize: '0.75rem', fontWeight: '700' }}>{course.progress || 0}%</span>
-                    </div>
-                  </td>
-                  <td><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></td>
-                  <td style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}><i className="ri-time-line" style={{marginRight: '4px'}}></i>{course.duration || 'Self-paced'}</td>
-                  <td style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
-                    <button className="row-action" title="Resume Learning" onClick={(e) => { e.stopPropagation(); onNavigate('learn-player', course); }}>
-                       <i className="ri-play-circle-fill"></i>
-                    </button>
-                  </td>
-                </tr>
+                  <tr key={course.id} onClick={() => onNavigate('learn-player', course)}>
+                    <td className="col-course">
+                      <div className="course-name-cell">
+                         <span className="title-text">{course.title}</span>
+                      </div>
+                    </td>
+                    <td className="col-cat">
+                      <span className="cat-label">{course.category || 'General'}</span>
+                    </td>
+                    <td className="col-instr">
+                      <span className="instr-name">{course.instructor || 'GRH Staff'}</span>
+                    </td>
+                    <td className="col-prog">
+                      <div className="progress-cell">
+                        <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
+                        <span className="prog-percentage">{course.progress || 0}%</span>
+                      </div>
+                    </td>
+                    <td className="col-lv"><span className={`badge ${(course.level || 'Beginner').toLowerCase()}`}>{course.level || 'Beginner'}</span></td>
+                    <td className="col-dur">
+                      <span className="dur-text"><i className="ri-time-line"></i> {course.duration || 'Self-paced'}</span>
+                    </td>
+                    <td className="col-act">
+                      <button className="row-action" title="Resume Learning" onClick={(e) => { e.stopPropagation(); onNavigate('learn-player', course); }}>
+                         <i className="ri-play-circle-fill"></i>
+                      </button>
+                    </td>
+                  </tr>
               ))}
             </tbody>
           </table>
