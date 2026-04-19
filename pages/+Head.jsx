@@ -3,6 +3,21 @@ import React from 'react'
 export default function Head() {
   return (
     <>
+      <link rel="canonical" href="https://www.governanceresourcehub.com" />
+
+      {/* Open Graph / Facebook / LinkedIn */}
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://www.governanceresourcehub.com" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:site_name" content="Governance Resource Hub" />
+
+      {/* Twitter / X */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content="https://www.governanceresourcehub.com" />
+      <meta name="twitter:title" content="Governance Resource Hub | Excellence Redefined" />
+      <meta name="twitter:description" content="A premium, unified platform for governance excellence — featuring interactive e-learning, a digital research library, AI-powered insights, and advanced institutional diagnostics." />
+
       <link rel="icon" type="image/png" href="/icon.png?v=2" />
       <link rel="apple-touch-icon" href="/icon.png?v=2" />
       <meta name="theme-color" content="#4DA771" />
