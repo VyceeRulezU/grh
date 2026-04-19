@@ -1,15 +1,26 @@
-import React from 'react';
-import { Worker, Viewer } from '@react-pdf-viewer/core';
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
-
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import React, { Suspense, lazy } from 'react';
 import './ResourceViewer.css';
 
-const ResourceViewer = ({ isOpen, onClose, resource }) => {
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
+// ─── Lazy-load the heavy PDF engine only when a PDF is actually opened ────────
+// This keeps pdfjs-dist (~565KB) out of the initial JS bundle entirely.
+// All 6 consumers of ResourceViewer benefit without any change to their code.
+const PdfViewerInner = lazy(() => import('./PdfViewerInner'));
 
+// ─── Lightweight loading placeholder shown while PDF engine downloads ─────────
+const PdfLoadingFallback = () => (
+  <div style={{
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    height: '100%', flexDirection: 'column', gap: '1rem', color: '#aaa'
+  }}>
+    <i className="ri-loader-4-line" style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }} />
+    <p style={{ margin: 0, fontSize: '0.9rem' }}>Loading document viewer…</p>
+  </div>
+);
+
+const ResourceViewer = ({ isOpen, onClose, resource }) => {
   if (!isOpen || !resource) return null;
+
+  const url = resource.file_url || resource.fileUrl || resource.preview_url || resource.download_url;
 
   return (
     <div className="viewer-overlay glass" onClick={onClose}>
@@ -30,10 +41,9 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             <button className="viewer-close" onClick={onClose}><i className="ri-close-line"></i></button>
           </div>
         </header>
-        
+
         <div className="viewer-content" style={{ height: 'calc(100% - 60px)', width: '100%', overflow: 'hidden', padding: 0, background: '#525659' }}>
           {(() => {
-            const url = resource.file_url || resource.fileUrl || resource.preview_url || resource.download_url;
             if (!url) return <div className="viewer-page-mock" style={{ padding: '2rem' }}><div className="placeholder-text">No document link available.</div></div>;
 
             // 1. Handle Google Drive Links
@@ -45,11 +55,11 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
                 embedUrl = `https://drive.google.com/file/d/${id}/preview`;
               }
               return (
-                <iframe 
-                  src={embedUrl} 
-                  width="100%" 
-                  height="100%" 
-                  allow="autoplay" 
+                <iframe
+                  src={embedUrl}
+                  width="100%"
+                  height="100%"
+                  allow="autoplay"
                   style={{ border: 'none' }}
                   title={resource.title}
                 ></iframe>
@@ -58,7 +68,6 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
 
             // 2. Detect Extension for Different File Types
             const extension = url.split('.').pop().toLowerCase().split(/[?#]/)[0];
-            
             const isOfficeDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension);
             const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension);
             const isVideo = ['mp4', 'webm', 'ogg'].includes(extension);
@@ -67,10 +76,10 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             if (isOfficeDoc) {
               const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
               return (
-                <iframe 
-                  src={officeUrl} 
-                  width="100%" 
-                  height="100%" 
+                <iframe
+                  src={officeUrl}
+                  width="100%"
+                  height="100%"
                   frameBorder="0"
                   style={{ border: 'none' }}
                   title={resource.title}
@@ -82,9 +91,9 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             if (isImage) {
               return (
                 <div className="viewer-media-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '2rem' }}>
-                  <img 
-                    src={url} 
-                    alt={resource.title} 
+                  <img
+                    src={url}
+                    alt={resource.title}
                     style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', borderRadius: '8px' }}
                   />
                 </div>
@@ -95,10 +104,10 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             if (isVideo) {
               return (
                 <div className="viewer-media-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '1rem', background: '#000' }}>
-                  <video 
-                    src={url} 
-                    controls 
-                    autoPlay 
+                  <video
+                    src={url}
+                    controls
+                    autoPlay
                     style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '8px' }}
                   >
                     Your browser does not support the video tag.
@@ -107,14 +116,11 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               );
             }
 
-            // 3. Fallback to Standard PDF Viewer (Default)
+            // 3. Fallback: Standard PDF Viewer – loaded lazily so pdfjs doesn't bloat the main bundle
             return (
-              <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                <Viewer
-                  fileUrl={url}
-                  plugins={[defaultLayoutPluginInstance]}
-                />
-              </Worker>
+              <Suspense fallback={<PdfLoadingFallback />}>
+                <PdfViewerInner fileUrl={url} />
+              </Suspense>
             );
           })()}
         </div>
