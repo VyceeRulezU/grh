@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" npx vite build",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build && node scripts/vercel-postbuild.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
