@@ -3,9 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build && node scripts/finalize-build.js",
+    "build": "npx rimraf dist out-static && cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" npx vite build && node scripts/finalize-build.js",
     "preview": "vite preview"
   },
   "dependencies": {
