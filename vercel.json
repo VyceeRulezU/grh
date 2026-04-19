@@ -14,11 +14,5 @@
       "source": "/(.*)",
       "destination": "/$1/index.html"
     }
-  ],
-  "errorPages": [
-    {
-      "status": 404,
-      "src": "/404.html"
-    }
   ]
 }
