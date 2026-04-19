@@ -74,6 +74,7 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
 
             // Handle Office Documents
             if (isOfficeDoc) {
+              // Microsoft Office Web Viewer REQUIRES a fully qualified, public URL
               let absoluteUrl = url;
               if (!url.startsWith('http')) {
                 const origin = window.location.origin.replace(/\/$/, '');
@@ -81,12 +82,8 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
                 absoluteUrl = `${origin}${cleanUrl}`;
               }
 
-              // Fix for R2/S3 URLs: If the database URL already has '%20', encodeURIComponent will double-encode it to '%2520', breaking the viewer.
-              // We safely decode first, then encode the entire string for the query parameter.
-              const safeUrl = encodeURIComponent(decodeURIComponent(absoluteUrl));
-              
-              // Google Docs Viewer is usually best, but Cloudflare R2 often blocks BOTH Google and Microsoft bots from its pub-*.r2.dev domains.
-              const viewerUrl = `https://docs.google.com/viewer?url=${safeUrl}&embedded=true`;
+              // Reverting to the exact Microsoft Viewer logic used previously
+              const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
               
               return (
                 <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -103,7 +100,7 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
                   }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <i className="ri-error-warning-line" style={{ fontSize: '1.25rem' }}></i>
-                      <span>Cloud previews for this document type may occasionally fail. If it says "No preview available", please download it directly.</span>
+                      <span>If the Microsoft document preview fails to load below, you can download it securely.</span>
                     </span>
                     <a 
                       href={absoluteUrl} 
@@ -116,7 +113,7 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
                     </a>
                   </div>
                   <iframe
-                    src={viewerUrl}
+                    src={officeUrl}
                     width="100%"
                     height="100%"
                     frameBorder="0"
