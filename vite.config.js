@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
 import vike from 'vike/plugin'
-import vercel from 'vite-plugin-vercel'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,7 +10,6 @@ export default defineConfig({
     vike({
       prerender: true
     }),
-    vercel(),
     // Dev-only bundle analyzer: run `npm run build` to open stats.html
     process.env.ANALYZE === 'true' && visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
   ].filter(Boolean),
