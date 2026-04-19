@@ -7,9 +7,7 @@ import vike from 'vike/plugin'
 export default defineConfig({
   plugins: [
     react(),
-    vike({
-      prerender: true
-    }),
+    vike(),
     // Dev-only bundle analyzer: run `npm run build` to open stats.html
     process.env.ANALYZE === 'true' && visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
   ].filter(Boolean),
