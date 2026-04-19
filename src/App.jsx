@@ -389,7 +389,7 @@ function App() {
         {/* Favicon */}
         <link rel="icon" type="image/png" href="/icon.png?v=2" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1" />
-        <link rel="apple-touch-icon" href="/grh-learn.webp" />
+        <link rel="apple-touch-icon" href="/icon.png" />
         <meta name="theme-color" content="#4DA771" />
 
         {/* Open Graph */}
