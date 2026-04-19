@@ -55,3 +55,6 @@ service-account.json
 
 # Database backups and scripts
 /_database_backups
+
+# Vercel local outputs
+.vercel/
