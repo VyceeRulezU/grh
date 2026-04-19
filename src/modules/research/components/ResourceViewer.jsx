@@ -74,7 +74,16 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
 
             // Handle Office Documents
             if (isOfficeDoc) {
-              const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
+              // Microsoft Office Web Viewer REQUIRES a fully qualified, public URL
+              // Convert relative URLs (e.g., '/files/doc.docx') to absolute (e.g., 'https://domain.com/files/doc.docx')
+              let absoluteUrl = url;
+              if (!url.startsWith('http')) {
+                // Remove trailing slash from origin and leading slash from url to avoid double slashes
+                const origin = window.location.origin.replace(/\/$/, '');
+                const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+                absoluteUrl = `${origin}${cleanUrl}`;
+              }
+              const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
               return (
                 <iframe
                   src={officeUrl}
