@@ -1,5 +1,5 @@
 {
-  "outputDirectory": "dist",
+  "outputDirectory": "out-static",
   "cleanUrls": true,
   "trailingSlash": false
 }

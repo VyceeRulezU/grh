@@ -6,6 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootPath = path.resolve(__dirname, '..');
 const distPath = path.join(rootPath, 'dist');
 const clientPath = path.join(distPath, 'client');
+const outStaticPath = path.join(rootPath, 'out-static');
 
 // Vercel output paths
 const vercelOutputDir = path.join(rootPath, '.vercel', 'output');
@@ -20,10 +21,16 @@ async function fixBuild() {
 
   console.log('Finalizing build for GitHub Pages and Vercel...');
 
-  // Move files from dist/client up to dist/ root (required for gh-pages deploy)
+  // Clean out-static before copying
+  if (fs.existsSync(outStaticPath)) {
+    fs.rmSync(outStaticPath, { recursive: true, force: true });
+  }
+  fs.mkdirSync(outStaticPath, { recursive: true });
+
+  // Move files from dist/client to out-static root (avoids Vercel dist-detection)
   fs.readdirSync(clientPath).forEach(file => {
     const src = path.join(clientPath, file);
-    const dest = path.join(distPath, file);
+    const dest = path.join(outStaticPath, file);
 
     const stat = fs.statSync(src);
     if (stat.isDirectory()) {
@@ -34,10 +41,10 @@ async function fixBuild() {
   });
 
   // Create 404.html fallback for GitHub Pages SPA routing
-  const indexInDist = path.join(distPath, 'index.html');
-  if (fs.existsSync(indexInDist)) {
+  const indexInStatic = path.join(outStaticPath, 'index.html');
+  if (fs.existsSync(indexInStatic)) {
     console.log('Creating 404.html fallback...');
-    fs.copyFileSync(indexInDist, path.join(distPath, '404.html'));
+    fs.copyFileSync(indexInStatic, path.join(outStaticPath, '404.html'));
   }
 
   // --- Vercel Build Output API ---
@@ -52,12 +59,12 @@ async function fixBuild() {
   }
   fs.mkdirSync(vercelStaticDir, { recursive: true });
 
-  // Copy dist/ to .vercel/output/static/
-  fs.cpSync(distPath, vercelStaticDir, { recursive: true });
+  // Copy out-static/ to .vercel/output/static/
+  fs.cpSync(outStaticPath, vercelStaticDir, { recursive: true });
 
   // Ensure 404 is also in Vercel static output, though fallback below will handle it
-  if (fs.existsSync(indexInDist)) {
-    fs.copyFileSync(indexInDist, path.join(vercelStaticDir, '404.html'));
+  if (fs.existsSync(indexInStatic)) {
+    fs.copyFileSync(indexInStatic, path.join(vercelStaticDir, '404.html'));
   }
 
   // Create Vercel config.json for SPA fallback (Build Output API routing)
