@@ -1,24 +1,5 @@
 {
-  "outputDirectory": "dist/client",
+  "outputDirectory": "dist",
   "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1/index.html"
-    }
-  ],
-  "errorPages": [
-    {
-      "status": 404,
-      "src": "/404.html"
-    }
-  ]
+  "trailingSlash": false
 }
