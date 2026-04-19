@@ -1,2 +1,0 @@
-This is a dummy test document for Governance Resource Hub (GRH).
-It is used to verify the document upload functionality in the Admin Dashboard.

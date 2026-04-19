@@ -1,62 +1,46 @@
-import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync, copyFileSync } from 'fs';
+import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-// This script moves the build output from dist/client to the project root (.)
-// for maximum zero-configuration compatibility on Vercel.
+// This script flattens the build output from dist/client into the root dist/ folder.
+// It DOES NOT touch the project root, keeping your source code safe.
 
-const ROOT = '.';
 const DIST = 'dist';
 const CLIENT_DIST = join(DIST, 'client');
-const PROTECTED = ['src', 'node_modules', 'scripts', 'public', '.git', '.github', '.vercel', 'pages', 'assets-src'];
+const SERVER_DIST = join(DIST, 'server');
+const TEMP_DIST = 'dist_temp';
 
 async function flatten() {
-  console.log('[flatten-root] Starting authoritative root deployment move...');
+  console.log('[flatten-sane] Starting clean build output flattening...');
 
   if (!existsSync(CLIENT_DIST)) {
-    console.warn(`[flatten-root] WARNING: ${CLIENT_DIST} not found. Build output folder missing.`);
-    // If dist exists but not dist/client, check if it's already flattened.
-    if (!existsSync(DIST)) {
-      console.error('[flatten-root] FATAL: No build artifacts found.');
-      process.exit(1);
-    }
+    console.error(`[flatten-sane] ERROR: ${CLIENT_DIST} not found. Build output folder missing.`);
+    process.exit(1);
   }
 
-  const sourceDir = existsSync(CLIENT_DIST) ? CLIENT_DIST : DIST;
-  console.log(`[flatten-root] Source directory: ${sourceDir}`);
+  // 1. Move CLIENT_DIST to a temporary location
+  if (existsSync(TEMP_DIST)) rmSync(TEMP_DIST, { recursive: true, force: true });
+  renameSync(CLIENT_DIST, TEMP_DIST);
 
-  // 1. Clear out the root components that we are about to replace
-  // We do NOT clear everything (.) because we need to preserve node_modules and src.
+  // 2. Wipe the original SERVER folders within DIST
+  if (existsSync(SERVER_DIST)) rmSync(SERVER_DIST, { recursive: true, force: true });
   
-  const items = readdirSync(sourceDir);
-
+  // 3. Move everything from TEMP_DIST into DIST (root level of build)
+  const items = readdirSync(TEMP_DIST);
   for (const item of items) {
-    const src = join(sourceDir, item);
-    const dest = join(ROOT, item);
-
-    // Skip if the item is in our protected list
-    if (PROTECTED.includes(item)) {
-      console.log(`[flatten-root] Skipping protected path: ${item}`);
-      continue;
-    }
-
-    // Handle overwriting
-    if (existsSync(dest)) {
-      console.log(`[flatten-root] Overwriting ${dest}...`);
-      rmSync(dest, { recursive: true, force: true });
-    }
-
-    console.log(`[flatten-root] Moving ${src} -> ${dest}`);
+    const src = join(TEMP_DIST, item);
+    const dest = join(DIST, item);
+    
+    if (existsSync(dest)) rmSync(dest, { recursive: true, force: true });
     renameSync(src, dest);
   }
 
-  // 2. Add a special diagnostic marker to verify folder access
-  const markerPath = join(ROOT, 'VERCEL_SERVES_ROOT.txt');
-  import('fs').then(fs => fs.writeFileSync(markerPath, `VERCEL SUCCESS - ${new Date().toISOString()}`));
+  // 4. Cleanup
+  rmSync(TEMP_DIST, { recursive: true, force: true });
 
-  console.log('[flatten-root] SUCCESS! Build artifacts flattened to root. ✅');
+  console.log('[flatten-sane] SUCCESS! Build output is now neatly flattened in /dist ✅');
 }
 
 flatten().catch(err => {
-  console.error('[flatten-root] FATAL ERROR:', err);
+  console.error('[flatten-sane] ERROR:', err);
   process.exit(1);
 });
