@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
+    "postbuild": "echo \"Vercel Build Diagnostic - Time: $(date) - Directory: dist/client\" > dist/client/deploy-diagnostic.txt",
     "preview": "vite preview"
   },
   "dependencies": {
