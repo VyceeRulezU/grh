@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
+    "postbuild": "node scripts/flatten.mjs",
     "vercel-build": "npm run build",
     "preview": "vite preview"
   },

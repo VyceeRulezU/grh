@@ -1,51 +1,61 @@
-import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync } from 'fs';
+import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync, copyFileSync } from 'fs';
 import { join } from 'path';
 
-// This script flattens the build output from dist/client into the root dist/ folder.
-// It DOES NOT touch the project root, keeping your source code safe.
+// This script flattens the build output from dist/client into the root public/ folder.
+// Vercel has a hard-coded priority for the "public" folder, making it the most robust
+// way to ensure your site is served without 404s.
 
+const ROOT = '.';
 const DIST = 'dist';
 const CLIENT_DIST = join(DIST, 'client');
-const SERVER_DIST = join(DIST, 'server');
-const TEMP_DIST = 'dist_temp';
+const PUBLIC = join(ROOT, 'public');
 
 async function flatten() {
-  console.log('[flatten-sane] Starting clean build output flattening...');
+  console.log('[flatten-public] Starting "Public Shadow Build" move...');
 
   if (!existsSync(CLIENT_DIST)) {
-    console.error(`[flatten-sane] ERROR: ${CLIENT_DIST} not found. Build output folder missing.`);
+    console.error(`[flatten-public] ERROR: ${CLIENT_DIST} not found. Build output folder missing.`);
     process.exit(1);
   }
 
-  // 1. Move CLIENT_DIST to a temporary location
-  if (existsSync(TEMP_DIST)) rmSync(TEMP_DIST, { recursive: true, force: true });
-  renameSync(CLIENT_DIST, TEMP_DIST);
-
-  // 2. Wipe the original SERVER folders within DIST
-  if (existsSync(SERVER_DIST)) rmSync(SERVER_DIST, { recursive: true, force: true });
-  
-  // 3. Move everything from TEMP_DIST into DIST (root level of build)
-  const items = readdirSync(TEMP_DIST);
-  for (const item of items) {
-    const src = join(TEMP_DIST, item);
-    const dest = join(DIST, item);
-    
-    if (existsSync(dest)) rmSync(dest, { recursive: true, force: true });
-    renameSync(src, dest);
+  // 1. Ensure the public folder exists
+  if (!existsSync(PUBLIC)) {
+    console.log('[flatten-public] Creating public folder...');
+    mkdirSync(PUBLIC, { recursive: true });
   }
 
-  // 4. Cleanup
-  console.log('[flatten-sane] Final cleanup...');
-  rmSync(TEMP_DIST, { recursive: true, force: true });
-  
-  // 5. Final Stability Marker
-  const markerPath = join(DIST, 'VERCEL_IS_IN_DIST.txt');
-  import('fs').then(fs => fs.writeFileSync(markerPath, `Vercel is now correctly serving from the dist folder. Time: ${new Date().toISOString()}`));
+  // 2. Identify all items in the build output
+  const items = readdirSync(CLIENT_DIST);
 
-  console.log('[flatten-sane] SUCCESS! Build output is now neatly flattened in /dist ✅');
+  for (const item of items) {
+    const src = join(CLIENT_DIST, item);
+    const dest = join(PUBLIC, item);
+
+    // If it's a folder (like 'assets' or a pre-rendered route like '/about'), move it
+    if (lstatSync(src).isDirectory()) {
+      if (existsSync(dest)) {
+        console.log(`[flatten-public] Overwriting directory: ${dest}`);
+        rmSync(dest, { recursive: true, force: true });
+      }
+      console.log(`[flatten-public] Moving directory ${item} -> public/${item}`);
+      renameSync(src, dest);
+    } else {
+      // It's a file (like index.html)
+      console.log(`[flatten-public] Moving file ${item} -> public/${item}`);
+      // On Windows, renameSync can fail if the destination file is 'busy', so we use a safe move
+      if (existsSync(dest)) rmSync(dest, { force: true });
+      renameSync(src, dest);
+    }
+  }
+
+  // 3. Clean up the build folder
+  console.log('[flatten-public] Cleaning up build folders...');
+  rmSync(DIST, { recursive: true, force: true });
+
+  console.log('[flatten-public] SUCCESS! Application is now in the /public folder for Vercel. ✅');
 }
 
 flatten().catch(err => {
-  console.error('[flatten-sane] ERROR:', err);
+  console.error('[flatten-public] FATAL ERROR:', err);
   process.exit(1);
 });
