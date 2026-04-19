@@ -85,17 +85,42 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               // We safely decode first, then encode the entire string for the query parameter.
               const safeUrl = encodeURIComponent(decodeURIComponent(absoluteUrl));
               
-              // Google Docs Viewer is significantly more reliable than Microsoft Office Viewer for Cloudflare R2 / AWS S3 buckets
+              // Google Docs Viewer is usually best, but Cloudflare R2 often blocks BOTH Google and Microsoft bots from its pub-*.r2.dev domains.
               const viewerUrl = `https://docs.google.com/viewer?url=${safeUrl}&embedded=true`;
               
               return (
-                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ 
+                    padding: '0.75rem 1rem', 
+                    background: '#fef3c7', 
+                    borderBottom: '1px solid #f5d0fe', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                    color: '#92400e',
+                    fontSize: '0.85rem'
+                  }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <i className="ri-error-warning-line" style={{ fontSize: '1.25rem' }}></i>
+                      <span>Cloud previews for this document type may occasionally fail. If it says "No preview available", please download it directly.</span>
+                    </span>
+                    <a 
+                      href={absoluteUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="special-button"
+                      style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', whiteSpace: 'nowrap', borderRadius: '4px' }}
+                    >
+                      <i className="ri-download-2-line" style={{ marginRight: '0.35rem' }}></i> Download
+                    </a>
+                  </div>
                   <iframe
                     src={viewerUrl}
                     width="100%"
                     height="100%"
                     frameBorder="0"
-                    style={{ border: 'none' }}
+                    style={{ border: 'none', flex: 1, background: '#fff' }}
                     title={resource.title}
                   ></iframe>
                 </div>
