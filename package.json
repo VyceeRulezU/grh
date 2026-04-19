@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npx rimraf dist out && cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" npx vite build && npx copyfiles -f -u 2 \"dist/client/**/*\" out && npx copyfiles -f \"public/*\" out",
+    "build": "npx rimraf dist out && cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" npx vite build && npx copyfiles -f -u 2 \"dist/client/**/*\" out && npx copyfiles -f \"public/*\" out && ls -R out",
     "preview": "vite preview"
   },
   "dependencies": {
