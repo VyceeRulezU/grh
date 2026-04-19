@@ -35,6 +35,8 @@ async function main() {
   // 4. Generate config.json
   const config = {
     version: 3,
+    cleanUrls: true,
+    trailingSlash: false,
     routes: [
       {
         handle: 'filesystem'
