@@ -1,8 +1,8 @@
 /* ===== PAGE HERO – Shared Component (Research-hero style) ===== */
 .page-hero {
   width: 100%;
-  height: 60vh;
-  min-height: 60vh;
+  height: 70vh;
+  min-height: 70vh;
   background-image: url(/assets/login-bg.svg);
   background-position: center;
   background-size: cover;

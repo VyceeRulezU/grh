@@ -52,6 +52,21 @@ async function flatten() {
   console.log('[flatten-public] Cleaning up build folders...');
   rmSync(DIST, { recursive: true, force: true });
 
+  // 4. Copy static source assets that are referenced by absolute URL in CSS
+  //    (e.g. /assets/login-bg.svg used by all hero components)
+  const sourceAssets = [
+    { src: join('src', 'assets', 'auth', 'login-bg.svg'), dest: join(PUBLIC, 'assets', 'login-bg.svg') },
+  ];
+  for (const { src, dest } of sourceAssets) {
+    if (existsSync(src)) {
+      console.log(`[flatten-public] Copying static asset: ${src} -> ${dest}`);
+      mkdirSync(join(PUBLIC, 'assets'), { recursive: true });
+      copyFileSync(src, dest);
+    } else {
+      console.warn(`[flatten-public] WARNING: Missing static asset: ${src}`);
+    }
+  }
+
   console.log('[flatten-public] SUCCESS! Application is now in the /public folder for Vercel. ✅');
 }
 
