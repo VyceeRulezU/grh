@@ -41,10 +41,8 @@ for (const entry of readdirSync(clientDir)) {
 const config = {
   version: 3,
   routes: [
-    // Serve pre-rendered pages directly with clean URLs
     { handle: 'filesystem' },
-    // SPA fallback: any unmatched path → index.html
-    { src: '/(.+)', dest: '/index.html', status: 200 }
+    { src: '^/(.*)$', dest: '/index.html' }
   ]
 };
 writeFileSync(configPath, JSON.stringify(config, null, 2));
