@@ -74,25 +74,31 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
 
             // Handle Office Documents
             if (isOfficeDoc) {
-              // Microsoft Office Web Viewer REQUIRES a fully qualified, public URL
-              // Convert relative URLs (e.g., '/files/doc.docx') to absolute (e.g., 'https://domain.com/files/doc.docx')
               let absoluteUrl = url;
               if (!url.startsWith('http')) {
-                // Remove trailing slash from origin and leading slash from url to avoid double slashes
                 const origin = window.location.origin.replace(/\/$/, '');
                 const cleanUrl = url.startsWith('/') ? url : `/${url}`;
                 absoluteUrl = `${origin}${cleanUrl}`;
               }
-              const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
+
+              // Fix for R2/S3 URLs: If the database URL already has '%20', encodeURIComponent will double-encode it to '%2520', breaking the viewer.
+              // We safely decode first, then encode the entire string for the query parameter.
+              const safeUrl = encodeURIComponent(decodeURIComponent(absoluteUrl));
+              
+              // Google Docs Viewer is significantly more reliable than Microsoft Office Viewer for Cloudflare R2 / AWS S3 buckets
+              const viewerUrl = `https://docs.google.com/viewer?url=${safeUrl}&embedded=true`;
+              
               return (
-                <iframe
-                  src={officeUrl}
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  style={{ border: 'none' }}
-                  title={resource.title}
-                ></iframe>
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <iframe
+                    src={viewerUrl}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    style={{ border: 'none' }}
+                    title={resource.title}
+                  ></iframe>
+                </div>
               );
             }
 
