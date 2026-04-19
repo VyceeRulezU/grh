@@ -10,7 +10,7 @@ export default {
   description: 'A premium, unified platform for governance excellence — featuring interactive e-learning, a digital research library, AI-powered insights, and advanced institutional diagnostics.',
   image: 'https://www.governanceresourcehub.com/grh-learn.webp',
   // https://vike.dev/ssr
-  ssr: true, // Enable full SSR to get static content in HTML
+  ssr: false, // Disable SSR to ensure a 100% static pre-rendered build for Vercel
   // https://vike.dev/prerender
   prerender: true
 }
