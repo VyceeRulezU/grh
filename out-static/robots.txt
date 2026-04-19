@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /oauth-consent
+
+Sitemap: https://www.governanceresourcehub.com/sitemap.xml
