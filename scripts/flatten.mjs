@@ -39,6 +39,13 @@ async function flatten() {
   rmSync(TEMP_DIST, { recursive: true, force: true });
   if (existsSync(SERVER_DIST)) rmSync(SERVER_DIST, { recursive: true, force: true });
 
+  // 5. Diagnostic Marker
+  console.log('[flatten] Creating diagnostic marker...');
+  const markerPath = join(DIST, 'VERCEL_IS_SERVING_DIST.txt');
+  readdirSync(DIST); // Ensure DIST is accessible
+  const markerContent = `I AM HERE - Time: ${new Date().toISOString()} - Build Successful`;
+  import('fs').then(fs => fs.writeFileSync(markerPath, markerContent));
+
   console.log('[flatten] DONE! Build output is now 100% flat in /dist ✅');
 }
 
