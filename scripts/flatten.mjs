@@ -1,4 +1,4 @@
-import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync } from 'fs';
+import { readdirSync, renameSync, rmSync, existsSync, lstatSync, mkdirSync, copyFileSync } from 'fs';
 import { join } from 'path';
 
 // This script moves the build output from dist/client to the project root (.)
@@ -13,50 +13,50 @@ async function flatten() {
   console.log('[flatten-root] Starting authoritative root deployment move...');
 
   if (!existsSync(CLIENT_DIST)) {
-    console.warn(`[flatten-root] WARNING: ${CLIENT_DIST} not found. Checking if files are already flattened in ${DIST}...`);
-    // If dist exists but not dist/client, maybe it's already flattened.
+    console.warn(`[flatten-root] WARNING: ${CLIENT_DIST} not found. Build output folder missing.`);
+    // If dist exists but not dist/client, check if it's already flattened.
     if (!existsSync(DIST)) {
-      console.error('[flatten-root] FATAL: Build output folder missing.');
+      console.error('[flatten-root] FATAL: No build artifacts found.');
       process.exit(1);
     }
   }
 
   const sourceDir = existsSync(CLIENT_DIST) ? CLIENT_DIST : DIST;
-  console.log(`[flatten-root] Source directory identified: ${sourceDir}`);
+  console.log(`[flatten-root] Source directory: ${sourceDir}`);
 
-  // 1. Get all files and folders in the build output
+  // 1. Clear out the root components that we are about to replace
+  // We do NOT clear everything (.) because we need to preserve node_modules and src.
+  
   const items = readdirSync(sourceDir);
 
   for (const item of items) {
-    if (item === 'index.html' || item === 'assets' || item === 'robots.txt' || item === 'sitemap.xml' || lstatSync(join(sourceDir, item)).isDirectory()) {
-      const src = join(sourceDir, item);
-      const dest = join(ROOT, item);
+    const src = join(sourceDir, item);
+    const dest = join(ROOT, item);
 
-      // Skip if the item is in our protected list (like 'scripts' or 'src')
-      if (PROTECTED.includes(item)) {
-        console.log(`[flatten-root] Skipping protected item: ${item}`);
-        continue;
-      }
-
-      // If destination exists, remove it first (especially folders like 'assets')
-      if (existsSync(dest)) {
-        console.log(`[flatten-root] Overwriting existing item: ${dest}`);
-        rmSync(dest, { recursive: true, force: true });
-      }
-
-      console.log(`[flatten-root] Moving ${src} -> ${dest}`);
-      renameSync(src, dest);
+    // Skip if the item is in our protected list
+    if (PROTECTED.includes(item)) {
+      console.log(`[flatten-root] Skipping protected path: ${item}`);
+      continue;
     }
+
+    // Handle overwriting
+    if (existsSync(dest)) {
+      console.log(`[flatten-root] Overwriting ${dest}...`);
+      rmSync(dest, { recursive: true, force: true });
+    }
+
+    console.log(`[flatten-root] Moving ${src} -> ${dest}`);
+    renameSync(src, dest);
   }
 
-  // 2. Clean up build artifacts
-  console.log('[flatten-root] Cleaning up build folders...');
-  if (existsSync(DIST)) rmSync(DIST, { recursive: true, force: true });
+  // 2. Add a special diagnostic marker to verify folder access
+  const markerPath = join(ROOT, 'VERCEL_SERVES_ROOT.txt');
+  import('fs').then(fs => fs.writeFileSync(markerPath, `VERCEL SUCCESS - ${new Date().toISOString()}`));
 
-  console.log('[flatten-root] SUCCESS! Application is now available at the project root for Vercel. ✅');
+  console.log('[flatten-root] SUCCESS! Build artifacts flattened to root. ✅');
 }
 
 flatten().catch(err => {
-  console.error('[flatten-root] ERROR:', err);
+  console.error('[flatten-root] FATAL ERROR:', err);
   process.exit(1);
 });
