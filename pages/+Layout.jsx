@@ -2,6 +2,7 @@ import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
 import * as Sentry from "@sentry/react";
+import NotFoundPage from '../src/modules/home/NotFoundPage';
 import '../src/styles/tokens.css'
 import '../src/index.css'
 
@@ -28,13 +29,18 @@ if (typeof window !== 'undefined') {
 }
 
 export default function Layout({ children }) {
+  // Uncomment the line below to test Sentry error tracking
+  // if (typeof window !== 'undefined') throw new Error("Sentry test error");
+
   return (
     <React.StrictMode>
-      <HelmetProvider>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </HelmetProvider>
+      <Sentry.ErrorBoundary fallback={<NotFoundPage errorCode="S-ERR" title="Unexpected Error" summary="Our systems detected an issue. The engineering team has been notified." />}>
+        <HelmetProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </HelmetProvider>
+      </Sentry.ErrorBoundary>
     </React.StrictMode>
   )
 }
