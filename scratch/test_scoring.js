@@ -1,7 +1,7 @@
 
 const COMMON_WORDS = new Set(['governance', 'public', 'resource', 'hub', 'report', 'document', 'framework', 'policy', 'strategy']);
 
-function scoreResult(result, queryKeywords) {
+export function scoreResult(result, queryKeywords) {
   const title = (result.title || "").toLowerCase();
   const body = (result.description || result.summary || "").toLowerCase();
   
@@ -32,7 +32,7 @@ function scoreResult(result, queryKeywords) {
   });
 
   const combinedKeywords = queryKeywords.join(' ').toLowerCase();
-  if (title.includes(combinedKeywords)) {
+  if (combinedKeywords && title.includes(combinedKeywords)) {
     score += 500;
   }
 

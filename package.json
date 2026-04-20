@@ -11,7 +11,11 @@
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
     "postbuild": "node scripts/flatten.mjs",
     "vercel-build": "npm run build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:ui": "vitest --ui",
+    "test:install": "npx playwright install --with-deps"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1032.0",
@@ -19,6 +23,8 @@
     "@hookform/resolvers": "^5.2.2",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
+    "@sentry/react": "^10.49.0",
+    "@sentry/vite-plugin": "^5.2.0",
     "@supabase/supabase-js": "^2.98.0",
     "@tanstack/react-query": "^5.91.3",
     "@vercel/analytics": "^1.6.1",
@@ -40,6 +46,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "dotenv": "^17.3.1",
@@ -47,6 +54,7 @@
     "googleapis": "^171.4.0",
     "react-is": "^18.2.0",
     "rollup-plugin-visualizer": "^7.0.1",
-    "vercel": "^50.38.2"
+    "vercel": "^50.38.2",
+    "vitest": "^4.1.4"
   }
 }
