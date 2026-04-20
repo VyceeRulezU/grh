@@ -5,7 +5,14 @@ import * as Sentry from "@sentry/react";
 import '../src/styles/tokens.css'
 import '../src/index.css'
 
-const queryClient = new QueryClient(...) // Truncated for target match
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+})
 
 if (typeof window !== 'undefined') {
   Sentry.init({
