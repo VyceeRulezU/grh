@@ -66,11 +66,20 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               );
             }
 
-            // 2. Detect Extension for Different File Types
-            const extension = url.split('.').pop().toLowerCase().split(/[?#]/)[0];
-            const isOfficeDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension);
-            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension);
-            const isVideo = ['mp4', 'webm', 'ogg'].includes(extension);
+            // Detect Extension for Different File Types - IMPROVED for query params
+            const cleanUrl = url.split(/[?#]/)[0];
+            const extension = cleanUrl.split('.').pop().toLowerCase();
+            
+            // Fallback: check query params if extension not found in main path
+            const searchParams = new URL(url.startsWith('http') ? url : `https://dummy.com/${url}`).searchParams;
+            const urlFilename = searchParams.get('filename') || '';
+            const urlExtension = urlFilename.split('.').pop().toLowerCase();
+            
+            const effectiveExtension = extension || urlExtension;
+
+            const isOfficeDoc = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(effectiveExtension);
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(effectiveExtension);
+            const isVideo = ['mp4', 'webm', 'ogg'].includes(effectiveExtension);
 
             // Handle Office Documents
             if (isOfficeDoc) {
@@ -78,8 +87,8 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               let absoluteUrl = url;
               if (!url.startsWith('http')) {
                 const origin = window.location.origin.replace(/\/$/, '');
-                const cleanUrl = url.startsWith('/') ? url : `/${url}`;
-                absoluteUrl = `${origin}${cleanUrl}`;
+                const pathPrefix = url.startsWith('/') ? '' : '/';
+                absoluteUrl = `${origin}${pathPrefix}${url}`;
               }
 
               // Reverting to the exact Microsoft Viewer logic used previously

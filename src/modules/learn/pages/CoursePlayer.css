@@ -39,7 +39,7 @@
 
 .mobile-sidebar-toggle i {
   font-size: 1.25rem;
-  color: var(--primary);
+  color: var(--primary) !important;
 }
 
 .mobile-sidebar-toggle:hover {
@@ -222,7 +222,7 @@ video.yt-iframe {
 
 .yt-play-btn .material-symbols-outlined {
   font-size: 3rem;
-  color: white;
+  color: #FFFFFF !important;
 }
 
 .yt-meta {

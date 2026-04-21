@@ -532,7 +532,7 @@
 }
 
 .learn-hero-search .search-icon {
-  color: var(--text-soft);
+  color: var(--primary) !important;
   font-size: 22px;
   transition: color 0.3s ease;
 }

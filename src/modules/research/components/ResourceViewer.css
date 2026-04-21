@@ -116,7 +116,7 @@
   height: 40px;
   border-radius: 50%;
   background: var(--secondary);
-  color: white;
+  color: #FFFFFF !important;
   display: flex;
   align-items: center;
   justify-content: center;
