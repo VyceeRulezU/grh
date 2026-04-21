@@ -596,8 +596,8 @@ const ExplorePage = ({ user, onNavigate }) => {
           )}
 
           {messages.map((msg, i) => (
-            <div key={msg.id || i} className={`message-row ${msg.role}`}>
-              <div className={`avatar ${msg.role === 'assistant' ? 'assistant-avatar' : 'user-avatar'}`}>
+            <div key={msg.id || i} className={`explore-message-row ${msg.role}`}>
+              <div className={`explore-avatar ${msg.role === 'assistant' ? 'explore-assistant-avatar' : 'explore-user-avatar'}`}>
                 {msg.role === 'assistant' ? '◆' : (
                   user?.avatar_url ? (
                     <img 
@@ -611,8 +611,8 @@ const ExplorePage = ({ user, onNavigate }) => {
                   )
                 )}
               </div>
-              <div className={`message-bubble ${msg.role} ${msg.fullResources?.length > 0 ? 'has-resource' : ''}`}>
-                <div className="message-content">
+              <div className={`explore-message-bubble ${msg.role} ${msg.fullResources?.length > 0 ? 'has-resource' : ''}`}>
+                <div className="explore-message-content">
                   {renderMessage(msg.text || msg.content)}
                 </div>
                 
@@ -640,9 +640,9 @@ const ExplorePage = ({ user, onNavigate }) => {
           ))}
 
           {typing && (
-            <div className="message-row assistant">
-              <div className="avatar assistant-avatar">◆</div>
-              <div className="message-bubble assistant">
+            <div className="explore-message-row assistant">
+              <div className="explore-avatar explore-assistant-avatar">◆</div>
+              <div className="explore-message-bubble assistant">
                 <div className="typing-dots">
                   <span /><span /><span />
                 </div>
