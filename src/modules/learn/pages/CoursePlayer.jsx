@@ -113,7 +113,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const [lessons, setLessons] = useState([]);
   const [activeLesson, setActiveLesson] = useState(null);
   const [activeTab, setActiveTab] = useState('Overview');
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState({});
   const [note, setNote] = useState("");
@@ -456,7 +456,12 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
       <div className="player-main">
         <div className="player-content-area">
           <div className="video-wrapper">
-            <div className="video-viewport">
+            <div className="video-viewport" style={{ backgroundColor: '#0f0f0f' }}>
+              {/* Branded Watermark Overlay (Centered Only) */}
+              <div className="video-watermark-overlay">
+                <img src={logo} className="centered-watermark-logo" alt="GRH Logo" />
+              </div>
+
               {/* 1. The Video Content (Iframe vs Native Video) */}
               {(isDrive || isNative || (videoId && isPlaying)) ? (
                 isNative ? (
@@ -472,6 +477,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
                   />
                 ) : (
                   <iframe
+                    key={`yt-${videoId}`}
                     className="yt-iframe"
                     src={isDrive 
                       ? `https://drive.google.com/file/d/${driveId}/preview` 
@@ -482,32 +488,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
                     frameBorder="0"
                   />
                 )
-              ) : videoId ? (
-                <img
-                  src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                  alt="YouTube thumbnail"
-                  className="yt-thumbnail"
-                  style={{ opacity: 0.8, filter: 'none' }}
-                />
               ) : null}
-
-              {/* 2. The Interactive Overlay (Shown only if NOT playing) */}
-              {!isPlaying && (
-                <div 
-                  className="yt-overlay" 
-                  onClick={() => setIsPlaying(true)}
-                  style={{ 
-                    background: isDrive ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.8)',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <div className="yt-play-btn"><span className="material-symbols-outlined">play_arrow</span></div>
-                  <div className="yt-meta">
-                    <p className="yt-lesson-label">Lesson {activeLesson.sequence_order || lessons.indexOf(activeLesson) + 1} — {isNative ? 'CLOUD STREAM' : isDrive ? 'GOOGLE DRIVE' : 'VIDEO'}</p>
-                    <p className="yt-lesson-title">{activeLesson.title}</p>
-                  </div>
-                </div>
-              )}
 
               {/* 3. Empty State Fallback */}
               {(!videoId && !driveId && !isNative) && (

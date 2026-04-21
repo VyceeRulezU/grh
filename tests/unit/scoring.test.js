@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { scoreResult } from '../../scratch/test_scoring.js';
+import { scoreResult } from '../../src/shared/utils/scoring.js';
 
 describe('scoreResult', () => {
   const mockDoc = {
