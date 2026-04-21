@@ -1,0 +1,2 @@
+(function(){try{var e=typeof window<"u"?window:typeof global<"u"?global:typeof globalThis<"u"?globalThis:typeof self<"u"?self:{};e.SENTRY_RELEASE={id:"9ee5f1b5f17d8cbff8a884963fe6ade73f5c1d24"};var b=new e.Error().stack;b&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[b]="ba984763-bb70-4c31-9fc3-ebb3fae906b6",e._sentryDebugIdIdentifier="sentry-dbid-ba984763-bb70-4c31-9fc3-ebb3fae906b6")}catch{}})();const f="/assets/static/Icon.odpHZRjl.png";export{f as l};
+//# sourceMappingURL=chunk-DJU3uTJ2.js.map
