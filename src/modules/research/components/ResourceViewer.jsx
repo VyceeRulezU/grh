@@ -23,28 +23,30 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
   const url = resource.file_url || resource.fileUrl || resource.preview_url || resource.download_url;
 
   return (
-    <div className="viewer-overlay glass" onClick={onClose}>
-      <div className="viewer-modal animate-up" onClick={e => e.stopPropagation()} style={{ padding: 0, overflow: 'hidden' }}>
-        <header className="viewer-header" style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-          <div className="viewer-header-left">
-            <div className="viewer-info">
-              <i className={`${resource.icon || 'ri-file-text-line'} viewer-icon`}></i>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1rem' }}>{resource.title}</h3>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-soft)' }}>
+    <div className="grh-res-viewer-overlay glass" onClick={onClose}>
+      <div className="grh-res-viewer-modal animate-up" onClick={e => e.stopPropagation()}>
+        <header className="grh-res-viewer-header">
+          <div className="grh-res-viewer-header-left">
+            <div className="grh-res-viewer-info">
+              <i className={`${resource.icon || 'ri-file-text-line'} grh-res-viewer-icon`}></i>
+              <div className="grh-res-viewer-text">
+                <h3>{resource.title}</h3>
+                <p>
                   {resource.author || 'GRH'} · {resource.year}
                 </p>
               </div>
             </div>
           </div>
-          <div className="viewer-controls">
-            <button className="viewer-close" onClick={onClose}><i className="ri-close-line"></i></button>
+          <div className="grh-res-viewer-controls">
+            <button className="grh-res-viewer-close" onClick={onClose} aria-label="Close Viewer">
+              <i className="ri-close-line"></i>
+            </button>
           </div>
         </header>
 
-        <div className="viewer-content" style={{ height: 'calc(100% - 60px)', width: '100%', overflow: 'hidden', padding: 0, background: '#525659' }}>
+        <div className="grh-res-viewer-content">
           {(() => {
-            if (!url) return <div className="viewer-page-mock" style={{ padding: '2rem' }}><div className="placeholder-text">No document link available.</div></div>;
+            if (!url) return <div className="grh-res-viewer-page-mock"><div className="placeholder-text">No document link available.</div></div>;
 
             // 1. Handle Google Drive Links
             if (url.includes('drive.google.com')) {
@@ -95,30 +97,19 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
               const officeUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
               
               return (
-                <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ 
-                    padding: '0.75rem 1rem', 
-                    background: '#fef3c7', 
-                    borderBottom: '1px solid #f5d0fe', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'space-between',
-                    gap: '1rem',
-                    color: '#92400e',
-                    fontSize: '0.85rem'
-                  }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <i className="ri-error-warning-line" style={{ fontSize: '1.25rem' }}></i>
+                <div className="grh-res-office-viewer">
+                  <div className="grh-res-office-warning">
+                    <span className="grh-res-warning-text">
+                      <i className="ri-error-warning-line"></i>
                       <span>If the Microsoft document preview fails to load below, you can download it securely.</span>
                     </span>
                     <a 
                       href={absoluteUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="special-button"
-                      style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', whiteSpace: 'nowrap', borderRadius: '4px' }}
+                      className="special-button grh-res-download-btn"
                     >
-                      <i className="ri-download-2-line" style={{ marginRight: '0.35rem' }}></i> Download
+                      <i className="ri-download-2-line"></i> Download
                     </a>
                   </div>
                   <iframe
@@ -126,7 +117,7 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
                     width="100%"
                     height="100%"
                     frameBorder="0"
-                    style={{ border: 'none', flex: 1, background: '#fff' }}
+                    className="grh-res-office-iframe"
                     title={resource.title}
                   ></iframe>
                 </div>
@@ -136,11 +127,11 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             // Handle Images
             if (isImage) {
               return (
-                <div className="viewer-media-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '2rem' }}>
+                <div className="grh-res-viewer-media-container grh-res-image-container">
                   <img
                     src={url}
                     alt={resource.title}
-                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', borderRadius: '8px' }}
+                    className="grh-res-viewer-image"
                   />
                 </div>
               );
@@ -149,12 +140,12 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             // Handle Videos
             if (isVideo) {
               return (
-                <div className="viewer-media-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '1rem', background: '#000' }}>
+                <div className="grh-res-viewer-media-container grh-res-video-container">
                   <video
                     src={url}
                     controls
                     autoPlay
-                    style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '8px' }}
+                    className="grh-res-viewer-video"
                   >
                     Your browser does not support the video tag.
                   </video>
