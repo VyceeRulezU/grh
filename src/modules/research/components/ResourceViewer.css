@@ -215,7 +215,7 @@
   }
 
   .grh-res-viewer-text p {
-    font-size: 11px;
+    display: none;
   }
 
   .grh-res-viewer-close {
