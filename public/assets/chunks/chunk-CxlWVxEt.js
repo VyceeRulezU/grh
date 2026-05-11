@@ -1,1 +1,0 @@
-import{c as s}from"./chunk-yKjPlrCh.js";const I="https://vedvxjugpwisjshanmyk.supabase.co",a="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZHZ4anVncHdpc2pzaGFubXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDc5MDUsImV4cCI6MjA4ODAyMzkwNX0.M6JrX56uBkDQfdazGItqWGwfsKOgbTWamp2vVprr0i0",c=s(I,a);export{c as supabase};

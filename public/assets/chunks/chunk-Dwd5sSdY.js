@@ -1,2 +1,0 @@
-(function(){try{var e=typeof window<"u"?window:typeof global<"u"?global:typeof globalThis<"u"?globalThis:typeof self<"u"?self:{};e.SENTRY_RELEASE={id:"9ee5f1b5f17d8cbff8a884963fe6ade73f5c1d24"};var f=new e.Error().stack;f&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[f]="68371eb5-f54c-4374-83c0-ec002ea57fe5",e._sentryDebugIdIdentifier="sentry-dbid-68371eb5-f54c-4374-83c0-ec002ea57fe5")}catch{}})();const d="/assets/static/GRH-icon.ClXrebsk.png";export{d as g};
-//# sourceMappingURL=chunk-Dwd5sSdY.js.map

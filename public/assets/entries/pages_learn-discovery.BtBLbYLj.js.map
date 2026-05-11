@@ -1,1 +1,0 @@
-{"version":3,"file":"pages_learn-discovery.BtBLbYLj.js","sources":["../../../../pages/learn-discovery/+Page.jsx"],"sourcesContent":["import React from 'react'\nimport App from '../../src/App.jsx'\n\nexport default function Page() {\n  return <App />\n}\n"],"names":["Page","App"],"mappings":"gjCAGA,SAAwBA,GAAO,CAC7B,aAAQC,EAAA,EAAI,CACd"}

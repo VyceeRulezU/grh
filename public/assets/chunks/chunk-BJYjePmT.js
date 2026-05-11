@@ -1,2 +1,0 @@
-(function(){try{var d=typeof window<"u"?window:typeof global<"u"?global:typeof globalThis<"u"?globalThis:typeof self<"u"?self:{};d.SENTRY_RELEASE={id:"f2b3dbdf03793defc816ce47a8e30904a18118e3"};var e=new d.Error().stack;e&&(d._sentryDebugIds=d._sentryDebugIds||{},d._sentryDebugIds[e]="a9c4d48c-dfff-402d-9593-4df9640200fb",d._sentryDebugIdIdentifier="sentry-dbid-a9c4d48c-dfff-402d-9593-4df9640200fb")}catch{}})();const n="/assets/static/Main-logo.BXRGAMJV.png";export{n as m};
-//# sourceMappingURL=chunk-BJYjePmT.js.map
