@@ -33,13 +33,12 @@ async function flatten() {
 
     // If it's a folder (like 'assets' or a pre-rendered route like '/about'), move it
     try {
-      if (existsSync(dest)) {
-        rmSync(dest, { recursive: true, force: true });
-      }
       if (lstatSync(src).isDirectory()) {
+        if (!existsSync(dest)) mkdirSync(dest, { recursive: true });
         copyRecursiveSync(src, dest);
         rmSync(src, { recursive: true, force: true });
       } else {
+        if (existsSync(dest)) rmSync(dest, { force: true });
         copyFileSync(src, dest);
         rmSync(src, { force: true });
       }
