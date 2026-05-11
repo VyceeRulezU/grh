@@ -7,10 +7,9 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "dev": "node -e \"const fs=require('fs');const paths=['public/index.html','public/404.html','public/about','public/admin','public/analyse','public/assess','public/contact','public/explore','public/forgot-password','public/help-center','public/learn','public/learn-details','public/learn-discovery','public/learn-player','public/library','public/login','public/oauth-consent','public/partner','public/privacy-policy','public/research','public/reset-password','public/signup','public/student','public/terms-of-service'];paths.forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true})}catch(e){}})\" && vite",
+    "dev": "vite",
     "prebuild": "node -e \"const fs=require('fs');try{fs.rmSync('dist',{recursive:true,force:true})}catch(e){}\"",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
-    "postbuild": "node scripts/flatten.mjs",
     "vercel-build": "npm run build",
     "preview": "vite preview",
     "test:unit": "vitest run",

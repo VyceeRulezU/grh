@@ -1,1 +1,2 @@
 const c=r=>{if(!r)return"Recently";const s=new Date,a=new Date(r),e=Math.floor((s-a)/1e3);if(e<60)return"Just now";const o=Math.floor(e/60);if(o<60)return`${o}m ago`;const n=Math.floor(o/60);if(n<24)return`${n}h ago`;const t=Math.floor(n/24);if(t<30)return`${t}d ago`;const f=Math.floor(t/30);return f<12?`${f}mo ago`:`${Math.floor(f/12)}y ago`};export{c as g};
+//# sourceMappingURL=chunk-CSBSBCBY.js.map
