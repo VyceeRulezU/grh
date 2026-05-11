@@ -163,25 +163,25 @@
 
 .goal-num {
   width: 10%;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 3rem;
+  font-weight: 200;
   color: #111;
 }
 
 .goal-content {
   width: 50%;
-  margin-left: 20%;
+  margin-left: 10%;
 }
 
 .goal-content h3 {
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 400;
   margin-bottom: 0.5rem;
   color: #111;
 }
 
 .goal-content p {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   line-height: 1.6;
   color: #666;
 }
@@ -208,10 +208,17 @@
   .goal-num {
     width: 100%;
     margin-bottom: 0.5rem;
+    font-size: 0.9rem;
   }
   .goal-content {
     width: 100%;
     margin-left: 0;
+  }
+  .goal-content h3 {
+    font-size: 1.15rem;
+  }
+  .goal-content p {
+    font-size: 0.95rem;
   }
 }
 
