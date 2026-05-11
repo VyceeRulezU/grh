@@ -9,8 +9,8 @@ export default defineConfig({
   plugins: [
     react(),
     vike(),
-    // Sentry SDK configuration
-    sentryVitePlugin({
+    // Sentry SDK configuration – only active when SENTRY_AUTH_TOKEN is set (CI/Vercel)
+    process.env.SENTRY_AUTH_TOKEN && sentryVitePlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: "gov-resource-hub",
       project: "javascript-react",
@@ -21,6 +21,7 @@ export default defineConfig({
   // Use '/' for Vercel/Production and '/grh/' only if explicitly building for GitHub Pages
   base: process.env.GITHUB_PAGES === 'true' ? '/grh/' : '/',
   build: {
+    emptyOutDir: false, // prebuild script handles dist cleanup to avoid EPERM on Windows
     sourcemap: true,
     rollupOptions: {
       output: {

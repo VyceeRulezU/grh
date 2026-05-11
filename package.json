@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "prebuild": "node -e \"const fs=require('fs');try{fs.rmSync('dist',{recursive:true,force:true})}catch(e){}\"",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
     "postbuild": "node scripts/flatten.mjs",
     "vercel-build": "npm run build",
