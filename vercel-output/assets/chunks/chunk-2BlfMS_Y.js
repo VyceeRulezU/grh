@@ -1,2 +1,0 @@
-import{j as r}from"./chunk-lV9jnUp8.js";import{l as o,a as t}from"./chunk-CMHA7abu.js";const l=({fileUrl:s})=>{const e=o.defaultLayoutPlugin();return r.jsx(t.Worker,{workerUrl:"https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js",children:r.jsx(t.Viewer,{fileUrl:s,plugins:[e]})})};export{l as default};
-//# sourceMappingURL=chunk-2BlfMS_Y.js.map
