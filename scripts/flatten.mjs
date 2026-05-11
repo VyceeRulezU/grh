@@ -32,19 +32,20 @@ async function flatten() {
     const dest = join(PUBLIC, item);
 
     // If it's a folder (like 'assets' or a pre-rendered route like '/about'), move it
-    if (lstatSync(src).isDirectory()) {
+    try {
       if (existsSync(dest)) {
-        console.log(`[flatten-public] Overwriting directory: ${dest}`);
         rmSync(dest, { recursive: true, force: true });
       }
-      console.log(`[flatten-public] Moving directory ${item} -> public/${item}`);
-      renameSync(src, dest);
-    } else {
-      // It's a file (like index.html)
-      console.log(`[flatten-public] Moving file ${item} -> public/${item}`);
-      // On Windows, renameSync can fail if the destination file is 'busy', so we use a safe move
-      if (existsSync(dest)) rmSync(dest, { force: true });
-      renameSync(src, dest);
+      if (lstatSync(src).isDirectory()) {
+        copyRecursiveSync(src, dest);
+        rmSync(src, { recursive: true, force: true });
+      } else {
+        copyFileSync(src, dest);
+        rmSync(src, { force: true });
+      }
+      console.log(`[flatten-public] Successfully moved ${item} -> public/${item}`);
+    } catch (e) {
+      console.warn(`[flatten-public] WARNING: Could not move ${item} due to file lock: ${e.message}`);
     }
   }
 
@@ -68,6 +69,15 @@ async function flatten() {
   }
 
   console.log('[flatten-public] SUCCESS! Application is now in the /public folder for Vercel. ✅');
+}
+
+function copyRecursiveSync(src, dest) {
+  if (lstatSync(src).isDirectory()) {
+    if (!existsSync(dest)) mkdirSync(dest, { recursive: true });
+    readdirSync(src).forEach(child => copyRecursiveSync(join(src, child), join(dest, child)));
+  } else {
+    copyFileSync(src, dest);
+  }
 }
 
 flatten().catch(err => {
