@@ -9,9 +9,7 @@ export default defineConfig({
   cacheDir: "node_modules/.vite-new",
   plugins: [
     react(),
-    vike({
-      prerender: true
-    }),
+    vike(),
     // Sentry SDK configuration – only active when SENTRY_AUTH_TOKEN is set (CI/Vercel)
     process.env.SENTRY_AUTH_TOKEN && sentryVitePlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,
