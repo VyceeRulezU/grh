@@ -24,6 +24,8 @@ pnpm-debug.log*
 
 # Build output
 /dist
+/build-output
+/deploy-me
 
 # Log files
 npm-debug.log*

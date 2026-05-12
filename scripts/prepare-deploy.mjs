@@ -1,11 +1,8 @@
-import { readdirSync, existsSync, lstatSync, mkdirSync, copyFileSync, rmSync } from 'fs';
+import { readdirSync, rmSync, existsSync, lstatSync, mkdirSync, copyFileSync, renameSync } from 'fs';
 import { join } from 'path';
 
 const DIST_CLIENT = join('dist', 'client');
-const PUBLIC_DIR = 'public';
-
-// List of files that are SOURCE assets and should NOT be deleted or overwritten if they exist in dist/client
-const SOURCE_ASSETS = ['assets', 'favicon.ico', 'icon.png', 'robots.txt', 'sitemap.xml', 'grh-learn.webp'];
+const OUTPUT_DIR = 'build-output';
 
 function copyRecursiveSync(src, dest) {
   if (lstatSync(src).isDirectory()) {
@@ -17,29 +14,35 @@ function copyRecursiveSync(src, dest) {
 }
 
 async function prepare() {
-  console.log('[deploy] Merging build artifacts into public/ directory...');
+  console.log('[deploy] Creating build-output directory...');
+
+  if (existsSync(OUTPUT_DIR)) {
+    rmSync(OUTPUT_DIR, { recursive: true, force: true });
+  }
+  mkdirSync(OUTPUT_DIR, { recursive: true });
 
   if (!existsSync(DIST_CLIENT)) {
     console.error('[deploy] ERROR: dist/client not found.');
     process.exit(1);
   }
 
-  // Copy everything from dist/client to public/
+  // 1. Copy everything from dist/client to build-output
   const items = readdirSync(DIST_CLIENT);
   for (const item of items) {
     const src = join(DIST_CLIENT, item);
-    const dest = join(PUBLIC_DIR, item);
-
-    // If it's a file in the root of dist/client, we copy it (e.g. index.html, 404.html)
-    // If it's the assets folder, we merge it
-    try {
-      copyRecursiveSync(src, dest);
-    } catch (e) {
-      console.warn(`[deploy] Warning: Could not copy ${item}:`, e.message);
-    }
+    const dest = join(OUTPUT_DIR, item);
+    copyRecursiveSync(src, dest);
   }
 
-  console.log('[deploy] SUCCESS! public/ is now the deployment root.');
+  // 2. ALSO copy the source assets from public/assets to build-output/assets
+  // This ensures that logos/etc are definitely there.
+  const sourceAssets = join('public', 'assets');
+  if (existsSync(sourceAssets)) {
+    console.log('[deploy] Merging source assets from public/assets...');
+    copyRecursiveSync(sourceAssets, join(OUTPUT_DIR, 'assets'));
+  }
+
+  console.log('[deploy] SUCCESS! build-output is ready.');
 }
 
 prepare().catch(err => {
