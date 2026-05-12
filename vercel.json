@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "outputDirectory": "dist/client",
+  "outputDirectory": "deploy-me",
   "cleanUrls": true,
   "trailingSlash": false,
   "routes": [
