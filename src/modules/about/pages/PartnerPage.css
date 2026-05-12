@@ -152,36 +152,52 @@
 
 .goal-row {
   display: flex;
-  align-items: flex-start;
-  padding: 3rem 0;
-  border-top: 1px solid #eee;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6rem 0;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  gap: 2rem;
 }
 
 .goal-row:last-child {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.goal-row:nth-child(odd) {
+  flex-direction: row-reverse;
 }
 
 .goal-num {
-  width: 10%;
-  font-size: 3rem;
+  font-size: clamp(4rem, 12vw, 10rem);
   font-weight: 200;
   color: #111;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  flex-shrink: 0;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
 }
 
 .goal-content {
-  width: 50%;
-  margin-left: 10%;
+  flex: 1;
+  max-width: 500px;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.goal-row:hover .goal-num,
+.goal-row:hover .goal-content {
+  transform: translateY(-8px);
 }
 
 .goal-content h3 {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 2.5vw, 2.5rem);
   font-weight: 400;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   color: #111;
+  letter-spacing: -0.02em;
 }
 
 .goal-content p {
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: #666;
 }
@@ -200,8 +216,9 @@
   .img-tall, .img-wide, .approach-text-block {
     width: 100%;
   }
-  .goal-row {
+  .goal-row, .goal-row:nth-child(odd) {
     flex-direction: column; /* better for small mobile */
+    align-items: flex-start;
     gap: 1rem;
     padding: 2rem 0;
   }

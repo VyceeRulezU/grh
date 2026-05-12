@@ -50,13 +50,15 @@ const PartnerPage = ({ onNavigate }) => {
         }
       );
 
-      gsap.fromTo('.goal-row', 
-        { y: 40, opacity: 0 },
-        { 
-          y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power2.out',
-          scrollTrigger: { trigger: '.approach-goals-list', start: 'top 85%' }
-        }
-      );
+      gsap.utils.toArray('.goal-row').forEach((row, i) => {
+        gsap.fromTo(row,
+          { x: i % 2 === 0 ? -60 : 60, opacity: 0 },
+          { 
+            x: 0, opacity: 1, duration: 1, ease: 'power3.out',
+            scrollTrigger: { trigger: row, start: 'top 85%' }
+          }
+        );
+      });
 
       // 2. Bento Section Reveal
       gsap.fromTo('.bento-header > *', 
