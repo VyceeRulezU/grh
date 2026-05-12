@@ -8,8 +8,9 @@
   },
   "scripts": {
     "dev": "powershell -Command \"Get-ChildItem public -Exclude assets,favicon.ico,icon.png,robots.txt,sitemap.xml,grh-learn.webp,deploy-diagnostic.txt,googlec5d1c9e372461d63.html,live-test.txt,test-resource.txt | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue\"; vite",
-    "prebuild": "node -e \"const fs=require('fs');try{fs.rmSync('dist',{recursive:true,force:true})}catch(e){}\"",
-    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build && node scripts/prepare-deploy.mjs",
+    "prebuild": "node --input-type=module -e \"import{rmSync}from'fs';try{rmSync('dist',{recursive:true,force:true})}catch(e){}\"",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
+     "postbuild": "node scripts/flatten.mjs",
     "vercel-build": "npm run build",
     "preview": "vite preview",
     "test:unit": "vitest run",
