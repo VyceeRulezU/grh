@@ -6,7 +6,6 @@ import vike from 'vike/plugin'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  cacheDir: "node_modules/.vite-new",
   plugins: [
     react(),
     vike(),
