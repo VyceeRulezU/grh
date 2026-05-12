@@ -58,3 +58,6 @@ service-account.json
 
 # Vercel local outputs
 .vercel/
+
+.vercel
+.env*.local

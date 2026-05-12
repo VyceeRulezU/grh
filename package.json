@@ -10,6 +10,7 @@
     "dev": "vite",
     "prebuild": "node -e \"const fs=require('fs');try{fs.rmSync('dist',{recursive:true,force:true})}catch(e){}\"",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
+    "postbuild": "node scripts/vercel-flatten.mjs",
     "vercel-build": "npm run build",
     "preview": "vite preview",
     "test:unit": "vitest run",
@@ -55,7 +56,6 @@
     "react-is": "^18.2.0",
     "rollup-plugin-visualizer": "^7.0.1",
     "vercel": "^50.38.2",
-    "vike-vercel": "^0.0.0",
     "vitest": "^4.1.4"
   }
 }
