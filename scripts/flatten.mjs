@@ -4,9 +4,6 @@ import { join } from 'path';
 const DIST_CLIENT = join('dist', 'client');
 const PUBLIC = 'public';
 
-// Files to preserve in public (source assets)
-const PRESERVE = new Set(['assets', 'favicon.ico', 'icon.png', 'robots.txt', 'sitemap.xml', 'grh-learn.webp', 'deploy-diagnostic.txt', 'googlec5d1c9e372461d63.html', 'live-test.txt', 'test-resource.txt']);
-
 function copyRecursiveSync(src, dest) {
   if (lstatSync(src).isDirectory()) {
     if (!existsSync(dest)) mkdirSync(dest, { recursive: true });
@@ -16,34 +13,44 @@ function copyRecursiveSync(src, dest) {
   }
 }
 
-async function flatten() {
-  console.log('[flatten] Moving build output to public...');
-
-  if (!existsSync(DIST_CLIENT)) {
-    console.error('[flatten] ERROR: dist/client not found.');
-    process.exit(1);
-  }
-
-  // 1. Move everything from dist/client to public/
-  const items = readdirSync(DIST_CLIENT);
-  for (const item of items) {
-    const src = join(DIST_CLIENT, item);
-    const dest = join(PUBLIC, item);
-    
-    // If it's a directory and it exists in public, we need to merge or replace
-    if (existsSync(dest) && lstatSync(dest).isDirectory()) {
-        rmSync(dest, { recursive: true, force: true });
-    }
-
+function mergeRecursiveSync(src, dest) {
+  if (!existsSync(dest)) {
+    // If destination doesn't exist, we can just rename/move the whole thing
     try {
       renameSync(src, dest);
     } catch (e) {
       copyRecursiveSync(src, dest);
       rmSync(src, { recursive: true, force: true });
     }
+    return;
   }
 
-  console.log('[flatten] SUCCESS! Public folder is ready for deployment.');
+  if (lstatSync(src).isDirectory()) {
+    readdirSync(src).forEach(child => mergeRecursiveSync(join(src, child), join(dest, child)));
+  } else {
+    // If it's a file, overwrite the existing one
+    copyFileSync(src, dest);
+  }
+}
+
+async function flatten() {
+  console.log('[flatten] Merging build output into public...');
+
+  if (!existsSync(DIST_CLIENT)) {
+    console.error('[flatten] ERROR: dist/client not found.');
+    process.exit(1);
+  }
+
+  // 1. Merge everything from dist/client to public/
+  const items = readdirSync(DIST_CLIENT);
+  for (const item of items) {
+    const src = join(DIST_CLIENT, item);
+    const dest = join(PUBLIC, item);
+    
+    mergeRecursiveSync(src, dest);
+  }
+
+  console.log('[flatten] SUCCESS! Public folder is updated and ready for deployment.');
 }
 
 flatten().catch(err => {
