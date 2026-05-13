@@ -77,6 +77,20 @@ const Library = ({ onNavigate }) => {
 
       const DEFAULT_IMG = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80';
       // Note: Pixabay images are loaded via hooks; these serve as SSR/initial fallbacks
+      // 3. Description Generation Helper
+      const generateDescription = (item, location, thematic, year) => {
+        const prog = item.programme || item.type || 'Governance';
+        const hasBadDesc = !item.description || 
+                           item.description.toLowerCase().includes('automatically imported') ||
+                           item.description.toLowerCase().includes('synced document');
+        
+        if (hasBadDesc) {
+          return `A ${prog} resource focusing on ${thematic} from ${location === 'General' ? 'the Governance Resource Hub' : location} (${year}).`;
+        }
+        return item.description;
+      };
+      // ───────────────────────────────────────────────────────────────────────
+
       const TYPE_IMAGES = {
         'PERL': getPerlImg(0) || 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80',
         'SPARC': getSparcImg(0) || 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=400&q=80',
@@ -88,6 +102,7 @@ const Library = ({ onNavigate }) => {
         const normalizedType = (r.type || 'PERL').toUpperCase();
         const programme = r.programme || (PROGRAMME_TYPES.includes(normalizedType) ? normalizedType : null);
         const { location, thematic } = categorize(r);
+        const year = r.published_year || new Date(r.created_at || Date.now()).getFullYear();
         return {
           ...r,
           type: normalizedType,
@@ -96,31 +111,33 @@ const Library = ({ onNavigate }) => {
           thematic_area: thematic,
           // coverImage will be assigned reactively in useMemo
           author: r.author || 'GRH',
-          year: r.published_year || new Date(r.created_at || Date.now()).getFullYear(),
+          year: year,
           file_url: r.file_url || r.file_url || '',
-          description: r.description || ''
+          description: generateDescription(r, location, thematic, year)
         };
       });
 
       const mappedBooks = (bks.data || []).map(b => {
         const { location, thematic } = categorize(b);
+        const year = b.published_year || new Date(b.created_at || Date.now()).getFullYear();
         return {
           ...b,
           type: "BOOK",
           author: b.author || "GRH Lib",
-          year: b.published_year || new Date(b.created_at || Date.now()).getFullYear(),
+          year: year,
           // coverImage will be assigned reactively in useMemo
           category: b.category || "Governance",
           programme: b.programme || null,
           location: location,
           thematic_area: thematic,
-          description: b.summary,
+          description: generateDescription({ ...b, description: b.summary }, location, thematic, year),
           file_url: b.file_url || ''
         };
       });
 
       const mappedSparc = (sparc.data || []).map((p, idx) => {
         const { location, thematic } = categorize(p);
+        const year = new Date(p.created_at).getFullYear();
         return {
           ...p,
           type: "SPARC",
@@ -129,15 +146,16 @@ const Library = ({ onNavigate }) => {
           location: location,
           thematic_area: thematic,
           author: p.author || "GRH",
-          year: new Date(p.created_at).getFullYear(),
+          year: year,
           // coverImage will be assigned reactively in useMemo
           file_url: p.preview_url || p.download_url || p.file_url || '',
-          description: p.description || `Synced document: ${p.title}`
+          description: generateDescription(p, location, thematic, year)
         };
       });
 
       const mappedPerl = (perl.data || []).map((p, idx) => {
         const { location, thematic } = categorize(p);
+        const year = new Date(p.created_at).getFullYear();
         return {
           ...p,
           type: "PERL",
@@ -146,10 +164,10 @@ const Library = ({ onNavigate }) => {
           location: location,
           thematic_area: thematic,
           author: p.author || "GRH",
-          year: new Date(p.created_at).getFullYear(),
+          year: year,
           // coverImage will be assigned reactively in useMemo
           file_url: p.preview_url || p.download_url || p.file_url || '',
-          description: p.description || `Synced document: ${p.title}`
+          description: generateDescription(p, location, thematic, year)
         };
       });
 
@@ -228,7 +246,7 @@ const Library = ({ onNavigate }) => {
     });
   }, [rawResources, getPerlImg, getSparcImg, getGovImg, getLibImg]);
 
-  const itemsPerPage = 6;
+  const itemsPerPage = 12;
   const statsRef = React.useRef(null);
   const resultsRef = React.useRef(null);
 
@@ -564,7 +582,7 @@ const Library = ({ onNavigate }) => {
                     </div>
                     <div className="list-info">
                       <h3>{res.title}</h3>
-                      <p>{res.description}</p>
+                      <p className="resource-desc">{res.description}</p>
                       <div className="resource-tags" style={{marginTop: 8}}>
                         <span className="tag">{res.category}</span>
                         <span className="tag">{res.type}</span>
