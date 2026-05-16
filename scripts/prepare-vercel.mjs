@@ -19,7 +19,10 @@ fs.mkdirSync(dest, { recursive: true });
 // Create the required config.json for Build Output API
 const config = {
   version: 3,
+  cleanUrls: true,
   routes: [
+    { src: '^/$', dest: '/app-main.html' },
+    { src: '^/index(\\.html)?$', dest: '/app-main.html' },
     { handle: 'filesystem' }
   ]
 };
@@ -31,13 +34,21 @@ fs.writeFileSync(path.join(dest, 'home-test.html'), '<h1>HOME TEST SUCCESSFUL</h
 
 let fileCount = 0;
 function copyRecursive(s, d) {
-  const basename = path.basename(s);
+  let basename = path.basename(s);
+  let targetPath = d;
+  
+  // Stealth Rename: If it's the homepage, rename it to avoid Vercel conflicts
+  if (basename === 'index.html' && s.endsWith('client' + path.sep + 'index.html')) {
+    console.log('Stealth Renaming index.html -> app-main.html');
+    targetPath = path.join(path.dirname(d), 'app-main.html');
+  }
+
   if (fs.lstatSync(s).isDirectory()) {
     if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
     fs.readdirSync(s).forEach(child => copyRecursive(path.join(s, child), path.join(d, child)));
   } else {
-    console.log(`Deploying: ${basename}`);
-    fs.copyFileSync(s, d);
+    console.log(`Deploying: ${path.basename(targetPath)}`);
+    fs.copyFileSync(s, targetPath);
     fileCount++;
   }
 }
