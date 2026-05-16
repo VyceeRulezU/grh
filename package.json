@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npx shx rm -rf .vercel/output dist && cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build && node scripts/prepare-vercel.mjs",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
     "vercel-build": "npm run build",
     "preview": "vite preview",
     "test:unit": "vitest run",
@@ -51,6 +51,7 @@
     "@playwright/test": "^1.59.1",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@vite-plugin-vercel/vike": "^9.1.0",
     "@vitejs/plugin-react": "^4.3.4",
     "dotenv": "^17.3.1",
     "esbuild": "^0.27.4",
@@ -58,6 +59,7 @@
     "react-is": "^18.2.0",
     "rollup-plugin-visualizer": "^7.0.1",
     "vercel": "^50.38.2",
+    "vite-plugin-vercel": "^10.0.0",
     "vitest": "^4.1.4"
   }
 }
