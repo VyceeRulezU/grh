@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 import vike from 'vike/plugin'
 
 // https://vitejs.dev/config/
@@ -17,7 +16,7 @@ export default defineConfig({
   // Use '/' for Vercel/Production and '/grh/' only if explicitly building for GitHub Pages
   base: process.env.GITHUB_PAGES === 'true' ? '/grh/' : '/',
   build: {
-    emptyOutDir: false, // prebuild script handles dist cleanup to avoid EPERM on Windows
+    emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
       output: {
