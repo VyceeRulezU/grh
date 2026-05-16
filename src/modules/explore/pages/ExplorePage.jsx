@@ -311,6 +311,8 @@ const ExplorePage = ({ user, onNavigate }) => {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
+  const [filteredSessions, setFilteredSessions] = useState([]);
+  const [sidebarSearch, setSidebarSearch] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [viewingResource, setViewingResource] = useState(null);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
@@ -319,8 +321,16 @@ const ExplorePage = ({ user, onNavigate }) => {
   const [promptsUsed, setPromptsUsed] = useState(0);
   const [conversationHistory, setConversationHistory] = useState([]);
   const [isLimited, setIsLimited] = useState(false);
+  const [editingMsgId, setEditingMsgId] = useState(null);
+  const [editingText, setEditingText] = useState('');
+  const [copiedId, setCopiedId] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [attachedFile, setAttachedFile] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   useEffect(() => {
     if (!user) return;
@@ -357,15 +367,89 @@ const ExplorePage = ({ user, onNavigate }) => {
     scrollToBottom();
   }, [messages, typing]);
 
-  const handleOverlayClick = () => {
-    setIsSidebarOpen(false);
-  };
+  const handleOverlayClick = () => setIsSidebarOpen(false);
+
+  // Sidebar search filter
+  useEffect(() => {
+    const q = sidebarSearch.toLowerCase();
+    setFilteredSessions(q ? chatSessions.filter(s => s.title?.toLowerCase().includes(q)) : chatSessions);
+  }, [sidebarSearch, chatSessions]);
 
   const startNewChat = () => {
     setMessages([INITIAL_MESSAGE]);
     setActiveHistoryId(null);
     setInput('');
+    setConversationHistory([]);
     if (window.innerWidth <= 900) setIsSidebarOpen(false);
+  };
+
+  const handleCopy = (text, id) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
+
+  const handleShare = (text) => {
+    if (navigator.share) {
+      navigator.share({ title: 'GRH AI Response', text });
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleEditSubmit = (msgId) => {
+    if (!editingText.trim()) return;
+    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, text: editingText } : m));
+    setEditingMsgId(null);
+    handleSend(editingText);
+  };
+
+  const handleRegenerate = async (userMsgIndex) => {
+    const userMsg = messages[userMsgIndex];
+    if (!userMsg) return;
+    // Remove last assistant reply after this user msg
+    setMessages(prev => {
+      const cut = prev.findIndex((m, i) => i > userMsgIndex && m.role === 'assistant');
+      return cut !== -1 ? prev.slice(0, cut) : prev;
+    });
+    await handleSend(userMsg.text);
+  };
+
+  const handleFileAttach = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAttachedFile(file);
+  };
+
+  const handleRemoveFile = () => {
+    setAttachedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleMicToggle = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setAttachedFile(new File([blob], 'voice-message.webm', { type: 'audio/webm' }));
+        stream.getTracks().forEach(t => t.stop());
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+    } catch (err) {
+      alert('Microphone access denied.');
+    }
   };
 
   const loadHistory = async (session) => {
@@ -531,11 +615,23 @@ const ExplorePage = ({ user, onNavigate }) => {
         <div className="chat-history">
           <button className="new-chat-btn" onClick={startNewChat}>+ New Chat</button>
 
+          {/* Sidebar search */}
+          <div className="sidebar-search-wrap">
+            <span className="material-symbols-outlined sidebar-search-icon">search</span>
+            <input
+              className="sidebar-search-input"
+              type="text"
+              placeholder="Search chats..."
+              value={sidebarSearch}
+              onChange={e => setSidebarSearch(e.target.value)}
+            />
+          </div>
+
           <div className="history-group-label" style={{display: 'flex', justifyContent: 'space-between'}}>
             <span>RECENT RESEARCH</span>
             <span style={{color: 'var(--primary)', fontWeight: 'bold'}}>{promptsUsed}/{PROMPT_LIMIT} used</span>
           </div>
-          {chatSessions.map(item => (
+          {filteredSessions.map(item => (
             <button
               key={item.id}
               className={`history-item ${activeHistoryId === item.id ? 'active' : ''}`}
@@ -548,7 +644,7 @@ const ExplorePage = ({ user, onNavigate }) => {
               </div>
             </button>
           ))}
-          {chatSessions.length === 0 && <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', padding: '0 1rem'}}>No chat history yet.</p>}
+          {filteredSessions.length === 0 && <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', padding: '0 1rem'}}>{sidebarSearch ? 'No results found.' : 'No chat history yet.'}</p>}
         </div>
 
         <div className="sidebar-footer">
@@ -614,10 +710,34 @@ const ExplorePage = ({ user, onNavigate }) => {
                 )}
               </div>
               <div className={`explore-message-bubble ${msg.role} ${msg.fullResources?.length > 0 ? 'has-resource' : ''}`}>
-                <div className="explore-message-content">
-                  {renderMessage(msg.text || msg.content)}
-                </div>
-                
+                {/* Editing mode for user messages */}
+                {msg.role === 'user' && editingMsgId === msg.id ? (
+                  <div className="msg-edit-wrap">
+                    <textarea
+                      className="msg-edit-input"
+                      value={editingText}
+                      onChange={e => setEditingText(e.target.value)}
+                      autoFocus
+                    />
+                    <div className="msg-edit-actions">
+                      <button className="msg-edit-save" onClick={() => handleEditSubmit(msg.id)}>Send</button>
+                      <button className="msg-edit-cancel" onClick={() => setEditingMsgId(null)}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="explore-message-content">
+                    {renderMessage(msg.text || msg.content)}
+                  </div>
+                )}
+
+                {/* Attached file badge */}
+                {msg.fileName && (
+                  <div className="msg-file-badge">
+                    <span className="material-symbols-outlined">attach_file</span>
+                    {msg.fileName}
+                  </div>
+                )}
+
                 {msg.fullResources?.length > 0 && (
                   <div className="referenced-resources-container">
                     {msg.fullResources.map(res => (
@@ -635,6 +755,51 @@ const ExplorePage = ({ user, onNavigate }) => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* Action bar — shown on hover via CSS */}
+                {editingMsgId !== msg.id && msg.id !== 1 && (
+                  <div className={`msg-actions ${msg.role}`}>
+                    {/* Copy */}
+                    <button
+                      className="msg-action-btn"
+                      title="Copy"
+                      onClick={() => handleCopy(msg.text || msg.content || '', msg.id)}
+                    >
+                      <span className="material-symbols-outlined">
+                        {copiedId === msg.id ? 'check' : 'content_copy'}
+                      </span>
+                    </button>
+
+                    {/* Share (assistant only) */}
+                    {msg.role === 'assistant' && (
+                      <button className="msg-action-btn" title="Share" onClick={() => handleShare(msg.text || msg.content || '')}>
+                        <span className="material-symbols-outlined">share</span>
+                      </button>
+                    )}
+
+                    {/* Edit (user only) */}
+                    {msg.role === 'user' && (
+                      <button
+                        className="msg-action-btn"
+                        title="Edit"
+                        onClick={() => { setEditingMsgId(msg.id); setEditingText(msg.text || ''); }}
+                      >
+                        <span className="material-symbols-outlined">edit</span>
+                      </button>
+                    )}
+
+                    {/* Regenerate (assistant only) */}
+                    {msg.role === 'assistant' && (
+                      <button
+                        className="msg-action-btn"
+                        title="Regenerate"
+                        onClick={() => handleRegenerate(messages.findIndex(m => m.id === msg.id) - 1)}
+                      >
+                        <span className="material-symbols-outlined">refresh</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -655,7 +820,47 @@ const ExplorePage = ({ user, onNavigate }) => {
         </div>
 
         <div className="explore-input-section">
+          {/* Attached file preview */}
+          {attachedFile && (
+            <div className="input-file-preview">
+              <span className="material-symbols-outlined">
+                {attachedFile.type.startsWith('audio') ? 'mic' : 'attach_file'}
+              </span>
+              <span className="input-file-name">{attachedFile.name}</span>
+              <button className="input-file-remove" onClick={handleRemoveFile}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+          )}
+
           <div className="input-wrapper">
+            {/* File upload */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept="image/*,application/pdf,.doc,.docx,.txt"
+              onChange={handleFileAttach}
+            />
+            <button
+              className="input-icon-btn"
+              title="Attach file"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLimited}
+            >
+              <span className="material-symbols-outlined">attach_file</span>
+            </button>
+
+            {/* Mic */}
+            <button
+              className={`input-icon-btn ${isRecording ? 'recording' : ''}`}
+              title={isRecording ? 'Stop recording' : 'Voice input'}
+              onClick={handleMicToggle}
+              disabled={isLimited}
+            >
+              <span className="material-symbols-outlined">{isRecording ? 'stop_circle' : 'mic'}</span>
+            </button>
+
             <textarea
               className="chat-input"
               rows="1"
@@ -665,7 +870,7 @@ const ExplorePage = ({ user, onNavigate }) => {
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
               disabled={isLimited}
             />
-            <button className="send-btn" onClick={() => handleSend()} disabled={!input.trim() || isLimited}>
+            <button className="send-btn" onClick={() => handleSend()} disabled={(!input.trim() && !attachedFile) || isLimited}>
               ↑
             </button>
           </div>

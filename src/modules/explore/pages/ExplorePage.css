@@ -643,3 +643,261 @@
     padding: 16px;
   }
 }
+
+/* ===== SIDEBAR SEARCH ===== */
+.sidebar-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ECEEF2;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  margin: 12px 0 4px;
+  transition: var(--transition);
+}
+
+.sidebar-search-wrap:focus-within {
+  border-color: var(--primary);
+  background: white;
+}
+
+.sidebar-search-icon {
+  font-size: 16px !important;
+  color: #9CA3AF;
+  flex-shrink: 0;
+}
+
+.sidebar-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  font-family: var(--font-family-base);
+  color: var(--secondary);
+  width: 100%;
+}
+
+.sidebar-search-input::placeholder {
+  color: #9CA3AF;
+}
+
+/* ===== MESSAGE ACTION BAR ===== */
+.msg-actions {
+  display: flex;
+  gap: 2px;
+  margin-top: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.explore-message-row:hover .msg-actions {
+  opacity: 1;
+}
+
+.msg-actions.user {
+  justify-content: flex-end;
+}
+
+.msg-actions.assistant {
+  justify-content: flex-start;
+}
+
+.msg-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.msg-action-btn:hover {
+  background: #E5E7EB;
+  color: var(--secondary);
+}
+
+.msg-action-btn .material-symbols-outlined {
+  font-size: 15px;
+}
+
+/* User bubble action buttons use white */
+.explore-message-bubble.user .msg-action-btn {
+  color: rgba(255,255,255,0.6);
+}
+
+.explore-message-bubble.user .msg-action-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+/* ===== EDIT MODE ===== */
+.msg-edit-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.msg-edit-input {
+  width: 100%;
+  min-height: 60px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-family: var(--font-family-base);
+  font-size: 15px;
+  padding: 8px 12px;
+  resize: vertical;
+  outline: none;
+}
+
+.msg-edit-input:focus {
+  border-color: rgba(255,255,255,0.8);
+}
+
+.msg-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.msg-edit-save {
+  padding: 5px 14px;
+  background: white;
+  color: var(--secondary);
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.msg-edit-save:hover { background: #E5E7EB; }
+
+.msg-edit-cancel {
+  padding: 5px 14px;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.msg-edit-cancel:hover { color: white; border-color: white; }
+
+/* ===== FILE BADGE ON MESSAGE ===== */
+.msg-file-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-soft);
+  background: var(--bg-weak);
+  border-radius: 6px;
+  padding: 4px 8px;
+  width: fit-content;
+}
+
+.msg-file-badge .material-symbols-outlined {
+  font-size: 14px;
+  color: var(--primary);
+}
+
+/* ===== INPUT FILE PREVIEW ===== */
+.input-file-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #EEF9F3;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  max-width: 1000px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.input-file-preview .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.input-file-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--secondary);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.input-file-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.input-file-remove:hover { color: var(--danger, #ef4444); }
+
+.input-file-remove .material-symbols-outlined { font-size: 16px; }
+
+/* ===== INPUT ICON BUTTONS (mic / attach) ===== */
+.input-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.input-icon-btn:hover:not(:disabled) {
+  background: #ECEEF2;
+  color: var(--secondary);
+}
+
+.input-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.input-icon-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.input-icon-btn.recording {
+  color: #ef4444;
+  animation: mic-pulse 1.2s ease infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
