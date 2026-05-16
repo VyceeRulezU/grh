@@ -14,12 +14,12 @@ export default defineConfig({
     process.env.ANALYZE === 'true' && visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
   ].filter(Boolean),
   vercel: {
-    distContainsOnlyStatic: true
+    distContainsOnlyStatic: true,
+    smart: false
   },
   // Force base to '/' for Vercel to ensure all asset paths are absolute
   base: '/',
   build: {
-    outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
       output: {
