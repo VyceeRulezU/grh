@@ -615,8 +615,8 @@
 
 .expect-list-item {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: flex-start;
   padding: 1.5rem;
   background: #f8fafc;
