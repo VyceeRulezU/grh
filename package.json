@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build && node scripts/prepare-vercel.mjs",
     "vercel-build": "npm run build",
+    "deploy-prod": "npx vercel build --prod --yes && node scripts/fix-vercel-backslashes.mjs && npx vercel deploy --prebuilt --prod --yes",
     "preview": "vite preview",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
