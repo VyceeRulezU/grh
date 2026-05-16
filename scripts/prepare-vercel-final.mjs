@@ -31,11 +31,19 @@ function copyRecursive(s, d) {
 console.log(`Copying files from ${src} to ${staticDir}...`);
 fs.readdirSync(src).forEach(item => copyRecursive(path.join(src, item), path.join(staticDir, item)));
 
-// 3. Generate clean, standard config.json
+// 3. Generate clean, standard config.json with explicit homepage routing
 const config = {
   version: 3,
   cleanUrls: true,
   routes: [
+    {
+      src: '^/$',
+      dest: '/index.html'
+    },
+    {
+      src: '^/index(\\.html)?$',
+      dest: '/index.html'
+    },
     {
       handle: 'filesystem'
     }
