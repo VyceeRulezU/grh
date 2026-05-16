@@ -1,6 +1,7 @@
 {
   "version": 2,
   "outputDirectory": "dist/client",
+  "buildCommand": "npm run build",
   "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,
