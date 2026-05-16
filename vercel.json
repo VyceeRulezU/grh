@@ -1,6 +1,12 @@
 {
   "version": 2,
-  "outputDirectory": "dist/client",
+  "outputDirectory": "dist",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
