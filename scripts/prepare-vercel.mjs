@@ -14,15 +14,21 @@ if (fs.existsSync(dest)) {
 }
 fs.mkdirSync(dest, { recursive: true });
 
+let fileCount = 0;
 function copyRecursive(s, d) {
   if (fs.lstatSync(s).isDirectory()) {
     if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
     fs.readdirSync(s).forEach(child => copyRecursive(path.join(s, child), path.join(d, child)));
   } else {
     fs.copyFileSync(s, d);
+    fileCount++;
   }
 }
 
 console.log(`Copying ${src} to ${dest}...`);
 fs.readdirSync(src).forEach(item => copyRecursive(path.join(src, item), path.join(dest, item)));
-console.log('Copy complete!');
+console.log(`Copy complete! Total files copied: ${fileCount}`);
+if (fileCount === 0) {
+  console.error('ERROR: No files were copied! Build failed to produce output.');
+  process.exit(1);
+}

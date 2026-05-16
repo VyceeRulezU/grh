@@ -2,15 +2,5 @@
   "version": 2,
   "outputDirectory": "vercel-static",
   "cleanUrls": true,
-  "trailingSlash": false,
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
+  "trailingSlash": false
 }
