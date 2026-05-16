@@ -19,12 +19,15 @@ fs.mkdirSync(dest, { recursive: true });
 // Create the required config.json for Build Output API
 const config = {
   version: 3,
+  cleanUrls: true,
+  trailingSlash: false,
   routes: [
+    { src: '^/$', dest: '/index.html' },
     { handle: 'filesystem' },
     { src: '/(.*)', dest: '/index.html' }
   ]
 };
-// We will use the standard filesystem handle which automatically maps / to /index.html
+// This configuration forces the root to index.html and enables clean URLs for all other pages
 fs.writeFileSync(path.join(configDir, 'config.json'), JSON.stringify(config, null, 2));
 
 // Create a diagnostic ping file
