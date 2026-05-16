@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "outputDirectory": "vercel-static",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
