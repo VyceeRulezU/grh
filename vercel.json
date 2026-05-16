@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "outputDirectory": "public",
+  "outputDirectory": "dist/client",
+  "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,
   "routes": [
