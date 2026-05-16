@@ -9,15 +9,8 @@ export default defineConfig({
   plugins: [
     react(),
     vike(),
-    // Sentry SDK configuration – only active when SENTRY_AUTH_TOKEN is set (CI/Vercel)
-    process.env.SENTRY_AUTH_TOKEN && sentryVitePlugin({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: "gov-resource-hub",
-      project: "javascript-react",
-      errorHandler: (err) => {
-        console.warn("[Sentry] Failed to upload sourcemaps, but continuing build.", err.message);
-      }
-    }),
+    // Sentry SDK configuration disabled temporarily to prevent build crashes
+    // process.env.SENTRY_AUTH_TOKEN && sentryVitePlugin({ ... })
     // Dev-only bundle analyzer: run `npm run build` to open stats.html
     process.env.ANALYZE === 'true' && visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
   ].filter(Boolean),
