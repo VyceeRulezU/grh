@@ -617,8 +617,8 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.5rem;
+  align-items: center;
+  padding: 2rem 1rem;
   background: #f8fafc;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
@@ -637,7 +637,6 @@
 
 .expect-list-item .material-symbols-outlined {
   font-size: 1.25rem;
-  margin-top: 0.5rem;
   color: var(--primary);
   opacity: 0.6;
   transition: all 0.3s ease;
