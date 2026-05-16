@@ -24,7 +24,11 @@ const config = {
     { src: '/(.*)', dest: '/index.html' }
   ]
 };
+// We will use the standard filesystem handle which automatically maps / to /index.html
 fs.writeFileSync(path.join(configDir, 'config.json'), JSON.stringify(config, null, 2));
+
+// Create a diagnostic ping file
+fs.writeFileSync(path.join(dest, 'ping.html'), '<h1>DEPLOYMENT SUCCESSFUL</h1>');
 
 let fileCount = 0;
 function copyRecursive(s, d) {
