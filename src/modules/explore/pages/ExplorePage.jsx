@@ -220,9 +220,7 @@ const findResourceMatch = async (query) => {
       { name: 'perl_resource', cols: ['title', 'description'] }
     ];
     
-    let allMatches = [];
-
-    for (const table of tables) {
+    const searchPromises = tables.map(async (table) => {
       const orClauses = keywords.flatMap(kw => 
         table.cols.map(col => `${col}.ilike.%${kw}%`)
       ).join(',');
@@ -234,9 +232,13 @@ const findResourceMatch = async (query) => {
         .limit(10);
       
       if (!error && data) {
-        allMatches.push(...data.map(d => ({ ...d, tableName: table.name })));
+        return data.map(d => ({ ...d, tableName: table.name }));
       }
-    }
+      return [];
+    });
+
+    const results = await Promise.all(searchPromises);
+    let allMatches = results.flat();
 
     if (allMatches.length > 0) {
       const ranked = allMatches
