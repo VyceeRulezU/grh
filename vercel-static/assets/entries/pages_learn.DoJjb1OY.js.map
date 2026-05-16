@@ -1,1 +1,0 @@
-{"version":3,"file":"pages_learn.DoJjb1OY.js","sources":["../../../../pages/learn/+Page.jsx"],"sourcesContent":["import React from 'react'\nimport App from '../../src/App.jsx'\n\nexport default function Page() {\n  return <App />\n}\n"],"names":["Page","App"],"mappings":"spBAGA,SAAwBA,GAAO,CAC7B,aAAQC,EAAA,EAAI,CACd"}

@@ -1,4 +1,0 @@
-DEPLOYMENT DIAGNOSTIC
-Timestamp: 2026-05-12T02:05:00Z
-Output Directory: deploy-me
-This file should be visible at /deploy-diagnostic.txt if the output directory is correctly configured in vercel.json.
