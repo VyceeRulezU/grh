@@ -14,6 +14,9 @@ export default defineConfig({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: "gov-resource-hub",
       project: "javascript-react",
+      errorHandler: (err) => {
+        console.warn("[Sentry] Failed to upload sourcemaps, but continuing build.", err.message);
+      }
     }),
     // Dev-only bundle analyzer: run `npm run build` to open stats.html
     process.env.ANALYZE === 'true' && visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
