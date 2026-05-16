@@ -21,8 +21,8 @@ const config = {
   version: 3,
   cleanUrls: true,
   routes: [
-    { src: '^/$', dest: '/app-main.html' },
-    { src: '^/index(\\.html)?$', dest: '/app-main.html' },
+    { src: '^/$', dest: '/api/index' },
+    { src: '^/index(\\.html)?$', dest: '/api/index' },
     { handle: 'filesystem' }
   ]
 };
