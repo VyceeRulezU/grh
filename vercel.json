@@ -1,8 +1,7 @@
 {
   "version": 2,
-  "outputDirectory": "dist",
+  "outputDirectory": "vercel-static",
   "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/(.*)",
