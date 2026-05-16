@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" vite build && echo build-ok > dist/client/ok.txt",
     "vercel-build": "npm run build",
     "preview": "vite preview",
     "test:unit": "vitest run",
