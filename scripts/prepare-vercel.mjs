@@ -19,26 +19,24 @@ fs.mkdirSync(dest, { recursive: true });
 // Create the required config.json for Build Output API
 const config = {
   version: 3,
-  cleanUrls: true,
-  trailingSlash: false,
   routes: [
-    { src: '^/$', dest: '/index.html' },
-    { handle: 'filesystem' },
-    { src: '/(.*)', dest: '/index.html' }
+    { handle: 'filesystem' }
   ]
 };
-// This configuration forces the root to index.html and enables clean URLs for all other pages
 fs.writeFileSync(path.join(configDir, 'config.json'), JSON.stringify(config, null, 2));
 
-// Create a diagnostic ping file
-fs.writeFileSync(path.join(dest, 'ping.html'), '<h1>DEPLOYMENT SUCCESSFUL</h1>');
+// Create diagnostic files
+fs.writeFileSync(path.join(dest, 'ping.html'), '<h1>PING SUCCESSFUL</h1>');
+fs.writeFileSync(path.join(dest, 'home-test.html'), '<h1>HOME TEST SUCCESSFUL</h1>');
 
 let fileCount = 0;
 function copyRecursive(s, d) {
+  const basename = path.basename(s);
   if (fs.lstatSync(s).isDirectory()) {
     if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
     fs.readdirSync(s).forEach(child => copyRecursive(path.join(s, child), path.join(d, child)));
   } else {
+    console.log(`Deploying: ${basename}`);
     fs.copyFileSync(s, d);
     fileCount++;
   }
