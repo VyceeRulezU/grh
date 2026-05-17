@@ -56,8 +56,8 @@ const HISTORY_CONVERSATIONS = {
 // AI Assistant call (Using Gemini 1.5 Flash with Context)
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-// AI call — returns the response string, { error } object, or null on failure.
-// null means the caller should show an error bubble (no dummy fallback).
+// AI call — always returns HTTP 200; reads data.error or data.content.
+// Returns null on failure so the caller shows an honest error bubble.
 // ---------------------------------------------------------------------------
 const getAIResponse = async (userText, context = null, history = [], userId = null) => {
   try {
@@ -65,13 +65,24 @@ const getAIResponse = async (userText, context = null, history = [], userId = nu
       body: { userText, context, userId, conversationHistory: history }
     });
 
+    // Supabase SDK-level error (network, CORS, function not deployed, etc.)
+    if (error) {
+      console.error('[GRH] functions.invoke error:', error.message);
+      return null;
+    }
+
     if (data?.error === 'daily_limit_reached') {
       return { error: 'daily_limit_reached' };
     }
 
-    if (error || !data?.content) {
-      // Return null — caller will show an inline error bubble
-      console.warn('[GRH] Gemini response missing content. error:', error?.message || data?.error);
+    if (data?.error) {
+      // Structured error from the edge function (rate limit, model not found, etc.)
+      console.warn('[GRH] Edge function error:', data.error, data.detail || '');
+      return null;
+    }
+
+    if (!data?.content) {
+      console.warn('[GRH] No content in response:', JSON.stringify(data));
       return null;
     }
 
