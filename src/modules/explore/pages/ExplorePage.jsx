@@ -346,6 +346,7 @@ const ExplorePage = ({ user, onNavigate }) => {
         startOfMonth.setDate(1);
         startOfMonth.setHours(0,0,0,0);
         
+        // Fix: filter by user_id so we only count this user's messages
         const { count } = await supabase.from('chat_messages')
           .select('*', { count: 'exact', head: true })
           .eq('role', 'user')
@@ -495,28 +496,43 @@ const ExplorePage = ({ user, onNavigate }) => {
     setTyping(true);
 
     let currentSessionId = activeHistoryId;
-    try {
-      if (!currentSessionId) {
+
+    // ── DB: create/reuse session (silently — never crash the conversation) ──
+    if (user?.id && !currentSessionId) {
+      try {
         const title = msgText.length > 30 ? msgText.substring(0, 30) + '...' : msgText;
         const { data: sessionData, error: sessionErr } = await supabase.from('chat_sessions')
           .insert({ user_id: user.id, title })
           .select()
           .single();
-          
-        if (sessionErr) throw sessionErr;
-        currentSessionId = sessionData.id;
-        setActiveHistoryId(currentSessionId);
-        setChatSessions(prev => [sessionData, ...prev]);
+        if (!sessionErr && sessionData) {
+          currentSessionId = sessionData.id;
+          setActiveHistoryId(currentSessionId);
+          setChatSessions(prev => [sessionData, ...prev]);
+        } else {
+          console.warn('[GRH] chat_sessions insert failed (RLS?):', sessionErr?.message);
+        }
+      } catch (err) {
+        console.warn('[GRH] chat_sessions error:', err);
       }
+    }
 
-      await supabase.from('chat_messages').insert({
-        session_id: currentSessionId,
-        role: 'user',
-        content: msgText
-      });
-      setPromptsUsed(prev => prev + 1);
+    // ── DB: persist user message (silently) ──
+    if (user?.id && currentSessionId) {
+      try {
+        await supabase.from('chat_messages').insert({
+          session_id: currentSessionId,
+          role: 'user',
+          content: msgText
+        });
+        setPromptsUsed(prev => prev + 1);
+      } catch (err) {
+        console.warn('[GRH] chat_messages user insert failed:', err);
+      }
+    }
 
-      // --- UNIFIED RESOURCE + AI LOGIC ---
+    // ── AI response (always runs, regardless of DB status) ──
+    try {
       let responseText = "";
       let source = "ai";
       let referencedResources = [];
@@ -530,7 +546,6 @@ const ExplorePage = ({ user, onNavigate }) => {
         source = cached.source_type;
       } else {
         // 2. CONVERSATIONAL INTENT DETECTION
-        // If it's a "Yes/Tell me more" and we have resources in history, reuse them!
         const lastAssistantMsg = [...messages].reverse().find(m => m.role === 'assistant');
         if (isFollowUpIntent(msgText) && lastAssistantMsg?.fullResources?.length > 0) {
           console.log("🔄 Carry-Forward Context Detected: Persisting previous research.");
@@ -538,7 +553,6 @@ const ExplorePage = ({ user, onNavigate }) => {
           carriedContext = lastAssistantMsg.fullResources.map((r, idx) => `Document ${idx+1}: [${r.title}] — ${r.description || r.summary || ''}`).join('\n\n');
           isContinuation = true;
         } else {
-          // Normal keyword-based search
           const searchResult = await findResourceMatch(msgText);
           if (searchResult) {
             referencedResources = searchResult.resources;
@@ -546,7 +560,7 @@ const ExplorePage = ({ user, onNavigate }) => {
           }
         }
 
-        // 3. AI Synthesis (Always called, grounded by context)
+        // 3. AI Synthesis
         const aiOutput = await getAIResponse(msgText, carriedContext, conversationHistory, user?.id, referencedResources, isContinuation);
         
         if (aiOutput?.error === 'daily_limit_reached') {
@@ -559,43 +573,60 @@ const ExplorePage = ({ user, onNavigate }) => {
         responseText = aiOutput;
         source = 'ai_unified';
         
-        // 4. Update Cache
-        await updateCache(msgText, responseText, 'ai_unified');
+        // 4. Update Cache (silently)
+        await updateCache(msgText, responseText, 'ai_unified').catch(() => {});
       }
-      // ------------------------------------
 
-      const { data: aiMsgData } = await supabase.from('chat_messages').insert({
-        session_id: currentSessionId,
-        role: 'assistant',
-        content: responseText
-      }).select().single();
+      // ── DB: persist assistant message (silently) ──
+      let aiMsgId = Date.now() + 1;
+      if (user?.id && currentSessionId) {
+        try {
+          const { data: aiMsgData } = await supabase.from('chat_messages').insert({
+            session_id: currentSessionId,
+            role: 'assistant',
+            content: responseText
+          }).select().single();
+          if (aiMsgData?.id) aiMsgId = aiMsgData.id;
+        } catch (err) {
+          console.warn('[GRH] chat_messages assistant insert failed:', err);
+        }
+      }
 
       setTyping(false);
-      const assistantMsg = { 
-        id: aiMsgData?.id || Date.now()+1, 
+      setMessages(prev => [...prev, { 
+        id: aiMsgId, 
         role: 'assistant', 
         text: responseText, 
         source,
         fullResources: referencedResources 
-      };
-      setMessages(prev => [...prev, assistantMsg]);
+      }]);
       
       // Update Conversation Memory (Last 5 exchanges)
       setConversationHistory(prev => {
         const newHistory = [...prev, { role: 'user', content: msgText }, { role: 'assistant', content: responseText }];
-        return newHistory.slice(-10); // 10 messages = 5 exchanges
+        return newHistory.slice(-10);
       });
       
-      await supabase.from('chat_sessions')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', currentSessionId);
-        
+      // ── DB: update session timestamp (silently) ──
+      if (user?.id && currentSessionId) {
+        supabase.from('chat_sessions')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', currentSessionId)
+          .catch(() => {});
+      }
+
     } catch (err) {
-      console.error(err);
+      console.error('[GRH] AI response error:', err);
       setTyping(false);
-      alert("Error handling message. Please try again.");
+      // Show error as an inline chat bubble — never an alert()
+      setMessages(prev => [...prev, { 
+        id: Date.now() + 2, 
+        role: 'assistant', 
+        text: "I encountered a problem processing your request. Please try again in a moment." 
+      }]);
     }
   };
+
 
   return (
     <div className="explore-layout">
