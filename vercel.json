@@ -1,6 +1,9 @@
 {
   "version": 2,
-  "outputDirectory": "vercel-static",
+  "outputDirectory": "dist",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index" }
+  ]
 }

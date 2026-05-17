@@ -1,1 +1,0 @@
-{"version":3,"file":"pages_terms-of-service.ZKVnA9xz.js","sources":["../../../../pages/terms-of-service/+Page.jsx"],"sourcesContent":["import React from 'react'\nimport App from '../../src/App.jsx'\n\nexport default function Page() {\n  return <App />\n}\n"],"names":["Page","App"],"mappings":"spBAGA,SAAwBA,GAAO,CAC7B,aAAQC,EAAA,EAAI,CACd"}
