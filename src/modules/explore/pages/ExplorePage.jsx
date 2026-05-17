@@ -623,7 +623,7 @@ const ExplorePage = ({ user, onNavigate }) => {
         supabase.from('chat_sessions')
           .update({ updated_at: new Date().toISOString() })
           .eq('id', currentSessionId)
-          .catch(() => {});
+          .then(null, () => {});
       }
 
     } catch (err) {

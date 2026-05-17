@@ -13,9 +13,9 @@ const CORS_HEADERS = {
 
 // Try models in priority order — stops at the first successful response
 const MODELS = [
+  "gemini-2.5-flash",
   "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-8b",
+  "gemini-flash-latest",
 ]
 
 const callGemini = async (apiKey: string, model: string, contents: any[], generationConfig: any) => {
@@ -59,7 +59,7 @@ serve(async (req) => {
         .select('query_count')
         .eq('user_id', userId)
         .eq('date', today)
-        .single()
+        .maybeSingle()
 
       if (usage && usage.query_count >= 20) {
         return ok({ error: 'daily_limit_reached', limit: 20 })
