@@ -21,12 +21,6 @@ if (config.overrides) {
     const newValue = { ...value };
     if (typeof newValue.path === 'string') {
       newValue.path = newValue.path.replace(/\\/g, '/');
-      
-      // Fix Vercel CLI bug where index.html files are mapped to /index instead of the clean directory root
-      newValue.path = newValue.path.replace(/\/index$/, '');
-      if (newValue.path === 'index') {
-        newValue.path = '';
-      }
     }
     
     newOverrides[newKey] = newValue;
