@@ -16,11 +16,16 @@ const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 if (config.overrides) {
   const newOverrides = {};
   for (const [key, value] of Object.entries(config.overrides)) {
-    // Replace all backslashes with forward slashes
+    // Replace all backslashes with forward slashes in both key and value path
     const newKey = key.replace(/\\/g, '/');
-    newOverrides[newKey] = value;
-    if (key !== newKey) {
-      console.log(`Patched override path: ${key} -> ${newKey}`);
+    const newValue = { ...value };
+    if (typeof newValue.path === 'string') {
+      newValue.path = newValue.path.replace(/\\/g, '/');
+    }
+    
+    newOverrides[newKey] = newValue;
+    if (key !== newKey || value.path !== newValue.path) {
+      console.log(`Patched override: ${key} (${value.path}) -> ${newKey} (${newValue.path})`);
     }
   }
   config.overrides = newOverrides;
