@@ -161,6 +161,12 @@ function App() {
             const userData = await fetchProfile(session);
             setUserAndRef(userData);
             if (['login', 'signup', 'admin', 'admin-login', 'forgot-password', 'reset-password'].includes(currentPageRef.current) && event === 'SIGNED_IN') {
+              if (currentPageRef.current === 'admin' && !userData.isAdmin) {
+                console.log("[GRH DEBUG] Non-admin user signed in on admin page - blocking redirect & signing out");
+                await supabase.auth.signOut();
+                setUserAndRef(null);
+                return;
+              }
               console.log("[GRH DEBUG] onAuthStateChange SIGNED_IN detected - calling handleLogin");
               handleLogin(userData);
             }

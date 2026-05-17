@@ -44,13 +44,20 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
           .eq('id', data.user.id)
           .single();
 
+        const isUserAdmin = (profile?.role?.toLowerCase() === 'admin') || 
+                 (data.user.user_metadata?.role?.toLowerCase() === 'admin') || 
+                 (data.user.email?.toLowerCase().includes('admin') && !data.user.email?.toLowerCase().includes('learner'));
+
+        if (isAdmin && !isUserAdmin) {
+          await supabase.auth.signOut();
+          throw new Error('Access Denied: You do not have administrative privileges to access this area.');
+        }
+
         const userData = {
           email: data.user.email,
           id: data.user.id,
           name: profile?.name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
-          isAdmin: (profile?.role?.toLowerCase() === 'admin') || 
-                   (data.user.user_metadata?.role?.toLowerCase() === 'admin') || 
-                   (data.user.email?.toLowerCase().includes('admin') && !data.user.email?.toLowerCase().includes('learner')),
+          isAdmin: isUserAdmin,
           avatar_url: profile?.avatar_url || data.user.user_metadata?.avatar_url
         };
         
