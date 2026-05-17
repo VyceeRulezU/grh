@@ -54,7 +54,7 @@ serve(async (req) => {
     }
 
     // 3. Google Gemini API Setup
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_API_KEY}`;
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_API_KEY}`;
 
     const systemPrompt = `You are the GRH Research Assistant — an expert in governance, public financial management, anti-corruption, electoral systems, and institutional governance.
 
@@ -98,8 +98,32 @@ ${context ? `### HUB DOCUMENTS:\n${context}` : ''}`;
     })
 
     const data = await response.json()
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
 
+    // Log for debugging — visible in Supabase Edge Function logs dashboard
+    console.log("[gemini-assistant] HTTP:", response.status, "| keys:", Object.keys(data).join(","))
+    if (!response.ok) {
+      const apiErr = data?.error?.message || `Gemini HTTP ${response.status}`
+      console.error("[gemini-assistant] API error:", apiErr)
+      return new Response(JSON.stringify({ error: apiErr }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      })
+    }
+    if (data?.promptFeedback?.blockReason) {
+      console.warn("[gemini-assistant] Blocked:", data.promptFeedback.blockReason)
+      return new Response(JSON.stringify({ error: `blocked:${data.promptFeedback.blockReason}` }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      })
+    }
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text
+    if (!content) {
+      console.error("[gemini-assistant] No content. finishReason:", data.candidates?.[0]?.finishReason)
+      return new Response(JSON.stringify({ error: 'no_content' }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      })
+    }
     return new Response(JSON.stringify({ content }), {
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     })

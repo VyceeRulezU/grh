@@ -7,49 +7,27 @@ import ResourceViewer from '../../research/components/ResourceViewer';
 import './ExplorePage.css';
 
 // ---------------------------------------------------------------------------
-// Dummy AI responses (used when VITE_OPENAI_API_KEY is not set)
+// Search intent detection — determines when to query the resource library.
+// Triggers on the first message of a new chat, or when the user explicitly
+// asks to search/find/look up resources. All other follow-up messages go
+// straight to the AI using conversation history as context.
 // ---------------------------------------------------------------------------
-const DUMMY_RESPONSES = [
-  "Based on the hub's resources, good governance rests on **accountability, transparency, rule of law, participation, and effectiveness**. The World Bank Governance Indicators framework breaks these into six measurable dimensions. Would you like me to expand on any specific one?",
-  "The PEFA framework (Public Expenditure & Financial Accountability) uses 31 performance indicators across seven pillars to assess PFM system quality. Nigeria's 2021 PEFA score highlighted challenges in budget credibility and external audit follow-up. Would you like a detailed breakdown?",
-  "UNCAC (UN Convention Against Corruption) — ratified by 190 countries — establishes four pillars: **prevention, criminalisation, international cooperation, and asset recovery**. Chapter II is particularly relevant for preventive measures in public institutions.",
-  "Electoral system design directly affects political representation. Proportional representation (PR) tends to increase minority and women's representation, while single-member plurality systems concentrate power. The IDEA Electoral System Design Handbook offers 33 country case studies.",
-  "The Open Government Partnership (OGP), founded in 2011, now has 75 member countries. Members commit to biennial National Action Plans on transparency, civic participation, and accountability. Key tools include proactive disclosure, open contracting data standards, and citizen feedback portals.",
-  "Strengthening legislative oversight requires: (1) well-resourced committee systems, (2) access to independent fiscal analysis (e.g., Parliamentary Budget Offices), (3) timely submission of audited accounts, and (4) robust PAC (Public Accounts Committee) follow-up mechanisms.",
-];
-
-let dummyIndex = 0;
-
-const isFollowUpIntent = (text = "") => {
-  const t = text.toLowerCase().trim().replace(/[?.!]/g, '');
-  const intents = [
-    'yes', 'yeah', 'sure', 'ok', 'okay', 'proceed', 'go ahead', 'all', 'summarize all', 
-    'tell me more', 'more', 'explain', 'explain more', 'detailed', 'summary'
+const isSearchIntent = (text = '') => {
+  const t = text.toLowerCase().trim();
+  const searchKeywords = [
+    // Explicit search verbs
+    'search', 'find', 'look for', 'look up', 'locate', 'retrieve',
+    // Resource-seeking nouns
+    'resources', 'documents', 'materials', 'reports', 'papers',
+    'references', 'sources', 'literature', 'publications', 'files',
+    // Question patterns that imply a library lookup
+    'do you have', 'is there a', 'any info on', 'any resources',
+    'any documents', 'show me', 'point me to', 'what resources',
+    'what documents', 'where can i find',
+    // Citation / sourcing requests
+    'cite', 'source', 'bibliography', 'reference list',
   ];
-  return intents.some(intent => t === intent || t.startsWith('summarize') || t.includes('tell me more'));
-};
-
-const getDummyResponse = (userText = "", foundDocs = [], isContinuation = false) => {
-  if (foundDocs.length > 0) {
-     const docTitles = foundDocs.map(d => `**${d.title}**`).join(', ');
-     
-     if (isContinuation) {
-       return `Certainly! Based on the documents I found (${docTitles}), here is a consolidated summary:
-       
-The Hub's evidence suggests that institutional reforms in this area are driven by three main factors: integrated resource management, transparent reporting, and local stakeholder engagement. Specifically, ${foundDocs[0].title} highlights the framework for implementation, while others focus on technical accountability.
-
-Would you like me to dive deeper into any of these specific documents?`;
-     }
-
-     return `I've analyzed the Hub's research library and found ${foundDocs.length} specific resources regarding "${userText.substring(0, 30)}...". 
-     
-Particularly, ${docTitles} contain relevant data. Based on these, it seems you're looking for guidance on institutional governance and PFM strategies.
-
-Would you like me to summarize one of these specific documents for you?`;
-  }
-  const response = DUMMY_RESPONSES[dummyIndex % DUMMY_RESPONSES.length];
-  dummyIndex++;
-  return response;
+  return searchKeywords.some(kw => t.includes(kw));
 };
 
 // ---------------------------------------------------------------------------
@@ -77,31 +55,30 @@ const HISTORY_CONVERSATIONS = {
 // ---------------------------------------------------------------------------
 // AI Assistant call (Using Gemini 1.5 Flash with Context)
 // ---------------------------------------------------------------------------
-const getAIResponse = async (userText, context = null, history = [], userId = null, foundDocs = [], isContinuation = false) => {
+// ---------------------------------------------------------------------------
+// AI call — returns the response string, { error } object, or null on failure.
+// null means the caller should show an error bubble (no dummy fallback).
+// ---------------------------------------------------------------------------
+const getAIResponse = async (userText, context = null, history = [], userId = null) => {
   try {
-    // Try Gemini first
     const { data, error } = await supabase.functions.invoke('gemini-assistant', {
-      body: { 
-        userText,
-        context,
-        userId,
-        conversationHistory: history
-      }
+      body: { userText, context, userId, conversationHistory: history }
     });
 
     if (data?.error === 'daily_limit_reached') {
-       return { error: 'daily_limit_reached' };
+      return { error: 'daily_limit_reached' };
     }
 
     if (error || !data?.content) {
-      // SMART FALLBACK: Acknowledge the specific findings instead of just a static dummy msg
-      return getDummyResponse(userText, foundDocs, isContinuation);
+      // Return null — caller will show an inline error bubble
+      console.warn('[GRH] Gemini response missing content. error:', error?.message || data?.error);
+      return null;
     }
-    
+
     return data.content;
   } catch (err) {
-    console.error("AI Assistant Error:", err);
-    return getDummyResponse(userText, foundDocs, isContinuation);
+    console.error('[GRH] AI call threw:', err);
+    return null;
   }
 };
 
@@ -464,18 +441,23 @@ const ExplorePage = ({ user, onNavigate }) => {
         .order('created_at', { ascending: true });
         
       if (data && data.length > 0) {
-        setMessages([INITIAL_MESSAGE, ...data.map(d => ({...d, text: d.content}))]);
+        const mapped = data.map(d => ({ ...d, text: d.content }));
+        setMessages([INITIAL_MESSAGE, ...mapped]);
+        // Restore last 10 messages into Gemini's context so the AI can
+        // continue the conversation naturally without losing memory.
+        const restored = data.slice(-10).map(d => ({ role: d.role, content: d.content }));
+        setConversationHistory(restored);
       } else {
         setMessages([INITIAL_MESSAGE]);
+        setConversationHistory([]);
       }
     } catch (err) {
-      console.error(err);
+      console.error('[GRH] loadHistory error:', err);
     }
   };
 
   const handleSend = async (text = null) => {
     if (!user) {
-      // Guest Rate Limiting
       const guestQueries = parseInt(localStorage.getItem('grh_guest_queries') || '0');
       if (guestQueries >= 3) {
         setIsLimited(true);
@@ -484,7 +466,7 @@ const ExplorePage = ({ user, onNavigate }) => {
       }
       localStorage.setItem('grh_guest_queries', (guestQueries + 1).toString());
     }
-    
+
     if (isLimited) return;
 
     const msgText = text || input;
@@ -497,7 +479,7 @@ const ExplorePage = ({ user, onNavigate }) => {
 
     let currentSessionId = activeHistoryId;
 
-    // ── DB: create/reuse session (silently — never crash the conversation) ──
+    // ── DB: create/reuse session (silently) ──
     if (user?.id && !currentSessionId) {
       try {
         const title = msgText.length > 30 ? msgText.substring(0, 30) + '...' : msgText;
@@ -510,7 +492,7 @@ const ExplorePage = ({ user, onNavigate }) => {
           setActiveHistoryId(currentSessionId);
           setChatSessions(prev => [sessionData, ...prev]);
         } else {
-          console.warn('[GRH] chat_sessions insert failed (RLS?):', sessionErr?.message);
+          console.warn('[GRH] chat_sessions insert failed:', sessionErr?.message);
         }
       } catch (err) {
         console.warn('[GRH] chat_sessions error:', err);
@@ -531,51 +513,66 @@ const ExplorePage = ({ user, onNavigate }) => {
       }
     }
 
-    // ── AI response (always runs, regardless of DB status) ──
-    try {
-      let responseText = "";
-      let source = "ai";
-      let referencedResources = [];
-      let carriedContext = null;
-      let isContinuation = false;
+    // ── Smart search decision ──────────────────────────────────────────────
+    // Search the resource library only on:
+    //   1. The very first user message in a new chat (to ground the AI in Hub content)
+    //   2. When the user explicitly asks to search / find / look up resources
+    // All other follow-up messages go straight to the AI with conversation
+    // history as context — no DB round-trip needed.
+    // ────────────────────────────────────────────────────────────────────────
+    const isFirstMessage = messages.length === 1; // only the greeting exists
+    const shouldSearch = isFirstMessage || isSearchIntent(msgText);
 
-      // 1. Check Cache (Highest Priority)
-      const cached = await checkCache(msgText);
-      if (cached) {
-        responseText = cached.response_content;
-        source = cached.source_type;
-      } else {
-        // 2. CONVERSATIONAL INTENT DETECTION
-        const lastAssistantMsg = [...messages].reverse().find(m => m.role === 'assistant');
-        if (isFollowUpIntent(msgText) && lastAssistantMsg?.fullResources?.length > 0) {
-          console.log("🔄 Carry-Forward Context Detected: Persisting previous research.");
-          referencedResources = lastAssistantMsg.fullResources;
-          carriedContext = lastAssistantMsg.fullResources.map((r, idx) => `Document ${idx+1}: [${r.title}] — ${r.description || r.summary || ''}`).join('\n\n');
-          isContinuation = true;
-        } else {
-          const searchResult = await findResourceMatch(msgText);
-          if (searchResult) {
-            referencedResources = searchResult.resources;
-            carriedContext = searchResult.context;
-          }
+    let referencedResources = [];
+    let resourceContext = null;
+
+    if (shouldSearch) {
+      try {
+        const searchResult = await findResourceMatch(msgText);
+        if (searchResult) {
+          referencedResources = searchResult.resources;
+          resourceContext = searchResult.context;
+          console.log(`[GRH] Library search: ${referencedResources.length} resources found.`);
         }
-
-        // 3. AI Synthesis
-        const aiOutput = await getAIResponse(msgText, carriedContext, conversationHistory, user?.id, referencedResources, isContinuation);
-        
-        if (aiOutput?.error === 'daily_limit_reached') {
-          setTyping(false);
-          setIsLimited(true);
-          setMessages(prev => [...prev, { id: 'limit', role: 'assistant', text: "You've reached your 20 daily research queries. Come back tomorrow for more deep-dive research." }]);
-          return;
-        }
-
-        responseText = aiOutput;
-        source = 'ai_unified';
-        
-        // 4. Update Cache (silently)
-        await updateCache(msgText, responseText, 'ai_unified').catch(() => {});
+      } catch (err) {
+        console.warn('[GRH] Resource search failed:', err);
       }
+    } else {
+      console.log('[GRH] Conversational follow-up — skipping library search, resuming with AI context.');
+    }
+
+    // ── AI response ──────────────────────────────────────────────────────────
+    try {
+      const aiOutput = await getAIResponse(
+        msgText,
+        resourceContext,      // null for conversational follow-ups
+        conversationHistory,  // full history so Gemini always has context
+        user?.id
+      );
+
+      if (aiOutput?.error === 'daily_limit_reached') {
+        setTyping(false);
+        setIsLimited(true);
+        setMessages(prev => [...prev, {
+          id: 'limit',
+          role: 'assistant',
+          text: "You've reached your 20 daily research queries. Come back tomorrow for more deep-dive research."
+        }]);
+        return;
+      }
+
+      if (aiOutput === null) {
+        // AI is down / quota / network error — show a clear, honest error bubble
+        setTyping(false);
+        setMessages(prev => [...prev, {
+          id: Date.now() + 2,
+          role: 'assistant',
+          text: "I'm temporarily unable to reach the AI service. This may be a brief network issue or service interruption. Please try again in a moment."
+        }]);
+        return;
+      }
+
+      const responseText = aiOutput;
 
       // ── DB: persist assistant message (silently) ──
       let aiMsgId = Date.now() + 1;
@@ -593,21 +590,24 @@ const ExplorePage = ({ user, onNavigate }) => {
       }
 
       setTyping(false);
-      setMessages(prev => [...prev, { 
-        id: aiMsgId, 
-        role: 'assistant', 
-        text: responseText, 
-        source,
-        fullResources: referencedResources 
+      setMessages(prev => [...prev, {
+        id: aiMsgId,
+        role: 'assistant',
+        text: responseText,
+        source: shouldSearch ? 'ai_grounded' : 'ai_conversational',
+        fullResources: referencedResources
       }]);
-      
-      // Update Conversation Memory (Last 5 exchanges)
+
+      // Keep last 10 messages (5 exchanges) in memory for Gemini context
       setConversationHistory(prev => {
-        const newHistory = [...prev, { role: 'user', content: msgText }, { role: 'assistant', content: responseText }];
-        return newHistory.slice(-10);
+        const updated = [...prev,
+          { role: 'user', content: msgText },
+          { role: 'assistant', content: responseText }
+        ];
+        return updated.slice(-10);
       });
-      
-      // ── DB: update session timestamp (silently) ──
+
+      // ── DB: update session timestamp (fire-and-forget) ──
       if (user?.id && currentSessionId) {
         supabase.from('chat_sessions')
           .update({ updated_at: new Date().toISOString() })
@@ -616,13 +616,12 @@ const ExplorePage = ({ user, onNavigate }) => {
       }
 
     } catch (err) {
-      console.error('[GRH] AI response error:', err);
+      console.error('[GRH] Unhandled AI error:', err);
       setTyping(false);
-      // Show error as an inline chat bubble — never an alert()
-      setMessages(prev => [...prev, { 
-        id: Date.now() + 2, 
-        role: 'assistant', 
-        text: "I encountered a problem processing your request. Please try again in a moment." 
+      setMessages(prev => [...prev, {
+        id: Date.now() + 2,
+        role: 'assistant',
+        text: "Something unexpected happened. Please try sending your message again."
       }]);
     }
   };
