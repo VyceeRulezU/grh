@@ -2813,7 +2813,7 @@ function LibraryGapsPanel({ gaps, onResolve, onDelete, fetchData }) {
     <div className="adm-panel">
       <div className="adm-panel-header">
         <div className="adm-header-title">
-          <h3>Library Gaps <span className="adm-count">{gaps.filter(g => !g.resolved).length} Unresolved</span></h3>
+          <h3>Explore Gaps <span className="adm-count">{gaps.filter(g => !g.resolved).length} Unresolved</span></h3>
           <p style={{fontSize: '0.8rem', color: 'var(--text-soft)'}}>Monitor searches that returned zero results to identify content needs.</p>
         </div>
         <div className="adm-search-wrap">
@@ -2846,6 +2846,7 @@ function LibraryGapsPanel({ gaps, onResolve, onDelete, fetchData }) {
                 <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === filtered.length && filtered.length > 0} onChange={handleSelectAll} />
               </th>
               <th>Missing Query</th>
+              <th>Asked By</th>
               <th>Date Asked</th>
               <th>Status</th>
               <th>Actions</th>
@@ -2853,14 +2854,22 @@ function LibraryGapsPanel({ gaps, onResolve, onDelete, fetchData }) {
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan="5" style={{textAlign:'center', padding:'3rem', color:'var(--text-soft)'}}>No gaps found. Your library is well-covered!</td></tr>
-            ) : filtered.sort((a,b) => new Date(b.asked_at) - new Date(a.asked_at)).map(g => (
+              <tr><td colSpan="6" style={{textAlign:'center', padding:'3rem', color:'var(--text-soft)'}}>No gaps found. Your library is well-covered!</td></tr>
+            ) : filtered.sort((a,b) => new Date(b.created_at || b.asked_at) - new Date(a.created_at || a.asked_at)).map(g => (
               <tr key={g.id} className={selectedIds.has(g.id) ? 'selected-row' : ''}>
                 <td style={{ textAlign: 'center' }}>
                     <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(g.id)} onChange={() => toggleSelect(g.id)} />
                 </td>
                 <td><strong style={{color: 'var(--text-main)'}}>"{g.query}"</strong></td>
-                <td>{new Date(g.asked_at).toLocaleDateString()}</td>
+                <td>
+                  <div>
+                    <span style={{fontWeight: '500', color: 'var(--text-main)'}}>{g.user?.name || 'Registered User'}</span>
+                    {g.user?.email && g.user.email !== 'N/A' && (
+                      <span style={{display: 'block', fontSize: '0.75rem', color: 'var(--text-soft)', marginTop: '0.2rem'}}>{g.user.email}</span>
+                    )}
+                  </div>
+                </td>
+                <td>{new Date(g.created_at || g.asked_at).toLocaleDateString()}</td>
                 <td>
                   <span className={`adm-status-badge ${g.resolved ? 'published' : 'draft'}`}>
                     {g.resolved ? 'Resolved' : 'Pending'}
@@ -3122,7 +3131,6 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (progress.error) console.error("Progress Fetch Error:", progress.error);
       if (inst.error) console.error("Instructors Fetch Error:", inst.error);
       if (inst.data) setInstructors(inst.data);
-      if (gapsRes.data) setExploreGaps(gapsRes.data);
 
 
       // 2. Fetch ALL progress for counting and recent activity (Manual join fallback)
@@ -3196,6 +3204,16 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
 
       // 5. Calculate Stats and Recent Activities
       const profilesMap = (usr.data || []).reduce((acc, p) => ({ ...acc, [String(p.id)]: p }), {});
+      
+      if (gapsRes.error) console.error("Gaps Fetch Error:", gapsRes.error);
+      if (gapsRes.data) {
+        const mappedGaps = gapsRes.data.map(g => ({
+          ...g,
+          user: g.user_id ? (profilesMap[String(g.user_id)] || { name: 'Registered User', email: 'Unknown Email' }) : { name: 'Guest / Anonymous', email: 'N/A' }
+        }));
+        setExploreGaps(mappedGaps);
+      }
+
       const coursesMap = (crs.data || []).reduce((acc, c) => ({ ...acc, [String(c.id)]: c }), {});
       
       // Calculate module counts per course
@@ -3482,7 +3500,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         { id: 'books',      icon: 'ri-booklet-fill',      label: 'Books',   badge: books.length },
         { id: 'resources',  icon: 'ri-folder-fill',       label: 'Library Resources', badge: resources.length },
         { id: 'workshops',  icon: 'ri-calendar-event-fill', label: 'Workshops', badge: workshops.length },
-        { id: 'gaps',       icon: 'ri-question-fill',     label: 'Library Gaps', badge: exploreGaps.filter(g => !g.resolved).length },
+        { id: 'gaps',       icon: 'ri-question-fill',     label: 'Explore Gaps', badge: exploreGaps.filter(g => !g.resolved).length },
         { id: 'quizzes',    icon: 'ri-file-list-3-fill',  label: 'Quizzes & Assessments' },
       ],
     },
