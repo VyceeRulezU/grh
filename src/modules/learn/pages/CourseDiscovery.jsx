@@ -32,12 +32,36 @@ const COURSE_IMAGES = [
   'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80',
 ];
 
+// Placeholder catalogue — pairs with legacyData (6) for 12-per-page pagination (24+ total)
+const DUMMY_COURSES = [
+  { id: 'dummy-01', title: 'Strategic Public Leadership', category: 'Governance', level: 'Advanced', duration: '6 hrs', students: 1240, price: 0, created_at: '2026-05-18T09:00:00Z', description: 'Leadership frameworks for senior public officials navigating reform and institutional change.' },
+  { id: 'dummy-02', title: 'Parliamentary Oversight in Practice', category: 'Governance', level: 'Intermediate', duration: '5 hrs', students: 980, price: 0, created_at: '2026-05-15T14:30:00Z', description: 'How committees scrutinise budgets, audit findings, and executive performance.' },
+  { id: 'dummy-03', title: 'Decentralisation & Local Governance', category: 'Governance', level: 'Beginner', duration: '4 hrs', students: 2100, price: 0, created_at: '2026-05-12T11:00:00Z', description: 'Fiscal transfers, subnational accountability, and community participation models.' },
+  { id: 'dummy-04', title: 'Gender-Inclusive Policy Design', category: 'Governance', level: 'Intermediate', duration: '3 hrs', students: 760, price: 0, created_at: '2026-05-10T08:45:00Z', description: 'Tools for embedding gender analysis across policy cycles and service delivery.' },
+  { id: 'dummy-05', title: 'Treasury Single Account Operations', category: 'Finance', level: 'Advanced', duration: '7 hrs', students: 540, price: 0, created_at: '2026-05-17T10:15:00Z', description: 'Cash consolidation, payment controls, and reconciliation in modern treasury systems.' },
+  { id: 'dummy-06', title: 'Debt Management & Fiscal Risk', category: 'Finance', level: 'Advanced', duration: '6 hrs', students: 430, price: 0, created_at: '2026-05-14T16:00:00Z', description: 'Sovereign borrowing strategies, debt sustainability, and contingent liability mapping.' },
+  { id: 'dummy-07', title: 'Revenue Mobilisation Essentials', category: 'Finance', level: 'Beginner', duration: '4 hrs', students: 1890, price: 0, created_at: '2026-05-08T13:20:00Z', description: 'Tax policy basics, compliance systems, and customs administration fundamentals.' },
+  { id: 'dummy-08', title: 'Ethics in Public Service', category: 'Ethics', level: 'Beginner', duration: '3 hrs', students: 3200, price: 0, created_at: '2026-05-19T07:30:00Z', description: 'Codes of conduct, conflict of interest, and everyday ethical decision-making for civil servants.' },
+  { id: 'dummy-09', title: 'Whistleblower Protection Systems', category: 'Ethics', level: 'Intermediate', duration: '4 hrs', students: 870, price: 0, created_at: '2026-05-13T12:00:00Z', description: 'Legal frameworks, reporting channels, and organisational culture for safe disclosure.' },
+  { id: 'dummy-10', title: 'Integrity Risk Assessment', category: 'Ethics', level: 'Advanced', duration: '5 hrs', students: 620, price: 0, created_at: '2026-05-06T15:45:00Z', description: 'Mapping vulnerability hotspots across agencies and designing targeted controls.' },
+  { id: 'dummy-11', title: 'Evidence-Based Policymaking', category: 'Policy', level: 'Intermediate', duration: '5 hrs', students: 1450, price: 0, created_at: '2026-05-16T09:30:00Z', description: 'Using data, evaluation, and stakeholder input to improve policy design and implementation.' },
+  { id: 'dummy-12', title: 'Regulatory Impact Assessment', category: 'Policy', level: 'Advanced', duration: '6 hrs', students: 510, price: 0, created_at: '2026-05-11T11:15:00Z', description: 'Cost–benefit analysis, consultation requirements, and post-implementation review.' },
+  { id: 'dummy-13', title: 'Climate Policy & Green Budgeting', category: 'Policy', level: 'Intermediate', duration: '4 hrs', students: 930, price: 0, created_at: '2026-05-09T14:00:00Z', description: 'Aligning national budgets with climate commitments and tracking green expenditure.' },
+  { id: 'dummy-14', title: 'Social Protection Programme Design', category: 'Policy', level: 'Beginner', duration: '4 hrs', students: 1680, price: 0, created_at: '2026-05-04T10:00:00Z', description: 'Targeting, delivery mechanisms, and monitoring for cash and in-kind transfer schemes.' },
+  { id: 'dummy-15', title: 'Digital Identity for Public Services', category: 'Digital', level: 'Intermediate', duration: '5 hrs', students: 1120, price: 0, created_at: '2026-05-18T13:45:00Z', description: 'National ID ecosystems, privacy safeguards, and interoperability across agencies.' },
+  { id: 'dummy-16', title: 'AI Governance & Algorithmic Accountability', category: 'Digital', level: 'Advanced', duration: '6 hrs', students: 680, price: 0, created_at: '2026-05-15T08:00:00Z', description: 'Ethical AI deployment, audit trails, and oversight models for automated decisions.' },
+  { id: 'dummy-17', title: 'Cybersecurity for Government Agencies', category: 'Digital', level: 'Intermediate', duration: '5 hrs', students: 1540, price: 0, created_at: '2026-05-07T17:30:00Z', description: 'Threat landscapes, incident response, and security governance for public institutions.' },
+  { id: 'dummy-18', title: 'Open Data & Civic Innovation', category: 'Digital', level: 'Beginner', duration: '3 hrs', students: 2010, price: 0, created_at: '2026-05-02T09:15:00Z', description: 'Publishing datasets, API standards, and partnerships with civic tech communities.' },
+];
+
+const FALLBACK_CATALOG = [...DUMMY_COURSES, ...ALL_COURSES];
+
 const CourseDiscovery = ({ onNavigate }) => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const itemsPerPage = 6;
+  const itemsPerPage = 12;
 
   // Refs for animations
   const headerRef = React.useRef(null);
@@ -76,13 +100,13 @@ const CourseDiscovery = ({ onNavigate }) => {
             duration: '2h 30m',
             author: 'GRH Expert'
           }));
-          setCourses([...formatted, ...ALL_COURSES]);
+          setCourses([...formatted, ...FALLBACK_CATALOG]);
         } else {
-          setCourses(ALL_COURSES);
+          setCourses(FALLBACK_CATALOG);
         }
       } catch (err) {
         console.error("Error fetching courses:", err);
-        setCourses(ALL_COURSES);
+        setCourses(FALLBACK_CATALOG);
       } finally {
         setLoading(false);
       }
