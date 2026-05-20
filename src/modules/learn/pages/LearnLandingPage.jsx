@@ -332,8 +332,8 @@ const LearnLandingPage = ({ onNavigate, user }) => {
 
         <div className="courses-grid">
           {loading ? (
-             <div className="empty-state">
-              <span className="empty-icon">⏳</span>
+             <div className="discovery-loading-state" role="status" aria-live="polite">
+              <span className="discovery-loading-icon" aria-hidden="true">⏳</span>
               <h3>Loading Courses...</h3>
              </div>
           ) : (
@@ -485,3 +485,5 @@ const LearnLandingPage = ({ onNavigate, user }) => {
 };
 
 export default LearnLandingPage;
+
+

@@ -200,8 +200,8 @@ const CourseDiscovery = ({ onNavigate }) => {
 
         <div className="discovery-grid-v2">
           {loading ? (
-             <div className="empty-state" style={{ gridColumn: '1/-1', padding: '4rem 0' }}>
-               <span className="empty-icon">⏳</span>
+             <div className="discovery-loading-state" role="status" aria-live="polite">
+               <span className="discovery-loading-icon" aria-hidden="true">⏳</span>
                <h3>Loading Courses...</h3>
              </div>
           ) : pagedItems.map((course, i) => (

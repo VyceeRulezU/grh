@@ -386,6 +386,30 @@
     margin-bottom: 4rem;
 }
 
+.discovery-loading-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 4rem 0;
+}
+
+.discovery-loading-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.discovery-loading-state h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-sub);
+}
+
 .course-card {
     background: var(--bg-white);
     border-radius: var(--radius-lg);
