@@ -7,9 +7,12 @@ import CertificatePreview from '../../shared/ui/CertificatePreview';
 import ResourceViewer from '../research/components/ResourceViewer';
 import { usePixabayImages } from '../../shared/hooks/usePixabayImages';
 import { Helmet } from 'react-helmet-async';
+import { useTour } from '../../context/TourContext';
+import { TourGuideRenderer } from './TourGuideRenderer';
 import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import ResearchPanel from './ResearchPanel';
+
 
 /* ───────────────────────── MOCK DATA ───────────────────────── */
 // (Keep for fallback if needed, but we'll try to use Supabase first)
@@ -179,7 +182,7 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
           </div>
         </div>
 
-        <div className="stats-sidebar">
+        <div id="tour-dashboard-stats" className="stats-sidebar">
           <div className="stat-box">
             <div className="stat-icon blue"><i className="ri-book-open-fill"></i></div>
             <div><strong>{enrolledCount} Courses</strong><span>Enrolled</span></div>
@@ -1009,6 +1012,57 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
     return localStorage.getItem('studentActiveTab') || "Home";
   });
 
+  const { activeTour, currentStep, startTour, hasCompletedTour, triggerFeatureAnnouncement } = useTour();
+
+  // Onboarding first login auto-trigger
+  useEffect(() => {
+    if (!hasCompletedTour('platform') && !activeTour) {
+      const timer = setTimeout(() => {
+        startTour('platform');
+      }, 1500); // 1.5s delay to allow dashboard to mount nicely
+      return () => clearTimeout(timer);
+    }
+  }, [hasCompletedTour, activeTour]);
+
+  // Sync activeTab with active tour step
+  useEffect(() => {
+    if (activeTour === 'platform') {
+      const stepTabs = [
+        'Home',          // Step 0: Welcome Centered
+        'Home',          // Step 1: Stats Highlight
+        'Courses',       // Step 2: Courses Panel
+        'Research',      // Step 3: Research Panel
+        'Workshop',      // Step 4: Workshop Panel
+        'Resources',     // Step 5: Resources Panel
+        'Certifications',// Step 6: Certifications Panel
+        'Settings',      // Step 7: Settings Panel
+        'Home'           // Step 8: Completion Centered
+      ];
+      const targetTab = stepTabs[currentStep];
+      if (targetTab && targetTab !== activeTab) {
+        setActiveTab(targetTab);
+      }
+    }
+  }, [activeTour, currentStep]);
+
+  // Unified "What's New" Feature Announcement auto-trigger
+  useEffect(() => {
+    // Only show if main onboarding is completed, and they haven't seen this notice
+    const platformCompleted = localStorage.getItem('grh_onboarding_complete');
+    const noticeSeen = localStorage.getItem('grh_whatsnew_seen_research_gaps');
+    if (platformCompleted && !noticeSeen) {
+      const timer = setTimeout(() => {
+        triggerFeatureAnnouncement(
+          'research_gaps',
+          '#tour-sidebar-Research',
+          'New: AI Research Assistant 🔮',
+          "We've supercharged the Research Sandbox! You can now analyze complex documents and literature with natural language queries powered by GovAI-Core."
+        );
+      }, 3500); // Trigger a bit after dashboard load
+      return () => clearTimeout(timer);
+    }
+  }, [triggerFeatureAnnouncement]);
+
   // Imagery Hooks for Resources with document-centric focus
   const { getImage: getPerlImg } = usePixabayImages('finance', 10, null, true);
   const { getImage: getSparcImg } = usePixabayImages('sparc', 10, null, true);
@@ -1503,12 +1557,16 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
                 {group.links.map(link => (
                   <button
                     key={link.name}
+                    id={`tour-sidebar-${link.name}`}
                     className={`sidebar-link ${activeTab === link.name ? 'active' : ''}`}
                     onClick={() => { setActiveTab(link.name); setSidebarOpen(false); }}
                   >
                     <i className={link.icon}></i>
                     {link.name}
                     {link.badge && <span className="link-badge">{link.badge}</span>}
+                    {link.name === 'Research' && !localStorage.getItem('grh_whatsnew_seen_research_gaps') && (
+                      <span className="whats-new-pulsar" />
+                    )}
                   </button>
                 ))}
               </React.Fragment>
@@ -1517,8 +1575,11 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
 
           <div className="sidebar-footer">
             <span className="sidebar-section-label">Account</span>
-            <button className={`sidebar-link ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => setActiveTab('Settings')}>
+            <button id="tour-sidebar-Settings" className={`sidebar-link ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => setActiveTab('Settings')}>
               <i className="ri-settings-fill"></i> Settings
+            </button>
+            <button className="sidebar-link" onClick={() => startTour('platform')}>
+              <i className="ri-compass-3-fill"></i> Tour Guide
             </button>
             <button className="sidebar-link"><i className="ri-question-fill"></i> Help Center</button>
             <button className="sidebar-link student-exit-portal" onClick={() => onNavigate('welcome')}>
@@ -1597,6 +1658,9 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
         certificateId={certPreview.certificate?.credentialId}
         downloadAction={() => handleCertDownload(certPreview.certificate)}
       />
+
+      {/* Dynamic Context-Driven Onboarding Tour Overlay */}
+      <TourGuideRenderer />
     </>
   );
 };

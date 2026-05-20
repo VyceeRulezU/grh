@@ -7,6 +7,8 @@ import { useModal } from '../../../shared/hooks/useModal';
 import CertificatePreview from '../../../shared/ui/CertificatePreview';
 import './CoursePlayer.css';
 import logo from '../../../assets/images/Logo/Icon.png';
+import { useTour } from '../../../context/TourContext';
+import { TourGuideRenderer } from '../../student/TourGuideRenderer';
 
 const TAB_CONTENT = {
   Overview: (lesson, course) => (
@@ -126,6 +128,15 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const [showCertificatePreview, setShowCertificatePreview] = useState(false);
   const [certificatePdfUrl, setCertificatePdfUrl] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);
+
+  const { activeTour, startTour, hasCompletedTour } = useTour();
+
+  useEffect(() => {
+    if (course?.id && !hasCompletedTour('course') && !activeTour) {
+      const timer = setTimeout(() => startTour('course'), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [course?.id, hasCompletedTour, activeTour]);
 
   // 1. Initial Data Fetch
   useEffect(() => {
@@ -441,7 +452,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         </div>
         <div className="player-course-title">
           <h3>{course.title}</h3>
-          <div className="player-progress-pill">{progressPercent}% Complete</div>
+          <div id="tour-course-progress" className="player-progress-pill">{progressPercent}% Complete</div>
         </div>
         <div className="player-actions">
            <Button className="btn-outline" size="sm"><i className="ri-question-line"></i> Help</Button>
@@ -456,7 +467,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
       <div className="player-main">
         <div className="player-content-area">
           <div className="video-wrapper">
-            <div className="video-viewport" style={{ backgroundColor: '#0f0f0f' }}>
+            <div id="tour-course-display" className="video-viewport" style={{ backgroundColor: '#0f0f0f' }}>
               {/* Branded Watermark Overlay (Centered Only) */}
               <div className="video-watermark-overlay">
                 <img src={logo} className="centered-watermark-logo" alt="GRH Logo" />
@@ -502,7 +513,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           </div>
 
           <div className="lesson-info">
-            <div className="lesson-tabs">
+            <div id="tour-course-tabs" className="lesson-tabs">
               {['Overview', 'Resources', 'Notes', 'Discussions'].map(tab => (
                 <button
                   key={tab}
@@ -522,7 +533,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
           </div>
         </div>
 
-        <div className={`player-sidebar ${showSidebar ? 'mobile-show' : ''}`}>
+        <div id="tour-course-sidebar" className={`player-sidebar ${showSidebar ? 'mobile-show' : ''}`}>
           <div className="sidebar-mobile-header">
             <h3>Course content</h3>
             <button className="close-sidebar-btn" onClick={() => setShowSidebar(false)}><i className="ri-close-line"></i></button>
@@ -611,6 +622,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
       certificateId={`GRH-${course.id?.toString().substring(0,6)}-${user.id?.toString().substring(0,8)}`.toUpperCase()}
       downloadAction={() => generateCertificate(true)}
     />
+    <TourGuideRenderer />
     </>
   );
 };

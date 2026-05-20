@@ -5,6 +5,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import { ErrorBoundary } from 'react-error-boundary'
 import NotFoundPage from './modules/home/NotFoundPage'
 import App from './App.jsx'
+import { TourProvider } from './context/TourContext'
 import './styles/tokens.css'
 import './index.css'
 
@@ -61,9 +62,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <TourProvider>
+            <App />
+          </TourProvider>
         </QueryClientProvider>
       </HelmetProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 )
+

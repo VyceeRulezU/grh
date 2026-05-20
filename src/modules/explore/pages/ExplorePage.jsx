@@ -5,6 +5,8 @@ import grhIcon from '../../../assets/images/Logo/GRH-alone.png';
 import { Helmet } from 'react-helmet-async';
 import ResourceViewer from '../../research/components/ResourceViewer';
 import './ExplorePage.css';
+import { useTour } from '../../../context/TourContext';
+import { TourGuideRenderer } from '../../student/TourGuideRenderer';
 
 // ---------------------------------------------------------------------------
 // Search intent detection — determines when to query the resource library.
@@ -314,6 +316,15 @@ const ExplorePage = ({ user, onNavigate }) => {
   const [copiedId, setCopiedId] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
+
+  const { activeTour, startTour, hasCompletedTour } = useTour();
+
+  useEffect(() => {
+    if (!hasCompletedTour('explore') && !activeTour) {
+      const timer = setTimeout(() => startTour('explore'), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasCompletedTour, activeTour]);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -646,7 +657,7 @@ const ExplorePage = ({ user, onNavigate }) => {
       </Helmet>
       {isSidebarOpen && <div className="sidebar-backdrop" onClick={handleOverlayClick} /> }
 
-      <aside className={`chat-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+      <aside id="tour-explore-sidebar" className={`chat-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="chat-sidebar-header">
           <div className="sidebar-logo-wrap">
             <img src={grhIcon} alt="GRH" className="sidebar-icon-logo" loading="lazy" />
@@ -722,7 +733,7 @@ const ExplorePage = ({ user, onNavigate }) => {
 
         <div className="messages-area">
           {messages.length === 1 && (
-            <div className="suggestions-area">
+            <div id="tour-explore-suggestions" className="suggestions-area">
               <div className="suggestions-label">Explore common research topics:</div>
               <div className="suggestions-grid">
                 {suggestions.map(s => (
@@ -874,7 +885,7 @@ const ExplorePage = ({ user, onNavigate }) => {
             </div>
           )}
 
-          <div className="input-wrapper">
+          <div id="tour-explore-input" className="input-wrapper">
             {/* File upload */}
             <input
               type="file"
@@ -925,6 +936,7 @@ const ExplorePage = ({ user, onNavigate }) => {
         onClose={() => setViewingResource(null)} 
         resource={viewingResource} 
       />
+      <TourGuideRenderer />
     </div>
   );
 };
