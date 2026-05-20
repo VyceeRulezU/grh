@@ -745,6 +745,89 @@ function WorkshopAttendeesModal({ workshop, onClose }) {
   );
 }
 
+const ACTIVITY_TYPE_FILTER_MAP = {
+  Signup: 'signup',
+  Enrollment: 'enrollment',
+  Module: 'module',
+  Course: 'course',
+  Workshop: 'workshop',
+};
+
+const getActivityTimestamp = (act) => act.updated_at || act.created_at || act.last_accessed;
+
+/** Resolve display name from profile row (name, full_name, email, etc.) */
+const resolveUserDisplayName = (profile, fallback = 'Learner') => {
+  if (!profile) return fallback;
+  const fromEmail =
+    typeof profile.email === 'string' && profile.email.includes('@')
+      ? profile.email.split('@')[0].replace(/[._-]+/g, ' ').trim()
+      : '';
+  const candidate = (
+    profile.name ||
+    profile.full_name ||
+    profile.display_name ||
+    fromEmail
+  ).trim();
+  return candidate || fallback;
+};
+
+const enrichProfileForActivity = (profile, extras = {}) => {
+  const merged = { ...(profile || {}), ...extras };
+  return { ...merged, name: resolveUserDisplayName(merged, 'Learner') };
+};
+
+const getActivityEventLabel = (act) => {
+  switch (act.type) {
+    case 'signup': return 'Signed up';
+    case 'enrollment': return 'Enrolled in course';
+    case 'module': return 'Completed module';
+    case 'course': return 'Completed course';
+    case 'workshop': return 'Registered for workshop';
+    default: return 'Activity';
+  }
+};
+
+const getActivityCourseCell = (act) => {
+  if (act.type === 'signup' || act.type === 'workshop') return '—';
+  return act.courses?.title || '—';
+};
+
+const getActivityModuleCell = (act) => {
+  if (act.type === 'module') return act.modules?.title || 'Lesson';
+  return '—';
+};
+
+const getActivityWorkshopCell = (act) => {
+  if (act.type === 'workshop') return act.workshops?.title || 'Workshop';
+  return '—';
+};
+
+const getActivityStatusLabel = (act) => {
+  if (act.statusLabel) return act.statusLabel;
+  if (act.type === 'signup') return 'New';
+  if (act.type === 'enrollment') return 'Enrolled';
+  if (act.type === 'workshop') return 'Registered';
+  return 'Completed';
+};
+
+const getActivityStatusBadgeClass = (act) => {
+  const label = getActivityStatusLabel(act);
+  if (label === 'New') return 'draft';
+  if (label === 'Enrolled' || label === 'Registered') return 'published';
+  return 'published';
+};
+
+const formatActivityTime = (act) => {
+  const date = new Date(getActivityTimestamp(act));
+  if (Number.isNaN(date.getTime())) return '—';
+  const now = new Date();
+  const diffHrs = Math.floor((now - date) / (1000 * 60 * 60));
+  if (diffHrs < 1) return 'Just now';
+  if (diffHrs < 24) return `${diffHrs} hrs ago`;
+  if (diffHrs < 48) return 'Yesterday';
+  return date.toLocaleDateString();
+};
+
 function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats, recentActivitiesPage, setRecentActivitiesPage, itemsPerRecentPage }) {
   const [selectedActivities, setSelectedActivities] = useState(new Set());
   const [activitySearch, setActivitySearch] = useState('');
@@ -752,15 +835,18 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
   const [activityFilterType, setActivityFilterType] = useState('All');
   const [activeActivity, setActiveActivity] = useState(null);
 
-  // Filter logic for recent activities
   const filteredActivities = stats.recentActivities.filter(act => {
-    const userName = (act.profiles?.name || 'Anonymous').toLowerCase();
-    const courseName = (act.courses?.title || 'Course').toLowerCase();
-    const matchesSearch = userName.includes(activitySearch.toLowerCase()) || courseName.includes(activitySearch.toLowerCase());
-    
-    const matchesStatus = activityFilterStatus === 'All' || (activityFilterStatus === 'Completed' && act.type === 'module'); // Assuming module completions are 'Completed'
-    const matchesType = activityFilterType === 'All' || (activityFilterType === 'Course' && act.type === 'course') || (activityFilterType === 'Resource' && act.type === 'resource') || (activityFilterType === 'Module' && act.type === 'module');
-    
+    const q = activitySearch.toLowerCase().trim();
+    const userName = resolveUserDisplayName(act.profiles, '').toLowerCase();
+    const courseName = (act.courses?.title || '').toLowerCase();
+    const moduleName = (act.modules?.title || '').toLowerCase();
+    const workshopName = (act.workshops?.title || '').toLowerCase();
+    const matchesSearch = !q || [userName, courseName, moduleName, workshopName, getActivityEventLabel(act).toLowerCase()].some(s => s.includes(q));
+
+    const matchesStatus = activityFilterStatus === 'All' || getActivityStatusLabel(act) === activityFilterStatus;
+    const typeKey = ACTIVITY_TYPE_FILTER_MAP[activityFilterType];
+    const matchesType = activityFilterType === 'All' || act.type === typeKey;
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -786,12 +872,15 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
   };
 
   const handleExportActivityCSV = () => {
-    const headers = ['Activity', 'User', 'Time', 'Status'];
+    const headers = ['Event', 'User', 'Course', 'Module', 'Workshop', 'Time', 'Status'];
     const rows = filteredActivities.map(act => [
-      `"Finished ${act.courses?.title || 'Course'}"`,
-      `"${act.profiles?.name || 'Learner'}"`,
-      `"${new Date(act.updated_at || act.created_at || act.last_accessed).toLocaleDateString()}"`,
-      `"Completed"`
+      `"${getActivityEventLabel(act)}"`,
+      `"${resolveUserDisplayName(act.profiles)}"`,
+      `"${getActivityCourseCell(act)}"`,
+      `"${getActivityModuleCell(act)}"`,
+      `"${getActivityWorkshopCell(act)}"`,
+      `"${new Date(getActivityTimestamp(act)).toLocaleString()}"`,
+      `"${getActivityStatusLabel(act)}"`
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -910,14 +999,14 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
           </div>
           <div className="adm-recent-activity-filter">
             <ModernDropdown 
-              options={['All', 'Course', 'Module', 'Resource']} 
+              options={['All', 'Signup', 'Enrollment', 'Module', 'Course', 'Workshop']} 
               value={activityFilterType} 
               onChange={v => { setActivityFilterType(v); setRecentActivitiesPage(1); }} 
             />
           </div>
           <div className="adm-recent-activity-filter">
             <ModernDropdown 
-              options={['All', 'Completed']} 
+              options={['All', 'New', 'Enrolled', 'Completed', 'Registered']} 
               value={activityFilterStatus} 
               onChange={v => { setActivityFilterStatus(v); setRecentActivitiesPage(1); }} 
             />
@@ -928,76 +1017,82 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
         </div>
       </div>
 
-      <div className="adm-premium-table-wrap">
-        <table className="adm-premium-table">
-          <thead>
-            <tr>
-              <th style={{ width: 40, textAlign: 'center' }}>
-                <label className="adm-checkbox">
-                  <input type="checkbox" className="adm-custom-checkbox" checked={allSelected} onChange={handleSelectAll} />
-                </label>
-              </th>
-              <th>Event</th>
-              <th>User</th>
-              <th>Course / Resource</th>
-              <th>Time</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentActivities.length > 0 ? currentActivities.map((act, index) => {
-              const eventType = act.type === 'course' ? 'Enrolled' : 'Completed module';
-              const courseName = act.courses?.title || 'Course';
-              const userName = act.profiles?.name || 'Anonymous';
-              
-              const date = new Date(act.updated_at || act.created_at || act.last_accessed);
-              const now = new Date();
-              const diffHrs = Math.floor((now - date) / (1000 * 60 * 60));
-              let timeStr = date.toLocaleDateString();
-              
-              if (diffHrs === 0) timeStr = 'Today';
-              else if (diffHrs < 24) timeStr = `${diffHrs} hrs ago`;
-              else if (diffHrs < 48) timeStr = 'Yesterday';
+      <div className="adm-activity-wrap" role="table" aria-label="Recent student activity">
+        <div className="adm-activity-head" role="row">
+          <div className="adm-activity-cell adm-activity-cell--check" role="columnheader">
+            <label className="adm-checkbox">
+              <input type="checkbox" className="adm-custom-checkbox" checked={allSelected} onChange={handleSelectAll} aria-label="Select all activities" />
+            </label>
+          </div>
+          <div className="adm-activity-cell adm-activity-cell--event" role="columnheader">Event</div>
+          <div className="adm-activity-cell adm-activity-cell--user" role="columnheader">User</div>
+          <div className="adm-activity-cell adm-activity-cell--wide" role="columnheader">Course</div>
+          <div className="adm-activity-cell adm-activity-cell--wide" role="columnheader">Module</div>
+          <div className="adm-activity-cell adm-activity-cell--wide" role="columnheader">Workshop</div>
+          <div className="adm-activity-cell adm-activity-cell--time" role="columnheader">Time</div>
+          <div className="adm-activity-cell adm-activity-cell--status" role="columnheader">Status</div>
+          <div className="adm-activity-cell adm-activity-cell--action" role="columnheader">Action</div>
+        </div>
 
-              return (
-                <tr key={index} className={selectedActivities.has(index) ? 'selected-row' : ''}>
-                  <td style={{ textAlign: 'center' }}>
-                    <label className="adm-checkbox">
-                      <input 
-                        type="checkbox" 
-                        className="adm-custom-checkbox"
-                        checked={selectedActivities.has(index)} 
-                        onChange={() => handleSelectActivity(index)} 
-                      />
-                    </label>
-                  </td>
-                  <td className="premium-focus">{eventType}</td>
-                  <td className="premium-focus">{userName}</td>
-                  <td>{courseName}</td>
-                  <td>{timeStr}</td>
-                  <td>
-                    <span className="adm-status-badge published">Completed</span>
-                  </td>
-                  <td>
-                    <span className="adm-table-action-link" onClick={() => setActiveActivity(act)}>
-                      {act.type === 'course' ? 'View gap' : 'View'}
-                    </span>
-                  </td>
-                </tr>
-              );
-            }) : (
-              <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-soft)' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                    <i className="ri-search-2-line" style={{ fontSize: '2rem', opacity: 0.3 }}></i>
-                    No activity matches your current filters.
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        {currentActivities.length > 0 ? currentActivities.map((act, index) => {
+          const userName = resolveUserDisplayName(act.profiles, 'Anonymous');
+          const statusLabel = getActivityStatusLabel(act);
+          const eventLabel = getActivityEventLabel(act);
+          const courseLabel = getActivityCourseCell(act);
+          const moduleLabel = getActivityModuleCell(act);
+          const workshopLabel = getActivityWorkshopCell(act);
+
+          return (
+            <div
+              key={act.id || index}
+              className={`adm-activity-row${selectedActivities.has(index) ? ' is-selected' : ''}`}
+              role="row"
+            >
+              <div className="adm-activity-cell adm-activity-cell--check" data-label="Select" role="cell">
+                <label className="adm-checkbox">
+                  <input
+                    type="checkbox"
+                    className="adm-custom-checkbox"
+                    checked={selectedActivities.has(index)}
+                    onChange={() => handleSelectActivity(index)}
+                    aria-label={`Select activity for ${userName}`}
+                  />
+                </label>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--event premium-focus" data-label="Event" role="cell">
+                <span className="adm-activity-text-nowrap" title={eventLabel}>{eventLabel}</span>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--user premium-focus" data-label="User" role="cell">
+                <span className="adm-activity-text-nowrap" title={userName}>{userName}</span>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--wide" data-label="Course" role="cell">
+                <span className="adm-activity-text-clamp" title={courseLabel}>{courseLabel}</span>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--wide" data-label="Module" role="cell">
+                <span className="adm-activity-text-clamp" title={moduleLabel}>{moduleLabel}</span>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--wide" data-label="Workshop" role="cell">
+                <span className="adm-activity-text-clamp" title={workshopLabel}>{workshopLabel}</span>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--time" data-label="Time" role="cell">
+                <span className="adm-activity-text-nowrap">{formatActivityTime(act)}</span>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--status" data-label="Status" role="cell">
+                <span className={`adm-status-badge ${getActivityStatusBadgeClass(act)}`}>{statusLabel}</span>
+              </div>
+              <div className="adm-activity-cell adm-activity-cell--action" data-label="Action" role="cell">
+                <button type="button" className="adm-table-action-link" onClick={() => setActiveActivity(act)}>
+                  View
+                </button>
+              </div>
+            </div>
+          );
+        }) : (
+          <div className="adm-activity-empty" role="row">
+            <i className="ri-search-2-line" aria-hidden="true"></i>
+            <p>No activity matches your current filters.</p>
+          </div>
+        )}
       </div>
 
       {filteredActivities.length > itemsPerRecentPage && (
@@ -1023,23 +1118,34 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
               <div className="activity-info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>User</label>
-                  <p style={{ fontWeight: 600 }}>{activeActivity.profiles?.name || 'Anonymous'}</p>
+                  <p style={{ fontWeight: 600 }}>{resolveUserDisplayName(activeActivity.profiles, 'Anonymous')}</p>
+                  {activeActivity.profiles?.email && (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: '0.25rem' }}>{activeActivity.profiles.email}</p>
+                  )}
                 </div>
                 <div>
                   <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Event Type</label>
-                  <p style={{ fontWeight: 600 }}>{activeActivity.type === 'course' ? 'Enrolled' : 'Module Completion'}</p>
+                  <p style={{ fontWeight: 600 }}>{getActivityEventLabel(activeActivity)}</p>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Course</label>
+                  <p style={{ fontWeight: 600 }}>{getActivityCourseCell(activeActivity)}</p>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Module</label>
+                  <p style={{ fontWeight: 600 }}>{getActivityModuleCell(activeActivity)}</p>
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Target Content</label>
-                  <p style={{ fontWeight: 600 }}>{activeActivity.courses?.title || 'General content'}</p>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Workshop</label>
+                  <p style={{ fontWeight: 600 }}>{getActivityWorkshopCell(activeActivity)}</p>
                 </div>
                 <div>
                   <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Timestamp</label>
-                  <p style={{ fontWeight: 500 }}>{new Date(activeActivity.updated_at || activeActivity.created_at).toLocaleString()}</p>
+                  <p style={{ fontWeight: 500 }}>{new Date(getActivityTimestamp(activeActivity)).toLocaleString()}</p>
                 </div>
                 <div>
                   <label style={{ fontSize: '0.7rem', color: 'var(--text-soft)', textTransform: 'uppercase' }}>Status</label>
-                  <p style={{ color: 'var(--primary)', fontWeight: 700 }}>Successfully Completed</p>
+                  <p style={{ color: 'var(--primary)', fontWeight: 700 }}>{getActivityStatusLabel(activeActivity)}</p>
                 </div>
               </div>
             </div>
@@ -3203,7 +3309,10 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (wks.data) setWorkshops(wks.data.map(w => ({ ...w, registrations: w.workshop_registrations })));
 
       // 5. Calculate Stats and Recent Activities
-      const profilesMap = (usr.data || []).reduce((acc, p) => ({ ...acc, [String(p.id)]: p }), {});
+      const profilesMap = (usr.data || []).reduce((acc, p) => {
+        acc[String(p.id)] = enrichProfileForActivity(p);
+        return acc;
+      }, {});
       
       if (gapsRes.error) console.error("Gaps Fetch Error:", gapsRes.error);
       if (gapsRes.data) {
@@ -3242,7 +3351,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       // Identify courses fully completed by users
       const trueCourseCompletions = Object.entries(userCourseCompletions)
         .filter(([key, data]) => {
-          const [userId, courseId] = key.split('_');
+          const [, courseId] = key.split('_');
           return data.count >= (courseModuleCounts[courseId] || 0) && (courseModuleCounts[courseId] || 0) > 0;
         })
         .map(([key, data]) => {
@@ -3253,26 +3362,78 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
             user_id: userId,
             course_id: courseId,
             updated_at: data.updatedAt,
-            profiles: profilesMap[userId] || { name: 'Learner' },
-            courses: coursesMap[courseId] || { title: 'Governance Course' }
+            profiles: enrichProfileForActivity(profilesMap[userId]),
+            courses: coursesMap[courseId] || { title: 'Governance Course' },
+            statusLabel: 'Completed'
           };
         });
 
-      // Map recent module completions
-      const recentModuleActivities = completedProgressRecords
-        .map(p => ({
-          ...p,
-          id: `module_${p.id}`,
-          type: 'module',
-          profiles: profilesMap[p.user_id] || { name: 'Learner' },
-          courses: coursesMap[p.course_id] || { title: 'Governance Course' },
-          modules: modulesMap[p.module_id] || { title: 'Lesson' },
-          updated_at: p.updated_at || p.created_at
+      const recentModuleActivities = completedProgressRecords.map(p => ({
+        ...p,
+        id: `module_${p.id}`,
+        type: 'module',
+        profiles: enrichProfileForActivity(profilesMap[String(p.user_id)]),
+        courses: coursesMap[String(p.course_id)] || { title: 'Governance Course' },
+        modules: modulesMap[String(p.module_id)] || { title: 'Lesson' },
+        updated_at: p.updated_at || p.created_at,
+        statusLabel: 'Completed'
+      }));
+
+      const signupActivities = (usr.data || [])
+        .filter(u => (u.role || '').toLowerCase() !== 'admin')
+        .map(u => ({
+          id: `signup_${u.id}`,
+          type: 'signup',
+          user_id: u.id,
+          profiles: enrichProfileForActivity(profilesMap[String(u.id)], { email: u.email }),
+          updated_at: u.joined_at || u.created_at,
+          statusLabel: 'New'
         }));
 
-      // Merge and sort
-      const allRecentActivities = [...trueCourseCompletions, ...recentModuleActivities]
-        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+      const firstProgressByCourse = {};
+      (allProgress || []).forEach(p => {
+        if (!p.user_id || !p.course_id) return;
+        const key = `${p.user_id}_${p.course_id}`;
+        const ts = new Date(p.created_at || 0).getTime();
+        const existing = firstProgressByCourse[key];
+        if (!existing || ts < new Date(existing.created_at || 0).getTime()) {
+          firstProgressByCourse[key] = p;
+        }
+      });
+
+      const enrollmentActivities = Object.values(firstProgressByCourse).map(p => ({
+        id: `enrollment_${p.user_id}_${p.course_id}`,
+        type: 'enrollment',
+        user_id: p.user_id,
+        course_id: p.course_id,
+        profiles: enrichProfileForActivity(profilesMap[String(p.user_id)]),
+        courses: coursesMap[String(p.course_id)] || { title: 'Course' },
+        updated_at: p.created_at,
+        statusLabel: 'Enrolled'
+      }));
+
+      const workshopActivities = (wks.data || []).flatMap(workshop =>
+        (workshop.workshop_registrations || []).map((reg, idx) => ({
+          id: `workshop_${reg.id || `${reg.user_id}_${workshop.id}_${idx}`}`,
+          type: 'workshop',
+          user_id: reg.user_id,
+          profiles: enrichProfileForActivity(profilesMap[String(reg.user_id)], { name: reg.name, email: reg.email }),
+          workshops: { title: workshop.title },
+          updated_at: reg.created_at || workshop.created_at,
+          statusLabel: 'Registered'
+        }))
+      );
+
+      const allRecentActivities = [
+        ...signupActivities,
+        ...enrollmentActivities,
+        ...recentModuleActivities,
+        ...trueCourseCompletions,
+        ...workshopActivities
+      ]
+        .filter(act => getActivityTimestamp(act))
+        .sort((a, b) => new Date(getActivityTimestamp(b)) - new Date(getActivityTimestamp(a)))
+        .slice(0, 500);
 
       // Generate Chart Data
       const generateChartData = (usersList, resList, bksList, compList) => {
