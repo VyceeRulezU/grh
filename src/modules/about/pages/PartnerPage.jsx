@@ -8,12 +8,16 @@ import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import FaqSection from '../../../shared/ui/FaqSection';
 import CtaSection from '../../../shared/ui/CtaSection';
 import SpecialButton from '../../../shared/ui/SpecialButton';
+import { usePexelsImages } from '../../../shared/hooks/usePexelsImages';
 
 import './PartnerPage.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const PartnerPage = ({ onNavigate }) => {
+  const { getImage: getPractitionerImage } = usePexelsImages('partner_practitioner', 1, { orientation: 'portrait' });
+  const { getImage: getFocusImage } = usePexelsImages('partner_focus', 1, { orientation: 'landscape' });
+  const { getImage: getAuthorImage } = usePexelsImages('partner_author', 1, { orientation: 'portrait' });
   const cardsRef = useRef([]);
   cardsRef.current = [];
 
@@ -202,7 +206,7 @@ const PartnerPage = ({ onNavigate }) => {
             {/* 1. Tall Card */}
             <div className="bento-card bento-tall bg-dark">
               <span className="bento-tag text-white">Trusted by</span>
-              <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=600" alt="Practitioner" className="bento-bg-img" />
+              <img src={getPractitionerImage(0)} alt="Practitioner" className="bento-bg-img" />
               <div className="bento-overlay-logos">
                  <span>World Bank</span>
                  <span>UNDP</span>
@@ -218,7 +222,7 @@ const PartnerPage = ({ onNavigate }) => {
 
             {/* 3. Image Square */}
             <div className="bento-card bento-img bg-dark">
-               <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600" alt="Focus" className="bento-bg-img" />
+               <img src={getFocusImage(0)} alt="Focus" className="bento-bg-img" />
                <div className="bento-center-logo">
                  <img src="/icon.png" alt="GRH" style={{width: 40, filter: 'brightness(0) invert(1)'}} onError={(e) => e.target.style.display='none'} />
                  <span className="text-white fw-bold">GRH</span>
@@ -229,7 +233,7 @@ const PartnerPage = ({ onNavigate }) => {
             <div className="bento-card bento-quote">
               <p className="bento-quote-text">"We designed this platform to make your governance journey smoother, smarter, and more connected to real-world policy."</p>
                <div className="bento-author">
-                 <img src="https://images.unsplash.com/photo-1531123897727-8f129e1ebaaa?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt="Dr. Amaka Okonkwo" />
+                 <img src={getAuthorImage(0)} alt="Dr. Amaka Okonkwo" />
                  <div>
                    <strong>Dr. Amaka Okonkwo</strong>
                    <span>Governance Specialist</span>

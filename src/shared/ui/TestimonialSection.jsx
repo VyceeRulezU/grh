@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TESTIMONIALS } from '../../data/legacyData';
-import { usePixabayPortraits } from '../hooks/usePixabayImages';
+import { usePexelsAvatars } from '../hooks/usePexelsImages';
 import './TestimonialSection.css';
 
 const TestimonialSection = ({
@@ -10,7 +10,7 @@ const TestimonialSection = ({
   subtitle = "Hear from government officials, civil society practitioners, and researchers who've completed our programmes."
 }) => {
   const [offset, setOffset] = useState(0);
-  const { images: portraitImgs } = usePixabayPortraits(10);
+  const { images: portraitImgs } = usePexelsAvatars(10);
 
   useEffect(() => {
     // Cycles the index offset every 6 seconds to create a sliding 

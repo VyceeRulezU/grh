@@ -16,6 +16,7 @@ import { supabase } from '../../../services/supabase/supabaseClient';
 import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 import NigeriaMap from '../../analyse/components/NigeriaMap';
+import { usePexelsImages } from '../../../shared/hooks/usePexelsImages';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,6 +37,7 @@ const PARTNERS = [
 ];
 
 const AboutUs = ({ onNavigate }) => {
+  const { getImage: getPexelsImage } = usePexelsImages('mission', 1, { orientation: 'landscape' });
   const heroRef = useRef(null);
   const statsRef = useRef(null);
   const [instructors, setInstructors] = React.useState([]);
@@ -190,7 +192,7 @@ const AboutUs = ({ onNavigate }) => {
         <div className="container mission-grid">
           <div className="mission-image">
             <img
-              src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800"
+              src={getPexelsImage(0)}
               alt="Government Intelligence Team"
             />
           </div>
