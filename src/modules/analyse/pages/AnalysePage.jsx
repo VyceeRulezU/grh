@@ -139,7 +139,7 @@ const AnalysePage = ({ onNavigate }) => {
       </Helmet>
 
       <PageHero
-        chip="PFM Database Analytics"
+        // chip="PFM Database Analytics"
         title={<>Empowering Governance Through<br /><span className="green-text">Consolidated PFM Data</span></>}
         subtitle="Explore Nigeria's fiscal landscape with precision. Our interactive database provides comprehensive state-level budget data, actual receipts, expenditures and comparative analyses."
         counters={[
