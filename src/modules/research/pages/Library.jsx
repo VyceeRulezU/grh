@@ -450,9 +450,9 @@ const Library = ({ onNavigate }) => {
       </Helmet>
 
       <PageHero
-        chip="Digital e-Library"
+        // chip="Digital e-Library"
         title={<>Curated <br /><span className="green-text">Governance Knowledge</span></>}
-        subtitle="Explore our comprehensive library of professional resources, policy frameworks, and governance research curated for institutional excellence."
+        subtitle="Explore our comprehensive library of governance reform resources."
         counters={[
           { value: '20+', label: 'Years of Data' },
           { value: `${allResources.length}+`, label: 'Resources' },
@@ -532,7 +532,7 @@ const Library = ({ onNavigate }) => {
               <div className="learn-hero-search">
                 <span className="material-symbols-outlined search-icon">search</span>
                 <input 
-                  placeholder="Search by title, author, or keyword..." 
+                  placeholder="Search..." 
                   value={search} 
                   onChange={e => setSearch(e.target.value)} 
                 />
@@ -636,16 +636,7 @@ const Library = ({ onNavigate }) => {
 
       </div>
 
-         {/* CTA Section */}
-        <CtaSection 
-          eyebrow="Expand Your Knowledge"
-          title={<>Explore our full <br /><span className="green-text">Governance Library</span></>}
-          description="Gain access to thousands of documents, research papers, and case studies from across the globe."
-          primaryActionLabel="Start Learning"
-          primaryActionOnClick={() => onNavigate && onNavigate('learn-discovery')}
-          secondaryActionLabel="Visit About Us"
-          secondaryActionOnClick={() => onNavigate && onNavigate('about')}
-        />
+
 
         {/* ResourceViewer implementation */}
         <ResourceViewer 

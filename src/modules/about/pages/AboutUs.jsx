@@ -7,6 +7,7 @@ import FaqSection from '../../../shared/ui/FaqSection';
 import PageHero from '../../../shared/ui/PageHero';
 import grhIcon from '../../../assets/images/Logo/Icon.png';
 import servicesBg from '../../../assets/images/Pictures/37815616495_24f17295f5_b.jpg';
+import missionImg from '../../../assets/images/Pictures/assess_main.png';
 import './AboutUs.css';
 import PFM_Mock from '../../../assets/PFM_Mock.png';
 import Library from '../../../assets/Library.png';
@@ -16,8 +17,6 @@ import { supabase } from '../../../services/supabase/supabaseClient';
 import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 import NigeriaMap from '../../analyse/components/NigeriaMap';
-import { usePexelsImages } from '../../../shared/hooks/usePexelsImages';
-
 gsap.registerPlugin(ScrollTrigger);
 
 const TEAM_MEMBERS = [
@@ -37,7 +36,6 @@ const PARTNERS = [
 ];
 
 const AboutUs = ({ onNavigate }) => {
-  const { getImage: getPexelsImage } = usePexelsImages('mission', 1, { orientation: 'landscape' });
   const heroRef = useRef(null);
   const statsRef = useRef(null);
   const [instructors, setInstructors] = React.useState([]);
@@ -127,15 +125,7 @@ const AboutUs = ({ onNavigate }) => {
     <div className="page-wrapper about-page">
 
       <PageHero
-        chip="Digital Governance Hub"
-        title={<>Building Transparent &amp;<br /><span className="green-text">Accountable Governance</span></>}
-        subtitle="We provide the tools, data, and expertise to transform how government institutions manage and report performance — ensuring every public resource is accounted for."
-        actions={
-          <>
-            <button className="special-button" onClick={() => onNavigate('analyse')}>Explore Analytics</button>
-            <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('research')}>Research Library</button>
-          </>
-        }
+        title={<>Building a knowledge base for &amp;<br /><span className="green-text">Governance work.</span></>}
       />
 
       {/* ── IMPACT HERO SECTION ────────────────────────────────────────────── */}
@@ -146,7 +136,7 @@ const AboutUs = ({ onNavigate }) => {
           </div> */}
           
           <h2 className="impact-headline">
-            The Governance Resource Hub is a <i className="italic-highlight">purpose-driven</i> digital platform <i className="italic-highlight">helping</i> practitioners <i className="italic-highlight">navigate</i> reforms, <i className="italic-highlight">refine</i> policy, and <i className="italic-highlight">achieve</i> sustainable development.
+            GRH is a digital platform developed to make the extensive <i className="italic-highlight">legacy of these three generations of</i> UK international development funded <i className="italic-highlight">governance programme</i> accessible and and sustainable.
           </h2>
 
           <div className="impact-stats-grid">
@@ -186,36 +176,6 @@ const AboutUs = ({ onNavigate }) => {
           </div>
         </div>
       </section> */}
-
-      {/* ── MISSION SPLIT ── */}
-      <section className="about-mission">
-        <div className="container mission-grid">
-          <div className="mission-image">
-            <img
-              src={getPexelsImage(0)}
-              alt="Government Intelligence Team"
-            />
-          </div>
-          <div className="mission-content">
-            <span className="tag">About the Governance Resource Hub</span>
-            <h2>Advancing <span className="green-text">Governance Reform</span> in Nigeria.</h2>
-            <p>
-              Welcome to the Governance Resource Hub—a central digital platform created to preserve, share, and build upon the extensive legacy of the Partnership to Engage, Reform, and Learn (PERL) programme and other FCDO-funded predecessor governance programmes.
-            </p>
-            <p style={{ marginTop: '1rem', color: 'var(--text-soft)', fontSize: '1.05rem', lineHeight: '1.7' }}>
-              This innovative hub is dedicated to advancing governance reform in Nigeria by making critical and practical tools accessible to reform champions, policymakers, academics, and practitioners alike. At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
-              {/* <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('signup')}>
-                Join Our Platform
-              </button> */}
-              <button className="special-button" onClick={() => onNavigate && onNavigate('partner')}>
-                Partner with Us
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── ABOUT THE PROGRAMMES (Premium Redesign) ── */}
       <section className="about-programmes">
@@ -565,6 +525,26 @@ const AboutUs = ({ onNavigate }) => {
       </section> */}
 
       
+
+      {/* ── MISSION SPLIT ── */}
+      <section className="about-mission">
+        <div className="container mission-grid">
+          <div className="mission-image">
+            <img
+              src={missionImg}
+              alt="Government Intelligence Team"
+            />
+          </div>
+          <div className="mission-content">
+            <h2>Partner <span className="green-text">With Us</span></h2>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
+              <button className="special-button" onClick={() => onNavigate && onNavigate('partner')}>
+                Partner with Us
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── TESTIMONIALS ── */}
       <TestimonialSection

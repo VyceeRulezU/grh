@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../services/supabase/supabaseClient';
+import InstructorCard from '../../../shared/ui/InstructorCard';
+import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
+import { MENTORS } from '../../../data/legacyData';
 import './CourseDetails.css';
 
 const CourseDetails = ({ course, onNavigate, user }) => {
@@ -9,6 +12,8 @@ const CourseDetails = ({ course, onNavigate, user }) => {
   const [enrollmentCount, setEnrollmentCount] = useState(0);
   const [modules, setModules] = useState([]);
   const [groupedModules, setGroupedModules] = useState({});
+  const [instructors, setInstructors] = useState([]);
+  const [selectedInstructor, setSelectedInstructor] = useState(null);
 
   useEffect(() => {
     if (course && user) {
@@ -18,6 +23,7 @@ const CourseDetails = ({ course, onNavigate, user }) => {
       fetchEnrollmentCount();
       fetchModules();
     }
+    fetchInstructors();
   }, [course, user]);
 
   const fetchModules = async () => {
@@ -60,6 +66,28 @@ const CourseDetails = ({ course, onNavigate, user }) => {
     
     if (data) {
       setEnrollmentCount(new Set(data.map(d => d.user_id)).size);
+    }
+  };
+
+  const fetchInstructors = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('instructors')
+        .select('*');
+      if (!error && data && data.length > 0) {
+        setInstructors(data);
+      } else {
+        setInstructors(MENTORS.map(m => ({
+          id: m.id,
+          name: m.name,
+          title: m.role,
+          avatar_url: m.image,
+          category: m.category,
+          summary: "Governance expert and lead instructor at the Governance Resource Hub."
+        })));
+      }
+    } catch (err) {
+      console.error("Error fetching instructors:", err);
     }
   };
 
@@ -182,22 +210,18 @@ const CourseDetails = ({ course, onNavigate, user }) => {
 
             {activeTab === 'instructor' && (
               <div className="instructor-tab animate-fade">
-                <div className="instructor-profile">
-                  <div className="inst-avatar">
-                   <div className="avatar-placeholder">{(course.instructor || 'G')[0]}</div>
-                  </div>
-                  <div className="inst-info">
-                    <h4>{course.instructor || 'GRH Expert'}</h4>
-                    <p>Governance Reform Specialist</p>
-                    <div className="inst-stats">
-                      <span><i className="ri-award-line"></i> 12 Courses</span>
-                      <span><i className="ri-user-follow-line"></i> 5k+ Students</span>
-                    </div>
-                  </div>
+                <div className="instructors-grid">
+                  {instructors.map(mentor => (
+                    <InstructorCard
+                      key={mentor.id}
+                      name={mentor.name}
+                      title={mentor.title}
+                      avatar_url={mentor.avatar_url}
+                      category={mentor.category}
+                      onClick={() => setSelectedInstructor(mentor)}
+                    />
+                  ))}
                 </div>
-                <p className="inst-bio">
-                  An experienced professional in public sector management and governance reform with over 15 years of experience supporting institutional development across Nigeria and Sub-Saharan Africa.
-                </p>
               </div>
             )}
 
@@ -325,6 +349,12 @@ const CourseDetails = ({ course, onNavigate, user }) => {
           </div>
         </div>
       </div>
+
+      <InstructorDetailModal
+        isOpen={!!selectedInstructor}
+        onClose={() => setSelectedInstructor(null)}
+        instructor={selectedInstructor}
+      />
     </div>
   );
 };

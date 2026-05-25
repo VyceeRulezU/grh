@@ -9,7 +9,7 @@ const Navbar = ({ onNavigate, currentPage, user, onAuthClick, onLogout }) => {
     { name: 'Learn', id: 'learn' },
     { name: 'Research', id: 'research' },
     { name: 'Explore', id: 'explore' },
-    { name: 'Assess', id: 'assess' },
+    { name: 'Evaluate', id: 'assess' },
     { name: 'Analyse', id: 'analyse' },
     { name: 'About', id: 'about' },
   ];

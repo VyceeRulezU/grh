@@ -11,7 +11,7 @@ const Footer = ({ onNavigate }) => {
 
           <div className="footer-link-container">
             <div className="link-container">
-              <p className="footer-link-title">Product</p>
+              
               <div className="footer-link-group">
                 <TextLink onClick={() => onNavigate('learn')}>Learn</TextLink>
                 <TextLink onClick={() => onNavigate('research')}>Research</TextLink>
@@ -20,15 +20,15 @@ const Footer = ({ onNavigate }) => {
             </div>
 
             <div className="link-container">
-              <p className="footer-link-title">Solutions</p>
+              
               <div className="footer-link-group">
-                <TextLink onClick={() => onNavigate('assess')}>Assess</TextLink>
+                <TextLink onClick={() => onNavigate('assess')}>Evaluate</TextLink>
                 <TextLink onClick={() => onNavigate('analyse')}>Analyse</TextLink>
               </div>
             </div>
 
             <div className="link-container">
-              <p className="footer-link-title">Support</p>
+              
               <div className="footer-link-group">
                 <TextLink onClick={() => onNavigate('help-center')}>Help Center</TextLink>
                 <TextLink onClick={() => onNavigate('partner')}>Partner With Us</TextLink>

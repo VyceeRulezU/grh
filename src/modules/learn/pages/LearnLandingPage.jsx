@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../services/supabase/supabaseClient';
-import { COURSES, MENTORS, TESTIMONIALS } from '../../../data/legacyData';
-import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 import CtaSection from '../../../shared/ui/CtaSection';
 import TestimonialSection from '../../../shared/ui/TestimonialSection';
@@ -14,7 +12,7 @@ import { ScrollTrigger } from 'gsap/all';
 import LearnHero from '../components/LearnHero';
 import { Helmet } from 'react-helmet-async';
 import './LearnLandingPage.css';
-import { usePixabayPortraits, usePixabayImages } from '../../../shared/hooks/usePixabayImages';
+import { usePixabayImages } from '../../../shared/hooks/usePixabayImages';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -31,21 +29,14 @@ const LearnLandingPage = ({ onNavigate, user }) => {
   const [level, setLevel] = useState("All Levels");
   const [activeTab, setActiveTab] = useState("all");
   const [courses, setCourses] = useState([]);
-  const [instructors, setInstructors] = useState([]);
   const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [totalCourseCount, setTotalCourseCount] = useState(null);
   const [totalModuleCount, setTotalModuleCount] = useState(null);
 
-  // Localized African portrait images for social proof, testimonials, and mentors (20 to cover all sections)
-  const { images: portraitImgs } = usePixabayPortraits(20);
-  // Localized governance images for course card fallbacks
   const { getImage: getCourseImg } = usePixabayImages('governance', 12);
 
-  // Refs for marquee and animations
   const cardsRef = React.useRef([]);
-  const marqueeRef = React.useRef(null);
-  const marqueeTl = React.useRef(null);
   cardsRef.current = [];
 
   const addToRefs = (el) => {
@@ -103,31 +94,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       }
     };
 
-    const fetchInstructors = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('instructors')
-          .select('*');
-        if (!error && data && data.length > 0) {
-          setInstructors(data);
-        } else {
-          // Fallback to legacy data if table doesn't exist yet
-          setInstructors(MENTORS.map((m, i) => ({
-            id: m.id,
-            name: m.name,
-            title: m.role,
-            avatar_url: portraitImgs[i + 10] || m.image,
-            category: m.category,
-            summary: "Governance expert and lead instructor at the Governance Resource Hub."
-          })));
-        }
-      } catch (err) {
-        console.error("Error fetching instructors:", err);
-      }
-    };
-
     fetchCourses();
-    fetchInstructors();
 
     // Subscribe to real-time changes
     const channel = supabase
@@ -195,40 +162,6 @@ const LearnLandingPage = ({ onNavigate, user }) => {
     });
   }, [filtered, loading]);
 
-  // Continuous Linear Marquee for Instructors
-  useEffect(() => {
-    if (instructors.length > 0 && marqueeRef.current) {
-      // Clear any existing animation
-      if (marqueeTl.current) marqueeTl.current.kill();
-
-      const track = marqueeRef.current;
-      const cardWidth = 280; // minWidth from CSS
-      const gap = 32; // 2rem gap
-      const totalWidth = (cardWidth + gap) * instructors.length;
-      
-      marqueeTl.current = gsap.to(track, {
-        x: `-=${totalWidth}`,
-        duration: instructors.length * 10, // Adjust speed (higher = slower)
-        ease: 'none',
-        repeat: -1
-      });
-
-      // Pause/Resume logic
-      const handleMouseEnter = () => marqueeTl.current.pause();
-      const handleMouseLeave = () => marqueeTl.current.play();
-
-      const container = track.parentElement;
-      container.addEventListener('mouseenter', handleMouseEnter);
-      container.addEventListener('mouseleave', handleMouseLeave);
-
-      return () => {
-        if (marqueeTl.current) marqueeTl.current.kill();
-        container.removeEventListener('mouseenter', handleMouseEnter);
-        container.removeEventListener('mouseleave', handleMouseLeave);
-      };
-    }
-  }, [instructors]);
-
   return (
     <div className="page-wrapper learn-page">
       <Helmet>
@@ -238,23 +171,25 @@ const LearnLandingPage = ({ onNavigate, user }) => {
      
       {/* ── HERO ────────────────────────────────────────────────────── */}
       <LearnHero 
-        chip="STRUCTURED LEARNING PATHS"
+        // chip="STRUCTURED LEARNING PATHS"
         title={
           <>
-            Courses Built for <br />
-            <span className="green-text">Governance Excellence</span>
+            Courses covering governance reforms, <br />
+            <span className="green-text">Policy Development, Public Finance Management and</span> <br>
+            </br>
+            Service Delivery.
           </>
         }
-        subtitle="Expert-led modules on Governance, Financial Management and Institutional building."
-        actions={
-          <>
-            <button className="special-button" onClick={() => onNavigate('learn-discovery')}>
-              Start Learning
-              <span className="material-symbols-outlined">arrow_outward</span>
-            </button>
-            <a href="#courses-section" className="btn-outline">Browse Courses</a>
-          </>
-        }
+        // subtitle="Expert-led modules on Governance, Financial Management and Institutional building."
+        // actions={
+        //   <>
+        //     <button className="special-button" onClick={() => onNavigate('learn-discovery')}>
+        //       Start Learning
+        //       <span className="material-symbols-outlined">arrow_outward</span>
+        //     </button>
+        //     <a href="#courses-section" className="btn-outline">Browse Courses</a>
+        //   </>
+        // }
         counters={[
           { value: totalCourseCount !== null ? `${totalCourseCount}+` : '...', label: 'COURSES' },
           { value: totalModuleCount !== null ? `${totalModuleCount}+` : '...', label: 'MODULES' },
@@ -405,55 +340,6 @@ const LearnLandingPage = ({ onNavigate, user }) => {
           </div>
         )}
 
-        {/* Mentors Section */}
-        <section className="mentors-section" aria-labelledby="mentors-heading">
-          <header className="section-header">
-            <div>
-              <p className="section-eyebrow">Expert Instructors</p>
-              <h2 id="mentors-heading">Learn from Governance Experts</h2>
-            </div>
-            <button className="btn--outline btn" onClick={() => {}}>Meet All Instructors →</button>
-          </header>
-          
-          <div className="mentors-grid-wrapper">
-            <button 
-              className="slider-btn prev" 
-              onClick={() => {
-                const track = marqueeRef.current;
-                if (track) gsap.to(track, { x: '+=320', duration: 0.5, ease: 'power2.out' });
-              }}
-              aria-label="Previous experts"
-            >
-              <span className="material-symbols-outlined">chevron_left</span>
-            </button>
-            
-            <div className="mentors-grid">
-              <div className="mentors-track" ref={marqueeRef}>
-                {/* Render Instructors twice for seamless loop */}
-                {[...instructors, ...instructors].map((mentor, i) => (
-                  <div key={`${mentor.id}-${i}`} style={{ minWidth: '280px' }}>
-                    <InstructorCard 
-                      {...mentor}
-                      onClick={() => setSelectedInstructor(mentor)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button 
-              className="slider-btn next" 
-              onClick={() => {
-                const track = marqueeRef.current;
-                if (track) gsap.to(track, { x: '-=320', duration: 0.5, ease: 'power2.out' });
-              }}
-              aria-label="Next experts"
-            >
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
-        </section>
-
       </div>
 
       {/* Testimonials Section */}
@@ -464,12 +350,6 @@ const LearnLandingPage = ({ onNavigate, user }) => {
           <FaqSection />
         </div>
 
-        {/* CTA Section */}
-        <div className="container learn-content">
-          <CtaSection 
-            primaryActionOnClick={() => onNavigate('learn-discovery')} 
-          />
-        </div>
         
         <InstructorDetailModal 
           isOpen={!!selectedInstructor}

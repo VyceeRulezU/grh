@@ -8,7 +8,7 @@ const FAQ_TABS = [
     questions: [
       {
         q: 'What is the Governance Resource Hub (GRH)?',
-        a: 'The GRH is a digital platform that centralises state-level fiscal data, governance research, and professional learning resources for policy makers, researchers, and civil society organisations across Nigeria.'
+        a: 'GRH is a digital platform developed to make the extensive legacy of these three generations of UK international development funded governance programme accessible and and sustainable.'
       },
       {
         q: 'Is the platform free to use?',
@@ -21,10 +21,6 @@ const FAQ_TABS = [
       {
         q: 'What devices and browsers are supported?',
         a: 'The GRH is fully responsive and works on any modern browser (Chrome, Firefox, Safari, Edge) on desktops, tablets, and mobile phones.'
-      },
-      {
-        q: 'How often is the platform updated with new content?',
-        a: 'Data is updated quarterly in line with official government reporting cycles. Research resources and courses are added on a rolling basis as new materials are verified and published.'
       }
     ]
   },
