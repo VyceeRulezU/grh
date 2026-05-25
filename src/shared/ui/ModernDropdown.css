@@ -71,6 +71,8 @@
   gap: 0.2rem;
   list-style: none;
   margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
   animation: dropdownFadeIn 0.2s ease forwards;
 }
 

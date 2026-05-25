@@ -146,6 +146,7 @@
 }
 
 /* ── MAIN CONTENT ───────────────────────────────────────────── */
+/* ── MAIN CONTENT (LEGACY COMMENTED OUT IN ACCORDANCE WITH SPECIFICATIONS) ──
 .analyse-main-content {
   margin-top: -40px;
   padding-bottom: 80px;
@@ -193,7 +194,6 @@
   font-style: italic;
 }
 
-/* ── ZONES ──────────────────────────────────────────────────── */
 .zones-section {
   background: white;
   border-radius: 20px;
@@ -224,7 +224,6 @@
   margin-bottom: 12px;
 }
 
-/* ── BOTTOM ROW ─────────────────────────────────────────────── */
 .bottom-charts-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -306,7 +305,6 @@
   max-width: 400px;
 }
 
-/* ── BUDGETS ────────────────────────────────────────────────── */
 .budgets-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -384,7 +382,6 @@
   transform: scale(1.05);
 }
 
-/* ── SIGNUP BAR ────────────────────────────────────────────── */
 .signup-bar {
   background: white;
   border-radius: 20px;
@@ -419,6 +416,378 @@
   width: 300px;
   font-size: 1rem;
 }
+── */
+
+/* ── NEW PFM DATABASE REDESIGN STYLES ───────────────────────── */
+.pfm-bento-section {
+  padding-bottom: 40px;
+  margin-top: -24px;
+}
+
+/* ── CONTROL CENTER BAR ─────────────────────────────────────── */
+.pfm-control-bar {
+  background: white;
+  padding: 1.25rem 2rem;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+.bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-left h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.control-icon {
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.bar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.state-pills {
+  display: flex;
+  background: #f1f5f9;
+  padding: 5px;
+  border-radius: 100px;
+  gap: 4px;
+}
+
+.state-pill-btn {
+  background: none;
+  border: none;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+  border-radius: 100px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.state-pill-btn:hover {
+  color: #0f172a;
+}
+
+.state-pill-btn.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* ModernDropdown inside the control bar */
+.bar-right .modern-dropdown {
+  max-width: 130px;
+  min-width: 110px;
+}
+
+/* ── BENTO GRID LAYOUT ──────────────────────────────────────── */
+.pfm-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.bento-card {
+  background: white;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 280px;
+}
+
+.bento-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+  border-color: #cbd5e1;
+}
+
+.bento-span-2 {
+  grid-column: span 2;
+}
+
+.card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: #f1f5f9;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-badge .font-icon {
+  font-size: 16px;
+}
+
+/* Color Coding for Bento Badges */
+.card-badge.color-green { background: #e6fcf5; color: #0d9488; }
+.card-badge.color-teal { background: #f0fdfa; color: #0f766e; }
+.card-badge.color-gold { background: #fffbeb; color: #b45309; }
+.card-badge.color-indigo { background: #eef2ff; color: #4338ca; }
+.card-badge.color-slate { background: #f1f5f9; color: #334155; }
+
+.bento-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.bento-intro-text {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 900px;
+}
+
+.methodology-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.methodology-tags span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Glassmorphism Accents */
+.card-glass-accent {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.bento-card:hover .card-glass-accent {
+  opacity: 0.65;
+}
+
+.bento-green .card-glass-accent { background: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 60%); }
+.bento-teal .card-glass-accent { background: radial-gradient(circle at 100% 0%, rgba(13, 148, 136, 0.08) 0%, transparent 60%); }
+.bento-gold .card-glass-accent { background: radial-gradient(circle at 100% 0%, rgba(217, 119, 6, 0.08) 0%, transparent 60%); }
+.bento-indigo .card-glass-accent { background: radial-gradient(circle at 100% 0%, rgba(79, 70, 229, 0.08) 0%, transparent 60%); }
+.bento-slate .card-glass-accent { background: radial-gradient(circle at 100% 0%, rgba(100, 116, 139, 0.08) 0%, transparent 60%); }
+
+.metrics-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metrics-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric .label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric .val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.quick-info-box {
+  display: flex;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 14px;
+  max-width: 320px;
+  border: 1px solid #f1f5f9;
+}
+
+.quick-info-box .info-icon {
+  font-size: 20px;
+  color: #64748b;
+}
+
+.quick-info-box p {
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── SPARKLINE CONTAINER ─────────────────────────────────────── */
+.card-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+  margin-top: 1rem;
+}
+
+.sparkline-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sparkline-title span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.perf-tag-badge {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.perf-tag-badge.color-teal { background: #f0fdfa; color: #0d9488; border-color: #99f6e4; }
+.perf-tag-badge.color-gold { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+.perf-tag-badge.color-indigo { background: #eef2ff; color: #4f46e5; border-color: #c7d2fe; }
+.perf-tag-badge.color-slate { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+
+.sparkline-container {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* Bento Intro Spans */
+.bento-intro {
+  grid-column: span 2;
+  cursor: default;
+}
+
+.bento-intro:hover {
+  transform: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+  border-color: #e2e8f0;
+}
+
+/* Responsive Rules */
+@media (max-width: 1024px) {
+  .pfm-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bento-intro {
+    grid-column: span 2;
+  }
+  .bento-span-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .pfm-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-intro, .bento-span-2 {
+    grid-column: span 1;
+  }
+  .pfm-control-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem 1.25rem;
+  }
+  .bar-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .state-pills {
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 16px;
+  }
+  .state-pill-btn {
+    flex-grow: 1;
+  }
+  .year-select-wrap {
+    justify-content: center;
+  }
+  .bento-card {
+    padding: 1.5rem;
+  }
+  .metrics-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+}
+
 
 /* ── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {

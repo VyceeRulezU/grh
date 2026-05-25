@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  LineChart, Line, Legend, PieChart, Pie, Cell, Sector, Label
+  LineChart, Line, Legend, PieChart, Pie, Cell, Sector, Label, AreaChart, Area
 } from 'recharts';
 import { 
   NIGERIA_POPULATION_DATA, 
@@ -17,6 +17,12 @@ import PageHero from '../../../shared/ui/PageHero';
 import BudgetTableModal from '../components/BudgetTableModal';
 import ComparativeTableModal from '../components/ComparativeTableModal';
 import { BUDGET_DATA } from '../../../data/budgetData';
+import ModernDropdown from '../../../shared/ui/ModernDropdown';
+
+// Import new PFM Consolidated Database and Modal
+import { PFM_DATA, PFM_INTRO_TEXT } from '../../../data/pfmData';
+import PfmTableModal from '../components/PfmTableModal';
+
 import './AnalysePage.css';
 
 // Import assets to fix broken paths
@@ -35,7 +41,13 @@ const AnalysePage = ({ onNavigate }) => {
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: '', data: [] });
   const [isComparatorOpen, setIsComparatorOpen] = useState(false);
 
-  const openModal = (type) => {
+  // New PFM states
+  const [activeState, setActiveState] = useState('Kaduna');
+  const [activeYear, setActiveYear] = useState('2022'); // 2022 is the latest year with fully audited actuals for all states
+  const [isPfmModalOpen, setIsPfmModalOpen] = useState(false);
+  const [pfmModalCategory, setPfmModalCategory] = useState('Total Cash Available');
+
+  const openLegacyModal = (type) => {
     setModalConfig({
       isOpen: true,
       type,
@@ -43,49 +55,403 @@ const AnalysePage = ({ onNavigate }) => {
     });
   };
 
-  const closeModal = () => {
+  const closeLegacyModal = () => {
     setModalConfig({ ...modalConfig, isOpen: false });
   };
 
   const totalExpenditure = SECTOR_EXPENDITURE.reduce((acc, curr) => acc + curr.value, 0);
 
+  // Available years based on selected state
+  const availableYears = React.useMemo(() => {
+    if (!PFM_DATA[activeState]) return [];
+    return Object.keys(PFM_DATA[activeState]).sort((a, b) => b - a); // descending
+  }, [activeState]);
+
+  // Adjust year if active state doesn't support the currently selected year
   React.useEffect(() => {
-    // Generic cards reveal
-    gsap.fromTo('.chart-card, .cta-card, .budget-card, .signup-bar',
-      { y: 40, opacity: 0 },
+    if (availableYears.length > 0 && !availableYears.includes(activeYear)) {
+      setActiveYear(availableYears[0]);
+    }
+  }, [activeState, availableYears, activeYear]);
+
+  // Calculate sparkline data for a specific category
+  const getSparklineData = (category) => {
+    if (!PFM_DATA[activeState]) return [];
+    return Object.entries(PFM_DATA[activeState])
+      .map(([year, data]) => ({
+        year,
+        actual: data[category]?.actual || 0,
+        original: data[category]?.original || 0
+      }))
+      .sort((a, b) => a.year - b.year);
+  };
+
+  // Helper to format large currency numbers beautifully
+  const formatCompactCurrency = (val) => {
+    if (val === undefined || val === null || isNaN(val) || val === 0) return '₦0.00';
+    const absVal = Math.abs(val);
+    if (absVal >= 1e9) {
+      return `₦ ${(val / 1e9).toFixed(1)}B`;
+    }
+    if (absVal >= 1e6) {
+      return `₦ ${(val / 1e6).toFixed(1)}M`;
+    }
+    return `₦ ${val.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  };
+
+  // Helper to calculate performance percentage
+  const calculatePerformance = (actual, original) => {
+    if (!original || original === 0) {
+      return actual > 0 ? '100%' : '0%';
+    }
+    const percent = (actual / original) * 100;
+    return `${percent.toFixed(0)}%`;
+  };
+
+  React.useEffect(() => {
+    // Bento cards reveal animation
+    gsap.fromTo('.bento-card, .pfm-control-bar',
+      { y: 30, opacity: 0 },
       {
         y: 0,
         opacity: 1,
-        duration: 0.8,
-        stagger: 0.1,
+        duration: 0.6,
+        stagger: 0.08,
         ease: 'power2.out',
         scrollTrigger: {
-          trigger: '.analyse-main-content',
+          trigger: '.pfm-bento-section',
           start: 'top 85%'
         }
       }
     );
   }, []);
 
+  const openPfmModal = (category) => {
+    setPfmModalCategory(category);
+    setIsPfmModalOpen(true);
+  };
+
   return (
     <div className="page-wrapper analyse-page">
       <Helmet>
-        <title>Governance Data Analytics | Institutional Performance | GRH</title>
-        <meta name="description" content="Explore comprehensive fiscal data, regional expenditure benchmarks, and institutional performance metrics for the 36 states of Nigeria." />
+        <title>Institutional Performance & PFM Database | GRH</title>
+        <meta name="description" content="Explore comprehensive fiscal data, regional expenditure benchmarks, and institutional performance metrics for the states of Nigeria." />
       </Helmet>
 
       <PageHero
-        chip="Governance Data Analytics"
-        title={<>Empowering Governance Through<br /><span className="green-text">Data-Driven Insights</span></>}
-        subtitle="Explore Nigeria's fiscal landscape with precision. Our interactive database provides comprehensive state-level data, comparative analysis, and performance metrics."
+        chip="PFM Database Analytics"
+        title={<>Empowering Governance Through<br /><span className="green-text">Consolidated PFM Data</span></>}
+        subtitle="Explore Nigeria's fiscal landscape with precision. Our interactive database provides comprehensive state-level budget data, actual receipts, expenditures and comparative analyses."
         counters={[
-          { value: '36', label: 'States Covered' },
+          { value: '5', label: 'Key Entities' },
           { value: '20+', label: 'Years of Data' },
-          { value: '₦84T', label: 'Expenditure Tracked' },
+          { value: '₦40T+', label: 'Budget Tracked' },
         ]}
       />
 
-      {/* ── MAP HERO SECTION ────────────────────────────────────────── */}
+      {/* ── NEW PFM DATABASE BENTO SECTION ─────────────────────────── */}
+      <div className="container pfm-bento-section">
+        
+        {/* Unified Control Center */}
+        <div className="pfm-control-bar animate-up">
+          <div className="bar-left">
+            <span className="material-symbols-outlined control-icon">tune</span>
+            <h3>PFM Analytics Controller</h3>
+          </div>
+          <div className="bar-right">
+            <div className="state-pills">
+              {['Kaduna', 'Kano', 'Jigawa', 'Yobe', 'Federal'].map(state => (
+                <button
+                  key={state}
+                  className={`state-pill-btn ${activeState === state ? 'active' : ''}`}
+                  onClick={() => setActiveState(state)}
+                >
+                  {state === "Federal" ? "Federal Gov" : state}
+                </button>
+              ))}
+            </div>
+            
+            <ModernDropdown
+              options={availableYears}
+              value={activeYear}
+              onChange={setActiveYear}
+            />
+          </div>
+        </div>
+
+        {/* Bento Grid Layout */}
+        <div className="pfm-bento-grid">
+          
+          {/* Card 1: Context/Intro (Spans 2 columns) */}
+          <div className="bento-card bento-intro">
+            <div className="card-top">
+              <div className="card-badge">
+                <span className="material-symbols-outlined font-icon">menu_book</span>
+                <span>Database Context</span>
+              </div>
+              <h3 className="bento-title">PERL-ARC PFM Database</h3>
+              <p className="bento-intro-text">{PFM_INTRO_TEXT}</p>
+            </div>
+            <div className="card-bottom">
+              <div className="methodology-tags">
+                <span>Administrative Classification</span>
+                <span>Economic Classification</span>
+                <span>Distortion Free</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Total Cash Available */}
+          <div className="bento-card bento-green" onClick={() => openPfmModal("Total Cash Available")}>
+            <div className="card-glass-accent"></div>
+            <div className="card-top">
+              <div className="card-badge color-green">
+                <span className="material-symbols-outlined font-icon">payments</span>
+                <span>Total Cash Available</span>
+              </div>
+              <div className="metrics-box">
+                <div className="metric">
+                  <span className="label">Original Budget ({activeYear})</span>
+                  <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Total Cash Available"]?.original)}</span>
+                </div>
+                <div className="metric">
+                  <span className="label">Actual Collected ({activeYear})</span>
+                  <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Total Cash Available"]?.actual)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="card-bottom">
+              <div className="sparkline-title">
+                <span>Historical Trend (2004 - 2024)</span>
+                <span className="perf-tag-badge">
+                  Perf: {calculatePerformance(
+                    PFM_DATA[activeState]?.[activeYear]?.["Total Cash Available"]?.actual,
+                    PFM_DATA[activeState]?.[activeYear]?.["Total Cash Available"]?.original
+                  )}
+                </span>
+              </div>
+              <div className="sparkline-container">
+                <ResponsiveContainer width="100%" height={60}>
+                  <AreaChart data={getSparklineData("Total Cash Available")}>
+                    <defs>
+                      <linearGradient id="colorCash" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.01}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorCash)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Recurrent Expenditure */}
+          <div className="bento-card bento-teal" onClick={() => openPfmModal("Recurrent Expenditure")}>
+            <div className="card-glass-accent"></div>
+            <div className="card-top">
+              <div className="card-badge color-teal">
+                <span className="material-symbols-outlined font-icon">trending_up</span>
+                <span>Recurrent Expenditure</span>
+              </div>
+              <div className="metrics-box">
+                <div className="metric">
+                  <span className="label">Original Budget ({activeYear})</span>
+                  <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Recurrent Expenditure"]?.original)}</span>
+                </div>
+                <div className="metric">
+                  <span className="label">Actual Outlay ({activeYear})</span>
+                  <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Recurrent Expenditure"]?.actual)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="card-bottom">
+              <div className="sparkline-title">
+                <span>Historical Trend (2004 - 2024)</span>
+                <span className="perf-tag-badge color-teal">
+                  Perf: {calculatePerformance(
+                    PFM_DATA[activeState]?.[activeYear]?.["Recurrent Expenditure"]?.actual,
+                    PFM_DATA[activeState]?.[activeYear]?.["Recurrent Expenditure"]?.original
+                  )}
+                </span>
+              </div>
+              <div className="sparkline-container">
+                <ResponsiveContainer width="100%" height={60}>
+                  <AreaChart data={getSparklineData("Recurrent Expenditure")}>
+                    <defs>
+                      <linearGradient id="colorRecurrent" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0d9488" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#0d9488" stopOpacity={0.01}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="actual" stroke="#0d9488" strokeWidth={2} fillOpacity={1} fill="url(#colorRecurrent)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Capital Expenditure (Spans 2 columns) */}
+          <div className="bento-card bento-gold bento-span-2" onClick={() => openPfmModal("Capital Expenditure")}>
+            <div className="card-glass-accent"></div>
+            <div className="card-top">
+              <div className="card-badge color-gold">
+                <span className="material-symbols-outlined font-icon">construction</span>
+                <span>Capital Expenditure</span>
+              </div>
+              <div className="metrics-row">
+                <div className="metrics-box">
+                  <div className="metric">
+                    <span className="label">Original Budget ({activeYear})</span>
+                    <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Capital Expenditure"]?.original)}</span>
+                  </div>
+                  <div className="metric">
+                    <span className="label">Actual Capital Spend ({activeYear})</span>
+                    <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Capital Expenditure"]?.actual)}</span>
+                  </div>
+                </div>
+                <div className="quick-info-box">
+                  <span className="material-symbols-outlined info-icon">info</span>
+                  <p>Includes developmental project allocations and poverty-focused capital spend targets.</p>
+                </div>
+              </div>
+            </div>
+            <div className="card-bottom">
+              <div className="sparkline-title">
+                <span>Historical Trend (2004 - 2024)</span>
+                <span className="perf-tag-badge color-gold">
+                  Perf: {calculatePerformance(
+                    PFM_DATA[activeState]?.[activeYear]?.["Capital Expenditure"]?.actual,
+                    PFM_DATA[activeState]?.[activeYear]?.["Capital Expenditure"]?.original
+                  )}
+                </span>
+              </div>
+              <div className="sparkline-container">
+                <ResponsiveContainer width="100%" height={60}>
+                  <AreaChart data={getSparklineData("Capital Expenditure")}>
+                    <defs>
+                      <linearGradient id="colorCapital" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#d97706" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#d97706" stopOpacity={0.01}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="actual" stroke="#d97706" strokeWidth={2} fillOpacity={1} fill="url(#colorCapital)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 5: Transfers & Movements */}
+          <div className="bento-card bento-indigo" onClick={() => openPfmModal("Transfers")}>
+            <div className="card-glass-accent"></div>
+            <div className="card-top">
+              <div className="card-badge color-indigo">
+                <span className="material-symbols-outlined font-icon">swap_horiz</span>
+                <span>Transfers & Movements</span>
+              </div>
+              <div className="metrics-box">
+                <div className="metric">
+                  <span className="label">Original Budget ({activeYear})</span>
+                  <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Transfers"]?.original)}</span>
+                </div>
+                <div className="metric">
+                  <span className="label">Actual Transfers ({activeYear})</span>
+                  <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Transfers"]?.actual)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="card-bottom">
+              <div className="sparkline-title">
+                <span>Historical Trend (2004 - 2024)</span>
+                <span className="perf-tag-badge color-indigo">
+                  Perf: {calculatePerformance(
+                    PFM_DATA[activeState]?.[activeYear]?.["Transfers"]?.actual,
+                    PFM_DATA[activeState]?.[activeYear]?.["Transfers"]?.original
+                  )}
+                </span>
+              </div>
+              <div className="sparkline-container">
+                <ResponsiveContainer width="100%" height={60}>
+                  <AreaChart data={getSparklineData("Transfers")}>
+                    <defs>
+                      <linearGradient id="colorTransfers" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.01}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="actual" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#colorTransfers)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 6: Total Expenditure Summary (Spans 2 columns) */}
+          <div className="bento-card bento-slate bento-span-2" onClick={() => openPfmModal("Total Expenditure")}>
+            <div className="card-glass-accent"></div>
+            <div className="card-top">
+              <div className="card-badge color-slate">
+                <span className="material-symbols-outlined font-icon">analytics</span>
+                <span>Total Expenditure Summary</span>
+              </div>
+              <div className="metrics-row">
+                <div className="metrics-box">
+                  <div className="metric">
+                    <span className="label">Original Budget ({activeYear})</span>
+                    <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Total Expenditure"]?.original)}</span>
+                  </div>
+                  <div className="metric">
+                    <span className="label">Actual Outlay ({activeYear})</span>
+                    <span className="val">{formatCompactCurrency(PFM_DATA[activeState]?.[activeYear]?.["Total Expenditure"]?.actual)}</span>
+                  </div>
+                </div>
+                <div className="quick-info-box">
+                  <span className="material-symbols-outlined info-icon">bar_chart</span>
+                  <p>Aggregate sum of all Recurrent and Capital Expenditure channels of government.</p>
+                </div>
+              </div>
+            </div>
+            <div className="card-bottom">
+              <div className="sparkline-title">
+                <span>Historical Trend (2004 - 2024)</span>
+                <span className="perf-tag-badge color-slate">
+                  Perf: {calculatePerformance(
+                    PFM_DATA[activeState]?.[activeYear]?.["Total Expenditure"]?.actual,
+                    PFM_DATA[activeState]?.[activeYear]?.["Total Expenditure"]?.original
+                  )}
+                </span>
+              </div>
+              <div className="sparkline-container">
+                <ResponsiveContainer width="100%" height={60}>
+                  <AreaChart data={getSparklineData("Total Expenditure")}>
+                    <defs>
+                      <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#64748b" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#64748b" stopOpacity={0.01}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="actual" stroke="#64748b" strokeWidth={2} fillOpacity={1} fill="url(#colorTotal)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── MAIN INTERACTIVE DETAILS MODAL ─────────────────────────── */}
+      <PfmTableModal 
+        isOpen={isPfmModalOpen}
+        onClose={() => setIsPfmModalOpen(false)}
+        initialCategory={pfmModalCategory}
+        initialState={activeState}
+        initialYear={activeYear}
+      />
+
+      {/* ── LEGACY DESIGN COMMENTED OUT IN ACCORDANCE WITH SPECIFICATIONS ── */}
+      {/* 
       <div className="analyse-hero-v2">
         <div className="container">
           <div className="hero-layout">
@@ -116,7 +482,6 @@ const AnalysePage = ({ onNavigate }) => {
       </div>
 
       <div className="container analyse-main-content">
-        {/* ── POPULATION & REVENUE CHARTS ────────────────────────────── */}
         <div className="charts-main-row">
           <div className="chart-card animate-up" style={{animationDelay: '0.2s'}}>
             <div className="chart-header">
@@ -159,7 +524,6 @@ const AnalysePage = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* ── GEOPOLITICAL ZONES ─────────────────────────────────────── */}
         <div className="zones-section animate-up" style={{animationDelay: '0.4s'}}>
           <div className="section-header">
             <h3>Share of Total Expenditure by Geopolitical Zones</h3>
@@ -194,7 +558,6 @@ const AnalysePage = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* ── SECTOR & COMPARATIVE ───────────────────────────────────── */}
         <div className="bottom-charts-row">
           <div className="chart-card animate-up" style={{animationDelay: '0.5s'}}>
             <div className="chart-header">
@@ -254,7 +617,6 @@ const AnalysePage = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* ── BUDGETS SECTION ────────────────────────────────────────── */}
         <div className="budgets-section">
           <div className="budget-card green animate-up" style={{animationDelay: '0.7s'}}>
             <div className="card-top">
@@ -264,7 +626,7 @@ const AnalysePage = ({ onNavigate }) => {
               <img src={grhIcon} alt="GRH Icon" />
             </div>
             </div>
-            <button className="white-pill-btn" onClick={() => openModal('original')}>View More</button>
+            <button className="white-pill-btn" onClick={() => openLegacyModal('original')}>View More</button>
           </div>
           <div className="budget-card orange animate-up" style={{animationDelay: '0.8s'}}>
             <div className="card-top">
@@ -274,7 +636,7 @@ const AnalysePage = ({ onNavigate }) => {
               <img src={grhIcon} alt="GRH Icon" />
             </div>
             </div>
-            <button className="white-pill-btn" onClick={() => openModal('actual')}>View Details</button>
+            <button className="white-pill-btn" onClick={() => openLegacyModal('actual')}>View Details</button>
           </div>
           <div className="budget-card dark animate-up" style={{animationDelay: '0.9s'}}>
             <div className="card-top">
@@ -284,13 +646,13 @@ const AnalysePage = ({ onNavigate }) => {
               <img src={iconMain} alt="GRH Icon" />
             </div>
             </div>
-            <button className="white-pill-btn" onClick={() => openModal('indicators')}>Details</button>
+            <button className="white-pill-btn" onClick={() => openLegacyModal('indicators')}>Details</button>
           </div>
         </div>
 
         <BudgetTableModal 
           isOpen={modalConfig.isOpen}
-          onClose={closeModal}
+          onClose={closeLegacyModal}
           type={modalConfig.type}
           data={modalConfig.data}
         />
@@ -300,7 +662,6 @@ const AnalysePage = ({ onNavigate }) => {
           onClose={() => setIsComparatorOpen(false)}
         />
 
-        {/* ── SIGNUP SECTION ─────────────────────────────────────────── */}
         <div className="signup-bar animate-up">
           <div className="signup-text">
             <h3>Sign up for updates</h3>
@@ -312,6 +673,7 @@ const AnalysePage = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+      */}
 
       <div className="container" style={{ paddingBottom: '4rem' }}>
         <CtaSection 
