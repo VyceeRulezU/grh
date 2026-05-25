@@ -9,15 +9,15 @@ const SECTIONS_DATA = [
     title: 'Learn',
     emoji: '📚',
     img: 'assets/learn-img.svg',
-    summary: 'Explore essential courses to enhance your understanding of Governance concepts and processes.',
+    summary: 'Courses to enhance your understanding of Governance concepts and processes.',
     hasStroke: false
   },
   {
     id: 'research',
     title: 'Research',
     emoji: '🔍',
-    img: 'assets/research-img.svg',
-    summary: 'Access a vast e-library with over 200 years of Governance intervention sources in Nigeria',
+    img: 'assets/Icon-container-research.svg',
+    summary: 'Access a vast e-library from over 20+ years of governance reform experiences in Nigeria',
     hasStroke: true
   },
   {
@@ -25,15 +25,15 @@ const SECTIONS_DATA = [
     title: 'Explore',
     emoji: '🚀',
     img: 'assets/explore-img.svg',
-    summary: 'Use AI for research to enhance efficiency and tailor content to your needs.',
+    summary: 'Use SABI AI to enhance efficiency.',
     hasStroke: false
   },
   {
     id: 'assess',
-    title: 'Assess',
+    title: 'Evaluate',
     emoji: '📊',
     img: 'assets/assess-img.svg',
-    summary: 'Assess state Government performance to determine reform improvement areas.',
+    summary: 'Track, measure and evaluate.',
     hasStroke: true
   },
   {
@@ -41,7 +41,7 @@ const SECTIONS_DATA = [
     title: 'Analyse',
     emoji: '📉',
     img: 'assets/analyse-img.svg',
-    summary: 'Centralized financial database to ensure availability of data for fiscal analysis.',
+    summary: 'Public Finance Database.',
     hasStroke: false
   }
 ];
@@ -104,16 +104,11 @@ const WelcomeGateway = ({ onNavigate }) => {
         <div className="title-container">
           <div className="section-container">
             <div className="hero-header">
-              <div className="hero-chip">
-                <div className="dot">
-                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
-                </div>
-                <p className="chip-text">Your Governance intelligence Platform</p>
-              </div>
+
 
               <h1 className="header-text">
                 Everything you need for <br /> 
-                <span className="green-text">Governance Excellence</span>
+                <span className="green-text">transforming governance systems</span>
               </h1>
             </div>
 

@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './NigeriaMap.css';
 import NIGERIA_SVG_DATA from '../../../data/nigeriaMapPaths';
 
-const PINNED_STATES_NAMES = ['Federal Capital Territory', 'Lagos', 'Kaduna', 'Kano', 'Enugu', 'Jigawa', 'Anambra', 'Katsina', 'Yobe', 'Borno', 'Zamfara'];
+const PINNED_STATES_NAMES = ['Ekiti', 'Kwara', 'Benue', 'Abia', 'Anambra', 'Ebonyi', 'Enugu', 'Imo', 'Lagos', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Katsina', 'Kano', 'Yobe', 'Kaduna', 'Jigawa', 'Borno', 'Zamfara', 'Federal Capital Territory'];
 const NAME_MAP = { 'Federal Capital Territory': 'FCT' };
 
-const NigeriaMap = ({ data = [], showPins = false, highlightPinnedStates = false }) => {
+const NigeriaMap = ({ data = [], showPins = false, highlightPinnedStates = false, showTooltip = true }) => {
   const [hoveredState, setHoveredState] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [pinCoords, setPinCoords] = useState({});
@@ -82,7 +82,7 @@ const NigeriaMap = ({ data = [], showPins = false, highlightPinnedStates = false
         ))}
       </svg>
       
-      {hoveredState && (
+      {showTooltip && hoveredState && (
         <div 
           className="map-tooltip" 
           style={{ 

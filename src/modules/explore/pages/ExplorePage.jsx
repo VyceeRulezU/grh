@@ -257,7 +257,7 @@ const findResourceMatch = async (query) => {
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
-const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "Hello! I'm the Governance AI Assistant, trained on all the resources in this hub. How can I help with your research today?" };
+const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "How can SABI AI help you today?" };
 
 const PROMPT_LIMIT = 20;
 
@@ -653,7 +653,7 @@ const ExplorePage = ({ user, onNavigate }) => {
     <div className="explore-layout">
       <Helmet>
         <title>Governance AI Assistant | Research & Insights | GRH</title>
-        <meta name="description" content="Interact with our AI Research Assistant to explore governance frameworks, PFM strategies, and institutional reform insights powered by GovAI-Core." />
+        <meta name="description" content="Interact with our AI Research Assistant to explore governance frameworks, PFM strategies, and institutional reform insights powered by SABI AI." />
       </Helmet>
       {isSidebarOpen && <div className="sidebar-backdrop" onClick={handleOverlayClick} /> }
 
@@ -702,7 +702,7 @@ const ExplorePage = ({ user, onNavigate }) => {
         <div className="sidebar-footer">
           <div className="powered-by">
             <span>POWERED BY</span>
-            <span className="powered-name">GovAI-Core v2.4</span>
+            <span className="powered-name">SABI AI</span>
           </div>
           <p className="sidebar-note">
             Analysis based on {user ? user.name : 'Guest'}'s research library access level.

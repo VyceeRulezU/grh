@@ -237,7 +237,7 @@ const AboutUs = ({ onNavigate }) => {
               <div className="programme-info">
                 <h3>SLGP</h3>
                 <p>The State and Local Government Programme (SLGP) sought to increase and improve the interaction between citizens and state governments. SLGP included the strengthening of the civil service and participatory consultation with service providers.</p>
-                <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
+                <a href="https://www.dai.com/our-work/projects/nigeria-state-and-local-government-programme-slgp" target="_blank" rel="noopener noreferrer" className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></a>
               </div>
             </div>
 
@@ -248,7 +248,7 @@ const AboutUs = ({ onNavigate }) => {
               <div className="programme-info">
                 <h3>SPARC</h3>
                 <p>The State Partnership for Accountability, Responsiveness and Capability (SPARC) was designed by the UK Government's DFID to improve governance for better service delivery in ten state governments of Nigeria.</p>
-                <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
+                <a href="https://www.dai.com/our-work/projects/nigeria-state-partnership-for-accountability-responsiveness-and-capability" target="_blank" rel="noopener noreferrer" className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></a>
               </div>
             </div>
 
@@ -258,10 +258,11 @@ const AboutUs = ({ onNavigate }) => {
               </div>
               <div className="programme-info">
                 <h3>PERL</h3>
-                <p>The Partnership to Engage, Reform and Learn (PERL) was an eight-year governance program funded by the UK’s FCDO. It focused on supporting governments, citizens, and evidence-based advocacy.</p>
-                <button className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></button>
+                <p>The Partnership to Engage, Reform and Learn (PERL) was an eight-year governance program funded by the UK's FCDO. It focused on supporting governments, citizens, and evidence-based advocacy.</p>
+                <a href="https://www.dai.com/our-work/projects/nigeria-accountable-responsive-and-capable-government-ARC" target="_blank" rel="noopener noreferrer" className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></a>
               </div>
             </div>
+
           </div>
         </div>
       </section>
@@ -275,33 +276,42 @@ const AboutUs = ({ onNavigate }) => {
                 <NigeriaMap 
                   showPins={true}
                   highlightPinnedStates={true}
+                  showTooltip={false}
                   data={[
+                    { name: 'Ekiti', amount: 'Reform Hub' },
+                    { name: 'Kwara', amount: 'Reform Hub' },
+                    { name: 'Benue', amount: 'Reform Hub' },
+                    { name: 'Abia', amount: 'Reform Hub' },
+                    { name: 'Anambra', amount: 'Reform Hub' },
+                    { name: 'Ebonyi', amount: 'Reform Hub' },
+                    { name: 'Enugu', amount: 'Reform Hub' },
+                    { name: 'Imo', amount: 'Reform Hub' },
+                    { name: 'Lagos', amount: 'Reform Hub' },
+                    { name: 'Ogun', amount: 'Reform Hub' },
+                    { name: 'Ondo', amount: 'Reform Hub' },
+                    { name: 'Osun', amount: 'Reform Hub' },
+                    { name: 'Oyo', amount: 'Reform Hub' },
                     { name: 'Katsina', amount: 'Reform Hub' },
                     { name: 'Kano', amount: 'Reform Hub' },
                     { name: 'Yobe', amount: 'Reform Hub' },
                     { name: 'Kaduna', amount: 'Reform Hub' },
                     { name: 'Jigawa', amount: 'Reform Hub' },
                     { name: 'Borno', amount: 'Reform Hub' },
-                    { name: 'Zamfara', amount: 'Reform Hub' },
-                    { name: 'Enugu', amount: 'Reform Hub' },
-                    { name: 'Anambra', amount: 'Reform Hub' },
-                    { name: 'Lagos', amount: 'Reform Hub' },
-                    { name: 'FCT', amount: 'Reform Hub' }
+                    { name: 'Zamfara', amount: 'Reform Hub' }
                   ]} 
                 />
               </div>
               <div className="map-legend-grid">
                 {[
-                  'Abuja', 'Lagos', 'Kaduna', 'Kano', 'Enugu', 'Jigawa', 'Anambra', 'Katsina', 'Yobe', 'Borno', 'Zamfara'
+                  'Ekiti', 'Kwara', 'Benue', 'Abia', 'Anambra', 'Ebonyi', 'Enugu', 'Imo',
+                  'Lagos', 'Ogun', 'Ondo', 'Osun', 'Oyo',
+                  'Katsina', 'Kano', 'Yobe', 'Kaduna', 'Jigawa', 'Borno', 'Zamfara'
                 ].map(state => (
                   <div key={state} className="legend-item">
                     <span className="dot"></span> {state}
                   </div>
                 ))}
               </div>
-              <button className="view-map-btn" onClick={() => onNavigate('analyse')}>
-                Explore Analytic Map <span className="material-symbols-outlined">analytics</span>
-              </button>
             </div>
 
             <div className="expect-content">
