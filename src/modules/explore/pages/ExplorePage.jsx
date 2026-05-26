@@ -257,7 +257,7 @@ const findResourceMatch = async (query) => {
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
-const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "Hello! I'm the Governance AI Assistant, trained on all the resources in this hub. How can I help with your research today?" };
+const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "How can SABI AI help you today?" };
 
 const PROMPT_LIMIT = 20;
 

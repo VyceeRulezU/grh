@@ -16,7 +16,8 @@ import { supabase } from '../../../services/supabase/supabaseClient';
 import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 import NigeriaMap, { PINNED_STATES_NAMES } from '../../analyse/components/NigeriaMap';
-import missionImg from '../../../assets/images/Pictures/KANO STATE INFRASTRUCTURE (1).jpg';
+import missionImg from '../../../assets/images/Pictures/47677733942_8a0a7070d0_k.jpg';
+import perlLogo from '../../../assets/PERL-logo-white.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -225,7 +226,7 @@ const AboutUs = ({ onNavigate }) => {
 
             <div className="programme-card">
               <div className="programme-img-box perl">
-                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/pearl-logo.png" alt="PERL" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'; e.target.style.filter = 'none'; }} />
+                <img src={perlLogo} alt="PERL" />
               </div>
               <div className="programme-info">
                 <h3>PERL (ARC)</h3>
