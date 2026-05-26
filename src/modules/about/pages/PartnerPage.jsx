@@ -8,16 +8,18 @@ import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import FaqSection from '../../../shared/ui/FaqSection';
 import CtaSection from '../../../shared/ui/CtaSection';
 import SpecialButton from '../../../shared/ui/SpecialButton';
-import { usePexelsImages } from '../../../shared/hooks/usePexelsImages';
 
 import './PartnerPage.css';
+
+const BENTO_IMAGES = {
+  practitioner: 'https://images.unsplash.com/photo-1573164574572-cb89e39749b4?auto=format&fit=crop&q=80&w=800',
+  focus: 'https://images.unsplash.com/photo-1758518730384-be3d205838e8?auto=format&fit=crop&q=80&w=600',
+  author: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80'
+};
 
 gsap.registerPlugin(ScrollTrigger);
 
 const PartnerPage = ({ onNavigate }) => {
-  const { getImage: getPractitionerImage } = usePexelsImages('partner_practitioner', 1, { orientation: 'portrait' });
-  const { getImage: getFocusImage } = usePexelsImages('partner_focus', 1, { orientation: 'landscape' });
-  const { getImage: getAuthorImage } = usePexelsImages('partner_author', 1, { orientation: 'portrait' });
   const cardsRef = useRef([]);
   cardsRef.current = [];
 
@@ -206,7 +208,7 @@ const PartnerPage = ({ onNavigate }) => {
             {/* 1. Tall Card */}
             <div className="bento-card bento-tall bg-dark">
               <span className="bento-tag text-white">Trusted by</span>
-              <img src={getPractitionerImage(0)} alt="Practitioner" className="bento-bg-img" />
+              <img src={BENTO_IMAGES.practitioner} alt="Practitioner" className="bento-bg-img" />
               <div className="bento-overlay-logos">
                  <span>World Bank</span>
                  <span>UNDP</span>
@@ -222,7 +224,7 @@ const PartnerPage = ({ onNavigate }) => {
 
             {/* 3. Image Square */}
             <div className="bento-card bento-img bg-dark">
-               <img src={getFocusImage(0)} alt="Focus" className="bento-bg-img" />
+               <img src={BENTO_IMAGES.focus} alt="Focus" className="bento-bg-img" />
                <div className="bento-center-logo">
                  <img src="/icon.png" alt="GRH" style={{width: 40, filter: 'brightness(0) invert(1)'}} onError={(e) => e.target.style.display='none'} />
                  <span className="text-white fw-bold">GRH</span>
@@ -233,7 +235,7 @@ const PartnerPage = ({ onNavigate }) => {
             <div className="bento-card bento-quote">
               <p className="bento-quote-text">"We designed this platform to make your governance journey smoother, smarter, and more connected to real-world policy."</p>
                <div className="bento-author">
-                 <img src={getAuthorImage(0)} alt="Dr. Amaka Okonkwo" />
+                 <img src={BENTO_IMAGES.author} alt="Dr. Amaka Okonkwo" />
                  <div>
                    <strong>Dr. Amaka Okonkwo</strong>
                    <span>Governance Specialist</span>
