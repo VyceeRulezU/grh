@@ -16,7 +16,7 @@ const SECTIONS_DATA = [
     id: 'research',
     title: 'Research',
     emoji: '🔍',
-    img: 'assets/Icon container-research.svg',
+    img: 'assets/Icon-container-research.svg',
     summary: 'Access a vast e-library from over 20+ years of governance reform experiences in Nigeria',
     hasStroke: true
   },
