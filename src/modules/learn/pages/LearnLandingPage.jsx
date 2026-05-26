@@ -249,7 +249,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       <div className="container learn-content" id="courses-section">
         <Tab tabs={COURSE_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="filter-row">
+        <div className="learn-filter-row">
           <ModernDropdown 
             options={["All", "Governance Basics", "Corporate", "Finance", "Integrity", "Democracy", "Digital"]}
             value={category}

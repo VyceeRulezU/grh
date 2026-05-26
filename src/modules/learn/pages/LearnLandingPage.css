@@ -363,12 +363,17 @@
 }
 
 /* Filter Row */
-.filter-row {
+.learn-filter-row {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 1.5rem;
     margin-bottom: 2.5rem;
     flex-wrap: wrap;
+}
+
+.learn-filter-row .modern-dropdown {
+    max-width: 180px;
 }
 
 .results-count {
@@ -835,7 +840,7 @@
         white-space: nowrap;
     }
 
-    .filter-row{
+    .learn-filter-row{
         flex-direction: column;
         align-items: stretch;
         gap: 1rem;

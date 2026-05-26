@@ -24,7 +24,7 @@ const TAB_CONTENT = {
       <div className="instructor-card-sm glass">
         <div className="inst-avatar"><i className="ri-user-star-line"></i></div>
         <div>
-          <strong>{course?.instructor || 'Governance Resource Hub'}</strong>
+          <strong>{(() => { if (!course?.instructor) return 'Governance Resource Hub'; try { const p = JSON.parse(course.instructor); return Array.isArray(p) ? p.join(', ') : course.instructor; } catch { return course.instructor; } })()}</strong>
           <span>Course Instructor</span>
         </div>
       </div>
