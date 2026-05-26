@@ -31,7 +31,7 @@ const PrivacyPolicy = () => {
           </p>
           <ul>
             <li><strong>Google User Data:</strong> If you choose to sign in via Google OAuth, we access your <strong>email address, full name, and profile picture URL</strong> as permitted by your Google account settings.</li>
-            <li><strong>Personal Data:</strong> Name, email address, job title, and organization (when provided manually).</li>
+            <li><strong>Personal Data:</strong> Name, email address, job title, and organisation (when provided manually).</li>
             <li><strong>Usage Data:</strong> Information about how you use our platform, including course progress and research interactions.</li>
           </ul>
         </section>
@@ -48,7 +48,7 @@ const PrivacyPolicy = () => {
             <li><strong>Communication:</strong> To send important account-related updates and resources you have requested.</li>
           </ul>
           <p>
-            We process your data based on your consent provided during the OAuth authorization or account registration process.
+            We process your data based on your consent provided during the OAuth authorisation or account registration process.
           </p>
         </section>
 

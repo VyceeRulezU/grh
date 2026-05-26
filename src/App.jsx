@@ -353,7 +353,7 @@ function App() {
     const returnPageUrl = getPageFromUrl(); // Fallback to current URL if storage is empty
     const isUserAdmin = userData.isAdmin || userData.fromAdminWall;
     
-    // Prioritize institutional stay-put behavior
+    // Prioritise institutional stay-put behaviour
     const STAY_PUT_PAGES = ['learn', 'research', 'library', 'explore', 'about', 'partner', 'assess', 'analyse', 'learn-discovery', 'privacy-policy', 'terms-of-service'];
     
     // Destination calculation: Admin > Manual Return Page > Current URL Page > Dashboard

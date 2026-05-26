@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './NigeriaMap.css';
 import NIGERIA_SVG_DATA from '../../../data/nigeriaMapPaths';
 
-const PINNED_STATES_NAMES = ['Ekiti', 'Kwara', 'Benue', 'Abia', 'Anambra', 'Ebonyi', 'Enugu', 'Imo', 'Lagos', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Katsina', 'Kano', 'Yobe', 'Kaduna', 'Jigawa', 'Borno', 'Zamfara', 'Federal Capital Territory'];
+export const PINNED_STATES_NAMES = ['Ekiti', 'Kwara', 'Benue', 'Abia', 'Anambra', 'Ebonyi', 'Enugu', 'Imo', 'Lagos', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Katsina', 'Kano', 'Yobe', 'Kaduna', 'Jigawa', 'Borno', 'Zamfara', 'Federal Capital Territory'];
 const NAME_MAP = { 'Federal Capital Territory': 'FCT' };
 
 const NigeriaMap = ({ data = [], showPins = false, highlightPinnedStates = false, showTooltip = true }) => {
@@ -82,7 +82,8 @@ const NigeriaMap = ({ data = [], showPins = false, highlightPinnedStates = false
         ))}
       </svg>
       
-      {showTooltip && hoveredState && (
+      {/* Tooltip commented out as requested */}
+      {/* {showTooltip && hoveredState && (
         <div 
           className="map-tooltip" 
           style={{ 
@@ -103,7 +104,7 @@ const NigeriaMap = ({ data = [], showPins = false, highlightPinnedStates = false
             <div className="tooltip-note">GRH Regional Hub</div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

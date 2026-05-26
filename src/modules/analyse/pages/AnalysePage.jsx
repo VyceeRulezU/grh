@@ -189,7 +189,7 @@ const AnalysePage = ({ onNavigate }) => {
                 <span className="material-symbols-outlined font-icon">menu_book</span>
                 <span>Database Context</span>
               </div>
-              <h3 className="bento-title">PERL-ARC PFM Database</h3>
+              <h3 className="bento-title">PFM Database</h3>
               <p className="bento-intro-text">{PFM_INTRO_TEXT}</p>
             </div>
             <div className="card-bottom">

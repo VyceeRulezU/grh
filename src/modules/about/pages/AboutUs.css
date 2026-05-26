@@ -256,7 +256,7 @@
   
   .mission-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.4fr 0.6fr;
     gap: 4rem;
     align-items: center;
   }
@@ -318,10 +318,11 @@
   }
   
   .mission-content h2 {
-    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-size: clamp(2rem, 3vw, 3rem);
     line-height: 1.2;
     margin-bottom: 1.5rem;
-    font-weight: 400;
+    font-weight: 500;
+    text-decoration: underline;
   }
   
   .mission-content p {

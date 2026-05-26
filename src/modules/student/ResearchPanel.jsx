@@ -19,15 +19,15 @@ const INITIAL_MSG = { id: 1, role: 'assistant', text: "Hello! I'm your AI Resear
 
 const isFollowUpIntent = (text = "") => {
   const t = text.toLowerCase().trim().replace(/[?.!]/g, '');
-  const intents = ['yes', 'yeah', 'sure', 'ok', 'okay', 'proceed', 'go ahead', 'all', 'summarize all', 'tell me more', 'more', 'explain', 'explain more', 'detailed', 'summary'];
-  return intents.some(intent => t === intent || t.startsWith('summarize') || t.includes('tell me more'));
+  const intents = ['yes', 'yeah', 'sure', 'ok', 'okay', 'proceed', 'go ahead', 'all', 'summarise all', 'tell me more', 'more', 'explain', 'explain more', 'detailed', 'summary'];
+  return intents.some(intent => t === intent || t.startsWith('summarise') || t.includes('tell me more'));
 };
 
 const getDummyResponse = (userText = "", foundDocs = [], isContinuation = false) => {
   if (foundDocs.length > 0) {
     const docTitles = foundDocs.map(d => `**${d.title}**`).join(', ');
     if (isContinuation) return `Certainly! Based on the documents I found (${docTitles}), here is a consolidated summary:\n\nThe Hub's evidence suggests that institutional reforms in this area are driven by three main factors: integrated resource management, transparent reporting, and local stakeholder engagement.\n\nWould you like me to dive deeper into any of these specific documents?`;
-    return `I've analyzed the Hub's research library and found ${foundDocs.length} specific resources regarding "${userText.substring(0, 30)}...". Particularly, ${docTitles} contain relevant data.\n\nWould you like me to summarize one of these specific documents for you?`;
+    return `I've analysed the Hub's research library and found ${foundDocs.length} specific resources regarding "${userText.substring(0, 30)}...". Particularly, ${docTitles} contain relevant data.\n\nWould you like me to summarise one of these specific documents for you?`;
   }
   const response = DUMMY_RESPONSES[dummyIndex % DUMMY_RESPONSES.length];
   dummyIndex++;

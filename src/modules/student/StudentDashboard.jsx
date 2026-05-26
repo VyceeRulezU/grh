@@ -1056,7 +1056,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
           'research_gaps',
           '#tour-sidebar-Research',
           'New: AI Research Assistant 🔮',
-          "We've supercharged the Research Sandbox! You can now analyze complex documents and literature with natural language queries powered by GovAI-Core."
+           "We've supercharged the Research Sandbox! You can now analyse complex documents and literature with natural language queries powered by GovAI-Core."
         );
       }, 3500); // Trigger a bit after dashboard load
       return () => clearTimeout(timer);
@@ -1602,7 +1602,7 @@ const StudentDashboard = ({ user, onNavigate, onLogout, onRefreshUser }) => {
                 <p className="desktop-only">Continue your governance learning journey.</p>
               </div>
             </div>
-            {/* Remove global search from center as it's now local to panels */}
+            {/* Remove global search from centre as it's now local to panels */}
             <div className="topbar-spacer" style={{ flex: 1 }}></div>
             <div className="topbar-actions">
               <button className="action-btn"><i className="ri-notification-fill"></i></button>

@@ -9,14 +9,14 @@ const SECTIONS_DATA = [
     title: 'Learn',
     emoji: '📚',
     img: 'assets/learn-img.svg',
-    summary: 'Courses to enhance your understanding of Governance concepts and processes.',
+    summary: 'Courses to enhance your understanding of Governance concepts and processes',
     hasStroke: false
   },
   {
     id: 'research',
     title: 'Research',
     emoji: '🔍',
-    img: 'assets/Icon-container-research.svg',
+    img: 'assets/Icon container-research.svg',
     summary: 'Access a vast e-library from over 20+ years of governance reform experiences in Nigeria',
     hasStroke: true
   },
@@ -25,7 +25,7 @@ const SECTIONS_DATA = [
     title: 'Explore',
     emoji: '🚀',
     img: 'assets/explore-img.svg',
-    summary: 'Use SABI AI to enhance efficiency.',
+    summary: 'Use SABI AI to enhance efficiency',
     hasStroke: false
   },
   {
@@ -33,7 +33,7 @@ const SECTIONS_DATA = [
     title: 'Evaluate',
     emoji: '📊',
     img: 'assets/assess-img.svg',
-    summary: 'Track, measure and evaluate.',
+    summary: 'Track, measure and evaluate',
     hasStroke: true
   },
   {
@@ -41,7 +41,7 @@ const SECTIONS_DATA = [
     title: 'Analyse',
     emoji: '📉',
     img: 'assets/analyse-img.svg',
-    summary: 'Public Finance Database.',
+    summary: 'Public Finance Database',
     hasStroke: false
   }
 ];
@@ -104,10 +104,15 @@ const WelcomeGateway = ({ onNavigate }) => {
         <div className="title-container">
           <div className="section-container">
             <div className="hero-header">
-
+              {/* <div className="hero-chip">
+                <div className="dot">
+                  <img src={`${import.meta.env.BASE_URL}assets/color-dots-[1.0].svg`} alt="dot" />
+                </div>
+                <p className="chip-text">Your Governance intelligence Platform</p>
+              </div> */}
 
               <h1 className="header-text">
-                Everything you need for <br /> 
+                Everything you need for <br />
                 <span className="green-text">transforming governance systems</span>
               </h1>
             </div>
@@ -127,8 +132,8 @@ const WelcomeGateway = ({ onNavigate }) => {
         <div className="platform-card-wrapper">
           <div className="card-wrapper">
             {SECTIONS_DATA.map((section) => (
-              <div 
-                key={section.id} 
+              <div
+                key={section.id}
                 className={`platform-card ${section.hasStroke ? 'has-stroke' : ''}`}
                 onClick={() => onNavigate(section.id)}
               >
@@ -148,7 +153,7 @@ const WelcomeGateway = ({ onNavigate }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="welcome-legal-row">
 
         <div className="legal-container">
@@ -160,7 +165,7 @@ const WelcomeGateway = ({ onNavigate }) => {
             <span className="separator">•</span>
             <button onClick={() => onNavigate('terms-of-service')}>Terms of Service</button>
           </div>
-          
+
         </div>
 
       </div>

@@ -7,7 +7,6 @@ import FaqSection from '../../../shared/ui/FaqSection';
 import PageHero from '../../../shared/ui/PageHero';
 import grhIcon from '../../../assets/images/Logo/Icon.png';
 import servicesBg from '../../../assets/images/Pictures/37815616495_24f17295f5_b.jpg';
-import missionImg from '../../../assets/images/Pictures/assess_main.png';
 import './AboutUs.css';
 import PFM_Mock from '../../../assets/PFM_Mock.png';
 import Library from '../../../assets/Library.png';
@@ -16,7 +15,9 @@ import E_learning from '../../../assets/e-Learning.png';
 import { supabase } from '../../../services/supabase/supabaseClient';
 import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
-import NigeriaMap from '../../analyse/components/NigeriaMap';
+import NigeriaMap, { PINNED_STATES_NAMES } from '../../analyse/components/NigeriaMap';
+import missionImg from '../../../assets/images/Pictures/KANO STATE INFRASTRUCTURE (1).jpg';
+
 gsap.registerPlugin(ScrollTrigger);
 
 const TEAM_MEMBERS = [
@@ -62,7 +63,7 @@ const AboutUs = ({ onNavigate }) => {
           const { data, error } = await supabase
             .from('instructors')
             .select('*');
-          
+
           if (!error && data && data.length > 0) {
             setInstructors(data);
           } else {
@@ -91,9 +92,9 @@ const AboutUs = ({ onNavigate }) => {
         const target = parseInt(stat.getAttribute('data-target'));
         const suffix = stat.getAttribute('data-suffix') || '';
         const obj = { val: 0 };
-        
+
         stat.innerHTML = `0<span class="stat-suffix">${suffix}</span>`;
-        
+
         gsap.to(obj, {
           val: target,
           duration: 2.5,
@@ -125,7 +126,15 @@ const AboutUs = ({ onNavigate }) => {
     <div className="page-wrapper about-page">
 
       <PageHero
-        title={<>Building a knowledge base for &amp;<br /><span className="green-text">Governance work.</span></>}
+        // chip="Digital Governance Hub"
+        title={<>Building a knowledge base for &amp;<br /><span className="green-text">Governance work</span></>}
+        // subtitle="We provide the tools, data, and expertise to transform how government institutions manage and report performance — ensuring every public resource is accounted for."
+        actions={
+          <>
+            <button className="special-button" onClick={() => onNavigate('analyse')}>Explore Analytics</button>
+            <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('research')}>Research Library</button>
+          </>
+        }
       />
 
       {/* ── IMPACT HERO SECTION ────────────────────────────────────────────── */}
@@ -134,9 +143,9 @@ const AboutUs = ({ onNavigate }) => {
           {/* <div className="impact-tag">
             <span className="dot"></span> OUR IMPACT
           </div> */}
-          
+
           <h2 className="impact-headline">
-            GRH is a digital platform developed to make the extensive <i className="italic-highlight">legacy of these three generations of</i> UK international development funded <i className="italic-highlight">governance programme</i> accessible and and sustainable.
+            GRH is a digital platform developed to make the extensive <i className="italic-highlight">legacy of three generations of</i> UK international development funded <i className="italic-highlight">governance programmes</i> accessible and and sustainable
           </h2>
 
           <div className="impact-stats-grid">
@@ -144,17 +153,17 @@ const AboutUs = ({ onNavigate }) => {
               <h3 className="about-stat-number" data-target="3000" data-suffix="+">0</h3>
               <p>Explore a curated collection of reports, policy briefs, and case studies that capture lessons, evidence, and results from years of governance reform work. These resources provide insights into what works, emerging challenges, and opportunities for improving governance.</p>
             </div>
-            
+
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.2s' }}>
               <h3 className="about-stat-number" data-target="50" data-suffix="+ Toolkits">0</h3>
               <p>Explore practical guides, templates, and step-by-step tools designed to support government actors, civil society, and reform partners in planning, implementing, and monitoring governance reforms. These toolkits translate lessons from the field into actionable resources for real-world use.</p>
             </div>
-            
+
             <div className="impact-stat-card animate-up" style={{ animationDelay: '0.3s' }}>
               <h3 className="about-stat-number" data-target="20" data-suffix="+ Years" >0</h3>
               <p>This platform brings together over two decades of experience supporting governance reforms in Nigeria. It captures the tools, evidence, and lessons from partnerships with government, civil society, and citizens—highlighting what works in strengthening accountability, improving service delivery, and driving sustainable change.</p>
             </div>
-            
+
             {/* <div className="impact-stat-card animate-up" style={{ animationDelay: '0.4s' }}>
               <h3 className="about-stat-number" data-target="15" data-suffix="+">0</h3>
               <p>Years of combined expertise guiding public sector reforms and execution.</p>
@@ -177,22 +186,24 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </section> */}
 
+     
+
       {/* ── ABOUT THE PROGRAMMES (Premium Redesign) ── */}
       <section className="about-programmes">
         <div className="about-programmes-bg">
           <img src={servicesBg} alt="Governance Background" />
         </div>
         <div className="about-programmes-overlay"></div>
-        
+
         <div className="container">
           <div className="section-header center">
             <h2>About the <span className="green-text">Programmes</span></h2>
           </div>
-          
+
           <div className="programmes-grid">
             <div className="programme-card">
               <div className="programme-img-box slgp">
-                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/sldp-logo.png" alt="SLGP" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/sldp-logo.png" alt="SLGP" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800'; e.target.style.filter = 'none'; }} />
               </div>
               <div className="programme-info">
                 <h3>SLGP</h3>
@@ -203,7 +214,7 @@ const AboutUs = ({ onNavigate }) => {
 
             <div className="programme-card">
               <div className="programme-img-box sparc">
-                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/sparc-logo.png" alt="SPARC" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/sparc-logo.png" alt="SPARC" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800'; e.target.style.filter = 'none'; }} />
               </div>
               <div className="programme-info">
                 <h3>SPARC</h3>
@@ -214,11 +225,11 @@ const AboutUs = ({ onNavigate }) => {
 
             <div className="programme-card">
               <div className="programme-img-box perl">
-                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/pearl-logo.png" alt="PERL" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'; e.target.style.filter='none'; }} />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/pearl-logo.png" alt="PERL" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800'; e.target.style.filter = 'none'; }} />
               </div>
               <div className="programme-info">
-                <h3>PERL</h3>
-                <p>The Partnership to Engage, Reform and Learn (PERL) was an eight-year governance program funded by the UK's FCDO. It focused on supporting governments, citizens, and evidence-based advocacy.</p>
+                <h3>PERL (ARC)</h3>
+                <p>The Partnership to Engage, Reform and Learn (PERL) was an eight-year governance programme funded by the UK's FCDO. It focused on supporting governments, citizens, and evidence-based advocacy.</p>
                 <a href="https://www.dai.com/our-work/projects/nigeria-accountable-responsive-and-capable-government-ARC" target="_blank" rel="noopener noreferrer" className="text-btn">Learn More <span className="material-symbols-outlined">arrow_forward</span></a>
               </div>
             </div>
@@ -233,54 +244,46 @@ const AboutUs = ({ onNavigate }) => {
           <div className="expect-grid">
             <div className="expect-visual">
               <div className="map-wrapper animate-float">
-                <NigeriaMap 
+                <NigeriaMap
                   showPins={true}
                   highlightPinnedStates={true}
-                  showTooltip={false}
                   data={[
-                    { name: 'Ekiti', amount: 'Reform Hub' },
-                    { name: 'Kwara', amount: 'Reform Hub' },
-                    { name: 'Benue', amount: 'Reform Hub' },
-                    { name: 'Abia', amount: 'Reform Hub' },
-                    { name: 'Anambra', amount: 'Reform Hub' },
-                    { name: 'Ebonyi', amount: 'Reform Hub' },
-                    { name: 'Enugu', amount: 'Reform Hub' },
-                    { name: 'Imo', amount: 'Reform Hub' },
-                    { name: 'Lagos', amount: 'Reform Hub' },
-                    { name: 'Ogun', amount: 'Reform Hub' },
-                    { name: 'Ondo', amount: 'Reform Hub' },
-                    { name: 'Osun', amount: 'Reform Hub' },
-                    { name: 'Oyo', amount: 'Reform Hub' },
                     { name: 'Katsina', amount: 'Reform Hub' },
                     { name: 'Kano', amount: 'Reform Hub' },
                     { name: 'Yobe', amount: 'Reform Hub' },
                     { name: 'Kaduna', amount: 'Reform Hub' },
                     { name: 'Jigawa', amount: 'Reform Hub' },
                     { name: 'Borno', amount: 'Reform Hub' },
-                    { name: 'Zamfara', amount: 'Reform Hub' }
-                  ]} 
+                    { name: 'Zamfara', amount: 'Reform Hub' },
+                    { name: 'Enugu', amount: 'Reform Hub' },
+                    { name: 'Anambra', amount: 'Reform Hub' },
+                    { name: 'Lagos', amount: 'Reform Hub' },
+                    { name: 'FCT', amount: 'Reform Hub' }
+                  ]}
                 />
               </div>
               <div className="map-legend-grid">
-                {[
-                  'Ekiti', 'Kwara', 'Benue', 'Abia', 'Anambra', 'Ebonyi', 'Enugu', 'Imo',
-                  'Lagos', 'Ogun', 'Ondo', 'Osun', 'Oyo',
-                  'Katsina', 'Kano', 'Yobe', 'Kaduna', 'Jigawa', 'Borno', 'Zamfara'
-                ].map(state => (
-                  <div key={state} className="legend-item">
-                    <span className="dot"></span> {state}
-                  </div>
-                ))}
+                {PINNED_STATES_NAMES.map(name => {
+                  const displayName = name === 'Federal Capital Territory' ? 'FCT' : name;
+                  return (
+                    <div key={name} className="legend-item">
+                      <span className="dot"></span> {displayName}
+                    </div>
+                  );
+                })}
               </div>
+              {/* <button className="view-map-btn" onClick={() => onNavigate('analyse')}>
+                Explore Analytic Map <span className="material-symbols-outlined">analytics</span>
+              </button> */}
             </div>
 
             <div className="expect-content">
               <h2>What you <span className="green-text">expect to see</span></h2>
               <div className="expect-divider"></div>
-              
+
               <div className="expect-list">
                 {[
-                  'PSM', 'PFM', 'M & E', 'Delivery Unit', 'Education', 'Health', 'Water', 'Agriculture'
+                  'Public Service Management', 'Public Financial Management', 'Monitoring and Evaluation', 'Delivery Unit', 'Education', 'Health', 'Water', 'Agriculture'
                 ].map(item => (
                   <div key={item} className="expect-list-item btn-hover">
                     <span>{item}</span>
@@ -357,18 +360,18 @@ const AboutUs = ({ onNavigate }) => {
 
       {/* ── DETAILED HUB COMPONENTS (SPLIT SECTIONS) ── */}
       <div className="about-split-wrapper">
-        
+
         {/* PFM Database (Image Left, Text Right, Navy) */}
         <section className="about-split bg-navy">
           <div className="split-image">
             {/* <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" alt="Data Analytics" /> */}
-             <img src={PFM_Mock} alt="Data Analytics" />
+            <img src={PFM_Mock} alt="Data Analytics" />
           </div>
           <div className="split-content">
             <span className="split-overline">CORE COMPONENT</span>
             <h2>Public Financial Management (PFM) Database</h2>
             <p className="split-intro">The PFM database is a comprehensive digital repository to collect, store, and manage financial data, KPIs, and analytical insights. It provides governments and policymakers with accurate, up-to-date data supporting evidence-based decision-making. By tracking government revenues, expenditures, and budget allocations, it facilitates in-depth functional and fiscal policy analyses.</p>
-            
+
             <h4 className="split-subheading">Core Features of the PFM Database</h4>
             <ul className="split-list">
               <li>
@@ -393,7 +396,7 @@ const AboutUs = ({ onNavigate }) => {
             <span className="split-overline">CORE COMPONENT</span>
             <h2>E-Library System</h2>
             <p className="split-intro">Designed to preserve and provide seamless access to governance-related tools and resources. The platform systematically archives the knowledge base of over 20 decades of governance programming, making it a reliable source for continuous learning.</p>
-            
+
             <h4 className="split-subheading">Core Features of the E-Library System</h4>
             <ul className="split-list">
               <li>
@@ -431,7 +434,7 @@ const AboutUs = ({ onNavigate }) => {
             <span className="split-overline">CORE COMPONENT</span>
             <h2>ASSESS Suite (PERFORM Suite)</h2>
             <p className="split-intro">The ASSESS Suite contains self-assessment manuals and tools that help state governments to prepare and undergo the self-assessment process on an annual basis. It is designed to help governments at all levels to determine their achievements and to set targets for improvements.</p>
-            
+
             <h4 className="split-subheading">Core Components of the PERFORM Suite</h4>
             <ul className="split-list">
               <li>
@@ -456,7 +459,7 @@ const AboutUs = ({ onNavigate }) => {
             <span className="split-overline">CORE COMPONENT</span>
             <h2>E-Learning Management System (eLMS)</h2>
             <p className="split-intro">The eLMS facilitates structured learning, knowledge transfer, and capacity building for reform champions, policymakers, institutions, and governance practitioners accessible anytime, anywhere.</p>
-            
+
             <h4 className="split-subheading">Core Features of the eLMS</h4>
             <ul className="split-list">
               <li>
@@ -524,9 +527,9 @@ const AboutUs = ({ onNavigate }) => {
         </div>
       </section> */}
 
-      
 
-      {/* ── MISSION SPLIT ── */}
+
+ {/* ── MISSION SPLIT ── */}
       <section className="about-mission">
         <div className="container mission-grid">
           <div className="mission-image">
@@ -536,15 +539,27 @@ const AboutUs = ({ onNavigate }) => {
             />
           </div>
           <div className="mission-content">
-            <h2>Partner <span className="green-text">With Us</span></h2>
+            {/* <span className="tag">About the Governance Resource Hub</span> */}
+            <h2 style={{ cursor: 'pointer' }} onClick={() => onNavigate && onNavigate('partner')}>Partner <span className="green-text">With Us</span></h2>
+            {/* <p>
+              Welcome to the Governance Resource Hub—a central digital platform created to preserve, share, and build upon the extensive legacy of the Partnership to Engage, Reform, and Learn (PERL) programme and other FCDO-funded predecessor governance programmes.
+            </p>
+            <p style={{ marginTop: '1rem', color: 'var(--text-soft)', fontSize: '1.05rem', lineHeight: '1.7' }}>
+              This innovative hub is dedicated to advancing governance reform in Nigeria by making critical and practical tools accessible to reform champions, policymakers, academics, and practitioners alike. At the heart of the Hub are five integrated components designed to provide a comprehensive learning and resource-sharing experience.
+            </p> */}
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
-              <button className="special-button" onClick={() => onNavigate && onNavigate('partner')}>
+              {/* <button className="white-pill-btn" onClick={() => onNavigate && onNavigate('signup')}>
+                Join Our Platform
+              </button> */}
+              {/* <button className="special-button" onClick={() => onNavigate && onNavigate('partner')}>
                 Partner with Us
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
       </section>
+
+      
 
       {/* ── TESTIMONIALS ── */}
       <TestimonialSection
@@ -572,7 +587,7 @@ const AboutUs = ({ onNavigate }) => {
         />
       </div>
 
-      <InstructorDetailModal 
+      <InstructorDetailModal
         isOpen={!!selectedInstructor}
         onClose={() => setSelectedInstructor(null)}
         instructor={selectedInstructor}

@@ -99,7 +99,7 @@ export const generateCertificatePDF = (data, isDownload = true) => {
   doc.text("Advisor", 75, 180, { align: "center" });
   
   doc.line(197, 175, 247, 175);
-  doc.text("Organizer", 222, 180, { align: "center" });
+  doc.text("Organiser", 222, 180, { align: "center" });
 
   // Seal (Circle)
   doc.setFillColor(COLORS.GOLD[0], COLORS.GOLD[1], COLORS.GOLD[2]);

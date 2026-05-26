@@ -37,7 +37,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
       if (error) throw error;
       
       if (onLogin && data.user) {
-        // Fetch profile immediately to ensure Admin status is recognized
+        // Fetch profile immediately to ensure Admin status is recognised
         const { data: profile } = await supabase
           .from('profiles')
           .select('role, name, avatar_url')
@@ -129,7 +129,7 @@ const LoginPage = ({ onNavigate, onLogin, isAdmin = false }) => {
           </h1>
           <p className="auth-marketing-summary">
             {isAdmin 
-              ? 'Manage courses, analyze data, and oversee the hub.'
+              ? 'Manage courses, analyse data, and oversee the hub.'
               : 'Access courses, verified research materials, and AI insights.'}
           </p>
         </div>

@@ -23,7 +23,7 @@ export const TOUR_STEPS = {
     {
       target: "#tour-sidebar-Courses",
       title: "Immersive E-Learning",
-      content: "Explore our rich catalog of premium governance courses. Enroll instantly, track modules, and learn at your own pace.",
+      content: "Explore our rich catalogue of premium governance courses. Enroll instantly, track modules, and learn at your own pace.",
       actionLabel: "Next",
       tab: "Courses",
       iconClass: "ri-book-open-line"
@@ -31,7 +31,7 @@ export const TOUR_STEPS = {
     {
       target: "#tour-sidebar-Research",
       title: "AI Research Sandbox",
-      content: "Accelerate your governance research. Query, search, and analyze literature and documents using our advanced GovAI-Core integration.",
+      content: "Accelerate your governance research. Query, search, and analyse literature and documents using our advanced GovAI-Core integration.",
       actionLabel: "Next",
       tab: "Research",
       iconClass: "ri-cpu-line"
@@ -63,7 +63,7 @@ export const TOUR_STEPS = {
     {
       target: "#tour-sidebar-Settings",
       title: "Profile Personalisation",
-      content: "Change your profile name, upload an avatar image, adjust account security settings, and customize your learning preferences.",
+      content: "Change your profile name, upload an avatar image, adjust account security settings, and customise your learning preferences.",
       actionLabel: "Next",
       tab: "Settings",
       iconClass: "ri-settings-4-line"
@@ -125,7 +125,7 @@ export const TOUR_STEPS = {
     {
       target: null, // Centered
       title: "Welcome to GovAI Sandbox",
-      content: "Meet your intelligent governance research assistant. Let's review the environment features so you can search and analyze efficiently.",
+      content: "Meet your intelligent governance research assistant. Let's review the environment features so you can search and analyse efficiently.",
       actionLabel: "Let's Begin",
       iconClass: "ri-sparkling-line"
     },

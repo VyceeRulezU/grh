@@ -202,7 +202,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
       <section className="impact-hero-section">
         <div className="container impact-container">
           <h2 className="impact-headline">
-            Empowering governance through <i className="italic-highlight">specialized</i> learning, <i className="italic-highlight">practical</i> frameworks, and <i className="italic-highlight">expert-led</i> capacity building.
+            Empowering governance through <i className="italic-highlight">specialised</i> learning, <i className="italic-highlight">practical</i> frameworks, and <i className="italic-highlight">expert-led</i> capacity building
           </h2>
 
           <div className="impact-stats-grid">

@@ -207,7 +207,7 @@ export const TourGuideRenderer = () => {
               <p className="tour-modal-body">
                 We detected that you are browsing from a mobile device! To experience our fully animated step-by-step tour, please log in on a desktop computer. 
                 <br /><br />
-                However, your platform is 100% optimized for mobile learning. Open the top-left hamburger menu to explore Courses, live Workshops, digital Resources, and view your Certifications!
+                However, your platform is 100% optimised for mobile learning. Open the top-left hamburger menu to explore Courses, live Workshops, digital Resources, and view your Certifications!
               </p>
               <button 
                 className="tour-modal-btn-primary" 

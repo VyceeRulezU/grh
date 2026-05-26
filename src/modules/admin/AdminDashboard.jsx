@@ -1524,10 +1524,10 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
             showSuccess('Updated', 'Status changed.');
             setSelectedIds(new Set());
             fetchData();
-        } else if (action === 'categorize') {
+        } else if (action === 'categorise') {
             const { error } = await supabase.from('library_resources').update({ category: value }).in('id', ids);
             if (error) throw error;
-            showSuccess('Categorized', 'Category updated.');
+            showSuccess('Categorised', 'Category updated.');
             setSelectedIds(new Set());
             fetchData();
         }
@@ -1640,9 +1640,9 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
           <div className="adm-bulk-info">{selectedIds.size} items selected</div>
           <div className="adm-bulk-actions">
             <ModernDropdown 
-                options={['Categorize', ...dynamicCategories]} 
-                value="Categorize" 
-                onChange={v => v !== 'Categorize' && handleBulkAction('categorize', v)} 
+                options={['Categorise', ...dynamicCategories]} 
+                value="Categorise" 
+                onChange={v => v !== 'Categorise' && handleBulkAction('categorise', v)} 
             />
             <button className="btn-outline btn-sm" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} onClick={() => handleBulkAction('status', 'Published')}>
               Publish
