@@ -226,7 +226,7 @@ const AboutUs = ({ onNavigate }) => {
 
             <div className="programme-card">
               <div className="programme-img-box perl">
-                <img src={perlLogo} alt="PERL" />
+                <img src="https://pub-83b9c08ef5a84cc7a87212feb02635d2.r2.dev/pearl-logo.png" alt="PERL" />
               </div>
               <div className="programme-info">
                 <h3>PERL (ARC)</h3>
