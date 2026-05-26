@@ -177,7 +177,7 @@ const LearnLandingPage = ({ onNavigate, user }) => {
             Courses covering governance reforms, <br />
             <span className="green-text">Policy Development, Public Finance Management and</span> <br>
             </br>
-            Service Delivery.
+            Service Delivery
           </>
         }
         // subtitle="Expert-led modules on Governance, Financial Management and Institutional building."
