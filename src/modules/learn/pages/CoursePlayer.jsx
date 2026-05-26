@@ -11,7 +11,12 @@ import { useTour } from '../../../context/TourContext';
 import { TourGuideRenderer } from '../../student/TourGuideRenderer';
 
 const TAB_CONTENT = {
-  Overview: (lesson, course) => (
+  Overview: (lesson, course, instructorsData = []) => {
+    const instNames = (() => { if (!course?.instructor) return []; try { const p = JSON.parse(course.instructor); return Array.isArray(p) ? p : [course.instructor]; } catch { return [course.instructor] ? [course.instructor] : []; } })();
+    const maxVisible = 3;
+    const visibleInsts = instructorsData.length > 0 ? instructorsData.slice(0, maxVisible) : instNames.slice(0, maxVisible).map(n => ({ name: n }));
+    const extra = instructorsData.length > 0 ? instructorsData.length - maxVisible : instNames.length - maxVisible;
+    return (
     <div className="tab-panel">
       <h2>{lesson.title}</h2>
       <div className="module-description-rich">
@@ -22,14 +27,34 @@ const TAB_CONTENT = {
         )}
       </div>
       <div className="instructor-card-sm glass">
-        <div className="inst-avatar"><i className="ri-user-star-line"></i></div>
+        <div className="inst-avatars-stack">
+          {visibleInsts.map((inst, i) => (
+            <div
+              key={inst.name || i}
+              className="inst-avatar-sm"
+              style={{ zIndex: maxVisible - i }}
+              title={inst.name}
+            >
+              {inst.avatar_url ? (
+                <img src={inst.avatar_url} alt={inst.name} />
+              ) : (
+                <span className="inst-avatar-letter">{inst.name ? inst.name.charAt(0).toUpperCase() : '?'}</span>
+              )}
+            </div>
+          ))}
+          {extra > 0 && (
+            <div className="inst-avatar-sm inst-avatar-extra" style={{ zIndex: 0 }}>
+              <span>+{extra}</span>
+            </div>
+          )}
+        </div>
         <div>
-          <strong>{(() => { if (!course?.instructor) return 'Governance Resource Hub'; try { const p = JSON.parse(course.instructor); return Array.isArray(p) ? p.join(', ') : course.instructor; } catch { return course.instructor; } })()}</strong>
-          <span>Course Instructor</span>
+          <strong>{instNames.join(', ') || 'Governance Resource Hub'}</strong>
+          <span>Course Instructor{instNames.length > 1 ? 's' : ''}</span>
         </div>
       </div>
     </div>
-  ),
+  );},
   Resources: () => (
     <div className="tab-panel">
       <h2>Lesson Resources</h2>
@@ -128,6 +153,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
   const [showCertificatePreview, setShowCertificatePreview] = useState(false);
   const [certificatePdfUrl, setCertificatePdfUrl] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [courseInstructors, setCourseInstructors] = useState([]);
 
   const { activeTour, startTour, hasCompletedTour } = useTour();
 
@@ -195,6 +221,22 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
         // Default active lesson = first module
         if (mappedLessons.length > 0) {
           setActiveLesson(mappedLessons[0]);
+        }
+
+        // Fetch instructor details for stacked avatars
+        if (course?.instructor) {
+          try {
+            const names = (() => { try { const p = JSON.parse(course.instructor); return Array.isArray(p) ? p : [course.instructor]; } catch { return [course.instructor]; } })();
+            if (names.length > 0) {
+              const { data: instData } = await supabase
+                .from('instructors')
+                .select('name, avatar_url, title')
+                .in('name', names);
+              if (instData) setCourseInstructors(instData);
+            }
+          } catch (e) {
+            console.warn("Could not fetch instructor avatars:", e);
+          }
         }
       } catch (err) {
         console.error("CoursePlayer loading error:", err);
@@ -525,7 +567,7 @@ const CoursePlayer = ({ onNavigate, user, course }) => {
               ))}
             </div>
             <div className="lesson-detail-content">
-              {activeTab === 'Overview' && TAB_CONTENT.Overview(activeLesson, course)}
+              {activeTab === 'Overview' && TAB_CONTENT.Overview(activeLesson, course, courseInstructors)}
               {activeTab === 'Resources' && TAB_CONTENT.Resources()}
               {activeTab === 'Notes' && TAB_CONTENT.Notes({ note, onNoteChange: setNote, onNoteSave: handleNoteSave })}
               {activeTab === 'Discussions' && TAB_CONTENT.Discussions({ discussions, onPost: handlePostDiscussion, msg: newMsg, setMsg: setNewMsg })}
