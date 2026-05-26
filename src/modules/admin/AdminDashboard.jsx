@@ -129,13 +129,24 @@ function UserModal({ onClose, onSave, initial, loading }) {
 
 function CourseModal({ onClose, onSave, initial }) {
   const [form, setForm] = useState(initial || {
-    title: '', category: 'Governance', instructor: '', level: 'Beginner', thumbnail: '',
+    title: '', category: 'Governance', instructors: [], level: 'Beginner', thumbnail: '',
     price: '', description: '',
     chapters: [{ title: 'Introduction', modules: [{ title: '', videoLink: '', description: '' }] }],
   });
 
   const [coverFile, setCoverFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [instructorOptions, setInstructorOptions] = useState([]);
+
+  useEffect(() => {
+    import('../../services/supabase/supabaseClient').then(({ supabase }) => {
+      supabase.from('instructors').select('name').then(({ data }) => {
+        if (data && data.length > 0) {
+          setInstructorOptions(data.map(i => i.name));
+        }
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (initial?.id) {
@@ -235,8 +246,13 @@ function CourseModal({ onClose, onSave, initial }) {
               />
             </div>
             <div className="adm-form-group">
-              <label>Instructor Name*</label>
-              <input placeholder="Dr. Sarah Chen" value={form.instructor} onChange={e => set('instructor', e.target.value)} required />
+              <label>Instructor*</label>
+              <ModernDropdown 
+                multiple
+                options={instructorOptions.length > 0 ? instructorOptions : ['No instructors available']} 
+                value={form.instructors} 
+                onChange={v => set('instructors', v)} 
+              />
             </div>
             <div className="adm-form-group">
               <label>Price</label>
@@ -1169,7 +1185,8 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
   const itemsPerPage = viewMode === 'list' ? 10 : 12;
 
   const filteredCourses = courses.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) || (c.instructor || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const instStr = (() => { try { const p = JSON.parse(c.instructor); return Array.isArray(p) ? p.join(' ') : c.instructor; } catch { return c.instructor || ''; } })();
+    const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) || instStr.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "All" || c.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
@@ -1248,7 +1265,7 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
         category: form.category,
         level: form.level,
         description: form.description,
-        instructor: form.instructor,
+        instructor: JSON.stringify(form.instructors),
         price: finalPrice,
         status: 'Published',
         thumbnail: finalThumbnail || `${COURSE_IMAGE_BANK[Math.floor(Math.random() * COURSE_IMAGE_BANK.length)]}?auto=format&fit=crop&w=600&q=80`,
@@ -1452,7 +1469,7 @@ function CoursesPanel({ courses, setCourses, onDelete, fetchData }) {
 
       {modal && (
         <CourseModal
-          initial={editCourse ? { ...editCourse, modules: editCourse.modules || [{ title:'', videoLink:'' }] } : null}
+          initial={editCourse ? { ...editCourse, modules: editCourse.modules || [{ title:'', videoLink:'' }], instructors: (() => { try { const p = JSON.parse(editCourse.instructor); return Array.isArray(p) ? p : [editCourse.instructor].filter(Boolean); } catch { return [editCourse.instructor].filter(Boolean); } })() } : null}
           onClose={() => setModal(null)}
           onSave={save}
         />

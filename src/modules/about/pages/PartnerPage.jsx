@@ -117,7 +117,7 @@ const PartnerPage = ({ onNavigate }) => {
             Partner With <span className="green-text"> <br/>Governance Resource Hub</span>
           </>
         }
-        subtitle="We welcome partnerships with organisations and individuals committed to advancing good governance, strengthening public sector accountability, and improving service delivery."
+        subtitle="We welcome partnerships with organisations and individuals committed to advancing good governance, strengthening public sector accountability, and improving service delivery"
         actions={
           <SpecialButton onClick={() => window.location.href = 'mailto:info@governanceresourcehub.com'}>
             Partner with Us

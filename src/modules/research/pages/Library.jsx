@@ -452,7 +452,7 @@ const Library = ({ onNavigate }) => {
       <PageHero
         // chip="Digital e-Library"
         title={<>Curated <br /><span className="green-text">Governance Knowledge</span></>}
-        subtitle="Explore our comprehensive library of governance reform resources."
+        subtitle="Explore our comprehensive library of governance reform resources"
         counters={[
           { value: '20+', label: 'Years of Data' },
           { value: `${allResources.length}+`, label: 'Resources' },

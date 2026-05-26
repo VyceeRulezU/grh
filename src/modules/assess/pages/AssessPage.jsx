@@ -486,7 +486,7 @@ const AssessPage = ({ onNavigate }) => {
       <PageHero
         chip="Institutional Assessment"
         title={<>Self-Assessment for <br /><span className="green-text">Governance Reform</span></>}
-        subtitle="A robust framework supporting continuation and embedding of governance reform processes with government partners across Nigeria."
+        subtitle="A robust framework supporting continuation and embedding of governance reform processes with government partners across Nigeria"
       />
 
       {/* ── STATE LOGIN MODAL ── */}

@@ -211,16 +211,30 @@ const CourseDetails = ({ course, onNavigate, user }) => {
             {activeTab === 'instructor' && (
               <div className="instructor-tab animate-fade">
                 <div className="instructors-grid">
-                  {instructors.map(mentor => (
-                    <InstructorCard
-                      key={mentor.id}
-                      name={mentor.name}
-                      title={mentor.title}
-                      avatar_url={mentor.avatar_url}
-                      category={mentor.category}
-                      onClick={() => setSelectedInstructor(mentor)}
-                    />
-                  ))}
+                  {(() => {
+                    const courseInstructors = (() => {
+                      if (!course.instructor) return [];
+                      try {
+                        const p = JSON.parse(course.instructor);
+                        return Array.isArray(p) ? p : [course.instructor];
+                      } catch {
+                        return [course.instructor];
+                      }
+                    })();
+                    const matched = instructors.filter(mentor => courseInstructors.includes(mentor.name));
+                    return matched.length > 0
+                      ? matched.map(mentor => (
+                          <InstructorCard
+                            key={mentor.id}
+                            name={mentor.name}
+                            title={mentor.title}
+                            avatar_url={mentor.avatar_url}
+                            category={mentor.category}
+                            onClick={() => setSelectedInstructor(mentor)}
+                          />
+                        ))
+                      : <p style={{ color: 'var(--text-soft)' }}>{courseInstructors.filter(Boolean).join(', ') || 'No instructor assigned yet'}</p>;
+                  })()}
                 </div>
               </div>
             )}

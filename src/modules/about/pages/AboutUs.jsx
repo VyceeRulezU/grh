@@ -16,7 +16,7 @@ import { supabase } from '../../../services/supabase/supabaseClient';
 import InstructorCard from '../../../shared/ui/InstructorCard';
 import InstructorDetailModal from '../../../shared/ui/InstructorDetailModal';
 import NigeriaMap, { PINNED_STATES_NAMES } from '../../analyse/components/NigeriaMap';
-import missionImg from '../../../assets/images/Pictures/47677733942_8a0a7070d0_k.jpg';
+const MISSION_IMG = 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=800';
 import perlLogo from '../../../assets/PERL-logo-white.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -288,7 +288,6 @@ const AboutUs = ({ onNavigate }) => {
                 ].map(item => (
                   <div key={item} className="expect-list-item btn-hover">
                     <span>{item}</span>
-                    <span className="material-symbols-outlined">arrow_outward</span>
                   </div>
                 ))}
               </div>
@@ -535,7 +534,7 @@ const AboutUs = ({ onNavigate }) => {
         <div className="container mission-grid">
           <div className="mission-image">
             <img
-              src={missionImg}
+              src={MISSION_IMG}
               alt="Government Intelligence Team"
             />
           </div>
