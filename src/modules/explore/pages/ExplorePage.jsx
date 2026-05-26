@@ -106,10 +106,10 @@ const checkCache = async (query) => {
       .select('*')
       .eq('user_query', normalized)
       .single();
-    
+
     if (data) {
       // Increment hit count asynchronously
-      supabase.rpc('increment_cache_hit', { row_id: data.id }).catch(() => {});
+      supabase.rpc('increment_cache_hit', { row_id: data.id }).catch(() => { });
       return data;
     }
     return null;
@@ -135,17 +135,17 @@ const updateCache = async (query, content, sourceType) => {
 const scoreResult = (result, queryKeywords) => {
   const title = (result.title || "").toLowerCase();
   const body = (result.description || result.summary || "").toLowerCase();
-  
+
   // Weights for common tokens to prevent them from drowning out specific terms
   const COMMON_WORDS = new Set(['governance', 'public', 'resource', 'hub', 'report', 'document', 'framework', 'policy', 'strategy']);
-  
+
   let score = 0;
   let uniqueMatches = 0;
 
   queryKeywords.forEach(keyword => {
     const kw = keyword.toLowerCase();
     let kwMatched = false;
-    
+
     // Determine weight: Rare words are much more valuable for relevance
     const weightMulti = COMMON_WORDS.has(kw) ? 0.5 : 2.5;
 
@@ -193,12 +193,12 @@ const findResourceMatch = async (query) => {
   try {
     const rawQ = query.toLowerCase();
     const stopWords = new Set([
-      'what', 'is', 'the', 'of', 'in', 'and', 'to', 'for', 'about', 'how', 'can', 'me', 'tell', 'show', 'find', 'research', 
+      'what', 'is', 'the', 'of', 'in', 'and', 'to', 'for', 'about', 'how', 'can', 'me', 'tell', 'show', 'find', 'research',
       'information', 'resource', 'please', 'with', 'from', 'this', 'that', 'they', 'their', 'them', 'these'
     ]);
     const keywords = rawQ.split(/[\s,?.!]+/)
       .filter(w => w.length > 2 && !stopWords.has(w));
-    
+
     if (keywords.length === 0) return null;
 
     console.log("🔍 GovAI Enhanced Search Keywords:", keywords);
@@ -209,18 +209,18 @@ const findResourceMatch = async (query) => {
       { name: 'sparc_resources', cols: ['title', 'description'] },
       { name: 'perl_resource', cols: ['title', 'description'] }
     ];
-    
+
     const searchPromises = tables.map(async (table) => {
-      const orClauses = keywords.flatMap(kw => 
+      const orClauses = keywords.flatMap(kw =>
         table.cols.map(col => `${col}.ilike.%${kw}%`)
       ).join(',');
-      
+
       const { data, error } = await supabase
         .from(table.name)
         .select('*')
         .or(orClauses)
         .limit(10);
-      
+
       if (!error && data) {
         return data.map(d => ({ ...d, tableName: table.name }));
       }
@@ -237,13 +237,13 @@ const findResourceMatch = async (query) => {
         .sort((a, b) => b.relevanceScore - a.relevanceScore);
 
       const top3 = ranked.slice(0, 3);
-      
+
       if (top3.length === 0) return null;
 
       console.log(`✅ Library Matches Found:`, top3.length);
 
       return {
-        context: top3.map((r, idx) => `Document ${idx+1}: [${r.title}] — ${r.description || r.summary || ''}`).join('\n\n'),
+        context: top3.map((r, idx) => `Document ${idx + 1}: [${r.title}] — ${r.description || r.summary || ''}`).join('\n\n'),
         resources: top3
       };
     }
@@ -257,7 +257,7 @@ const findResourceMatch = async (query) => {
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
-const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "How can SABI AI help you today?" };
+const INITIAL_MESSAGE = { id: 1, role: 'assistant', text: "Hello! I'm the Governance AI Assistant, trained on all the resources in this hub. How can I help with your research today?" };
 
 const PROMPT_LIMIT = 20;
 
@@ -275,13 +275,13 @@ const renderMessage = (text, onPreview = null) => {
       if (match) {
         const label = match[1];
         const url = match[2];
-        
+
         // Handle internal preview links
         if (url.startsWith('preview:') && onPreview) {
           return (
-            <button 
-              key={i} 
-              className="preview-trigger-btn" 
+            <button
+              key={i}
+              className="preview-trigger-btn"
               onClick={() => onPreview()}
             >
               <span className="material-symbols-outlined">visibility</span>
@@ -289,7 +289,7 @@ const renderMessage = (text, onPreview = null) => {
             </button>
           );
         }
-        
+
         return <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="message-link">{label}</a>;
       }
     }
@@ -343,14 +343,14 @@ const ExplorePage = ({ user, onNavigate }) => {
 
         const startOfMonth = new Date();
         startOfMonth.setDate(1);
-        startOfMonth.setHours(0,0,0,0);
-        
+        startOfMonth.setHours(0, 0, 0, 0);
+
         // Fix: filter by user_id so we only count this user's messages
         const { count } = await supabase.from('chat_messages')
           .select('*', { count: 'exact', head: true })
           .eq('role', 'user')
           .gte('created_at', startOfMonth.toISOString());
-        
+
         if (count !== null) setPromptsUsed(count);
       } catch (err) {
         console.error("Fetch err:", err);
@@ -455,13 +455,13 @@ const ExplorePage = ({ user, onNavigate }) => {
   const loadHistory = async (session) => {
     setActiveHistoryId(session.id);
     if (window.innerWidth <= 900) setIsSidebarOpen(false);
-    
+
     try {
       const { data } = await supabase.from('chat_messages')
         .select('*')
         .eq('session_id', session.id)
         .order('created_at', { ascending: true });
-        
+
       if (data && data.length > 0) {
         const mapped = data.map(d => ({ ...d, text: d.content }));
         setMessages([INITIAL_MESSAGE, ...mapped]);
@@ -623,8 +623,8 @@ const ExplorePage = ({ user, onNavigate }) => {
       // Keep last 10 messages (5 exchanges) in memory for Gemini context
       setConversationHistory(prev => {
         const updated = [...prev,
-          { role: 'user', content: msgText },
-          { role: 'assistant', content: responseText }
+        { role: 'user', content: msgText },
+        { role: 'assistant', content: responseText }
         ];
         return updated.slice(-10);
       });
@@ -634,7 +634,7 @@ const ExplorePage = ({ user, onNavigate }) => {
         supabase.from('chat_sessions')
           .update({ updated_at: new Date().toISOString() })
           .eq('id', currentSessionId)
-          .then(null, () => {});
+          .then(null, () => { });
       }
 
     } catch (err) {
@@ -653,9 +653,9 @@ const ExplorePage = ({ user, onNavigate }) => {
     <div className="explore-layout">
       <Helmet>
         <title>Governance AI Assistant | Research & Insights | GRH</title>
-        <meta name="description" content="Interact with our AI Research Assistant to explore governance frameworks, PFM strategies, and institutional reform insights powered by SABI AI." />
+        <meta name="description" content="Interact with our AI Research Assistant to explore governance frameworks, PFM strategies, and institutional reform insights powered by GovAI-Core." />
       </Helmet>
-      {isSidebarOpen && <div className="sidebar-backdrop" onClick={handleOverlayClick} /> }
+      {isSidebarOpen && <div className="sidebar-backdrop" onClick={handleOverlayClick} />}
 
       <aside id="tour-explore-sidebar" className={`chat-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="chat-sidebar-header">
@@ -679,9 +679,9 @@ const ExplorePage = ({ user, onNavigate }) => {
             />
           </div>
 
-          <div className="history-group-label" style={{display: 'flex', justifyContent: 'space-between'}}>
+          <div className="history-group-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>RECENT RESEARCH</span>
-            <span style={{color: 'var(--primary)', fontWeight: 'bold'}}>{promptsUsed}/{PROMPT_LIMIT} used</span>
+            <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{promptsUsed}/{PROMPT_LIMIT} used</span>
           </div>
           {filteredSessions.map(item => (
             <button
@@ -696,7 +696,7 @@ const ExplorePage = ({ user, onNavigate }) => {
               </div>
             </button>
           ))}
-          {filteredSessions.length === 0 && <p style={{fontSize: '0.8rem', color: 'var(--text-soft)', padding: '0 1rem'}}>{sidebarSearch ? 'No results found.' : 'No chat history yet.'}</p>}
+          {filteredSessions.length === 0 && <p style={{ fontSize: '0.8rem', color: 'var(--text-soft)', padding: '0 1rem' }}>{sidebarSearch ? 'No results found.' : 'No chat history yet.'}</p>}
         </div>
 
         <div className="sidebar-footer">
@@ -707,8 +707,8 @@ const ExplorePage = ({ user, onNavigate }) => {
           <p className="sidebar-note">
             Analysis based on {user ? user.name : 'Guest'}'s research library access level.
           </p>
-          <div style={{marginTop: '0.5rem', width: '100%', height: '4px', background: 'var(--bg-weak)', borderRadius: '2px', overflow: 'hidden'}}>
-             <div style={{width: `${(promptsUsed/PROMPT_LIMIT)*100}%`, height: '100%', background: promptsUsed >= PROMPT_LIMIT ? 'var(--danger)' : 'var(--primary)'}}></div>
+          <div style={{ marginTop: '0.5rem', width: '100%', height: '4px', background: 'var(--bg-weak)', borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ width: `${(promptsUsed / PROMPT_LIMIT) * 100}%`, height: '100%', background: promptsUsed >= PROMPT_LIMIT ? 'var(--danger)' : 'var(--primary)' }}></div>
           </div>
         </div>
       </aside>
@@ -750,10 +750,10 @@ const ExplorePage = ({ user, onNavigate }) => {
               <div className={`explore-avatar ${msg.role === 'assistant' ? 'explore-assistant-avatar' : 'explore-user-avatar'}`}>
                 {msg.role === 'assistant' ? '◆' : (
                   user?.avatar_url ? (
-                    <img 
-                      src={user.avatar_url} 
-                      alt={user.name} 
-                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', backgroundColor: 'var(--bg-weak)' }} 
+                    <img
+                      src={user.avatar_url}
+                      alt={user.name}
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', backgroundColor: 'var(--bg-weak)' }}
                       loading="lazy"
                     />
                   ) : (
@@ -929,12 +929,12 @@ const ExplorePage = ({ user, onNavigate }) => {
           <p className="input-hint">{isLimited ? "Research limit reached for today." : "AI may generate inaccurate information. Cross-reference with hub source documents."}</p>
         </div>
       </div>
-      
+
       {/* In-App Resource Viewer */}
-      <ResourceViewer 
-        isOpen={!!viewingResource} 
-        onClose={() => setViewingResource(null)} 
-        resource={viewingResource} 
+      <ResourceViewer
+        isOpen={!!viewingResource}
+        onClose={() => setViewingResource(null)}
+        resource={viewingResource}
       />
       <TourGuideRenderer />
     </div>
