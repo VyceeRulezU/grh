@@ -90,20 +90,28 @@
 
 /* --- Right Column --- */
 .back-link {
-  background: none;
-  border: none;
-  color: #64748b;
-  font-weight: 500;
-  display: flex;
+  background: transparent;
+  border: 2px solid var(--secondary);
+  color: var(--secondary);
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
   cursor: pointer;
-  transition: color 0.3s ease;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-full);
+  transition: var(--transition);
+  font-family: var(--font);
+  width: fit-content;
 }
 
 .back-link:hover {
-  color: var(--primary-color);
+  background: var(--secondary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .details-header h1 {

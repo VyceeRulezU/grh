@@ -442,6 +442,14 @@
 .instr-name {
   font-size: 0.85rem;
   color: var(--sc-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  word-break: break-word;
+  cursor: default;
 }
 
 .prog-percentage {
@@ -2104,27 +2112,27 @@
     font-size: 1.1rem;
 }
 
-/* Standardized Table (Admin Aesthetics) */
-.std-table-wrap {
+/* Resources Table (Admin Aesthetics) */
+.std-resources-table-wrap {
     background: white;
     border-radius: 12px;
     border: 1px solid var(--sc-border);
     overflow-x: auto;
     box-shadow: var(--shadow-sm);
-    min-width: 100%;
+    width: 100%;
 }
 
-.std-table {
+.std-resources-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: auto;
-    min-width: 100%;
+    min-width: 700px;
 }
 
-.std-table thead th {
+.std-resources-table thead th {
     background: var(--bg-weak);
     text-align: left;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -2133,50 +2141,76 @@
     border-bottom: 1px solid var(--sc-border);
 }
 
-.std-table tbody tr {
+.std-resources-table tbody tr {
     transition: all 0.2s;
 }
 
-.std-table tbody tr:not(:last-child) {
+.std-resources-table tbody tr:not(:last-child) {
     border-bottom: 1px solid var(--sc-border);
 }
 
-.std-table tbody tr:hover {
+.std-resources-table tbody tr:hover {
     background: rgba(77, 167, 113, 0.03);
 }
 
-.std-table tbody td {
-    padding: 1rem;
+.std-resources-table tbody td {
+    padding: 0.75rem 1rem;
     font-size: 0.875rem;
     color: var(--text-main);
     vertical-align: middle;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
-.std-table .resource-thumb {
-    width: 36px;
-    height: 48px;
-    background: var(--bg-weak);
-    border-radius: 4px;
-    overflow: hidden;
-    flex-shrink: 0;
+.std-resources-table .col-chk {
+    width: 40px;
+    text-align: center;
 }
 
-.std-table .resource-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.std-resources-table .col-chk .adm-custom-checkbox {
+    margin: 0;
 }
 
-.std-table .title-cell-flex {
+.std-resources-table .col-title {
+    cursor: pointer;
+}
+
+.std-resources-table .col-actions {
+    text-align: center;
+}
+
+.std-resources-table .row-actions-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.std-resources-table .row-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-soft);
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.std-resources-table .row-action-btn:hover {
+    background: rgba(77, 167, 113, 0.1);
+    color: var(--primary);
+}
+
+.std-resources-table .title-cell-flex {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.std-table .title-text {
+.std-resources-table .title-text {
     font-weight: 600;
     color: var(--secondary);
     display: block;
@@ -2185,7 +2219,7 @@
     white-space: nowrap;
 }
 
-.std-table .author-text {
+.std-resources-table .author-text {
     display: block;
     font-size: 0.75rem;
     color: var(--text-soft);

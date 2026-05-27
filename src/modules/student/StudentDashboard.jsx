@@ -13,6 +13,15 @@ import './StudentDashboard.css';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import ResearchPanel from './ResearchPanel';
 
+const parseInstructors = (raw) => {
+  if (!raw) return ['GRH Staff'];
+  try {
+    const p = JSON.parse(raw);
+    return Array.isArray(p) && p.length ? p : [raw];
+  } catch {
+    return [raw];
+  }
+};
 
 /* ───────────────────────── MOCK DATA ───────────────────────── */
 // (Keep for fallback if needed, but we'll try to use Supabase first)
@@ -153,7 +162,7 @@ function HomePanel({ name, onNavigate, onEnroll, myCourses = [], allCourses = []
                       </div>
                     </td>
                     <td className="col-cat"><span className="cat-label">{course.category || 'General'}</span></td>
-                    <td className="col-instr"><span className="instr-name">{course.instructor || 'GRH Staff'}</span></td>
+                    <td className="col-instr"><span className="instr-name" title={parseInstructors(course.instructor).join(', ')}>{parseInstructors(course.instructor).join(', ')}</span></td>
                     <td className="col-prog">
                       <div className="progress-cell">
                         <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
@@ -334,7 +343,7 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
               <div className="std-course-info">
                 <span className="std-course-cat">{course.category || 'General'}</span>
                 <h4 className="truncate-1">{course.title || 'Untitled Course'}</h4>
-                <p className="std-instructor"><i className="ri-user-line"></i> {course.instructor || 'GRH Staff'}</p>
+                <p className="std-instructor"><i className="ri-user-line"></i> {parseInstructors(course.instructor).join(', ')}</p>
                 <div className="std-progress-row">
                   <div className="prog-bar"><div className="prog-fill" style={{ width: `${course.progress || 0}%` }}></div></div>
                   <span className="std-progress-text">{course.progress || 0}%</span>
@@ -373,7 +382,7 @@ function CoursesPanel({ onNavigate, myCourses = [] }) {
                       <span className="cat-label">{course.category || 'General'}</span>
                     </td>
                     <td className="col-instr">
-                      <span className="instr-name">{course.instructor || 'GRH Staff'}</span>
+                      <span className="instr-name" title={parseInstructors(course.instructor).join(', ')}>{parseInstructors(course.instructor).join(', ')}</span>
                     </td>
                     <td className="col-prog">
                       <div className="progress-cell">
@@ -595,7 +604,7 @@ function ResourcesPanel({ resources = [], onNavigate }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewer, setViewer] = useState({ isOpen: false, resource: null });
   const [viewMode, setViewMode] = useState('grid');
-  const itemsPerPage = viewMode === 'grid' ? 10 : 20;
+  const itemsPerPage = viewMode === 'grid' ? 10 : 12;
 
   const filtered = (resources || []).filter(r => {
     const titleVal = (r.title || "").toLowerCase();
@@ -693,22 +702,24 @@ function ResourcesPanel({ resources = [], onNavigate }) {
           )}
         </div>
       ) : (
-        <div className="std-table-wrap">
-          <table className="std-table">
+        <div className="std-resources-table-wrap">
+          <table className="std-resources-table">
             <thead>
               <tr>
-                <th style={{ width: '35%' }}>Resource Title</th>
-                <th style={{ width: '15%' }}>Category</th>
-                <th style={{ width: '15%' }}>Author</th>
-                <th style={{ width: '15%' }}>Thematic Area</th>
-                <th style={{ width: '10%' }}>Year</th>
-                <th style={{ width: '12%', textAlign: 'center' }}>Action</th>
+                <th className="col-chk"><input type="checkbox" className="adm-custom-checkbox" /></th>
+                <th className="col-title">Resource Title</th>
+                <th className="col-cat">Category</th>
+                <th className="col-author">Author</th>
+                <th className="col-area">Thematic Area</th>
+                <th className="col-year">Year</th>
+                <th className="col-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pagedItems.map(r => (
-                <tr key={r.id} onClick={() => setViewer({ isOpen: true, resource: r })}>
-                  <td>
+                <tr key={r.id}>
+                  <td className="col-chk"><input type="checkbox" className="adm-custom-checkbox" /></td>
+                  <td className="col-title" onClick={() => setViewer({ isOpen: true, resource: r })}>
                     <div className="title-cell-flex">
                       <div>
                         <span className="title-text truncate-1">{r.title}</span>
@@ -716,20 +727,28 @@ function ResourcesPanel({ resources = [], onNavigate }) {
                       </div>
                     </div>
                   </td>
-                  <td><span className="tag" style={{ fontSize: '0.65rem' }}>{r.type}</span></td>
-                  <td>{r.author || 'GRH Hub'}</td>
-                  <td>{r.thematic_area || 'Public Governance'}</td>
-                  <td>{r.year}</td>
-                  <td style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column'}}>
-                    <button className="row-action" title="View Resource" onClick={(e) => { e.stopPropagation(); setViewer({ isOpen: true, resource: r }); }}>
-                       <i className="ri-eye-line"></i>
-                    </button>
+                  <td className="col-cat"><span className="tag" style={{ fontSize: '0.65rem' }}>{r.type}</span></td>
+                  <td className="col-author">{r.author || 'GRH Hub'}</td>
+                  <td className="col-area">{r.thematic_area || 'Public Governance'}</td>
+                  <td className="col-year">{r.year}</td>
+                  <td className="col-actions">
+                    <div className="row-actions-group">
+                      <button className="row-action-btn" title="View" onClick={(e) => { e.stopPropagation(); setViewer({ isOpen: true, resource: r }); }}>
+                        <i className="ri-eye-line"></i>
+                      </button>
+                      <button className="row-action-btn" title="Download" onClick={(e) => { e.stopPropagation(); window.open(r.file_url || '#', '_blank'); }}>
+                        <i className="ri-download-line"></i>
+                      </button>
+                      <button className="row-action-btn" title="Share" onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(window.location.origin + '/research?resource=' + r.id); alert('Link copied!'); }}>
+                        <i className="ri-share-line"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {pagedItems.length === 0 && (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '100px', color: 'var(--text-soft)' }}>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '100px', color: 'var(--text-soft)' }}>
                     <i className="ri-search-line" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem', opacity: 0.3 }}></i>
                     No resources found.
                   </td>
