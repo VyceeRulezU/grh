@@ -22,7 +22,7 @@ const Footer = ({ onNavigate }) => {
             <div className="link-container">
               
               <div className="footer-link-group">
-                <TextLink onClick={() => onNavigate('assess')}>Evaluate</TextLink>
+                <TextLink onClick={() => onNavigate('evaluate')}>Evaluate</TextLink>
                 <TextLink onClick={() => onNavigate('analyse')}>Analyse</TextLink>
               </div>
             </div>

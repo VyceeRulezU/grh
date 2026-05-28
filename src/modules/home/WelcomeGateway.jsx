@@ -29,7 +29,7 @@ const SECTIONS_DATA = [
     hasStroke: false
   },
   {
-    id: 'assess',
+    id: 'evaluate',
     title: 'Evaluate',
     emoji: '📊',
     img: 'assets/assess-img.svg',

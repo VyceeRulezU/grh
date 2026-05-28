@@ -73,7 +73,8 @@ function App() {
     
     // Core Naming Synchronization
     if (normalizedPath === 'admin-dashboard' || normalizedPath === 'admin-login') normalizedPath = 'admin';
-    if (normalizedPath === 'library' || normalizedPath === 'research') normalizedPath = 'research'; 
+    if (normalizedPath === 'library' || normalizedPath === 'research') normalizedPath = 'research';
+    if (normalizedPath === 'assess') normalizedPath = 'evaluate'; 
     
     return normalizedPath;
   };
@@ -354,7 +355,7 @@ function App() {
     const isUserAdmin = userData.isAdmin || userData.fromAdminWall;
     
     // Prioritise institutional stay-put behaviour
-    const STAY_PUT_PAGES = ['learn', 'research', 'library', 'explore', 'about', 'partner', 'assess', 'analyse', 'learn-discovery', 'privacy-policy', 'terms-of-service'];
+    const STAY_PUT_PAGES = ['learn', 'research', 'library', 'explore', 'about', 'partner', 'evaluate', 'analyse', 'learn-discovery', 'privacy-policy', 'terms-of-service'];
     
     // Destination calculation: Admin > Manual Return Page > Current URL Page > Dashboard
     let destination = isUserAdmin ? 'admin' : 'student';
@@ -459,7 +460,7 @@ function App() {
                 {currentPage === 'learn' && <LearnLandingPage onNavigate={navigate} />}
                 {currentPage === 'research' && <Library onNavigate={navigate} />}
                 {currentPage === 'explore' && <ExplorePage user={user} onNavigate={navigate} />}
-                {currentPage === 'assess' && <AssessPage onNavigate={navigate} />}
+                {currentPage === 'evaluate' && <AssessPage onNavigate={navigate} />}
                 {currentPage === 'analyse' && <AnalysePage onNavigate={navigate} />}
                 {currentPage === 'about' && <AboutUs onNavigate={navigate} />}
                 {currentPage === 'partner' && <PartnerPage onNavigate={navigate} />}
@@ -477,7 +478,7 @@ function App() {
                 {currentPage === 'privacy-policy' && <PrivacyPolicy />}
                 {currentPage === 'terms-of-service' && <TermsOfService />}
                 {currentPage === 'reset-password' && <ResetPasswordPage onNavigate={navigate} />}
-                {!['welcome','learn','research','explore','assess','analyse','about','partner','help-center','contact','student','learn-discovery','admin','learn-player','learn-details','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
+                {!['welcome','learn','research','explore','evaluate','analyse','about','partner','help-center','contact','student','learn-discovery','admin','learn-player','learn-details','login','signup','admin-login','oauth-consent','privacy-policy','terms-of-service', 'forgot-password', 'reset-password'].includes(currentPage) && (
                   <NotFoundPage onNavigate={navigate} />
                 )}
               </Suspense>
@@ -486,7 +487,7 @@ function App() {
         )}
       </main>
 
-      {['learn','research','assess','analyse','about','partner','learn-discovery','help-center','contact', 'privacy-policy', 'terms-of-service'].includes(currentPage) && <Footer onNavigate={navigate} />}
+      {['learn','research','evaluate','analyse','about','partner','learn-discovery','help-center','contact', 'privacy-policy', 'terms-of-service'].includes(currentPage) && <Footer onNavigate={navigate} />}
 
       <AuthModal 
         isOpen={showAuth} 
