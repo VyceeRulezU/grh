@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase/supabaseClient';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, LabelList } from 'recharts';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
 import { BOOKS } from '../../data/legacyData';
 import grhIcon from '../../assets/images/Logo/GRH-icon.png';
@@ -11,6 +11,7 @@ import { useModal } from '../../shared/hooks/useModal';
 import ResourceViewer from '../research/components/ResourceViewer';
 import InstructorCard from '../../shared/ui/InstructorCard';
 import { Helmet } from 'react-helmet-async';
+import SpecialButton from '../../shared/ui/SpecialButton';
 import './AdminDashboard.css';
 
 /* =====================================================================
@@ -1999,27 +2000,177 @@ function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
   );
 }
 
+const ANALYTICS_COLORS = ['var(--primary)', '#4da16a', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
+
 function AnalyticsPanel({ stats }) {
+  const handleExportAnalyticsCSV = () => {
+    const rows = [];
+    rows.push(['Metric', 'Value'].join(','));
+    rows.push(['Total Learners', stats?.learners || 0]);
+    rows.push(['Active Courses', stats?.courses || 0]);
+    rows.push(['Library Resources', stats?.resources || 0]);
+    rows.push(['Certifications', stats?.certs || 0]);
+    rows.push([]);
+    rows.push(['Chart: Monthly Data', ...(stats?.chartData?.[0] ? Object.keys(stats.chartData[0]).filter(k => k !== 'monthId') : [])].join(','));
+    (stats?.chartData || []).forEach(m => {
+      const vals = Object.entries(m).filter(([k]) => k !== 'monthId').map(([, v]) => v);
+      rows.push(vals.join(','));
+    });
+    rows.push([]);
+    rows.push(['Activity Breakdown', 'Count'].join(','));
+    (stats?.activityBreakdown || []).forEach(a => rows.push([a.name, a.value].join(',')));
+    rows.push([]);
+    rows.push(['Course', 'Enrolled Learners'].join(','));
+    (stats?.courseEngagement || []).forEach(c => rows.push([`"${c.name}"`, c.learners].join(',')));
+    const csv = rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grh-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="adm-panel">
-      <div className="adm-panel-header"><h3>Analytics</h3></div>
-      <div className="adm-chart-card" style={{marginBottom: '1.5rem'}}>
-        <h4>Certifications Issued</h4>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={stats?.chartData || []}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} />
-            <YAxis axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-            <Bar dataKey="certs" fill="var(--primary)" radius={[4,4,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
+
+      <div className="adm-panel-header">
+        <h3>Analytics</h3>
+        <SpecialButton onClick={handleExportAnalyticsCSV}>
+          <i className="ri-download-line"></i> Export CSV
+        </SpecialButton>
       </div>
-      <div className="adm-analytics-placeholder">
-        <i className="ri-award-fill" style={{fontSize: '3rem', color: 'var(--primary)', marginBottom: '1rem'}}></i>
-        <h3>{stats.certs}</h3>
-        <p>Total Certificates Generated to Date</p>
+
+      {/* Stat mini-cards row */}
+      <div className="adm-analytics-stats-row">
+        <div className="adm-aStat-card"><span className="adm-aStat-value">{stats?.learners || 0}</span><span className="adm-aStat-label">Total Learners</span></div>
+        <div className="adm-aStat-card"><span className="adm-aStat-value">{stats?.courses || 0}</span><span className="adm-aStat-label">Active Courses</span></div>
+        <div className="adm-aStat-card"><span className="adm-aStat-value">{stats?.resources || 0}</span><span className="adm-aStat-label">Library Resources</span></div>
+        <div className="adm-aStat-card"><span className="adm-aStat-value">{stats?.certs || 0}</span><span className="adm-aStat-label">Certifications</span></div>
       </div>
+
+      {/* Row 1: Learner Growth + Course Engagement */}
+      <div className="adm-analytics-grid-2">
+        <div className="adm-chart-card">
+          <h4>Learner Growth (6 months)</h4>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={stats?.chartData || []}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
+              <YAxis axisLine={false} tickLine={false} fontSize={12} />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+              <Line type="monotone" dataKey="learners" stroke="var(--primary)" strokeWidth={2.5} dot={{ r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="adm-chart-card">
+          <h4>Top Courses by Enrollment</h4>
+          {(stats?.courseEngagement || []).length > 0 ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats?.courseEngagement || []} layout="vertical" margin={{ left: 30, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#eee" />
+                <XAxis type="number" axisLine={false} tickLine={false} fontSize={12} />
+                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} fontSize={10} width={160} />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                <Bar dataKey="learners" fill="var(--primary)" radius={[0,4,4,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="adm-chart-empty">
+              <i className="ri-bar-chart-grouped-line"></i>
+              <p>No enrollment data yet.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Row 2: Activity Breakdown + Monthly Certifications */}
+      <div className="adm-analytics-grid-2">
+        <div className="adm-chart-card">
+          <h4>Activity Breakdown</h4>
+          {(stats?.activityBreakdown || []).length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie data={stats?.activityBreakdown || []} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3}>
+                    {stats?.activityBreakdown?.map((_, idx) => (
+                      <Cell key={idx} fill={ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="adm-analytics-legend">
+                {(stats?.activityBreakdown || []).map((item, idx) => (
+                  <span key={item.name} className="adm-analytics-legend-item">
+                    <span className="adm-analytics-legend-dot" style={{ background: ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length] }} />
+                    {item.name} — {item.value}
+                  </span>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="adm-chart-empty">
+              <i className="ri-pie-chart-line"></i>
+              <p>No activity data yet.</p>
+            </div>
+          )}
+        </div>
+        <div className="adm-chart-card">
+          <h4>Certifications per Month</h4>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={stats?.chartData || []}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
+              <YAxis axisLine={false} tickLine={false} fontSize={12} />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+              <Bar dataKey="certs" fill="var(--primary)" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="adm-aStat-card" style={{ marginTop: '0.75rem', alignSelf: 'center' }}>
+            <span className="adm-aStat-value">{stats?.certs || 0}</span>
+            <span className="adm-aStat-label">Total Certificates</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 3: Learners by Region or User Engagement Depth */}
+      {(stats?.regionData || []).length > 0 ? (
+        <div className="adm-chart-card">
+          <h4>Learners by Region</h4>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={stats?.regionData || []} layout="vertical" margin={{ left: 30, right: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#eee" />
+              <XAxis type="number" axisLine={false} tickLine={false} fontSize={12} />
+              <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} fontSize={11} width={150} />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+              <Bar dataKey="value" fill="var(--primary)" radius={[0,4,4,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="adm-chart-card">
+          <h4>User Engagement Depth</h4>
+          {(stats?.moduleDistribution || []).length > 0 && stats.moduleDistribution.some(d => d.value > 0) ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={stats?.moduleDistribution || []} margin={{ left: 10, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
+                <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                <Bar dataKey="value" fill="var(--primary)" radius={[4,4,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="adm-chart-empty">
+              <i className="ri-bar-chart-line"></i>
+              <p>No engagement data yet.</p>
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }
@@ -3498,13 +3649,69 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         return months;
       };
 
+      // Course engagement — top 10 by enrollment
+      const courseEngagement = Object.entries(learnerCounts)
+        .map(([cid, learners]) => ({
+          name: coursesMap[cid]?.title || `Course #${cid}`,
+          learners: learners.size
+        }))
+        .sort((a, b) => b.learners - a.learners)
+        .slice(0, 10);
+
+      // Activity breakdown
+      const activityTypeCounts = {};
+      (allRecentActivities || []).forEach(a => {
+        const t = a.type || 'other';
+        activityTypeCounts[t] = (activityTypeCounts[t] || 0) + 1;
+      });
+      const activityLabels = { signup: 'Signups', enrollment: 'Enrollments', module: 'Lessons Done', course: 'Certifications', workshop: 'Workshops' };
+      const activityBreakdown = Object.entries(activityTypeCounts).map(([key, value]) => ({
+        name: activityLabels[key] || key,
+        value
+      }));
+
+      // Geographic distribution
+      const regionCounts = {};
+      (usr.data || []).forEach(u => {
+        const state = u.state || u.region || 'Unknown';
+        if (state && state !== 'Unknown') {
+          regionCounts[state] = (regionCounts[state] || 0) + 1;
+        }
+      });
+      const regionData = Object.entries(regionCounts)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 15);
+
+      // Module completion distribution — fallback if no region data
+      const userModuleCounts = {};
+      (allProgress || []).forEach(p => {
+        const uid = String(p.user_id);
+        userModuleCounts[uid] = (userModuleCounts[uid] || 0) + 1;
+      });
+      const moduleDistBuckets = { '0': 0, '1-2': 0, '3-5': 0, '6-10': 0, '10+': 0 };
+      const totalUsers = (usr.data || []).length;
+      const usersWithProgress = Object.keys(userModuleCounts).length;
+      moduleDistBuckets['0'] = totalUsers - usersWithProgress;
+      Object.values(userModuleCounts).forEach(count => {
+        if (count <= 2) moduleDistBuckets['1-2']++;
+        else if (count <= 5) moduleDistBuckets['3-5']++;
+        else if (count <= 10) moduleDistBuckets['6-10']++;
+        else moduleDistBuckets['10+']++;
+      });
+      const moduleDistribution = Object.entries(moduleDistBuckets).map(([name, value]) => ({ name, value }));
+
       setStats({
         learners: (usr.data || []).length,
         courses: (crs.data || []).length,
         resources: (allResources || []).length + (bks.data || []).length,
         certs: trueCourseCompletions.length,
         recentActivities: allRecentActivities,
-        chartData: generateChartData(usr.data, allResources, bks.data, trueCourseCompletions)
+        chartData: generateChartData(usr.data, allResources, bks.data, trueCourseCompletions),
+        courseEngagement,
+        activityBreakdown,
+        regionData,
+        moduleDistribution
       });
       console.log("[GRH DEBUG] Updated Stats - Resources:", (allResources || []).length + (bks.data || []).length);
     } catch (err) {
