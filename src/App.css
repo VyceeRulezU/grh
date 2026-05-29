@@ -66,3 +66,14 @@
 .back-to-top .material-symbols-outlined {
   font-size: 24px;
 }
+
+@keyframes brand-spin {
+  to { transform: rotate(360deg); }
+}
+
+.brand-spinner {
+  width: 56px;
+  height: 56px;
+  animation: brand-spin 1s linear infinite;
+  opacity: 0.8;
+}

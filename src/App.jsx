@@ -7,6 +7,7 @@ import Footer from './shared/layout/Footer'
 import AuthModal from './shared/ui/AuthModal'
 import StatusModal from './shared/ui/StatusModal'
 import './App.css'
+import spinnerLogo from './assets/images/Logo/GRH-icon.png'
 
 // ── Lazy-loaded pages (each becomes its own JS chunk) ──────────────────────
 const WelcomeGateway     = lazy(() => import('./modules/home/WelcomeGateway'));
@@ -35,8 +36,7 @@ const NotFoundPage       = lazy(() => import('./modules/home/NotFoundPage'));
 // Minimal spinner shown while a lazy page chunk is loading
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', flexDirection: 'column', gap: '1rem' }}>
-    <div className="spinner" />
-    <p style={{ color: 'var(--text-soft, #64748b)', fontSize: '0.9rem' }}>Loading...</p>
+    <img src={spinnerLogo} className="brand-spinner" alt="Loading" />
   </div>
 );
 
@@ -433,9 +433,8 @@ function App() {
       
       <main className="main-content">
         {authLoading && PROTECTED_PAGES.includes(currentPage) ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '1rem' }}>
-            <div className="spinner"></div>
-            <p style={{ color: 'var(--text-soft, #64748b)' }}>Verifying session...</p>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <img src={spinnerLogo} className="brand-spinner" alt="Loading" />
           </div>
         ) : (
           <AnimatePresence mode="wait">
