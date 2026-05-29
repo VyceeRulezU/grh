@@ -909,6 +909,32 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
     URL.revokeObjectURL(url);
   };
 
+  const cd = stats?.chartData || [];
+  const calcCardDelta = (key) => {
+    const vals = cd.map(m => m[key] || 0);
+    if (vals.length < 6) return { delta: '0%', isPositive: true };
+    const recent = vals.slice(-3).reduce((a, b) => a + b, 0) / 3;
+    const prev = vals.slice(0, -3).reduce((a, b) => a + b, 0) / 3;
+    if (prev === 0) return { delta: '+100%', isPositive: true };
+    const pct = Math.round(((recent - prev) / prev) * 100);
+    return { delta: `${pct >= 0 ? '+' : ''}${pct}%`, isPositive: pct >= 0 };
+  };
+  const cardSparkData = (key) => {
+    const vals = cd.map(m => m[key] || 0);
+    const max = Math.max(...vals, 1);
+    return vals.map(v => Math.round((v / max) * 80));
+  };
+  const statCards = [
+    { label: 'Total Learners',       value: stats.learners,  key: 'newLearners' },
+    { label: 'Active Courses',       value: stats.courses,   key: 'courses' },
+    { label: 'Certifications Issued',value: stats.certs,     key: 'certs' },
+    { label: 'Library Resources',    value: stats.resources, key: 'resources' },
+  ].map(s => {
+    const d = calcCardDelta(s.key);
+    const spark = cardSparkData(s.key);
+    return { ...s, delta: d.delta, isPositive: d.isPositive, spark };
+  });
+
   return (
     <div className="adm-dashboard">
       <Helmet>
@@ -941,12 +967,7 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
 
       {/* Stats Grid */}
       <div className="adm-stats-grid">
-        {[
-          { label: 'Total Learners',       value: stats.learners,       delta: '+12%', isPositive: true, chartData: [40, 30, 45, 40, 50, 70] },
-          { label: 'Active Courses',       value: stats.courses,       delta: '+8%',  isPositive: true, chartData: [20, 30, 25, 20, 35, 50] },
-          { label: 'Certifications Issued',value: stats.certs,  delta: '+15%', isPositive: true, chartData: [10, 15, 30, 25, 40, 30] },
-          { label: 'Library Resources',    value: stats.resources,    delta: '-2%',  isPositive: false, chartData: [30, 25, 25, 20, 15, 10] },
-        ].map((s, i) => (
+        {statCards.map((s, i) => (
           <div className="adm-stat-card-v2 animate-up" style={{ animationDelay: `${i * 0.1}s` }} key={s.label}>
             <div className="adm-stat-card-v2-header">
               <span className="adm-stat-card-v2-label">{s.label}</span>
@@ -954,15 +975,13 @@ function OverviewPanel({ onAddCourse, onAddBook, onAddQuiz, onAddResource, stats
                 {s.delta} {s.isPositive ? 'this month' : 'last month'}
               </span>
             </div>
-            
             <h3 className="adm-stat-card-v2-value">{s.value.toLocaleString()}</h3>
-            
             <div className="adm-stat-card-v2-chart">
-              {s.chartData.map((val, idx) => (
+              {s.spark.map((val, idx) => (
                 <div 
                   key={idx} 
-                  className={`adm-stat-card-v2-bar ${s.isPositive ? 'positive' : 'negative'} ${idx === s.chartData.length - 1 ? 'current' : ''}`}
-                  style={{ height: `${val}%` }}
+                  className={`adm-stat-card-v2-bar ${s.isPositive ? 'positive' : 'negative'} ${idx === s.spark.length - 1 ? 'current' : ''}`}
+                  style={{ height: `${Math.max(val, 2)}%` }}
                 ></div>
               ))}
             </div>
@@ -3604,7 +3623,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         .slice(0, 500);
 
       // Generate Chart Data
-      const generateChartData = (usersList, resList, bksList, compList) => {
+      const generateChartData = (usersList, resList, bksList, compList, crsList) => {
         const months = [];
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const now = new Date();
@@ -3616,9 +3635,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
             monthId: `${d.getFullYear()}-${d.getMonth()}`,
             year: d.getFullYear(),
             month: d.getMonth(),
+            newLearners: 0,
             learners: 0,
             resources: 0,
-            certs: 0
+            certs: 0,
+            courses: 0
           });
         }
 
@@ -3629,12 +3650,13 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           if (bin) bin[key]++;
         };
 
-        (usersList || []).forEach(u => addToBin(u.joined_at || u.created_at, 'learners'));
+        (usersList || []).forEach(u => addToBin(u.joined_at || u.created_at, 'newLearners'));
         (resList || []).forEach(r => addToBin(r.created_at, 'resources'));
         (bksList || []).forEach(b => addToBin(b.created_at, 'resources'));
         (compList || []).forEach(p => addToBin(p.updated_at, 'certs'));
+        (crsList || []).forEach(c => addToBin(c.created_at, 'courses'));
 
-        // Make learners formally cumulative
+        // Make learners cumulative
         const oldestChartMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
         let cumulativeLearners = (usersList || []).filter(u => {
            const d = new Date(u.joined_at || u.created_at);
@@ -3642,7 +3664,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         }).length;
 
         months.forEach(m => {
-           cumulativeLearners += m.learners;
+           cumulativeLearners += m.newLearners;
            m.learners = cumulativeLearners;
         });
 
@@ -3707,7 +3729,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         resources: (allResources || []).length + (bks.data || []).length,
         certs: trueCourseCompletions.length,
         recentActivities: allRecentActivities,
-        chartData: generateChartData(usr.data, allResources, bks.data, trueCourseCompletions),
+        chartData: generateChartData(usr.data, allResources, bks.data, trueCourseCompletions, crs.data),
         courseEngagement,
         activityBreakdown,
         regionData,
