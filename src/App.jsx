@@ -41,7 +41,7 @@ const PageLoader = () => (
 );
 
 
-const PROTECTED_PAGES = ['learn-player', 'explore', 'student', 'course-player'];
+const PROTECTED_PAGES = ['learn-player', 'explore', 'student', 'course-player', 'admin'];
 
 const pageVariants = {
   initial: {
