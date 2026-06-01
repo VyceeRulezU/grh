@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TESTIMONIALS } from '../../data/legacyData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../../services/supabase/supabaseClient';
+import { TESTIMONIALS as LEGACY_TESTIMONIALS } from '../../data/legacyData';
 import './TestimonialSection.css';
 
 const TestimonialSection = ({
@@ -10,17 +12,30 @@ const TestimonialSection = ({
 }) => {
   const [offset, setOffset] = useState(0);
 
+  const { data: testimonials = LEGACY_TESTIMONIALS } = useQuery({
+    queryKey: ['testimonials'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data.length > 0 ? data : LEGACY_TESTIMONIALS;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setOffset(prev => (prev + 1) % TESTIMONIALS.length);
+      setOffset(prev => (prev + 1) % testimonials.length);
     }, 6000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonials.length]);
 
   const visibleItems = [];
-  for (let i = 0; i < TESTIMONIALS.length; i++) {
-    visibleItems.push(TESTIMONIALS[(i + offset) % TESTIMONIALS.length]);
+  for (let i = 0; i < testimonials.length; i++) {
+    visibleItems.push(testimonials[(i + offset) % testimonials.length]);
   }
 
   return (
@@ -52,12 +67,6 @@ const TestimonialSection = ({
                   </div>
                   <p className="testimonial-quote">"{t.text}"</p>
                   <footer className="testimonial-footer">
-                    <img 
-                      src={t.avatar}
-                      alt={t.name}
-                      loading="lazy"
-                      onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=facearea&facepad=2&w=64&h=64&q=80'; }}
-                    />
                     <div className="testimonial-info">
                       <cite className="testimonial-name">{t.name}</cite>
                       <span className="testimonial-role">{t.role}</span>

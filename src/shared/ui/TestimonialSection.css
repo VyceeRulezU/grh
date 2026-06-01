@@ -104,13 +104,6 @@
   margin-top: auto;
 }
 
-.testimonial-card footer img, .testimonial-footer img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 .testimonial-info {
   display: flex;
   flex-direction: column;

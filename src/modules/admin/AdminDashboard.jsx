@@ -3050,7 +3050,8 @@ const PANEL_MAP = {
   instructors: AdminInstructorsPanel,
   settings: AdminSettingsPanel,
   workshops: WorkshopsPanel,
-  gaps: LibraryGapsPanel
+  gaps: LibraryGapsPanel,
+  testimonials: TestimonialsPanel
 };
 
 function LibraryGapsPanel({ gaps, onResolve, onDelete, fetchData }) {
@@ -3333,6 +3334,225 @@ function WorkshopsPanel({ workshops, setWorkshops, onDelete, fetchData }) {
   );
 }
 
+/* =====================================================================
+   TESTIMONIALS PANEL
+===================================================================== */
+function TestimonialModal({ onClose, onSave, initial }) {
+  const [form, setForm] = useState(initial || {
+    name: '',
+    role: '',
+    text: '',
+    rating: 5,
+    featured: false
+  });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(form);
+    onClose();
+  };
+
+  return (
+    <div className="adm-modal-overlay">
+      <div className="adm-modal animate-up" style={{ maxWidth: 500 }}>
+        <header className="adm-modal-header">
+          <h3>{initial ? 'Edit Testimonial' : 'New Testimonial'}</h3>
+          <button className="adm-close-btn" onClick={onClose}><i className="ri-close-line"></i></button>
+        </header>
+        <div className="adm-modal-body">
+          <form className="adm-form" onSubmit={handleSubmit}>
+            <div className="adm-form-group">
+              <label>Name*</label>
+              <input type="text" value={form.name} onChange={e => set('name', e.target.value)} required />
+            </div>
+            <div className="adm-form-group">
+              <label>Role / Title</label>
+              <input type="text" value={form.role} onChange={e => set('role', e.target.value)} />
+            </div>
+            <div className="adm-form-group">
+              <label>Quote / Text*</label>
+              <textarea rows={4} value={form.text} onChange={e => set('text', e.target.value)} required style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '100%', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+            <div className="adm-form-row">
+              <div className="adm-form-group">
+                <label>Rating</label>
+                <select value={form.rating} onChange={e => set('rating', Number(e.target.value))} style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '100%', background: 'white' }}>
+                  {[5,4,3,2,1].map(n => <option key={n} value={n}>{'★'.repeat(n)}{'☆'.repeat(5-n)}</option>)}
+                </select>
+              </div>
+              <div className="adm-form-group">
+                <label>Featured</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingTop: '8px' }}>
+                  <input type="checkbox" className="adm-custom-checkbox" checked={form.featured} onChange={e => set('featured', e.target.checked)} />
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-soft)' }}>Show as featured card</span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <footer className="adm-modal-footer">
+          <button type="button" className="btn-outline" onClick={onClose}>Cancel</button>
+          <button type="button" className="special-button" onClick={handleSubmit}>{initial ? 'Save Changes' : 'Add Testimonial'}</button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function TestimonialsPanel({ testimonials, setTestimonials, onDelete, fetchData }) {
+  const [modal, setModal] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [loading, setLoading] = useState(false);
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
+
+  const filtered = (testimonials || []).filter(t =>
+    t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (t.role || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const editItem = testimonials.find(t => t.id === modal);
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === testimonials.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(testimonials.map(t => t.id)));
+  };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const bulkDelete = async () => {
+    try {
+      setLoading(true);
+      const ids = [...selectedIds];
+      const { error } = await supabase.from('testimonials').delete().in('id', ids);
+      if (error) throw error;
+      showSuccess('Deleted', `${ids.length} testimonial(s) deleted.`);
+      setSelectedIds(new Set());
+      if (fetchData) await fetchData();
+    } catch (err) {
+      showError('Delete Error', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const save = async (data) => {
+    try {
+      setLoading(true);
+      const payload = {
+        name: data.name,
+        role: data.role || null,
+        text: data.text,
+        rating: data.rating,
+        featured: data.featured
+      };
+      if (modal && modal !== 'add') {
+        const { error } = await supabase.from('testimonials').update(payload).eq('id', modal);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('testimonials').insert([payload]);
+        if (error) throw error;
+      }
+      showSuccess('Saved', `Testimonial ${modal && modal !== 'add' ? 'updated' : 'added'} successfully.`);
+      setModal(null);
+      if (fetchData) await fetchData();
+    } catch (err) {
+      showError('Save Error', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="adm-panel">
+      <div className="adm-panel-header">
+        <div className="adm-header-title">
+          <h3>Testimonials <span className="adm-count">{testimonials.length}</span></h3>
+        </div>
+        <div className="adm-header-actions" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="adm-search-box" style={{ position: 'relative' }}>
+            <i className="ri-search-line" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-soft)' }}></i>
+            <input
+              type="text"
+              placeholder="Search testimonials..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{ paddingLeft: '36px', paddingRight: '12px', height: '38px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '240px' }}
+            />
+          </div>
+          <button className="special-button" onClick={() => setModal('add')}>
+            <i className="ri-add-line"></i> Add Testimonial
+          </button>
+        </div>
+      </div>
+
+      {selectedIds.size > 0 && (
+        <div className="adm-bulk-bar">
+          <span>{selectedIds.size} selected</span>
+          <button className="btn-outline danger" onClick={bulkDelete} disabled={loading}>
+            <i className="ri-delete-bin-line"></i> Delete Selected
+          </button>
+          <button className="btn-outline" onClick={() => setSelectedIds(new Set())}>Clear Selection</button>
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="adm-empty-state">
+          <i className="ri-quote-text" style={{ fontSize: '3rem', color: 'var(--text-soft, #94a3b8)', marginBottom: '1rem' }}></i>
+          <p>{searchTerm ? 'No testimonials match your search.' : 'No testimonials yet. Add your first one!'}</p>
+          {!searchTerm && <button className="special-button" onClick={() => setModal('add')} style={{ marginTop: '0.5rem' }}>Add Testimonial</button>}
+        </div>
+      ) : (
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th className="checkbox-col">
+                  <input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.size === testimonials.length && testimonials.length > 0} onChange={handleSelectAll} />
+                </th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Quote</th>
+                <th>Rating</th>
+                <th>Featured</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(t => (
+                <tr key={t.id} className={selectedIds.has(t.id) ? 'selected-row' : ''}>
+                  <td><input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(t.id)} onChange={() => toggleSelect(t.id)} /></td>
+                  <td><strong>{t.name}</strong></td>
+                  <td style={{ color: 'var(--text-soft)', fontSize: '0.85rem' }}>{t.role || '—'}</td>
+                  <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-sub)' }}>"{t.text}"</td>
+                  <td><span style={{ color: 'var(--primary)' }}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</span></td>
+                  <td>{t.featured ? <span className="adm-status-badge published">Featured</span> : <span className="adm-status-badge draft">Standard</span>}</td>
+                  <td>
+                    <div className="adm-row-actions">
+                      <button className="adm-icon-btn" onClick={() => setModal(t.id)}><i className="ri-edit-line"></i></button>
+                      <button className="adm-icon-btn danger" onClick={() => onDelete(t, 'testimonial')}><i className="ri-delete-bin-line"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {modal && <TestimonialModal initial={editItem} onClose={() => setModal(null)} onSave={save} />}
+      <StatusModal isOpen={notifModal.isOpen} title={notifModal.title} message={notifModal.message} icon={notifModal.icon} iconColor={notifModal.iconColor} iconBg={notifModal.iconBg} onConfirm={notifModal.onConfirm} onCancel={closeNotif} confirmLabel="OK" cancelLabel="Close" />
+    </div>
+  );
+}
+
 const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
   const [activeSection, setActiveSection] = useState(() => {
     return localStorage.getItem('adminActiveSection') || 'overview';
@@ -3351,6 +3571,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
   const [workshops, setWorkshops] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [exploreGaps, setExploreGaps] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     learners: 0,
@@ -3387,7 +3608,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       setLoading(true);
       // Fetch data with individual error handling to prevent total crash if one schema is missing
       // Let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst] = await Promise.all([
-      let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst, gapsRes] = await Promise.all([
+      let [crs, res, bks, sparc, prl, usr, wks, progress, mods, inst, gapsRes, testRes] = await Promise.all([
         supabase.from('courses').select('*, chapters(*, modules(*))').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('library_resources').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
         supabase.from('books').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e })),
@@ -3402,7 +3623,8 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
           .limit(10).then(r => r, e => ({ error: e })),
         supabase.from('course_modules').select('*').then(r => r, e => ({ error: e })),
         supabase.from('instructors').select('*').then(r => r, e => ({ error: e })),
-        supabase.from('explore_gaps').select('*').then(r => r, e => ({ error: e }))
+        supabase.from('explore_gaps').select('*').then(r => r, e => ({ error: e })),
+        supabase.from('testimonials').select('*').order('created_at', { ascending: false }).then(r => r, e => ({ error: e }))
       ]);
 
       // ULTRA-RESILIENT FALLBACK: If join query failed (likely due to missing chapters table), try simple select
@@ -3501,6 +3723,9 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         return acc;
       }, {});
       
+      if (testRes.error) console.error("Testimonials Fetch Error:", testRes.error);
+      if (testRes.data) setTestimonials(testRes.data);
+
       if (gapsRes.error) console.error("Gaps Fetch Error:", gapsRes.error);
       if (gapsRes.data) {
         const mappedGaps = gapsRes.data.map(g => ({
@@ -3790,6 +4015,11 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       })
       .subscribe();
 
+    const testimonialsChannel = supabase
+      .channel('admin-dashboard:testimonials')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, () => fetchData())
+      .subscribe();
+
     return () => {
       supabase.removeChannel(coursesChannel);
       supabase.removeChannel(resourcesChannel);
@@ -3797,6 +4027,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       supabase.removeChannel(profilesChannel);
       supabase.removeChannel(workshopsChannel);
       supabase.removeChannel(instructorsChannel);
+      supabase.removeChannel(testimonialsChannel);
     };
   }, []);
 
@@ -3832,6 +4063,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       if (type === 'instructor') table = 'instructors';
       if (type === 'user') table = 'profiles';
       if (type === 'gap') table = 'explore_gaps';
+      if (type === 'testimonial') table = 'testimonials';
     }
 
     console.log(`[Admin] Prepared delete for type: ${type}, table: ${table}, item id: ${item.id}`);
@@ -3909,6 +4141,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         { id: 'workshops',  icon: 'ri-calendar-event-fill', label: 'Workshops', badge: workshops.length },
         { id: 'gaps',       icon: 'ri-question-fill',     label: 'Explore Gaps', badge: exploreGaps.filter(g => !g.resolved).length },
         { id: 'quizzes',    icon: 'ri-file-list-3-fill',  label: 'Quizzes & Assessments' },
+        { id: 'testimonials', icon: 'ri-quote-text',      label: 'Testimonials', badge: testimonials.length },
       ],
     },
     {
@@ -4008,6 +4241,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
             {activeSection === 'analytics'  && <AnalyticsPanel stats={stats} />}
             {activeSection === 'quizzes'    && <AdminQuizzesPanel />}
             {activeSection === 'instructors'&& <AdminInstructorsPanel instructors={instructors} onDelete={confirmDelete} fetchData={fetchData} />}
+            {activeSection === 'testimonials'&& <TestimonialsPanel testimonials={testimonials} setTestimonials={setTestimonials} onDelete={confirmDelete} fetchData={fetchData} />}
             {activeSection === 'settings'   && <AdminSettingsPanel user={user} onRefreshUser={onRefreshUser} />}
             {activeSection === 'gaps'       && (
               <LibraryGapsPanel 
