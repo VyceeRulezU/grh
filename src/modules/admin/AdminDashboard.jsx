@@ -3372,7 +3372,7 @@ function TestimonialModal({ onClose, onSave, initial }) {
             </div>
             <div className="adm-form-group">
               <label>Quote / Text*</label>
-              <textarea rows={4} value={form.text} onChange={e => set('text', e.target.value)} required style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '100%', resize: 'vertical', fontFamily: 'inherit' }} />
+              <textarea rows={6} value={form.text} onChange={e => set('text', e.target.value)} required style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '100%', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
             <div className="adm-form-row">
               <div className="adm-form-group">
@@ -3383,10 +3383,13 @@ function TestimonialModal({ onClose, onSave, initial }) {
               </div>
               <div className="adm-form-group">
                 <label>Featured</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingTop: '8px' }}>
-                  <input type="checkbox" className="adm-custom-checkbox" checked={form.featured} onChange={e => set('featured', e.target.checked)} />
+                <label className="adm-toggle-switch" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', paddingTop: '8px' }}>
+                  <input type="checkbox" checked={form.featured} onChange={e => set('featured', e.target.checked)} style={{ display: 'none' }} />
+                  <span className="adm-toggle-track" style={{ position: 'relative', width: '44px', height: '24px', background: form.featured ? 'var(--primary)' : '#cbd5e1', borderRadius: '12px', transition: 'background 0.2s', flexShrink: 0 }}>
+                    <span className="adm-toggle-thumb" style={{ position: 'absolute', top: '2px', left: form.featured ? '22px' : '2px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                  </span>
                   <span style={{ fontSize: '0.9rem', color: 'var(--text-soft)' }}>Show as featured card</span>
-                </div>
+                </label>
               </div>
             </div>
           </form>
@@ -3405,6 +3408,8 @@ function TestimonialsPanel({ testimonials, setTestimonials, onDelete, fetchData 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
   const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
 
   const filtered = (testimonials || []).filter(t =>
@@ -3412,6 +3417,9 @@ function TestimonialsPanel({ testimonials, setTestimonials, onDelete, fetchData 
     t.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (t.role || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const editItem = testimonials.find(t => t.id === modal);
 
@@ -3483,7 +3491,7 @@ function TestimonialsPanel({ testimonials, setTestimonials, onDelete, fetchData 
               type="text"
               placeholder="Search testimonials..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               style={{ paddingLeft: '36px', paddingRight: '12px', height: '38px', borderRadius: '8px', border: '1px solid var(--stroke-soft)', width: '240px' }}
             />
           </div>
@@ -3526,7 +3534,7 @@ function TestimonialsPanel({ testimonials, setTestimonials, onDelete, fetchData 
               </tr>
             </thead>
             <tbody>
-              {filtered.map(t => (
+              {paginatedItems.map(t => (
                 <tr key={t.id} className={selectedIds.has(t.id) ? 'selected-row' : ''}>
                   <td><input type="checkbox" className="adm-custom-checkbox" checked={selectedIds.has(t.id)} onChange={() => toggleSelect(t.id)} /></td>
                   <td><strong>{t.name}</strong></td>
@@ -3544,6 +3552,17 @@ function TestimonialsPanel({ testimonials, setTestimonials, onDelete, fetchData 
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="adm-pagination-bar">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(p) => setCurrentPage(p)}
+            itemsPerPage={itemsPerPage}
+          />
         </div>
       )}
 
@@ -4141,7 +4160,6 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
         { id: 'workshops',  icon: 'ri-calendar-event-fill', label: 'Workshops', badge: workshops.length },
         { id: 'gaps',       icon: 'ri-question-fill',     label: 'Explore Gaps', badge: exploreGaps.filter(g => !g.resolved).length },
         { id: 'quizzes',    icon: 'ri-file-list-3-fill',  label: 'Quizzes & Assessments' },
-        { id: 'testimonials', icon: 'ri-quote-text',      label: 'Testimonials', badge: testimonials.length },
       ],
     },
     {
@@ -4149,6 +4167,7 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       links: [
         { id: 'users',      icon: 'ri-team-fill',         label: 'Users', badge: users.length },
         { id: 'instructors',icon: 'ri-user-star-fill',    label: 'Instructors' },
+        { id: 'testimonials', icon: 'ri-quote-text',      label: 'Testimonials', badge: testimonials.length },
       ],
     },
     {

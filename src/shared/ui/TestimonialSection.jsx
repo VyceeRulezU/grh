@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../services/supabase/supabaseClient';
@@ -10,7 +10,7 @@ const TestimonialSection = ({
   title = "What Our Learners Say",
   subtitle = "Hear from government officials, civil society practitioners, and researchers who've completed our programmes."
 }) => {
-  const [offset, setOffset] = useState(0);
+  const maxCards = 5;
 
   const { data: testimonials = LEGACY_TESTIMONIALS } = useQuery({
     queryKey: ['testimonials'],
@@ -20,23 +20,11 @@ const TestimonialSection = ({
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data.length > 0 ? data : LEGACY_TESTIMONIALS;
+      const items = data.length > 0 ? data : LEGACY_TESTIMONIALS;
+      return [...items].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0)).slice(0, maxCards);
     },
     staleTime: 5 * 60 * 1000,
   });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setOffset(prev => (prev + 1) % testimonials.length);
-    }, 6000);
-    
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
-
-  const visibleItems = [];
-  for (let i = 0; i < testimonials.length; i++) {
-    visibleItems.push(testimonials[(i + offset) % testimonials.length]);
-  }
 
   return (
     <section className="testimonial-section">
@@ -48,7 +36,7 @@ const TestimonialSection = ({
         </header>
 
         <div className="testimonial-grid">
-          {visibleItems.map((t, i) => (
+          {testimonials.map((t, i) => (
             <div
               key={i}
               className={`testimonial-card ${i === 0 ? 'testimonial-card--featured' : ''}`}

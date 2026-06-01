@@ -5,6 +5,7 @@ import { ResourceSchema } from '../../../services/api/schemas';
 import { supabase } from '../../../services/supabase/supabaseClient';
 import { RESOURCES as LEGACY_RESOURCES, BOOKS as LEGACY_BOOKS } from '../../../data/legacyData';
 import CtaSection from '../../../shared/ui/CtaSection';
+import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import Pagination from '../../../shared/ui/Pagination';
 import PageHero from '../../../shared/ui/PageHero';
 import { usePixabayImages } from '../../../shared/hooks/usePixabayImages';
@@ -644,6 +645,8 @@ const Library = ({ onNavigate }) => {
           onClose={() => setReadingResource(null)} 
           resource={readingResource} 
         />
+
+        <TestimonialSection />
 
         <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">
           <span className="material-symbols-outlined">expand_less</span>

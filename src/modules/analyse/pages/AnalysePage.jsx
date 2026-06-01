@@ -13,6 +13,7 @@ import {
 import NigeriaMap from '../components/NigeriaMap';
 import { Helmet } from 'react-helmet-async';
 import CtaSection from '../../../shared/ui/CtaSection';
+import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import PageHero from '../../../shared/ui/PageHero';
 import BudgetTableModal from '../components/BudgetTableModal';
 import ComparativeTableModal from '../components/ComparativeTableModal';
@@ -674,6 +675,8 @@ const AnalysePage = ({ onNavigate }) => {
         </div>
       </div>
       */}
+
+      <TestimonialSection />
 
       <div className="container" style={{ paddingBottom: '4rem' }}>
         <CtaSection 

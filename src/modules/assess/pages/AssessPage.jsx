@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import CtaSection from '../../../shared/ui/CtaSection';
+import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import PageHero from '../../../shared/ui/PageHero';
 import Tab from '../../../shared/ui/Tab';
 import StatusModal from '../../../shared/ui/StatusModal';
@@ -516,8 +517,10 @@ const AssessPage = ({ onNavigate }) => {
       </div>
 
       {currentView === 'overview' && (
-        <div className="container" style={{ paddingBottom: '5rem' }}>
-          <CtaSection
+        <>
+          <TestimonialSection />
+          <div className="container" style={{ paddingBottom: '5rem' }}>
+            <CtaSection
             eyebrow="Get Started"
             title={<>Ready to begin your <br /><span className="green-text">Institutional Assessment?</span></>}
             description="Access detailed manuals, scoring frameworks, and generate comprehensive reform reports today."
@@ -530,6 +533,7 @@ const AssessPage = ({ onNavigate }) => {
             secondaryActionOnClick={() => onNavigate && onNavigate('learn-discovery')}
           />
         </div>
+        </>
       )}
 
       {/* ── PDF RESOURCE VIEWER ── */}
