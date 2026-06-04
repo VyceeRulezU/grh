@@ -36,10 +36,10 @@ const StatusModal = ({
         </div>
 
         <div className="status-modal-footer">
-          <button className="btn-outline" onClick={onConfirm}>
+          <button className="special-button" onClick={onConfirm}>
             {confirmLabel}
           </button>
-          <button className="special-button" onClick={onCancel}>
+          <button className="btn-outline" onClick={onCancel}>
             {cancelLabel}
           </button>
         </div>

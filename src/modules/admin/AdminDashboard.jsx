@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../services/supabase/supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, LabelList } from 'recharts';
 import mainLogo from '../../assets/images/Logo/Main logo.png';
@@ -1542,36 +1542,54 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
     else setSelectedIds(new Set(pagedItems.map(i => i.id)));
   };
 
-  const handleBulkAction = async (action, value = null) => {
-    try {
-        setBulkActionLoading(true);
-        const ids = Array.from(selectedIds);
-        
-        if (action === 'delete') {
-            showConfirm('Bulk Delete', `Delete ${ids.length} items?`, async () => {
+  const handleBulkAction = (action, value = null) => {
+    const ids = Array.from(selectedIds);
+    
+    if (action === 'delete') {
+        showConfirm('Bulk Delete', `Delete ${ids.length} items?`, async () => {
+            setBulkActionLoading(true);
+            try {
                 const { error } = await supabase.from('library_resources').delete().in('id', ids);
                 if (error) throw error;
                 showSuccess('Deleted', 'Items removed.');
                 setSelectedIds(new Set());
                 fetchData();
-            });
-        } else if (action === 'status') {
-            const { error } = await supabase.from('library_resources').update({ status: value }).in('id', ids);
-            if (error) throw error;
-            showSuccess('Updated', 'Status changed.');
-            setSelectedIds(new Set());
-            fetchData();
-        } else if (action === 'categorise') {
-            const { error } = await supabase.from('library_resources').update({ category: value }).in('id', ids);
-            if (error) throw error;
-            showSuccess('Categorised', 'Category updated.');
-            setSelectedIds(new Set());
-            fetchData();
-        }
-    } catch (err) {
-        showError('Bulk Action Error', err.message);
-    } finally {
-        setBulkActionLoading(false);
+            } catch (err) {
+                showError('Bulk Action Error', err.message);
+            } finally {
+                setBulkActionLoading(false);
+            }
+        });
+    } else if (action === 'status') {
+        (async () => {
+            setBulkActionLoading(true);
+            try {
+                const { error } = await supabase.from('library_resources').update({ status: value }).in('id', ids);
+                if (error) throw error;
+                showSuccess('Updated', 'Status changed.');
+                setSelectedIds(new Set());
+                fetchData();
+            } catch (err) {
+                showError('Bulk Action Error', err.message);
+            } finally {
+                setBulkActionLoading(false);
+            }
+        })();
+    } else if (action === 'categorise') {
+        (async () => {
+            setBulkActionLoading(true);
+            try {
+                const { error } = await supabase.from('library_resources').update({ category: value }).in('id', ids);
+                if (error) throw error;
+                showSuccess('Categorised', 'Category updated.');
+                setSelectedIds(new Set());
+                fetchData();
+            } catch (err) {
+                showError('Bulk Action Error', err.message);
+            } finally {
+                setBulkActionLoading(false);
+            }
+        })();
     }
   };
 
@@ -1768,7 +1786,7 @@ function ResourcesPanel({ resources, setResources, onDelete, fetchData, onSync }
 function UsersPanel({ users, setUsers, onDelete, loggedInUser, fetchData }) {
   const [modal, setModal] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError } = useModal();
+  const { modal: notifModal, closeModal: closeNotif, showSuccess, showError, showConfirm } = useModal();
 
   const handleExportCSV = () => {
     const headers = ['Name', 'Email', 'Role', 'Status', 'Joined'];
@@ -2667,7 +2685,7 @@ function AdminInstructorsPanel({ instructors = [], onDelete, fetchData }) {
   );
 }
 
-function AdminSettingsPanel({ user }) {
+function AdminSettingsPanel({ user, onRefreshUser }) {
   const [name, setName] = useState(user?.name || "GRH Admin");
   const [email, setEmail] = useState(user?.email || "admin@govhub.org");
   const [avatar, setAvatar] = useState(null);
@@ -3987,42 +4005,45 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
     }
   };
 
+  const fetchDataRef = useRef(fetchData);
+  useEffect(() => { fetchDataRef.current = fetchData; });
+
   useEffect(() => {
-    fetchData();
+    fetchDataRef.current();
 
     // Subscribe to real-time changes
     const coursesChannel = supabase
       .channel('admin-dashboard:courses')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, () => {
-        fetchData();
+        fetchDataRef.current();
       })
       .subscribe();
 
     const resourcesChannel = supabase
       .channel('admin-dashboard:library_resources')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'library_resources' }, () => {
-        fetchData();
+        fetchDataRef.current();
       })
       .subscribe();
 
     const booksChannel = supabase
       .channel('admin-dashboard:books')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, () => {
-        fetchData();
+        fetchDataRef.current();
       })
       .subscribe();
 
     const profilesChannel = supabase
       .channel('admin-dashboard:profiles')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-        fetchData();
+        fetchDataRef.current();
       })
       .subscribe();
 
     const workshopsChannel = supabase
       .channel('admin-dashboard:workshops')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'workshops' }, () => {
-        fetchData();
+        fetchDataRef.current();
       })
       .subscribe();
 
@@ -4030,13 +4051,13 @@ const AdminDashboard = ({ onNavigate, onLogout, user, onRefreshUser }) => {
       .channel('admin-dashboard:instructors')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'instructors' }, () => {
         console.log("[GRH] Real-time instructor change detected!");
-        fetchData();
+        fetchDataRef.current();
       })
       .subscribe();
 
     const testimonialsChannel = supabase
       .channel('admin-dashboard:testimonials')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, () => fetchDataRef.current())
       .subscribe();
 
     return () => {

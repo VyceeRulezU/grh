@@ -63,5 +63,8 @@ export function useModal() {
   const showInfo = (title, message, onConfirm) =>
     showModal({ title, message, icon: 'ri-information-line', iconColor: '#3b82f6', iconBg: '#eff6ff', onConfirm });
 
-  return { modal, showModal, closeModal, showSuccess, showError, showWarning, showInfo };
+  const showConfirm = (title, message, onConfirm) =>
+    showModal({ title, message, icon: 'ri-question-line', iconColor: '#f59e0b', iconBg: '#fffbeb', onConfirm });
+
+  return { modal, showModal, closeModal, showSuccess, showError, showWarning, showInfo, showConfirm };
 }
