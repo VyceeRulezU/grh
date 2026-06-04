@@ -2108,7 +2108,7 @@ function AnalyticsPanel({ stats }) {
               <BarChart data={stats?.courseEngagement || []} layout="vertical" margin={{ left: 30, right: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#eee" />
                 <XAxis type="number" axisLine={false} tickLine={false} fontSize={12} />
-                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} fontSize={10} width={160} />
+                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} fontSize={10} width={120} />
                 <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
                 <Bar dataKey="learners" fill="var(--primary)" radius={[0,4,4,0]} />
               </BarChart>
@@ -2180,7 +2180,7 @@ function AnalyticsPanel({ stats }) {
             <BarChart data={stats?.regionData || []} layout="vertical" margin={{ left: 30, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#eee" />
               <XAxis type="number" axisLine={false} tickLine={false} fontSize={12} />
-              <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} fontSize={11} width={150} />
+              <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} fontSize={11} width={120} />
               <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
               <Bar dataKey="value" fill="var(--primary)" radius={[0,4,4,0]} />
             </BarChart>
