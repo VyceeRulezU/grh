@@ -1,0 +1,23 @@
+name: Keep Database Alive
+
+on:
+  schedule:
+    - cron: "0 0 */3 * *"
+  workflow_dispatch:
+
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Edge Function
+        run: |
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "${SUPABASE_URL}/functions/v1/keep-alive" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -H "Content-Type: application/json")
+          echo "Response code: $HTTP_CODE"
+          if [ "$HTTP_CODE" -ne 200 ]; then exit 1; fi
