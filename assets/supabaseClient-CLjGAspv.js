@@ -1,0 +1,2 @@
+import{c as s}from"./vendor-supabase-yKjPlrCh.js";const e="https://vedvxjugpwisjshanmyk.supabase.co",a="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZHZ4anVncHdpc2pzaGFubXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDc5MDUsImV4cCI6MjA4ODAyMzkwNX0.M6JrX56uBkDQfdazGItqWGwfsKOgbTWamp2vVprr0i0",i=s(e,a,{auth:{persistSession:!0,autoRefreshToken:!0,detectSessionInUrl:!1}});export{i as supabase};
+//# sourceMappingURL=supabaseClient-CLjGAspv.js.map
