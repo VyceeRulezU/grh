@@ -394,9 +394,9 @@ function App() {
         <link rel="canonical" href="https://www.governanceresourcehub.com" />
 
         {/* Favicon */}
-        <link rel="icon" type="image/png" href="/icon.png?v=2" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1" />
-        <link rel="apple-touch-icon" href="/icon.png" />
+        <link rel="icon" href="/favicon.ico?v=3" sizes="48x48" />
+        <link rel="icon" type="image/png" href="/icon.png?v=3" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
         <meta name="theme-color" content="#4DA771" />
 
         {/* Open Graph */}
