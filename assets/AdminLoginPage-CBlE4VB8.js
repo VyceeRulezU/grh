@@ -1,0 +1,2 @@
+import{j as r}from"./vendor-react-DU4N2dl9.js";import t from"./LoginPage-CzVZ8Ws8.js";/* empty css                  */import"./logo-main-Ch3ZVIeA.js";import"./supabaseClient-CLjGAspv.js";import"./vendor-supabase-yKjPlrCh.js";import"./index-D7Y3o7_V.js";import"./vendor-motion-BwfcP4AK.js";import"./useModal-D8KEKszj.js";import"./types-CQE-5ofm.js";const d=o=>r.jsx(t,{...o,isAdmin:!0});export{d as default};
+//# sourceMappingURL=AdminLoginPage-CBlE4VB8.js.map
