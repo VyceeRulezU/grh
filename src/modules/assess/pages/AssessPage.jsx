@@ -27,14 +27,6 @@ const R2_BASE = 'https://pub-18be25e422c14b14ac1da71403c739f3.r2.dev';
 // ─── Assess Resources ─────────────────────────────────
 const ASSESS_RESOURCES = [
   {
-    id: 'perform-pms',
-    title: 'PERFORM (PMS)',
-    desc: 'Performance Management System framework for government institutions covering goal-setting, monitoring and improvement cycles.',
-    file_url: `${R2_BASE}/assess/PERFORM%20(PMS).pdf`,
-    type: 'PDF',
-    category: 'Assessment Framework',
-  },
-  {
     id: 'perl-general-guide',
     title: 'PERL General Guide to Self-Assessments with Government Partners',
     desc: 'Comprehensive guide for government partners on the self-assessment process including Briefing, Retreat, and Validation steps.',
@@ -473,7 +465,6 @@ const AssessPage = ({ onNavigate }) => {
               <button className="special-button" onClick={() => openAssessmentPdf(id)}>
                 Take Assessment
               </button>
-              <button className="white-pill-btn">View Manual</button>
             </div>
           </div>
           <div className="ap-landing-img">
