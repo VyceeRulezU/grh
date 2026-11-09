@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CtaSection from '../../../shared/ui/CtaSection';
 import TestimonialSection from '../../../shared/ui/TestimonialSection';
 import PageHero from '../../../shared/ui/PageHero';
@@ -66,6 +66,14 @@ const ASSESS_RESOURCES = [
     type: 'PDF',
     category: 'Regional Hubs',
   },
+  {
+    id: 'seeds-manual',
+    title: 'SEEDS Training Manual – Part II',
+    desc: 'State Economic Empowerment and Development Strategy guidance on public expenditure management, fiscal management, MTEF, debt management and due process.',
+    file_url: `${R2_BASE}/assess/SEEDS_Train_Manual_PartII.pdf`,
+    type: 'PDF',
+    category: 'SEEDS',
+  },
 ];
 
 // ─── Nigerian States ──────────────────────────────────
@@ -86,6 +94,7 @@ const ASSESSMENT_TYPES = [
     desc: 'Simplified version of the State Evaluation and Assessment Tool, aligned with PERL governance frameworks.',
     icon: 'account_balance',
     manual: 'PERL Governance Assessment Manual',
+    resourceId: 'perl-governance-manual',
   },
   {
     id: 'pfm',
@@ -95,6 +104,7 @@ const ASSESSMENT_TYPES = [
     desc: 'Rapid Annual Assessment of public financial management practices, updated from the SPARC PFM framework.',
     icon: 'payments',
     manual: 'PFM-RAA Framework Manual',
+    resourceId: 'pfm-raa-manual',
   },
   {
     id: 'hub',
@@ -104,8 +114,30 @@ const ASSESSMENT_TYPES = [
     desc: 'Strategic assessment of regional governance hub structures and their effectiveness across partner states.',
     icon: 'hub',
     manual: 'Regional Hub Governance Manual',
+    resourceId: 'regional-hubs-guide',
+  },
+  {
+    id: 'seeds',
+    number: '04',
+    title: 'SEEDS',
+    fullTitle: 'State Economic Empowerment and Development Strategy',
+    desc: 'Public Expenditure Management across planning, budgeting, implementing and monitoring of government activities.',
+    longDesc: [
+      'PEM refers to all aspects of planning, budgeting, implementing and monitoring of government activities. PEM operates at two levels:',
+      'At the operational level, PEM is concerned with providing financial management techniques to support government service managers in making decisions, determining the costs of services or of capital projects, building capital and recurrent budgets which reflect these costs, and controlling expenditure against these budgets. This is the main focus of the guidance in this manual – assisting non-financial managers to make an effective contribution to the SEEDS cycle.',
+      'Across government as a whole, PEM is concerned with balancing the budget and ensuring fiscal discipline; operating appropriate financial management procedures and information systems, and reporting and auditing financial performance. While almost all governments have included plans to improve government-wide PEM in their SEEDS documents, these reforms are specialist activities, mainly the concern of central economic planning, budgeting and finance ministries. For completeness, this appendix (and appendices on MTEF and Debt Management) includes a brief overview of government-wide PEM, but it is not discussed in detail in this manual.',
+    ],
+    icon: 'trending_up',
+    manual: 'SEEDS Training Manual – Part II',
+    resourceId: 'seeds-manual',
   },
 ];
+
+// Resolve the PDF resource that backs an assessment type (psr / pfm / hub).
+const getAssessmentResource = (typeId) => {
+  const type = ASSESSMENT_TYPES.find(t => t.id === typeId);
+  return ASSESS_RESOURCES.find(r => r.id === type?.resourceId) || null;
+};
 
 const AssessPage = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('assessment');
@@ -118,6 +150,23 @@ const AssessPage = ({ onNavigate }) => {
   // Resources state
   const [resourceLayout, setResourceLayout] = useState('list'); // 'list' | 'grid'
   const [viewerResource, setViewerResource] = useState(null);
+  const mainContentRef = useRef(null);
+  const isFirstRender = useRef(true);
+
+  // When switching views (overview ↔ landing), start at the top of the new content
+  // instead of staying at the previous scroll position (e.g. near the footer).
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    mainContentRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }, [currentView]);
+
+  const openAssessmentPdf = (typeId) => {
+    const resource = getAssessmentResource(typeId);
+    if (resource) setViewerResource(resource);
+  };
 
   const handleLoginSuccess = (stateName) => {
     setIsLoggedIn(true);
@@ -278,7 +327,7 @@ const AssessPage = ({ onNavigate }) => {
                           ))}
                         </div>
                         <div className="ap-welcome-actions">
-                          <button className="special-button" onClick={() => setCurrentView('form')}>Resume Assessment</button>
+                          <button className="special-button" onClick={() => openAssessmentPdf('psr')}>Resume Assessment</button>
                           <button className="white-pill-btn">Download Report</button>
                         </div>
                       </div>
@@ -416,10 +465,12 @@ const AssessPage = ({ onNavigate }) => {
           <div className="ap-landing-text">
             <span className="ap-tag">{a.title}</span>
             <h1 className="ap-landing-title">{a.fullTitle} Assessment</h1>
-            <p>{a.desc}</p>
+            {a.longDesc
+              ? a.longDesc.map((para, i) => <p key={i}>{para}</p>)
+              : <p>{a.desc}</p>}
             <p className="ap-landing-manual">Reference Manual: <strong>{a.manual}</strong></p>
             <div className="ap-landing-actions">
-              <button className="special-button" onClick={() => setCurrentView('form')}>
+              <button className="special-button" onClick={() => openAssessmentPdf(id)}>
                 Take Assessment
               </button>
               <button className="white-pill-btn">View Manual</button>
@@ -510,9 +561,9 @@ const AssessPage = ({ onNavigate }) => {
         cancelLabel="Close"
       />
 
-      <div className="assess-main-content">
+      <div className="assess-main-content" ref={mainContentRef}>
         {currentView === 'overview' && renderOverview()}
-        {['psr', 'pfm', 'hub'].includes(currentView) && renderLanding(currentView)}
+        {ASSESSMENT_TYPES.some(t => t.id === currentView) && renderLanding(currentView)}
         {currentView === 'form' && renderForm()}
       </div>
 
@@ -541,6 +592,7 @@ const AssessPage = ({ onNavigate }) => {
         isOpen={!!viewerResource}
         onClose={() => setViewerResource(null)}
         resource={viewerResource}
+        showDownload
       />
 
       <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">

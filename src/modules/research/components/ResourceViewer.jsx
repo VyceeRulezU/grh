@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import './ResourceViewer.css';
 
 // ─── Lazy-load the heavy PDF engine only when a PDF is actually opened ────────
@@ -17,10 +17,41 @@ const PdfLoadingFallback = () => (
   </div>
 );
 
-const ResourceViewer = ({ isOpen, onClose, resource }) => {
+// Cross-origin links ignore the `download` attribute, so fetch the file as a
+// blob and save it under its own filename. Falls back to opening it in a new tab.
+const downloadFile = async (fileUrl, title) => {
+  const rawName = decodeURIComponent(fileUrl.split(/[?#]/)[0].split('/').pop() || '');
+  const filename = rawName || `${title || 'document'}.pdf`;
+  try {
+    const res = await fetch(fileUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  } catch {
+    window.open(fileUrl, '_blank', 'noopener,noreferrer');
+  }
+};
+
+const ResourceViewer = ({ isOpen, onClose, resource, showDownload = false }) => {
+  const [downloading, setDownloading] = useState(false);
+
   if (!isOpen || !resource) return null;
 
   const url = resource.file_url || resource.fileUrl || resource.preview_url || resource.download_url;
+
+  const handleDownload = async () => {
+    if (!url || downloading) return;
+    setDownloading(true);
+    await downloadFile(url, resource.title);
+    setDownloading(false);
+  };
 
   return (
     <div className="grh-res-viewer-overlay glass" onClick={onClose}>
@@ -38,6 +69,18 @@ const ResourceViewer = ({ isOpen, onClose, resource }) => {
             </div>
           </div>
           <div className="grh-res-viewer-controls">
+            {showDownload && url && (
+              <button
+                type="button"
+                className="special-button grh-res-viewer-download"
+                onClick={handleDownload}
+                disabled={downloading}
+                aria-label={`Download ${resource.title}`}
+              >
+                <i className={downloading ? 'ri-loader-4-line grh-res-spin' : 'ri-download-2-line'}></i>
+                <span>{downloading ? 'Downloading…' : 'Download'}</span>
+              </button>
+            )}
             <button className="grh-res-viewer-close" onClick={onClose} aria-label="Close Viewer">
               <i className="ri-close-line"></i>
             </button>

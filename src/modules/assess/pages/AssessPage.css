@@ -10,6 +10,7 @@
 
 .assess-main-content {
   width: 100%;
+  scroll-margin-top: 96px; /* clear the fixed navbar when scrolled into view */
   display: flex;
   flex-direction: column;
   row-gap: 4rem;
@@ -257,7 +258,8 @@
   overflow-x: auto;
   padding: 0.5rem 0 2rem;
   scroll-snap-type: x mandatory;
-  justify-content: center;
+  /* "safe" keeps the first card reachable if the row ever overflows */
+  justify-content: safe center;
 }
 
 .ap-carousel::-webkit-scrollbar { height: 5px; }
@@ -265,7 +267,7 @@
 .ap-carousel::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
 .ap-carousel-card {
-  flex: 1 0 320px;
+  flex: 1 0 260px; /* four cards fit side by side on desktop */
   background: rgba(255,255,255,0.07);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.15);

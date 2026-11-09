@@ -104,6 +104,39 @@
   transform: scale(1.1);
 }
 
+.grh-res-viewer-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.grh-res-viewer-download:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.grh-res-spin {
+  display: inline-block;
+  animation: grh-res-spin 1s linear infinite;
+}
+
+@keyframes grh-res-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .grh-res-viewer-download span {
+    display: none;
+  }
+  .grh-res-viewer-download {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
 .grh-res-viewer-content {
   flex: 1;
   overflow: hidden;
